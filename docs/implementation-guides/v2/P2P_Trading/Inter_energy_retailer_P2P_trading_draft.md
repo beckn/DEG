@@ -82,8 +82,8 @@ sequenceDiagram
 
     rect rgb(255, 245, 230)
     note over TE,RB: Phase 3: Trade Verification
-    DU_A->>TE: Update ledger with signed meter data (P1)
-    DU_B->>TE: Update ledger with signed meter data (P7)
+    DU_A->>TE: Add actual pushed signed meter data to ledger (P1)
+    DU_B->>TE: Add actual pulled signed meter data to ledger (P7)
     TE->>TE: Mark trade complete
     end
 
@@ -463,15 +463,14 @@ This phase ensures accurate billing by preventing double-counting and collecting
 |------|--------|---------|
 | 1 | Trade Exchange declares P2P trades to Retailers | Retailers learn which energy was traded peer-to-peer |
 | 2 | Retailers verify against ledger | Ensures no double billing for P2P-traded energy |
-| 3 | Retailers prepare bills (excl. P2P energy + wheeling charges) | Customers only pay retailer for non-P2P energy; wheeling fees added |
+| 3 | Retailers prepare bills (excl. P2P energy, incl. wheeling charges) | Customers only pay retailer for non-P2P energy; wheeling fees added |
 | 4 | Customers pay Retailers | Single consolidated bill payment |
 | 5 | Retailers remit wheeling charges to Distribution Utility | Grid usage fees flow to infrastructure operator |
 
-### Anti-Double-Dipping Rules
+### Anti-Double-Billing Rules
 
 - **Buyer (P7):** Not charged by retailer for energy already purchased via P2P
 - **Seller (P1):** Not credited by retailer for energy already sold via P2P
-- **Verification:** Retailers query ledger before billing to confirm no P2P trade exists for same meter ID and time slot
 
 ```mermaid
 sequenceDiagram
