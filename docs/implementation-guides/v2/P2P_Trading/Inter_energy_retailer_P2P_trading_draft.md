@@ -68,7 +68,7 @@ sequenceDiagram
     B->>TP: Accept trade
     TP->>TE: Submit signed contract
     TE->>TE: Record on ledger
-    Note right of TE: Ledger: Discom A, Discom B,<br/>Trade Time, Delivery Start/End,<br/>Trade Qty, Producer Qty, Consumer Qty
+    Note right of TE: Ledger: Discom A, Discom B, seller, buyer, <br/>Trade Time, Delivery Start/End,<br/>Trade Qty, Actual pushed, Actual pulled Qty
     DU_A-->>TE: Visibility into upcoming trades
     DU_B-->>TE: Visibility into upcoming trades
     end
@@ -95,12 +95,14 @@ sequenceDiagram
 
     rect rgb(245, 230, 255)
     note over RA,RB: Phase 5: Wheeling & Declaration
-    DU_A->>S: Wheeling charges (via bill)
-    DU_B->>B: Wheeling charges (via bill)
     TE->>RA: Declare P2P trades
     TE->>RB: Declare P2P trades
-    RA->>TE: Verify no duplicate billing
-    RB->>TE: Verify no duplicate billing
+    RA->>S: Bill (excl. P2P + wheeling)
+    RB->>B: Bill (excl. P2P + wheeling)
+    S->>RA: Pay bill
+    B->>RB: Pay bill
+    RA->>DU_A: Remit wheeling charges
+    RB->>DU_B: Remit wheeling charges
     end
 
     rect rgb(255, 240, 245)
@@ -453,52 +455,62 @@ sequenceDiagram
 
 ## Phase 5: Wheeling Charges and Declaration
 
-### Wheeling Charges
+This phase ensures accurate billing by preventing double-counting and collecting grid usage (wheeling) fees for P2P energy transfers.
 
-- Energy distributor utilities and Energy retailers charge wheeling fees for successful P2P trades
-- Settled separately via prosumer's regular electricity bill
+### Step-by-Step Flow
 
-### Trade Declaration (Anti-Double-Dipping)
+| Step | Action | Purpose |
+|------|--------|---------|
+| 1 | Trade Exchange declares P2P trades to Retailers | Retailers learn which energy was traded peer-to-peer |
+| 2 | Retailers verify against ledger | Ensures no double billing for P2P-traded energy |
+| 3 | Retailers prepare bills (excl. P2P energy + wheeling charges) | Customers only pay retailer for non-P2P energy; wheeling fees added |
+| 4 | Customers pay Retailers | Single consolidated bill payment |
+| 5 | Retailers remit wheeling charges to Distribution Utility | Grid usage fees flow to infrastructure operator |
 
-- **Buyer P2P trades** are declared to their energy retailer using trade exchange → avoids being billed twice for energy already purchased
-- **Seller P2P trades** are declared to their energy retailer using trade exchange → prevents claiming payment from both P2P buyer and energy retailer for the same energy
-- **Energy retailer verification:** Before charging any **prosumer-to-energy retailer or energy retailer-to-consumer energy sale**, energy retailer checks the ledger to confirm no P2P trade exists for the same meter ID(s) and time slot
+### Anti-Double-Dipping Rules
+
+- **Buyer (P7):** Not charged by retailer for energy already purchased via P2P
+- **Seller (P1):** Not credited by retailer for energy already sold via P2P
+- **Verification:** Retailers query ledger before billing to confirm no P2P trade exists for same meter ID and time slot
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant S as Seller (P1)
-    participant B as Buyer (P7)
-    participant TE as Trade Exchange
+    participant TE as Trade Exchange/Ledger
     participant RA as Retailer A
     participant RB as Retailer B
-    participant DU as Distribution<br/>Utility
-
-    Note over TE,RB: Trade Declaration
-    TE->>RA: Declare P2P trade<br/>(P1 sold X kWh, time slot T)
-    TE->>RB: Declare P2P trade<br/>(P7 bought X kWh, time slot T)
-
-    Note over RA,RB: Retailer Billing Cycle
-
-    rect rgb(255, 245, 230)
-    Note over RA: Seller's Bill Preparation
-    RA->>TE: Query: Any P2P trades<br/>for M1, billing period?
-    TE-->>RA: Yes: X kWh at time T
-    RA->>RA: Exclude P2P energy<br/>from retailer purchase
-    RA->>S: Bill (excludes P2P sold energy)
-    end
+    participant S as Seller (P1)
+    participant B as Buyer (P7)
+    participant DU as Distribution Utility
 
     rect rgb(230, 245, 255)
-    Note over RB: Buyer's Bill Preparation
-    RB->>TE: Query: Any P2P trades<br/>for M7, billing period?
-    TE-->>RB: Yes: X kWh at time T
-    RB->>RB: Exclude P2P energy<br/>from retailer charges
-    RB->>B: Bill (excludes P2P bought energy)
+    Note over TE,RB: Step 1: Trade Declaration
+    TE->>RA: Declare P2P trades<br/>(P1 sold X kWh, time slot T)
+    TE->>RB: Declare P2P trades<br/>(P7 bought X kWh, time slot T)
     end
 
-    Note over DU: Wheeling Charges
-    DU->>S: Wheeling fee for P2P<br/>(via regular bill)
-    DU->>B: Wheeling fee for P2P<br/>(via regular bill)
+    rect rgb(255, 245, 230)
+    Note over RA,RB: Step 2-3: Retailer Billing Cycle
+    RA->>RA: Verify: Exclude P2P energy<br/>from retailer settlement
+    RA->>RA: Add wheeling charges<br/>for P2P transfers
+    RA->>S: Bill (non-P2P energy +<br/>wheeling charges)
+
+    RB->>RB: Verify: Exclude P2P energy<br/>from retailer charges
+    RB->>RB: Add wheeling charges<br/>for P2P transfers
+    RB->>B: Bill (non-P2P energy +<br/>wheeling charges)
+    end
+
+    rect rgb(230, 255, 230)
+    Note over S,B: Step 4: Customer Payment
+    S->>RA: Pay bill
+    B->>RB: Pay bill
+    end
+
+    rect rgb(245, 230, 255)
+    Note over RA,DU: Step 5: Wheeling Remittance
+    RA->>DU: Remit wheeling charges (P1)
+    RB->>DU: Remit wheeling charges (P7)
+    end
 ```
 
 ---
