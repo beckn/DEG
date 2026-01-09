@@ -567,7 +567,9 @@ When a prosumer has multiple trades within the same delivery window, actual mete
 | T2 | 9:30 AM | 2–4 PM | 4 kWh | — | 3 kWh |
 | **Total** | — | — | 9 kWh | **8 kWh** | 8 kWh |
 
-*P1 contracted 9 kWh across two trades but only injected 8 kWh. T1 (earlier trade) gets full 5 kWh; T2 gets remaining 3 kWh. T2 buyer may claim shortfall penalty.*
+*P1 contracted 9 kWh across two trades but only injected 8 kWh. T1 (earlier trade) gets full 5 kWh; T2 gets remaining 3 kWh.*
+
+A more detailed multi-party, multi-epoch example is worked out in a table [here](https://docs.google.com/spreadsheets/d/1ZXdvUnLshdOmiaqJJQuONigPK_KnTZ3Pq8aiLWYClaA/edit?usp=sharing).
 
 ---
 
