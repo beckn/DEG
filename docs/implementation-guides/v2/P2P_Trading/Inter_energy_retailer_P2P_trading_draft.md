@@ -84,7 +84,6 @@ sequenceDiagram
     note over TE,RB: Phase 3: Trade Verification
     DU_A->>TE: Add/allocate actual pushed signed meter data to ledger (P1)
     DU_B->>TE: Add/allocate actual pulled signed meter data to ledger (P7)
-    TE->>TE: Mark trade complete
     end
 
     rect rgb(255, 230, 230)
@@ -94,23 +93,15 @@ sequenceDiagram
     end
 
     rect rgb(245, 230, 255)
-    note over RA,RB: Phase 5: Wheeling & Declaration
-    TE->>RA: Declare P2P trades
-    TE->>RB: Declare P2P trades
-    RA->>S: Bill (excl. P2P + wheeling)
-    RB->>B: Bill (excl. P2P + wheeling)
+    note over RA,RB: Phase 5: Wheeling & Billing
+    RA->>TE: Look up P2P trades (P1)
+    RB->>TE: Look up P2P trades (P7)
+    RA->>S: Bill (excl. P2P + incl. wheeling)
+    RB->>B: Bill (excl. P2P + incl. wheeling)
     S->>RA: Pay bill
     B->>RB: Pay bill
     RA->>DU_A: Remit wheeling charges
     RB->>DU_B: Remit wheeling charges
-    end
-
-    rect rgb(255, 240, 245)
-    note over RA,RB: Phase 6: Enforcement (if default)
-    TE->>RA: Notify of default
-    TE->>RB: Notify of default
-    RA->>S: Enforcement action
-    RB->>B: Enforcement action
     end
 ```
 
@@ -461,11 +452,10 @@ This phase ensures accurate billing by preventing double-counting and collecting
 
 | Step | Action | Purpose |
 |------|--------|---------|
-| 1 | Trade Exchange declares P2P trades to Retailers | Retailers learn which energy was traded peer-to-peer |
-| 2 | Retailers verify against ledger | Ensures no double billing for P2P-traded energy |
-| 3 | Retailers prepare bills (excl. P2P energy, incl. wheeling charges) | Customers only pay retailer for non-P2P energy; wheeling fees added |
-| 4 | Customers pay Retailers | Single consolidated bill payment |
-| 5 | Retailers remit wheeling charges to Distribution Utility | Grid usage fees flow to infrastructure operator |
+| 1 | Retailers look up P2P trades from ledger | Retailers learn which energy was traded peer-to-peer |
+| 2 | Retailers prepare bills (excl. P2P energy, incl. wheeling charges) | Customers only pay retailer for non-P2P energy; wheeling fees added |
+| 3 | Customers pay Retailers | Single consolidated bill payment |
+| 4 | Retailers remit wheeling charges to Distribution Utility | Grid usage fees flow to infrastructure operator |
 
 ### Anti-Double-Billing Rules
 
@@ -483,13 +473,15 @@ sequenceDiagram
     participant DU as Distribution Utility
 
     rect rgb(230, 245, 255)
-    Note over TE,RB: Step 1: Trade Declaration
-    TE->>RA: Declare P2P trades<br/>(P1 sold X kWh, time slot T)
-    TE->>RB: Declare P2P trades<br/>(P7 bought X kWh, time slot T)
+    Note over TE,RB: Step 1: Ledger Lookup
+    RA->>TE: Look up P2P trades<br/>(P1, billing period)
+    TE-->>RA: P1 sold X kWh, time slot T
+    RB->>TE: Look up P2P trades<br/>(P7, billing period)
+    TE-->>RB: P7 bought X kWh, time slot T
     end
 
     rect rgb(255, 245, 230)
-    Note over RA,RB: Step 2-3: Retailer Billing Cycle
+    Note over RA,RB: Step 2: Retailer Billing
     RA->>RA: Verify: Exclude P2P energy<br/>from retailer settlement
     RA->>RA: Add wheeling charges<br/>for P2P transfers
     RA->>S: Bill (non-P2P energy +<br/>wheeling charges)
@@ -500,13 +492,13 @@ sequenceDiagram
     end
 
     rect rgb(230, 255, 230)
-    Note over S,B: Step 4: Customer Payment
+    Note over S,B: Step 3: Customer Payment
     S->>RA: Pay bill
     B->>RB: Pay bill
     end
 
     rect rgb(245, 230, 255)
-    Note over RA,DU: Step 5: Wheeling Remittance
+    Note over RA,DU: Step 4: Wheeling Remittance
     RA->>DU: Remit wheeling charges (P1)
     RB->>DU: Remit wheeling charges (P7)
     end
@@ -518,41 +510,26 @@ sequenceDiagram
 
 *(Open for Group Discussion)*
 
-When a prosumer registers for P2P trading, they sign an agreement consenting to energy retailer/distribution utility enforcement in case of payment default. Enforcement actions may include fines, suspension of P2P trading privileges or service disconnection in case of non-fulfilment.
+When a prosumer registers for P2P trading, they sign an agreement consenting to energy retailer/distribution utility enforcement in case of payment default.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant B as Buyer (P7)<br/>[Defaulter]
-    participant TE as Trade Exchange
-    participant RB as Retailer B<br/>(Buyer's Discom)
-    participant RA as Retailer A<br/>(Seller's Discom)
-    participant S as Seller (P1)
+### Enforcement Triggers
 
-    Note over B: Payment default detected
+- **Payment default:** Buyer fails to pay within stipulated window
+- **Non-delivery:** Seller fails to inject contracted energy
+- **Repeated violations:** Pattern of defaults or contract breaches
 
-    TE->>TE: Record default on ledger
-    TE->>RB: Notify: P7 defaulted<br/>on P2P payment
-    TE->>RA: Notify: P1's payment<br/>not received
+### Escalation Levels
 
-    RB->>RB: Check enforcement<br/>agreement
+| Level | Action | When Applied |
+|-------|--------|--------------|
+| 1 | Warning notice | First-time minor default |
+| 2 | Fine added to bill | Repeated defaults or moderate amounts |
+| 3 | P2P trading privileges suspended | Persistent non-compliance |
+| 4 | Service disconnection | Severe cases only |
 
-    alt Level 1: Warning
-        RB->>B: Warning notice
-    else Level 2: Fine
-        RB->>B: Fine added to bill
-    else Level 3: Suspension
-        RB->>TE: Suspend P7's<br/>trading privileges
-        TE->>TE: Update status
-        TE-->>B: Trading suspended
-    else Level 4: Disconnection
-        RB->>B: Service disconnection<br/>notice
-        Note over B: Severe cases only
-    end
+### Seller Compensation
 
-    Note over RA,S: Seller compensation
-    RA->>S: Credit from enforcement<br/>recovery (if any)
-```
+If enforcement recovery succeeds (e.g., fine collected from defaulting buyer), the affected seller may receive credit through their retailer.
 
 ---
 
