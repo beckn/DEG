@@ -134,7 +134,6 @@ Fields in `on_discover` response containing available charging stations.
 | `beckn:items[].beckn:rating.beckn:ratingValue` | Rating Value | Number | ✅ | Average rating | `4.5` |
 | `beckn:items[].beckn:rating.beckn:ratingCount` | Rating Count | Integer | ✅ | Number of ratings | `128` |
 | `beckn:items[].beckn:isActive` | Is Active | Boolean | ✅ | Currently active | `true` |
-| `beckn:items[].beckn:networkId` | Network IDs | Array[String] | ❌ | Network identifiers | `["bap.net/ev-charging"]` |
 
 ### Provider Fields
 

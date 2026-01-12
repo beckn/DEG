@@ -1,0 +1,114 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_status",
+    "domain": "beckn.one:deg:ev-charging:*",
+    "bap_id": "example-bap.com",
+    "bap_uri": "https://example-bap.com/pilot/bap/energy/v2",
+    "transaction_id": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "message_id": "6ace310b-6440-4421-a2ed-b484c7548bd5",
+    "timestamp": "2025-01-27T17:00:40.065Z",
+    "ttl": "PT30S",
+    "bpp_id": "example-bpp.com",
+    "bpp_uri": "https://example-bpp.com/pilot/bpp/energy/v2"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-ev-charging-001",
+      "beckn:orderStatus": "INPROGRESS",
+      "beckn:seller": "cpo1.com",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "user-123"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A"
+        }
+      ],
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-001",
+        "beckn:mode": "RESERVATION",
+        "trackingAction": {
+          "@type": "beckn:TrackAction",
+          "target": {
+            "@type": "schema:EntryPoint",
+            "url": "https://track.bluechargenet-aggregator.io/session/SESSION-9876543210"
+          }
+        },
+        "beckn:deliveryAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingSession/v1/context.jsonld",
+          "@type": "ChargingSession",
+          "sessionStatus": "ACTIVE",
+          "chargingTelemetry": [
+            {
+              "eventTime": "2025-01-27T17:00:00Z",
+              "metrics": [
+                {
+                  "name": "STATE_OF_CHARGE",
+                  "value": 62.5,
+                  "unitCode": "PERCENTAGE"
+                },
+                {
+                  "name": "POWER",
+                  "value": 18.4,
+                  "unitCode": "KWH"
+                },
+                {
+                  "name": "ENERGY",
+                  "value": 10.2,
+                  "unitCode": "KW"
+                },
+                {
+                  "name": "VOLTAGE",
+                  "value": 392,
+                  "unitCode": "VLT"
+                },
+                {
+                  "name": "CURRENT",
+                  "value": 47.0,
+                  "unitCode": "AMP"
+                }
+              ]
+            },
+            {
+              "eventTime": "2025-01-27T17:05:00Z",
+              "metrics": [
+                {
+                  "name": "STATE_OF_CHARGE",
+                  "value": 65.0,
+                  "unitCode": "PERCENTAGE"
+                },
+                {
+                  "name": "POWER",
+                  "value": 17.1,
+                  "unitCode": "KWH"
+                },
+                {
+                  "name": "ENERGY",
+                  "value": 11.1,
+                  "unitCode": "KW"
+                },
+                {
+                  "name": "VOLTAGE",
+                  "value": 388,
+                  "unitCode": "VLT"
+                },
+                {
+                  "name": "CURRENT",
+                  "value": 44.2,
+                  "unitCode": "AMP"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}

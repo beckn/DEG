@@ -23,7 +23,7 @@
     "spatial": [
       {
         "op": "s_dwithin",
-        "targets": "$['beckn:availableAt'][*]['geo']",
+        "targets": "$['beckn:itemAttributes.chargingStation.serviceLocation.geo']",
         "geometry": {
           "type": "Point",
           "coordinates": [

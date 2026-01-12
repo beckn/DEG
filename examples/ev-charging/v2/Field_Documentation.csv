@@ -59,7 +59,6 @@ beckn:items[].beckn:rating,Rating,Object,No,Rating information,{beckn:ratingValu
 beckn:items[].beckn:rating.beckn:ratingValue,Rating Value,Number,Yes,Average rating score,4.5,on_discover,Usually 0-5 scale
 beckn:items[].beckn:rating.beckn:ratingCount,Rating Count,Integer,Yes,Number of ratings,128,on_discover,Total ratings received
 beckn:items[].beckn:isActive,Is Active,Boolean,Yes,Whether item is currently active,true,on_discover,Active status
-beckn:items[].beckn:networkId,Network IDs,Array[String],No,Network identifiers,[bap.net/ev-charging],on_discover,Roaming network membership
 beckn:items[].beckn:provider,Provider,Object,Yes,Provider information,{beckn:id beckn:descriptor},on_discover,Charging station operator
 beckn:items[].beckn:provider.beckn:id,Provider ID,String,Yes,Provider identifier,ecopower-charging,on_discover,Unique provider ID
 beckn:items[].beckn:provider.beckn:descriptor,Descriptor,Object,Yes,Provider details,{schema:name: EcoPower Charging Pvt Ltd},on_discover,Provider name and info

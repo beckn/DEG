@@ -1,0 +1,278 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_discover",
+    "domain": "beckn.one:deg:ev-charging:*",
+    "timestamp": "2024-01-15T10:30:05Z",
+    "transaction_id": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "message_id": "a1eabf26-29f5-4a01-9d4e-4c5c9d1a3d02",
+    "bap_id": "app.example.com",
+    "bap_uri": "https://app.example.com/bap",
+    "ttl": "PT30S",
+    "bpp_id": "example-cds.com",
+    "bpp_uri": "https://example-cds.com/pilot/cds/energy/v2"
+  },
+  "message": {
+    "catalogs": [
+      {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Catalog",
+        "beckn:id": "catalog-ev-charging-001",
+        "beckn:descriptor": {
+          "@type": "beckn:Descriptor",
+          "schema:name": "EV Charging Services Network",
+          "beckn:shortDesc": "Comprehensive network of fast charging stations across Bengaluru"
+        },
+        "beckn:bppId": "bpp.ev-network.example.com",
+        "beckn:bppUri": "https://bpp.ev-network.example.com/bpp",
+        "beckn:items": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Item",
+            "beckn:id": "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "DC Fast Charger - CCS2 (60kW)",
+              "beckn:shortDesc": "High-speed DC charging station with CCS2 connector",
+              "beckn:longDesc": "Ultra-fast DC charging station supporting CCS2 connector type with 60kW maximum power output. Features advanced thermal management and smart charging capabilities."
+            },
+            "beckn:category": {
+              "@type": "schema:CategoryCode",
+              "schema:codeValue": "ev-charging",
+              "schema:name": "EV Charging"
+            },
+            "beckn:availabilityWindow": [
+              {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "06:00:00",
+                "schema:endTime": "22:00:00"
+              }
+            ],
+            "beckn:rateable": true,
+            "beckn:rating": {
+              "@type": "beckn:Rating",
+              "beckn:ratingValue": 4.5,
+              "beckn:ratingCount": 128
+            },
+            "beckn:isActive": true,
+            "beckn:provider": {
+              "beckn:id": "ecopower-charging",
+              "beckn:descriptor": {
+                "@type": "beckn:Descriptor",
+                "schema:name": "EcoPower Charging Pvt Ltd"
+              }
+            },
+            "beckn:itemAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingService/v1/context.jsonld",
+              "@type": "ChargingService",
+              "connectorType": "CCS2",
+              "maxPowerKW": 60,
+              "minPowerKW": 5,
+              "reservationSupported": true,
+              "chargingStation": {
+                "id": "IN-ECO-BTM-STATION-01",
+                "serviceLocation": {
+                  "@type": "beckn:Location",
+                  "geo": {
+                    "type": "Point",
+                    "coordinates": [
+                      77.5946,
+                      12.9716
+                    ]
+                  },
+                  "address": {
+                    "streetAddress": "EcoPower BTM Hub, 100 Ft Rd",
+                    "addressLocality": "Bengaluru",
+                    "addressRegion": "Karnataka",
+                    "postalCode": "560076",
+                    "addressCountry": "IN"
+                  }
+                }
+              },
+              "amenityFeature": [
+                "RESTAURANT",
+                "RESTROOM",
+                "WI-FI"
+              ],
+              "evseId": "IN*ECO*BTM*01*CCS2*A",
+              "parkingType": "Mall",
+              "powerType": "DC",
+              "connectorFormat": "CABLE",
+              "chargingSpeed": "FAST",
+              "vehicleType": "4-WHEELER"
+            }
+          },
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Item",
+            "beckn:id": "IND*GoGreen-charging*cs-02*IN*ECO*BTM*01*CCS2*A*CCS2-B",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "DC Fast Charger - CCS2 (60kW)",
+              "beckn:shortDesc": "High-speed DC charging station with CCS2 connector",
+              "beckn:longDesc": "Ultra-fast DC charging station supporting CCS2 connector type with 60kW maximum power output. Features advanced thermal management and smart charging capabilities."
+            },
+            "beckn:category": {
+              "@type": "schema:CategoryCode",
+              "schema:codeValue": "ev-charging",
+              "schema:name": "EV Charging"
+            },
+            "beckn:availabilityWindow": [
+              {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "06:00:00",
+                "schema:endTime": "22:00:00"
+              }
+            ],
+            "beckn:rateable": true,
+            "beckn:rating": {
+              "@type": "beckn:Rating",
+              "beckn:ratingValue": 4.5,
+              "beckn:ratingCount": 128
+            },
+            "beckn:isActive": true,
+            "beckn:provider": {
+              "beckn:id": "GoGreen-charging",
+              "beckn:descriptor": {
+                "@type": "beckn:Descriptor",
+                "schema:name": "GoGreen Charging Pvt Ltd"
+              }
+            },
+            "beckn:itemAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingService/v1/context.jsonld",
+              "@type": "ChargingService",
+              "connectorType": "CCS2",
+              "maxPowerKW": 60,
+              "minPowerKW": 5,
+              "reservationSupported": true,
+              "chargingStation": {
+                "id": "cs-02",
+                "serviceLocation": {
+                  "@type": "beckn:Location",
+                  "geo": {
+                    "type": "Point",
+                    "coordinates": [
+                      77.5946,
+                      12.9716
+                    ]
+                  },
+                  "address": {
+                    "streetAddress": "EcoPower BTM Hub, 100 Ft Rd",
+                    "addressLocality": "Bengaluru",
+                    "addressRegion": "Karnataka",
+                    "postalCode": "560076",
+                    "addressCountry": "IN"
+                  }
+                }
+              },
+              "amenityFeature": [
+                "RESTAURANT",
+                "RESTROOM",
+                "WI-FI"
+              ],
+              "evseId": "IN*ECO*BTM*01*CCS2*A",
+              "parkingType": "Mall",
+              "powerType": "DC",
+              "connectorFormat": "CABLE",
+              "chargingSpeed": "FAST",
+              "vehicleType": "3-WHEELER"
+            }
+          }
+        ],
+        "beckn:offers": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "eco-charge-offer-ccs2-60kw-kwh",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Per-kWh Tariff - CCS2 60kW"
+            },
+            "beckn:items": [
+              "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A"
+            ],
+            "beckn:price": {
+              "currency": "INR",
+              "value": 45.0,
+              "applicableQuantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 1
+              }
+            },
+            "beckn:validity": {
+              "@type": "beckn:TimePeriod",
+              "schema:startDate": "2025-10-10T00:00:00Z",
+              "schema:endDate": "2026-04-10T23:59:59Z"
+            },
+            "beckn:acceptedPaymentMethod": [
+              "UPI",
+              "CREDIT_CARD",
+              "WALLET"
+            ],
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EvChargingOffer/v1/context.jsonld",
+              "@type": "ChargingOffer",
+              "tariffModel": "PER_KWH",
+              "idleFeePolicy": {
+                "currency": "INR",
+                "value": 2,
+                "applicableQuantity": {
+                  "unitCode": "MIN",
+                  "unitText": "minutes",
+                  "unitQuantity": 10
+                }
+              }
+            },
+            "beckn:provider": "GoGreen-charging"
+          },
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "go-green-offer-ccs2-60kw-kwh",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Per-kWh Tariff - CCS2 60kW"
+            },
+            "beckn:items": [
+              "IND*GoGreen-charging*cs-02*IN*ECO*BTM*01*CCS2*A*CCS2-B"
+            ],
+            "beckn:price": {
+              "currency": "INR",
+              "value": 18.5,
+              "applicableQuantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 1
+              }
+            },
+            "beckn:validity": {
+              "@type": "beckn:TimePeriod",
+              "schema:startDate": "2025-10-20T00:00:00Z",
+              "schema:endDate": "2026-04-20T23:59:59Z"
+            },
+            "beckn:acceptedPaymentMethod": [
+              "UPI",
+              "CREDIT_CARD"
+            ],
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EvChargingOffer/v1/context.jsonld",
+              "@type": "ChargingOffer",
+              "tariffModel": "PER_KWH",
+              "idleFeePolicy": {
+                "currency": "INR",
+                "value": 2,
+                "applicableQuantity": {
+                  "unitCode": "MIN",
+                  "unitText": "minutes",
+                  "unitQuantity": 10
+                }
+              }
+            },
+            "beckn:provider": "GoGreen-charging"
+          }
+        ]
+      }
+    ]
+  }
+}

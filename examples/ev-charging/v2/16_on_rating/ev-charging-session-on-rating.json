@@ -1,0 +1,25 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_rating",
+    "domain": "beckn.one:deg:ev-charging:*",
+    "bap_id": "example-bap.com",
+    "bap_uri": "https://example-bap.com/pilot/bap/energy/v2",
+    "transaction_id": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "message_id": "89ee20fe-b592-48b0-a5c5-e38f6b90e569",
+    "timestamp": "2025-01-27T12:00:30Z",
+    "ttl": "PT30S",
+    "bpp_id": "example-bpp.com",
+    "bpp_uri": "https://example-bpp.com/pilot/bpp/energy/v2"
+  },
+  "message": {
+    "received": true,
+    "feedbackForm": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Form",
+      "url": "https://example-bpp.com/feedback/portal",
+      "mime_type": "application/xml",
+      "submission_id": "feedback-123e4567-e89b-12d3-a456-426614174000"
+    }
+  }
+}

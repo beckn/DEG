@@ -1,0 +1,135 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_init",
+    "domain": "beckn.one:deg:ev-charging:*",
+    "bap_id": "example-bap.com",
+    "bap_uri": "https://example-bap.com/pilot/bap/energy/v2",
+    "transaction_id": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "message_id": "6743e9e2-4fb5-487c-92b7-13ba8018f176",
+    "timestamp": "2025-01-27T10:00:00Z",
+    "ttl": "PT30S",
+    "bpp_id": "example-bpp.com",
+    "bpp_uri": "https://example-bpp.com/pilot/bpp/energy/v2"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-ev-charging-001",
+      "beckn:orderStatus": "CREATED",
+      "beckn:seller": "cpo1.com",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "user-123",
+        "beckn:role": "BUYER",
+        "beckn:displayName": "Ravi Kumar",
+        "beckn:telephone": "+91-9876543210",
+        "beckn:email": "ravi.kumar@example.com",
+        "beckn:taxID": "GSTIN29ABCDE1234F1Z5"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A",
+          "beckn:quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 2.5
+          },
+          "beckn:price": {
+            "currency": "INR",
+            "value": 45.0,
+            "applicableQuantity": {
+              "unitText": "Kilowatt Hour",
+              "unitCode": "KWH",
+              "unitQuantity": 1
+            }
+          }
+        }
+      ],
+      "beckn:orderValue": {
+        "currency": "INR",
+        "value": 143.95,
+        "components": [
+          {
+            "type": "UNIT",
+            "value": 112.5,
+            "currency": "INR",
+            "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+          },
+          {
+            "type": "SURCHARGE",
+            "value": 20.0,
+            "currency": "INR",
+            "description": "Surge price (20%)"
+          },
+          {
+            "type": "DISCOUNT",
+            "value": -15.0,
+            "currency": "INR",
+            "description": "Offer discount (15%)"
+          },
+          {
+            "type": "FEE",
+            "value": 10.0,
+            "currency": "INR",
+            "description": "Service fee"
+          },
+          {
+            "type": "FEE",
+            "value": 13.64,
+            "currency": "INR",
+            "description": "Overcharge estimation"
+          },
+          {
+            "type": "FEE",
+            "value": 2.81,
+            "currency": "INR",
+            "description": "Buyer finder fee (2.5%)"
+          }
+        ]
+      },
+      "beckn:payment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Payment",
+        "beckn:id": "payment-123e4567-e89b-12d3-a456-426614174000",
+        "beckn:amount": {
+          "currency": "INR",
+          "value": 143.95
+        },
+        "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
+        "beckn:txnRef": "TXN-123456789",
+        "beckn:beneficiary": "BPP",
+        "beckn:acceptedPaymentMethod": [
+          "BANK_TRANSFER",
+          "UPI",
+          "WALLET"
+        ],
+        "beckn:paymentStatus": "INITIATED",
+        "beckn:paymentAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/PaymentSettlement/v1/context.jsonld",
+          "@type": "PaymentSettlement",
+          "settlementAccounts": [
+            {
+              "beneficiaryId": "example-bap.com",
+              "accountHolderName": "Example BAP Solutions Pvt Ltd",
+              "accountNumber": "9876543210123",
+              "ifscCode": "HDFC0009876",
+              "bankName": "HDFC Bank",
+              "vpa": "example-bap@paytm"
+            },
+            {
+              "beneficiaryId": "example-bpp.com",
+              "accountHolderName": "EcoPower Charging Solutions Pvt Ltd",
+              "accountNumber": "1234567890123",
+              "ifscCode": "HDFC0001234",
+              "bankName": "HDFC Bank",
+              "vpa": "ecopower@paytm"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

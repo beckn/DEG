@@ -256,10 +256,12 @@ def extract_action_from_folder(folder_name: str, role: str) -> Optional[str]:
     Examples:
         "01_discover" (BAP) -> "discover"
         "02_on_discover" (BPP) -> "on_discover"
+        "08_02_on_status" (BPP) -> "on_status"
         "03_select" (BAP) -> "select"
     """
     # Remove leading numbers and underscores
-    match = re.match(r'^\d+_(.+)', folder_name)
+    # Handles both: \d+_action and \d+_\d+_action patterns
+    match = re.match(r'^\d+(?:_\d+)?_(.+)$', folder_name)
     if match:
         action = match.group(1)
         
