@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "e36729d8-da02-4e52-a0e7-972ef662d073",
+    "_postman_id": "05f2a6b7-53fe-4dc9-b283-2499c34a517b",
     "name": "p2p-trading:BAP-DEG",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Postman collection for Buyer Application Platform implementing p2p-trading APIs based on Beckn Protocol v2"
@@ -79,7 +79,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"discover\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\",\n    \"domain\": \"{{domain}}\",\n    \"location\": {\n      \"city\": {\n        \"code\": \"BLR\",\n        \"name\": \"Bangalore\"\n      },\n      \"country\": {\n        \"code\": \"IND\",\n        \"name\": \"India\"\n      }\n    }\n  },\n  \"message\": {\n    \"text_search\": \"solar energy grid injection\",\n    \"filters\": {\n      \"type\": \"jsonpath\",\n      \"expression\": \"$[?(@.beckn:itemAttributes.sourceType == 'SOLAR' && @.beckn:itemAttributes.deliveryMode == 'GRID_INJECTION' && @.beckn:itemAttributes.availableQuantity >= 10.0 && @.beckn:itemAttributes.productionWindow[?(@['schema:startTime'] <= '10:00:00' && @['schema:endTime'] >= '18:00:00')])]\"\n    }\n  }\n}",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"discover\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\",\n    \"domain\": \"{{domain}}\",\n    \"location\": {\n      \"city\": {\n        \"code\": \"BLR\",\n        \"name\": \"Bangalore\"\n      },\n      \"country\": {\n        \"code\": \"IND\",\n        \"name\": \"India\"\n      }\n    },\n    \"schema_context\": [\n      \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyResource/v0.2/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"filters\": {\n      \"type\": \"jsonpath\",\n      \"expression\": \"$[?(@.beckn:itemAttributes.sourceType == 'SOLAR' && @.beckn:itemAttributes.deliveryMode == 'GRID_INJECTION' && @.beckn:itemAttributes.availableQuantity >= 10.0 )]\"\n    }\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
