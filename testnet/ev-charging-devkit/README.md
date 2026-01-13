@@ -22,7 +22,7 @@ It is a *batteries included* sandbox environment that requires minimal setup, wi
 1. Clone this repository and navigate to the install directory:
 
 ```bash
-git clone -b p2p-trading https://github.com/Beckn-One/DEG.git
+git clone https://github.com/Beckn-One/DEG.git
 cd DEG/testnet/ev-charging-devkit/install
 ```
 
@@ -143,7 +143,7 @@ This devkit reuses the DeDi registry records from other DEG devkits:
 - BAP: `ev-charging.sandbox1.com` (unique keys for this domain)
 - BPP: `ev-charging.sandbox2.com` (unique keys for this domain)
 
-The registry service is accessed at `https://api.testnet.beckn.one/registry/dedi`.
+The test registry service is accessed at `https://api.testnet.beckn.one/registry/dedi`.
 
 ## EV Charging Flow Overview
 
