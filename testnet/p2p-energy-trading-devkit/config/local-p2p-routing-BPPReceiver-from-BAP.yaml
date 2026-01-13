@@ -14,3 +14,9 @@ routingRules:
       - rating
       - support
 
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "http://sandbox-bpp:3002/api/webhook"
+    endpoints:
+      - on_publish #publish response from CDS after catalog update
