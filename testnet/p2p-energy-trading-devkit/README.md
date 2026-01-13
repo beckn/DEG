@@ -144,3 +144,13 @@ A more complete documentation is located [here](https://beckn-labs.gitbook.io/be
   </details>
 - Within the beckn-onix configuration (`config/*.yaml` files) use the `networkParticipant` (`subscriber_id` from DeDi setup), `keyId` (Record ID from DeDi setup) along with the signing & encryption private and public keys.
 - Finally enable caching of the DeDi registry  by registry service by completeing last step from [these instructions](https://beckn-labs.gitbook.io/beckn-labs-docs/beckn-registry/publishing-subscriber-details).
+
+## Regenerating Postman Collection
+
+To regenerate the Postman collections for this devkit:
+
+```bash
+python3 scripts/generate_postman_collection.py --devkit p2p-trading --role BAP --output-dir testnet/p2p-energy-trading-devkit/postman
+python3 scripts/generate_postman_collection.py --devkit p2p-trading --role BPP --output-dir testnet/p2p-energy-trading-devkit/postman
+python3 scripts/generate_postman_collection.py --devkit p2p-trading --role UtilityBPP --output-dir testnet/p2p-energy-trading-devkit/postman
+```

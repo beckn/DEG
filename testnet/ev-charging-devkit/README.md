@@ -224,3 +224,12 @@ The test registry service is accessed at `https://api.testnet.beckn.one/registry
   docker logs sandbox-bap
   docker logs sandbox-bpp
   ```
+
+## Regenerating Postman Collection
+
+To regenerate the Postman collections for this devkit:
+
+```bash
+python3 scripts/generate_postman_collection.py --devkit ev-charging --role BAP --output-dir testnet/ev-charging-devkit/postman
+python3 scripts/generate_postman_collection.py --devkit ev-charging --role BPP --output-dir testnet/ev-charging-devkit/postman
+```

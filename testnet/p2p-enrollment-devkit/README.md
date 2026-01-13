@@ -162,3 +162,12 @@ The registry service is accessed at `https://api.testnet.beckn.one/registry/dedi
   docker logs sandbox-enrollment-bpp
   ```
 
+## Regenerating Postman Collection
+
+To regenerate the Postman collections for this devkit:
+
+```bash
+python3 scripts/generate_postman_collection.py --devkit p2p-enrollment --role BAP --output-dir testnet/p2p-enrollment-devkit/postman
+python3 scripts/generate_postman_collection.py --devkit p2p-enrollment --role BPP --output-dir testnet/p2p-enrollment-devkit/postman
+```
+
