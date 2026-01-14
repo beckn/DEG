@@ -2087,7 +2087,7 @@ All examples are available in:
 ---
 
 ## 14.3. Inter energy retailer P2P trading 
-This is a specific scenario of P2P trading where the participants come under differnet energy retailers and distribution utilities and engages in direct energy trade. Here, nuances of financial settlement, dispute resolution, energy accounting etc will have to be thought through without affecting ease of participation. More information can be found here [Inter-retailer P2P energy trading](https://github.com/Beckn-One/DEG/blob/main/docs/implementation-guides/v2/P2P_Trading/Inter_energy_retailer_P2P_trading_draft.md)
+This is a specific scenario of P2P trading where the participants come under differnet energy retailers and distribution utilities and engages in direct energy trade. Here, nuances of financial settlement, dispute resolution, energy accounting etc will have to be thought through without affecting ease of participation. More information can be found here [Inter-retailer P2P energy trading](/docs/implementation-guides/v2/P2P_Trading/Inter_energy_retailer_P2P_trading_draft.md)
 
 # 15. Additional Resources
 
