@@ -203,13 +203,6 @@ The test registry service is accessed at `https://api.testnet.beckn.one/registry
          │◄───────────────────────────────────────────────│
 ```
 
-## Related Documentation
-
-- [EV Charging Service Schema](/protocol-specifications-new/schema/EvChargingService/v1/)
-- [EV Charging Session Schema](/protocol-specifications-new/schema/EvChargingSession/v1/)
-- [EV Charging Point Operator Schema](/protocol-specifications-new/schema/EvChargingPointOperator/v1/)
-- [EV Charging Offer Schema](/protocol-specifications-new/schema/EvChargingOffer/v1/)
-
 ## Troubleshooting
 
 - **Container fails to start with schema error**: You may have a stale `fidedocker/onix-adapter` image. Pull the latest:

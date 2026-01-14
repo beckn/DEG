@@ -479,5 +479,5 @@ Together with intents, catalogues form the complementary sides of a digital hand
 - [Energy Contract](./Energy%20contract.md) - What emerges when catalogue meets intent
 - [Energy Resource](./Energy%20resource.md) - Resources listed in catalogues
 - [Energy Credentials](./Energy%20credentials.md) - Credentials referenced in catalogues
-- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging_V0.8-draft.md) - Catalogue examples in practice
+- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging/EV_Charging.md) - Catalogue examples in practice
 

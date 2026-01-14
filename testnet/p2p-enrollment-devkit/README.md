@@ -142,11 +142,6 @@ The registry service is accessed at `https://api.testnet.beckn.one/registry/dedi
          │                                                │
 ```
 
-## Related Documentation
-
-- [Implementation Guide: Onboarding Users into Digital Energy Programs](/docs/implementation-guides/v2/Onboarding/IG_Onboarding_users_in_digital_energy_programs.md)
-- [EnergyEnrollment Schema](/protocol-specifications-new/schema/EnergyEnrollment/v0.2/)
-
 ## Troubleshooting
 
 - **Container fails to start with schema error**: You may have a stale `fidedocker/onix-adapter` image. Pull the latest:

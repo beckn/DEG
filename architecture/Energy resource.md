@@ -102,7 +102,7 @@ In the EV charging ecosystem, multiple energy resources interact:
 
 #### Charging Station (EVSE) Resource
 
-From the [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging_V0.8-draft.md), a charging station is represented with these attributes:
+From the [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging/EV_Charging.md), a charging station is represented with these attributes:
 
 ```json
 {
@@ -255,4 +255,4 @@ Every transaction begins with resources: they receive ERAs, carry credentials, e
 - [Energy Credentials](./Energy%20credentials.md) - How resources establish trust
 - [Energy Catalogue](./Energy%20catalogue.md) - How provider resources advertise services
 - [Energy Intent](./Energy%20intent.md) - How consumer resources express needs
-- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging_V0.8-draft.md) - Real-world examples
+- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging/EV_Charging.md) - Real-world examples

@@ -50,11 +50,13 @@ Version 0.1 (Non-Normative)
   - [10.7. Update Flow (Provider-Initiated)](#107-update-flow-provider-initiated)
     - [10.7.1. Utility-Initiated Trade Curtailment](#1071-utility-initiated-trade-curtailment)
 - [11. Additional Resources](#11-additional-resources)
-    - [11.0.1. **Integrating with your software**](#1101-integrating-with-your-software)
-      - [11.0.1.1. **Integrating the BAP**](#11011-integrating-the-bap)
-      - [11.0.1.2. **Integrating the BPP**](#11012-integrating-the-bpp)
-  - [11.1. FAQs](#111-faqs)
-  - [11.2. References](#112-references)
+  - [11.1. Inter energy retailer P2P trading](#111-inter-energy-retailer-p2p-trading)
+- [12. Additional Resources](#12-additional-resources)
+    - [12.0.1. **Integrating with your software**](#1201-integrating-with-your-software)
+      - [12.0.1.1. **Integrating the BAP**](#12011-integrating-the-bap)
+      - [12.0.1.2. **Integrating the BPP**](#12012-integrating-the-bpp)
+  - [12.1. FAQs](#121-faqs)
+  - [12.2. References](#122-references)
 
 Table of contents and section auto-numbering was done using [Markdown-All-In-One](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one) vscode extension. Specifically `Markdown All in One: Create Table of Contents` and `Markdown All in One: Add/Update section numbers` commands accessible via vs code command pallete.
 
@@ -122,7 +124,6 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 | RMS     | Revenue Management System        | Platform that enables money flows throughout the transaction and post fulfillment                                                        |
 
 
-
 # 6. Example User Journey
 
 This walkthrough demonstrates a complete P2P energy trading transaction: 
@@ -188,29 +189,29 @@ sequenceDiagram
 ```
 
 **1. Discover** - Consumer searches for solar energy with JSONPath filters (`sourceType == 'SOLAR'`, `deliveryMode == 'GRID_INJECTION'`, `availableQuantity >= 10.0`).  
-Request: [discover-request.json](../../../../examples/v2/P2P_Trading/discover-request.json) | Response: [discover-response.json](../../../../examples/v2/P2P_Trading/discover-response.json)  
+Request: [discover-request.json](../../../../examples/p2p-trading/v2/discover-request.json) | Response: [discover-response.json](../../../../examples/p2p-trading/v2/discover-response.json)  
 *Result: Found `energy-resource-solar-001` at $0.15/kWh, 30.5 kWh available*
 
 **2. Select** - Consumer selects item and receives quote breakdown.  
-Request: [select-request.json](../../../../examples/v2/P2P_Trading/select-request.json) | Response: [select-response.json](../../../../examples/v2/P2P_Trading/select-response.json)  
+Request: [select-request.json](../../../../examples/p2p-trading/v2/select-request.json) | Response: [select-response.json](../../../../examples/p2p-trading/v2/select-response.json)  
 *Result: Quote $4.00 ($1.50 energy + $2.50 wheeling)*
 
 **3. Init** - Consumer provides meter IDs (`100200300` → `98765456`), time window, and payment details. BPP may cascade to Utility for load verification and wheeling charges.  
-Request: [init-request.json](../../../../examples/v2/P2P_Trading/init-request.json) | Response: [init-response.json](../../../../examples/v2/P2P_Trading/init-response.json)  
-Cascaded Flow: [cascaded-init-request.json](../../../../examples/v2/P2P_Trading/cascaded-init-request.json) | [cascaded-on-init-response.json](../../../../examples/v2/P2P_Trading/cascaded-on-init-response.json)  
+Request: [init-request.json](../../../../examples/p2p-trading/v2/init-request.json) | Response: [init-response.json](../../../../examples/p2p-trading/v2/init-response.json)  
+Cascaded Flow: [cascaded-init-request.json](../../../../examples/p2p-trading/v2/cascaded-init-request.json) | [cascaded-on-init-response.json](../../../../examples/p2p-trading/v2/cascaded-on-init-response.json)  
 *Result: Order initialized, contract PENDING. Utility BPP responds with wheeling charges in `orderValue.components` and remaining trading limits in `orderAttributes.remainingTradingLimit`.*
 
 **4. Confirm** - Consumer confirms order to activate contract. BPP may cascade to Utility to log the trade and deduct from trading limits.  
-Request: [confirm-request.json](../../../../examples/v2/P2P_Trading/confirm-request.json) | Response: [confirm-response.json](../../../../examples/v2/P2P_Trading/confirm-response.json)  
-Cascaded Flow: [cascaded-confirm-request.json](../../../../examples/v2/P2P_Trading/cascaded-confirm-request.json) | [cascaded-on-confirm-response.json](../../../../examples/v2/P2P_Trading/cascaded-on-confirm-response.json)  
+Request: [confirm-request.json](../../../../examples/p2p-trading/v2/confirm-request.json) | Response: [confirm-response.json](../../../../examples/p2p-trading/v2/confirm-response.json)  
+Cascaded Flow: [cascaded-confirm-request.json](../../../../examples/p2p-trading/v2/cascaded-confirm-request.json) | [cascaded-on-confirm-response.json](../../../../examples/p2p-trading/v2/cascaded-on-confirm-response.json)  
 *Result: Contract ACTIVE, settlement cycle `settle-2024-10-04-001` created. Utility BPP logs trade and responds with updated remaining trading limits in `orderAttributes.remainingTradingLimit`.*
 
 **5. Status (In Progress)** - Consumer monitors delivery progress. BPP updates meter readings and telemetry every 15-30 minutes.  
-Request: [status-request.json](../../../../examples/v2/P2P_Trading/status-request.json) | Response: [status-response.json](../../../../examples/v2/P2P_Trading/status-response.json)  
+Request: [status-request.json](../../../../examples/p2p-trading/v2/status-request.json) | Response: [status-response.json](../../../../examples/p2p-trading/v2/status-response.json)  
 *Result: Delivery IN_PROGRESS, 9.8 kWh delivered (98%), real-time telemetry*
 
 **6. Status (Completed)** - Consumer checks final status after delivery completion.  
-Response: [status-response-completed.json](../../../../examples/v2/P2P_Trading/status-response-completed.json)  
+Response: [status-response-completed.json](../../../../examples/p2p-trading/v2/status-response-completed.json)  
 *Result: Delivery COMPLETED, 10.0 kWh delivered, settlement SETTLED ($4.00)*
 
 **Summary**: Transaction completed in ~8.5 hours. 10.0 kWh delivered. Total cost $4.00. Daily settlement cycle processed.
@@ -247,7 +248,7 @@ To create an open network for energy trading requires all the producers, prosume
 
 The NP Registry serves as the root of addressability and trust for all network participants. It maintains comprehensive details such as the participant’s globally unique identifier (ID), network address (Beckn API URL), public key, operational domains, and assigned role (e.g., BAP, BPP, CDS). In addition to managing participant registration, authentication, authorization, and permission control, the Registry oversees participant verification, activation, and overall lifecycle management, ensuring that only validated and authorized entities can operate within the network.
 
-![](./assets/registry-arch.png)
+![](../assets/registry-arch.png)
 
 You can publish your registries at [DeDi.global](https://publish.dedi.global/).
 
@@ -336,7 +337,7 @@ Specifically, please use the following configuration:
 
 ### 8.2.3. 10.2.3 Performing a test transaction
 
-Step 1 : Download the postman collection, from [here](/testnet/postman-collections/v2/P2P_Trading).
+Step 1 : Download the postman collection, from [here](/testnet/p2p-energy-trading-devkit/postman).
 
 Step 2 : Run API calls
 
@@ -2637,13 +2638,27 @@ sequenceDiagram
 
 # 11. Additional Resources
 
-- **Beckn 1.0 to 2.0 field mapping**: See `./v1_to_v2_field_mapping.md`
-- **Taxonomy Reference**: See `./taxonomy.md`
+1. **Beckn 1.0 to 2.0 field mapping**: See `./v1_to_v2_field_mapping.md`
+2. **Taxonomy Reference**: See `./taxonomy.md`
+3. **Solar Energy Discovery**: Search for solar energy with grid injection delivery
+4. **Daily Settlement**: Contract with daily settlement cycle
+5. **Meter-Based Tracking**: Track energy flow using meter readings
+6. **Telemetry Monitoring**: Monitor energy delivery with real-time telemetry
+
+---
+
+## 11.1. Inter energy retailer P2P trading 
+This is a specific scenario of P2P trading where the participants come under differnet energy retailers and distribution utilities and engages in direct energy trade. Here, nuances of financial settlement, dispute resolution, energy accounting etc will have to be thought through without affecting ease of participation. More information can be found here [Inter-retailer P2P energy trading](/docs/implementation-guides/v2/P2P_Trading/Inter_energy_retailer_P2P_trading_draft.md)
+
+# 12. Additional Resources
+
+- **Field Mapping**: See `docs/v1_to_v2_field_mapping.md`
+- **Taxonomy Reference**: See `docs/TAXONOMY.md`
 - **Schema Definitions**: See `schema/Energy*/v0.2/attributes.yaml`
 - **Context Files**: See `schema/Energy*/v0.2/context.jsonld`
 - **Profile Configuration**: See `schema/EnergyResource/v0.2/profile.json`
 
-### 11.0.1. **Integrating with your software**
+### 12.0.1. **Integrating with your software**
 
 This section gives a general walkthrough of how you would integrate your software with the Beckn network (say the sandbox environment). Refer to the starter kit for details on how to register with the sandbox and get credentials.
 
@@ -2651,7 +2666,7 @@ Beckn-ONIX is an initiative to promote easy installation and maintenance of a Be
 
 TODO
 
-#### 11.0.1.1. **Integrating the BAP**
+#### 12.0.1.1. **Integrating the BAP**
 
 If you are writing the seeker platform software, the following are the steps you can follow to build and integrate your application.
 
@@ -2663,7 +2678,7 @@ If you are writing the seeker platform software, the following are the steps you
 
 TODO
 
-#### 11.0.1.2. **Integrating the BPP**
+#### 12.0.1.2. **Integrating the BPP**
 
 If you are writing the provider platform software, the following are the steps you can follow to build and integrate your application.
 
@@ -2675,10 +2690,10 @@ If you are writing the provider platform software, the following are the steps y
 
 TODO
 
-## 11.1. FAQs
+## 12.1. FAQs
 
-## 11.2. References
+## 12.2. References
 
-* [Postman collection for EV Charging](/testnet/postman-collections/v2/EV_Charging/)  
+* [Postman collection for EV Charging](/testnet/ev-charging-devkit/postman/)  
 * [Beckn 1.0 (legacy) Layer2 config for peer to peer trading](https://github.com/beckn/missions/blob/main/DEG2.0/layer2/P2P/trade_1.1.0.yaml)
 

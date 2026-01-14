@@ -368,4 +368,4 @@ By combining intents with catalogues through the Beckn Protocol's discover-selec
 - [Energy Contract](./Energy%20contract.md) - What emerges when intent meets catalogue
 - [Energy Resource](./Energy%20resource.md) - Resources that express intents
 - [Energy Credentials](./Energy%20credentials.md) - Credentials required in intents
-- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging_V0.8-draft.md) - Intent examples in practice
+- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging/EV_Charging.md) - Intent examples in practice

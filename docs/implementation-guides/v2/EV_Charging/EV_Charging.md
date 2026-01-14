@@ -110,7 +110,7 @@ Implementation Guide \- EV Charging \- Version 0.8 (DRAFT) <!-- omit from toc --
 
 Table of contents and section auto-numbering was done using [Markdown-All-In-One](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one) vscode extension. Specifically `Markdown All in One: Create Table of Contents` and `Markdown All in One: Add/Update section numbers` commands accessible via vs code command pallete.
 
-Example jsons were imported directly from source of truth elsewhere in this repo inline by inserting the pattern below within all json expand blocks, and running this [script](/scripts/embed_example_json.py), e.g. `python3 scripts/embed_example_json.py docs/implementation-guides/v2/EV_Charging_V0.8-draft.md`.
+Example jsons were imported directly from source of truth elsewhere in this repo inline by inserting the pattern below within all json expand blocks, and running this [script](/scripts/embed_example_json.py), e.g. `python3 scripts/embed_example_json.py docs/implementation-guides/v2/EV_Charging/EV_Charging.md`.
 
 ```
 <details><summary><a href="/path_to_file_from_root">txt_with_json_keyword</a></summary>
@@ -186,7 +186,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 | OCPI    | Open Charge Point Interface       | Protocol for communication between eMSPs and CPOs.                                                                    |
 
 > Note:
-> This document does not detail the mapping between Beckn Protocol and OCPI. Please refer to [this](../../../docs/implementation-guides/v1-EOS/DEG00x_Mapping-OCPI-and-Beckn-Protocol-for-EV-Charging-Interoperability.md) document for the same.
+> This document does not detail the mapping between Beckn Protocol and OCPI. Please refer to [this](../../../../docs/implementation-guides/v1-EOS/DEG00x_Mapping-OCPI-and-Beckn-Protocol-for-EV-Charging-Interoperability.md) document for the same.
 > BPPs are NOT aggregators. Any CPO that has implemented a Beckn Protocol endpoint is a BPP. 
 > For all sense and purposes, CPOs are essentially BPPs and eMSPs are essentially BAPs.
 
@@ -196,7 +196,7 @@ The section defines the reference ecosystem architecture that is used for buildi
 
 ## 10.1. Architecture Diagram
 
-![](./assets/beckn-one-deg-arch.png)
+![](../assets/beckn-one-deg-arch.png)
 
 ## 10.2. Actors
 
@@ -214,7 +214,7 @@ To create an open network for EV charging requires all the EV charging BAPs, BPP
 
 The NP Registry serves as the root of addressability and trust for all network participants. It maintains comprehensive details such as the participant’s globally unique identifier (ID), network address (Beckn API URL), public key, operational domains, and assigned role (e.g., BAP, BPP, CDS). In addition to managing participant registration, authentication, authorization, and permission control, the Registry oversees participant verification, activation, and overall lifecycle management, ensuring that only validated and authorized entities can operate within the network.
 
-![](./assets/registry-arch.png)
+![](../assets/registry-arch.png)
 
 You can publish your registries at [DeDi.global](https://publish.dedi.global/).
 
@@ -334,9 +334,9 @@ Each entity in the charging lifecycle — the service, the commercial terms, and
 
 | EV Charging Domain Entity | Charging Example                                                                       |                                                    Semantically maps to                                                     |
 | ------------------------- | -------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------: |
-| Charging Service Listing  | “DC Fast-Charging (60 kW CCS2)”                                                        | [Item](https://github.com/beckn/protocol-specifications-new/tree/schema-reorg/schema/EvChargingService/v1/attributes.yaml)  |
-| Charging service          | “₹18 per kWh”, “₹150 per hour”, “₹999 monthly pass”, “Off-peak discount 2 AM–5 AM”     |  [Offer](https://github.com/beckn/protocol-specifications-new/blob/schema-reorg/schema/EvChargingOffer/v1/attributes.yaml)  |
-| Charging Session          | A specific booking or usage instance created when the user plugs in or reserves a slot | [Order](https://github.com/beckn/protocol-specifications-new/tree/schema-reorg/schema/EvChargingSession/v1/attributes.yaml) |
+| Charging Service Listing  | “DC Fast-Charging (60 kW CCS2)”                                                        | [Item](https://github.com/beckn/protocol-specifications-new/tree/main/schema/EvChargingService/v1/attributes.yaml)  |
+| Charging service          | “₹18 per kWh”, “₹150 per hour”, “₹999 monthly pass”, “Off-peak discount 2 AM–5 AM”     |  [Offer](https://github.com/beckn/protocol-specifications-new/tree/main/schema/EvChargingOffer/v1/attributes.yaml)  |
+| Charging Session          | A specific booking or usage instance created when the user plugs in or reserves a slot | [Order](https://github.com/beckn/protocol-specifications-new/tree/main/schema/EvChargingSession/v1/attributes.yaml) |
 
 ## 12.3. Example Category Codes
 
@@ -408,7 +408,7 @@ Note: The API calls and schema for walk-in charging are identical to the [advanc
 
 - Method: POST
 - Use Cases: Raghav scans QR code on Charging Point Connector using his BAP user app
-- Request: Fetching details of a specific Charging Point Connector (EVSE) after reaching site (using its identifier): [Example](../../../examples/ev_charging/v2/01_discover/discovery-by-EVSE.json)
+- Request: Fetching details of a specific Charging Point Connector (EVSE) after reaching site (using its identifier): [Example](../../../../examples/ev-charging/v2/01_discover/discovery-by-EVSE.json)
 
 <details>
 <summary><a href="../../../../examples/ev-charging/v2/01_discover/discovery-by-EVSE.json">Example json :rocket:</a></summary>
@@ -752,7 +752,7 @@ Note: Users can discover the charging station through off-network channels (such
 ```
 </details>
 
-CPO returns details of a specific charger: [Example](../../../examples/ev_charging/v2/02_on_discover/ev-charging-specific-evse-catalog.json)
+CPO returns details of a specific charger: [Example](../../../../examples/ev-charging/v2/02_on_discover/ev-charging-specific-evse-catalog.json)
 - Successful Response: 
 
 <details>
@@ -857,7 +857,7 @@ CPO returns details of a specific charger: [Example](../../../examples/ev_chargi
 ```
 </details>
 
-EV user requests charge worth in KWH: [Example](../../../examples/ev_charging/v2/03_select/ev-charging-select.json)
+EV user requests charge worth in KWH: [Example](../../../../examples/ev-charging/v2/03_select/ev-charging-select.json)
 - Successful Response: 
 
 <details>
@@ -1012,7 +1012,7 @@ EV user requests charge worth in KWH: [Example](../../../examples/ev_charging/v2
 ```
 </details>
 
-CPO responds with dynamically calculated quote: [Example](../../../examples/ev_charging/v2/04_on_select/ev-charging-on-select.json)
+CPO responds with dynamically calculated quote: [Example](../../../../examples/ev-charging/v2/04_on_select/ev-charging-on-select.json)
 - Successful Response: 
 
 <details>
@@ -1157,7 +1157,7 @@ CPO responds with dynamically calculated quote: [Example](../../../examples/ev_c
 ```
 </details>
 
-EV user requests for payment information: [Example](../../../examples/ev_charging/v2/05_init/ev-charging-bpp-payment-init.json)
+EV user requests for payment information: [Example](../../../../examples/ev-charging/v2/05_init/ev-charging-bpp-payment-init.json)
 - Successful Response: 
 
 <details>
@@ -1319,7 +1319,7 @@ EV user requests for payment information: [Example](../../../examples/ev_chargin
 ```
 </details>
 
-CPO responds with the payment link for the user to authorize payment: [Example](../../../examples/ev_charging/v2/06_on_init/ev-charging-bpp-payment-on-init.json)
+CPO responds with the payment link for the user to authorize payment: [Example](../../../../examples/ev-charging/v2/06_on_init/ev-charging-bpp-payment-on-init.json)
 
 - Successful Response: 
 
@@ -1456,7 +1456,7 @@ CPO responds with the payment link for the user to authorize payment: [Example](
 ```
 </details>
 
-CPO sends the status of the payment: [Example](../../../examples/ev_charging/v2/06_on_status_1/ev-charging-bpp-payment-check-on-status.json)
+CPO sends the status of the payment: [Example](../../../../examples/ev-charging/v2/06_on_status_1/ev-charging-bpp-payment-check-on-status.json)
 
 #### 13.1.2.8. `action: confirm`
 
@@ -1580,7 +1580,7 @@ CPO sends the status of the payment: [Example](../../../examples/ev_charging/v2/
 ```
 </details>
 
-EV user confirms reservation of a slot at a particular charging station at a particular time: [Example](../../../examples/ev_charging/v2/07_confirm/ev-charging-confirm.json)
+EV user confirms reservation of a slot at a particular charging station at a particular time: [Example](../../../../examples/ev-charging/v2/07_confirm/ev-charging-confirm.json)
 - Successful Response: 
 
 <details>
@@ -1729,7 +1729,7 @@ EV user confirms reservation of a slot at a particular charging station at a par
 ```
 </details>
 
-CPO responds with confirmed slot: [Example](../../../examples/ev_charging/v2/08_00_on_confirm/ev-charging-on-confirm.json)
+CPO responds with confirmed slot: [Example](../../../../examples/ev-charging/v2/08_00_on_confirm/ev-charging-on-confirm.json)
 - Successful Response: 
 
 <details>
@@ -1878,7 +1878,7 @@ CPO responds with confirmed slot: [Example](../../../examples/ev_charging/v2/08_
 ```
 </details>
 
-The user checks the status of charging connector: [Example](../../../examples/ev_charging/v2/08_01_status/v2/ev-charging-connector-status.json)
+The user checks the status of charging connector: [Example](../../../../examples/ev-charging/v2/08_01_status/ev-charging-connector-status.json)
 - Successful Response: 
 
 <details>
@@ -2014,7 +2014,7 @@ The user checks the status of charging connector: [Example](../../../examples/ev
 ```
 </details>
 
-The CPO response with the status of the charging connector: [Example](../../../examples/ev_charging/v2/08_02_status/v2/ev-charging-connector-on-status.json)
+The CPO response with the status of the charging connector: [Example](../../../../examples/ev-charging/v2/08_02_on_status/ev-charging-connector-on-status.json)
 - Successful Response: 
 
 <details>
@@ -2149,7 +2149,7 @@ The CPO response with the status of the charging connector: [Example](../../../e
 ```
 </details>
 
-EV user starts a charging session: [Example](../../../examples/ev_charging/v2/09_update/ev-charging-01-session-start-update.json)
+EV user starts a charging session: [Example](../../../../examples/ev-charging/v2/09_update/ev-charging-01-session-start-update.json)
 
 <details>
 <summary>Example json :rocket:</summary>
@@ -2283,7 +2283,7 @@ EV user starts a charging session: [Example](../../../examples/ev_charging/v2/09
 ```
 </details>
 
-CPO responds with confirmed start of charging session: [Example](../../../examples/ev_charging/v2/10_on_update/ev-charging-session-on-update.json)
+CPO responds with confirmed start of charging session: [Example](../../../../examples/ev-charging/v2/10_on_update/ev-charging-session-on-update.json)
 - Successful Response: 
 
 <details>
@@ -2345,7 +2345,7 @@ CPO responds with confirmed start of charging session: [Example](../../../exampl
 ```
 </details>
 
-EV User tracks a live charging session in real-time: [Example](../../../examples/ev_charging/v2/11_status/ev-charging-session-track.json)
+EV User tracks a live charging session in real-time: [Example](../../../../examples/ev-charging/v2/11_status/ev-charging-session-track.json)
 - Successful Response: 
 
 <details>
@@ -2486,7 +2486,7 @@ EV User tracks a live charging session in real-time: [Example](../../../examples
 ```
 </details>
 
-EV User receives a live charging session in real-time: [Example](../../../examples/ev_charging/v2/12_on_status/ev-charging-session-on-track.json)
+EV User receives a live charging session in real-time: [Example](../../../../examples/ev-charging/v2/12_on_status/ev-charging-session-on-track.json)
 - Successful Response: 
 
 <details>
@@ -2614,7 +2614,7 @@ EV User receives a live charging session in real-time: [Example](../../../exampl
 ```
 </details>
 
-EV user reveives a notification in case of any error occuring during charging session: [Example](../../../examples/ev_charging/v2/13_on_status/ev-charging-session-interrupt-on-status.json)
+EV user reveives a notification in case of any error occuring during charging session: [Example](../../../../examples/ev-charging/v2/13_on_status/ev-charging-session-interrupt-on-status.json)
 - Successful Response: 
 
 <details>
@@ -2747,7 +2747,7 @@ EV user reveives a notification in case of any error occuring during charging se
 ```
 </details>
 
-EV user stops the charging session: [Example](../../../examples/ev_charging/v2/14_01_update/ev-charging-session-end-update.json)
+EV user stops the charging session: [Example](../../../../examples/ev-charging/v2/14_01_update/ev-charging-session-end-update.json)
 
 #### 13.1.2.18. async `action: on_update` (stop-charging)
 
@@ -2868,7 +2868,7 @@ EV user stops the charging session: [Example](../../../examples/ev_charging/v2/1
 ```
 </details>
 
-EV user receives the session details upon chargign session end: [Example](../../../examples/ev_charging/v2/14_02_on_update/ev-charging-session-complete-on-update.json)
+EV user receives the session details upon chargign session end: [Example](../../../../examples/ev-charging/v2/14_02_on_update/ev-charging-session-complete-on-update.json)
 - Successful Response: 
 
 <details>
@@ -2933,7 +2933,7 @@ EV user receives the session details upon chargign session end: [Example](../../
 ```
 </details>
 
-EV user rates charging service experience: [Example](../../../examples/ev_charging/v2/15_rating/ev-charging-session-rating.json)
+EV user rates charging service experience: [Example](../../../../examples/ev-charging/v2/15_rating/ev-charging-session-rating.json)
 - Successful Response: 
 
 <details>
@@ -2985,7 +2985,7 @@ EV user rates charging service experience: [Example](../../../examples/ev_chargi
 ```
 </details>
 
-CPO accepts rating: [Example](../../../examples/ev_charging/v2/16_on_rating/ev-charging-session-on-rating.json)
+CPO accepts rating: [Example](../../../../examples/ev-charging/v2/16_on_rating/ev-charging-session-on-rating.json)
 - Successful Response: 
 
 <details>
@@ -3005,7 +3005,7 @@ CPO accepts rating: [Example](../../../examples/ev_charging/v2/16_on_rating/ev-c
 - Use Cases: Raghav reaches out for support.
 - Request: 
 
-EV user contacts support: [Example](../../../examples/ev_charging/v2/17_support/ev-charging-session-support.json)
+EV user contacts support: [Example](../../../../examples/ev-charging/v2/17_support/ev-charging-session-support.json)
 
 <details>
 <summary><a href="../../../../examples/ev-charging/v2/17_support/ev-charging-session-support.json">Example json :rocket:</a></summary>
@@ -3102,7 +3102,7 @@ EV user contacts support: [Example](../../../examples/ev_charging/v2/17_support/
 ```
 </details>
 
-CPO returns support information: [Example](../../../examples/ev_charging/v2/18_on_support/ev-charging-session-on-support.json)
+CPO returns support information: [Example](../../../../examples/ev-charging/v2/18_on_support/ev-charging-session-on-support.json)
 - Successful Response: 
 
 <details>
@@ -3249,7 +3249,7 @@ Consumers can search for EV charging stations with specific criteria including l
 ```
 </details>
 
-Discovery of EV charging services within a circular boundary: [Example](../../../examples/ev_charging/v2/01_discover/discovery-within-a-circular-boundary.json)
+Discovery of EV charging services within a circular boundary: [Example](../../../../examples/ev-charging/v2/01_discover/discovery-within-a-circular-boundary.json)
 
 ##### 13.2.1.1.2. Discovery within circle \+ connector specs as filters
 
@@ -3280,7 +3280,7 @@ Discovery of EV charging services within a circular boundary: [Example](../../..
 ```
 </details>
 
-Discovery of EV Charging stations within a circular boundary using connector specs as filters: [Example](../../../examples/ev_charging/v2/01_discover/discovery-within-boundary-with-connection-spec.json)
+Discovery of EV Charging stations within a circular boundary using connector specs as filters: [Example](../../../../examples/ev-charging/v2/01_discover/discovery-within-boundary-with-connection-spec.json)
 
 ##### 13.2.1.1.3. Discovery within circle \+ vehicle specifications as filters
 
@@ -3312,7 +3312,7 @@ Discovery of EV Charging stations within a circular boundary using connector spe
 ```
 </details>
 
-Discovery of EV Charging stations within circular boundary using vehicle specifications as filters: [Example](../../../examples/ev_charging/v2/01_discover/discovery-within-boundary-with-vehicle-spec.json)
+Discovery of EV Charging stations within circular boundary using vehicle specifications as filters: [Example](../../../../examples/ev-charging/v2/01_discover/discovery-within-boundary-with-vehicle-spec.json)
 
 ##### 13.2.1.1.4. Discovery of services offered by a specific CPO
 
@@ -3332,7 +3332,7 @@ Discovery of EV Charging stations within circular boundary using vehicle specifi
 ```
 </details>
 
-Discovery of EV charging services offered by a specific CPO: [Example](../../../examples/ev_charging/v2/01_discover/discovery-services-by-a-cpo.json)
+Discovery of EV charging services offered by a specific CPO: [Example](../../../../examples/ev-charging/v2/01_discover/discovery-services-by-a-cpo.json)
 
 ##### 13.2.1.1.5. Viewing details of a single charging station (by its Item Identifier)
 
@@ -3351,7 +3351,7 @@ Discovery of EV charging services offered by a specific CPO: [Example](../../../
 ```
 </details>
 
-Viewing details of a single charging station (using its Identifier): [Example](../../../examples/ev_charging/v2/01_discover/discovery-services-by-a-station.json)
+Viewing details of a single charging station (using its Identifier): [Example](../../../../examples/ev-charging/v2/01_discover/discovery-services-by-a-station.json)
 
 ##### 13.2.1.1.6. Fetching details of a specific charger (EVSE) on-site (by its EVSE identifier)
 
@@ -3370,7 +3370,7 @@ Viewing details of a single charging station (using its Identifier): [Example](.
 ```
 </details>
 
-Fetching details of a specific charger (EVSE) after reaching site (using its identifier): [Example](../../../examples/ev_charging/01_discover/discovery-by-EVSE.json)
+Fetching details of a specific charger (EVSE) after reaching site (using its identifier): [Example](../../../../examples/ev-charging/v2/01_discover/discovery-by-EVSE.json)
 
 ##### 13.2.1.1.7. Discovering chargers in a specific circular area, a specific connector type and availability time range
 
@@ -3399,7 +3399,7 @@ Fetching details of a specific charger (EVSE) after reaching site (using its ide
 ```
 </details>
 
-Discovering chargers in a specific circular area, a specific connector type and availability time range: [Example](../../../examples/ev_charging/v2/01_discover/discovery-within-a-timerange.json)
+Discovering chargers in a specific circular area, a specific connector type and availability time range: [Example](../../../../examples/ev-charging/v2/01_discover/discovery-within-a-timerange.json)
 
 1. **filters**  
    1. **String:** A boolean predicate over items (JSONPath/JMESPath-style) to enforce strict constraints.  
@@ -3842,7 +3842,7 @@ Discovering chargers in a specific circular area, a specific connector type and 
 ```
 </details>
 
-CPO returns EV Charging Service Catalog Listing: [Example](../../../examples/ev_charging/v2/02_on_discover/ev-charging-discovery-catalog.json)
+CPO returns EV Charging Service Catalog Listing: [Example](../../../../examples/ev-charging/v2/02_on_discover/ev-charging-discovery-catalog.json)
 
 Used together, these bring **true semantic meaning** to the payload, allowing any system to interpret the data consistently based on shared schema definitions.
 
@@ -3948,7 +3948,7 @@ Offer schema in the catalog:
 
 - Method: POST
 - Use Cases: Adam selects a charging session slot. 
-- Request: EV user requests charge worth specific KWH: [Example](../../../examples/ev_charging/v2/03_select/ev-charging-select.json)
+- Request: EV user requests charge worth specific KWH: [Example](../../../../examples/ev-charging/v2/03_select/ev-charging-select.json)
 
 1. **beckn:orderItems:**  
    1. Defines what the buyer has chosen to purchase or book — in this case, the EV charging service.  
@@ -4060,7 +4060,7 @@ Offer schema in the catalog:
 
 - Method: POST
 - Use Cases: Adam receives an estimated quotation for the selected slot. 
-- Request: CPO responds with dynamically calculated quote: [Example](../../../examples/ev_charging/v2/04_on_select/ev-charging-on-select.json)
+- Request: CPO responds with dynamically calculated quote: [Example](../../../../examples/ev-charging/v2/04_on_select/ev-charging-on-select.json)
 
 1. **beckn:orderItemAttributes:**  
    1. Returned by the BPP to confirm item-specific technical and commercial details.  
@@ -4305,7 +4305,7 @@ Note: These are example implementation approaches. Different networks may choose
 
 - Method: POST
 - Use Cases: The BAP agrees to collect the payment and sends the payload along with its settlement account details for reconciliation.
-- Request: The BAP app requests the final quote and payment terms by submitting billing details along with approval from the BPP to collect the payment: [Example](../../../examples/ev_charging/v2/05_init/ev-charging-bap-payment-init.json)
+- Request: The BAP app requests the final quote and payment terms by submitting billing details along with approval from the BPP to collect the payment: [Example](../../../../examples/ev-charging/v2/05_init/ev-charging-bap-payment-init.json)
 
 1. **order.beckn:id:**
    When the BAP collects the payment, it generates the orderId and includes it in the init payload sent to the BPP.
@@ -4463,7 +4463,7 @@ Recommendations for BAP:
 
 - Method: POST
 - Use Cases: The BAP receives approval for payment collection on the behalf of BPP.
-- Request: The CPO confirms acceptance of BAP-led payment collection and shares the BPP’s settlement account details: [Example](../../../examples/ev_charging/v2/06_on_init/ev-charging-bpp-payment-on-init.json)
+- Request: The CPO confirms acceptance of BAP-led payment collection and shares the BPP’s settlement account details: [Example](../../../../examples/ev-charging/v2/06_on_init/ev-charging-bpp-payment-on-init.json)
 
   1. **beckn:payment:**  
       Represents the finalized payment details returned by the BPP after the init stage — this confirms how the user can complete payment before order confirmation.  
@@ -4693,7 +4693,7 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
 
 - Method: POST
 - Use Cases: Adam accepts the terms of the order and confirms the order.
-- Request: EV user confirms reservation of a slot at a particular charging station at a particular time: [Example](../../../examples/ev_charging/v2/07_confirm/ev-charging-confirm.json)
+- Request: EV user confirms reservation of a slot at a particular charging station at a particular time: [Example](../../../../examples/ev-charging/v2/07_confirm/ev-charging-confirm.json)
   1. **beckn:payment:**  
       Captures the *final* payment record returned after successful transaction confirmation — this confirms the completion of the payment flow.  
   2. **beckn:status:**  
@@ -4848,7 +4848,7 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
 - Method: POST
 - Use Cases: Adam receives an order ID and QR code, plus a navigation link to the charging site.
 - Request: 
-  CPO responds with confirmed slot: [Example](../../../examples/ev_charging/v2/08_00_on_confirm/ev-charging-on-confirm.json)
+  CPO responds with confirmed slot: [Example](../../../../examples/ev-charging/v2/08_00_on_confirm/ev-charging-on-confirm.json)
 
   **ev:fulfillmentstate:**  
   Represents the *real-time operational state* of the charging session.
@@ -5017,8 +5017,8 @@ Once these physical steps are completed, the charging session can be initiated t
 
 - Method: POST
 - Use Cases: On arrival, Adam scans the charger’s **QR code**. The backend matches it to her **reservation ID**, verifies her **OTP authorization**, and starts charging.
-- Request: EV user starts a charging session: [Example](../../../examples/v2/ev_charging/v2/09_update/ev-charging-01-session-start-update.json)
-  **beckn:[fulfillment.ev](http://fulfillment.ev):fulfillmentstate:** Communicates the *real-time operational status* of the charging session.
+- Request: EV user starts a charging session: [Example](../../../../examples/ev-charging/v2/09_update/ev-charging-01-session-start-update.json)
+  **beckn:fulfillment.ev:fulfillmentstate:** Communicates the *real-time operational status* of the charging session.
 
   * "Charging Active" / code "CHARGING-ACTIVE" indicates that the EV charging session has started and energy delivery is in progress.  
   * This state can evolve (e.g., to "CHARGING-COMPLETED", "STOPPED", etc.) as updates continue from the BPP.
@@ -5162,7 +5162,7 @@ Once these physical steps are completed, the charging session can be initiated t
 
 - Method: POST
 - Use Cases: Adam receives an acknowledgement on charging initialisation.
-- Request: CPO starts a charging session: [Example](../../../examples/v2/ev_charging/v2/10_on_update/ev-charging-session-on-update.json)
+- Request: CPO starts a charging session: [Example](../../../../examples/ev-charging/v2/10_on_update/ev-charging-session-on-update.json)
 
   **Ev:fulfillmentstate:** Communicates the *real-time charging session state* as sent back by the BPP.
 
@@ -5301,7 +5301,7 @@ Once these physical steps are completed, the charging session can be initiated t
 
 - Method: POST
 - Use Cases: Adam initiates a request to track the charging progress of the active charging session.
-- Request: EV User tracks a live charging session in real-time: [Example](../../../examples/ev_charging/v2/11_status/ev-charging-session-track.json)
+- Request: EV User tracks a live charging session in real-time: [Example](../../../../examples/ev-charging/v2/11_status/ev-charging-session-track.json)
 
   **beckn:orderAttributes:**  
   Holds parameters that instruct how the tracking process should operate during an ongoing session.
@@ -5368,7 +5368,7 @@ Once these physical steps are completed, the charging session can be initiated t
 
 - Method: POST
 - Use Cases: Adam receives the current charging progress.
-- Request: EV User receives live charging session details in real-time: [Example](../../../examples/ev_charging/v2/12_on_status/ev-charging-session-on-track.json)
+- Request: EV User receives live charging session details in real-time: [Example](../../../../examples/ev-charging/v2/12_on_status/ev-charging-session-on-track.json)
 
   **ev:charging\_periods:**  
   Represents the *current charging interval* and real-time measurements captured during that period.
@@ -5510,7 +5510,7 @@ Once these physical steps are completed, the charging session can be initiated t
 ```
 </details>
 
-EV User receives live charging session details in real-time: [Example](../../../examples/ev_charging/v2/12_on_status/ev-charging-session-on-track.json)
+EV User receives live charging session details in real-time: [Example](../../../../examples/ev-charging/v2/12_on_status/ev-charging-session-on-track.json)
 
 **ev:charging\_periods:**  
 Represents the *current charging interval* and real-time measurements captured during that period.
@@ -5593,7 +5593,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
 
 - Method: POST
 - Use Cases: Adam receives notification when there is any error during an ongoing charging session.
-- Request: EV user reveives details in case of any error during a charging session: [Example](../../../examples/ev_charging/v2/13_on_status/ev-charging-session-interrupt-on-status.json)
+- Request: EV user reveives details in case of any error during a charging session: [Example](../../../../examples/ev-charging/v2/13_on_status/ev-charging-session-interrupt-on-status.json)
 
 <details>
 <summary><a href="../../../../examples/ev-charging/v2/13_on_status/ev-charging-session-interrupt-on-status.json">Example json :rocket:</a></summary>
@@ -5719,7 +5719,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
 
 - Method: POST
 - Use Cases: Use Cases: Adam receives an update when the charging session ends. This might reflect payment adjustment as per use.
-- Request: EV user receives final order details after the charging session ends: [Example](../../../examples/ev_charging/v2/14_02_on_update/ev-charging-sesion-complete-on-update.json)
+- Request: EV user receives final order details after the charging session ends: [Example](../../../../examples/ev-charging/v2/14_02_on_update/ev-charging-session-complete-on-update.json)
 
   1. **ev:fulfillmentstate:**  
     "Charging Completed" / code "CHARGING-COMPLETED" indicates that the charging session has ended successfully and all energy delivery is complete.  
@@ -5847,8 +5847,8 @@ API Implementation: The above under and overcharge scenarios are supported throu
 
 - Method: POST 
 - Use Case: Adam receives an update when the charging session ends. This might reflect payment adjustment as per use.
-- EV user ends the charging session: [Example](../../../examples/ev_charging/v2/14_01_update/ev-charging-session-end-update.json)
-- Receives on_update response with completed status. [Example](/examples/ev_charging/v2/14_02_on_update/ev-charging-session-complete-on-update.json)
+- EV user ends the charging session: [Example](../../../../examples/ev-charging/v2/14_01_update/ev-charging-session-end-update.json)
+- Receives on_update response with completed status. [Example](/examples/ev-charging/v2/14_02_on_update/ev-charging-session-complete-on-update.json)
 - Request:
 
 <details>
@@ -5964,7 +5964,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
 ```
 </details>
 
-- Successful Response: EV user cancels a charging slot reservation: [Example](../../../examples/ev_charging/v2/19_cancel/ev-charging-cancel-reserved-slot.json)
+- Successful Response: EV user cancels a charging slot reservation: [Example](../../../../examples/ev-charging/v2/19_cancel/ev-charging-cancel-reserved-slot.json)
 
 <details>
 <summary>Example json :rocket:</summary>
@@ -6016,7 +6016,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
 ```
 </details>
 
-- Successful Response: CPO cancels a charging session reservation: [Example](../../../examples/ev_charging/v2/20_on_cancel/ev-charging-bpp-reservation-on-cancel.json)
+- Successful Response: CPO cancels a charging session reservation: [Example](../../../../examples/ev-charging/v2/20_on_cancel/ev-charging-bpp-reservation-on-cancel.json)
 
 <details>
 <summary>Example json :rocket:</summary>
@@ -6056,7 +6056,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
 ```
 </details>
 
-- Successful Response: EV user rates charging service experience: [Example](../../../examples/ev_charging/v2/15_rating/time-based-ev-charging-slot-rating.json)
+- Successful Response: EV user rates charging service experience:
 
 <details>
 <summary>Example json :rocket:</summary>
@@ -6137,7 +6137,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
 
 - Method: POST
 - Use Cases: Adam receives an acknowledgement.
-- Request: CPO accepts rating: [Example](../../../examples/ev_charging/16_on_rating/v2/ev-charging-session-on-rating.json)
+- Request: CPO accepts rating: [Example](../../../../examples/ev-charging/v2/16_on_rating/ev-charging-session-on-rating.json)
 
 <details>
 <summary><a href="../../../../examples/ev-charging/v2/16_on_rating/ev-charging-session-on-rating.json">Example json :rocket:</a></summary>
@@ -6188,7 +6188,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
 
 - Method: POST
 - Use Cases: Adma reaches out for support.
-- Request: EV user contacts support: [Example](../../../examples/ev_charging/v2/17_support/ev-charging-session-support.json)
+- Request: EV user contacts support: [Example](../../../../examples/ev-charging/v2/17_support/ev-charging-session-support.json)
 
 <details>
 <summary><a href="../../../../examples/ev-charging/v2/17_support/ev-charging-session-support.json">Example json :rocket:</a></summary>
@@ -6245,7 +6245,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
 
 - Method: POST
 - Use Cases: Raghav receives a response to his support request.
-- Request: CPO returns support information: [Example](../../../examples/ev_charging/v2/18_on_support/ev-charging-session-on-support.json)
+- Request: CPO returns support information: [Example](../../../../examples/ev-charging/v2/18_on_support/ev-charging-session-on-support.json)
 
 <details>
 <summary><a href="../../../../examples/ev-charging/v2/18_on_support/ev-charging-session-on-support.json">Example json :rocket:</a></summary>

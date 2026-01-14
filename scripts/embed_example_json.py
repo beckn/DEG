@@ -117,10 +117,10 @@ def main() -> None:
 
     e.g. 
     to preview changes without modifying the file:
-    python3 scripts/embed_example_json.py docs/implementation-guides/v2/EV_Charging_V0.8-draft.md --dry-run
+    python3 scripts/embed_example_json.py docs/implementation-guides/v2/EV_Charging/EV_Charging.md --dry-run
 
     to update the file with embedded JSON:
-    python3 scripts/embed_example_json.py docs/implementation-guides/v2/EV_Charging_V0.8-draft.md 
+    python3 scripts/embed_example_json.py docs/implementation-guides/v2/EV_Charging/EV_Charging.md 
     """
 
     parser = argparse.ArgumentParser(
@@ -128,7 +128,7 @@ def main() -> None:
         epilog=(
             "Example:\n"
             "  python3 scripts/embed_example_json.py "
-            "docs/implementation-guides/v2/EV_Charging_V0.8-draft.md"
+            "docs/implementation-guides/v2/EV_Charging/EV_Charging.md"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )

@@ -174,4 +174,4 @@ Energy Contracts formalize energy transactions in the Digital Energy Grid. Emerg
 - [Energy Intent](./Energy%20intent.md) - Consumer demand forming contracts
 - [Energy Catalogue](./Energy%20catalogue.md) - Provider supply forming contracts
 - [Energy Resource](./Energy%20resource.md) - Resources bound by contracts
-- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging_V0.8-draft.md) - Contract examples
+- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging/EV_Charging.md) - Contract examples

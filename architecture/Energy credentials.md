@@ -395,6 +395,6 @@ By combining VCs with Energy Resource Addresses and Decentralized Identifiers, D
 - [Energy Resource Address](./Energy%20resource%20address.md) - Addressable identifiers for resources
 - [Energy Catalogue](./Energy%20catalogue.md) - How credentials affect service offerings
 - [Energy Contract](./Energy%20contract.md) - How credentials shape agreements
-- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging_V0.8-draft.md) - Credential usage in practice
+- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging/EV_Charging.md) - Credential usage in practice
 - [W3C Verifiable Credentials Data Model](https://www.w3.org/TR/vc-data-model/) - Standard specification
 - [W3C Decentralized Identifiers](https://www.w3.org/TR/did-core/) - DID specification

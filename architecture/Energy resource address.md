@@ -185,5 +185,5 @@ Whether global or local, ERAs ensure that every participant - from massive utili
 
 - [Energy Resource](./Energy%20resource.md) - What gets addressed by ERAs
 - [Energy Credentials](./Energy%20credentials.md) - Trust attestations tied to ERAs
-- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging_V0.8-draft.md) - ERA usage in practice
+- [EV Charging Implementation Guide](../docs/implementation-guides/v2/EV_Charging/EV_Charging.md) - ERA usage in practice
 - [DeDi.global](https://publish.dedi.global/) - Registry platform for namespace and ERA management
