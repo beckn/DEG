@@ -61,6 +61,7 @@ services:
 
   onix-utilitybpp:
     image: fidedocker/onix-adapter
+    pull_policy: never 
     container_name: onix-utilitybpp
     platform: linux/amd64
     networks:
@@ -82,8 +83,9 @@ services:
 
   sandbox-bap:
     container_name: sandbox-bap
+    
     image: fidedocker/sandbox-2.0:latest
-    platform: linux/amd64
+
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -100,9 +102,9 @@ services:
     
   sandbox-bpp:
     container_name: sandbox-bpp
+
     image: fidedocker/sandbox-2.0:latest
-    pull_policy: never 
-    # platform: linux/amd64
+
     environment:
       - NODE_ENV=production
       - PORT=3002
@@ -120,9 +122,9 @@ services:
 
   sandbox-utilitybpp:
     container_name: sandbox-utilitybpp
+
     image: fidedocker/sandbox-2.0:latest
-    pull_policy: never 
-    # platform: linux/amd64
+
     environment:
       - NODE_ENV=production
       - PORT=3003
