@@ -1,0 +1,81 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "init",
+    "domain": "beckn.one:deg:p2p-enrollment:2.0.0",
+    "timestamp": "2024-10-15T11:00:00Z",
+    "message_id": "msg-init-prosumer-001",
+    "transaction_id": "txn-onboard-prosumer-001",
+    "bap_id": "ea-portal.example.com",
+    "bap_uri": "https://ea-portal.example.com/beckn",
+    "bpp_id": "vpp-program-owner.example.com",
+    "bpp_uri": "https://vpp-program-owner.example.com/beckn",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-onboard-prosumer-001",
+      "beckn:orderStatus": "CREATED",
+      "beckn:seller": "vpp-program-p2p-001",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "did:example:prosumer-789"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "program-vpp-p2p-001"
+        }
+      ],
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-onboard-prosumer-001",
+        "beckn:mode": "DIGITAL",
+        "beckn:fulfillmentStatus": "PENDING",
+        "beckn:deliveryAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld",
+          "@type": "EnergyEnrollment",
+          "meters": [
+            {
+              "meterId": "umid-002",
+              "utilityId": "utility-example-001"
+            }
+          ],
+          "ders": [
+            {
+              "derId": "der-solar-001",
+              "type": "SOLAR_PV",
+              "capacityValue": 10.0,
+              "capacityUnit": "kW"
+            },
+            {
+              "derId": "der-battery-001",
+              "type": "BATTERY_STORAGE",
+              "capacityValue": 15.0,
+              "capacityUnit": "kWh"
+            }
+          ]
+        }
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld",
+        "@type": "EnergyEnrollment",
+        "userAuth": {
+          "authMethod": "OTP",
+          "mobile": "+919876543210",
+          "userType": "PROSUMER"
+        },
+        "meterOwnershipCredential": {
+          "credentialId": "vc-meter-ownership-002",
+          "type": "MeterOwnershipCredential",
+          "format": "VC-JWT",
+          "credentialData": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+          "verificationUrl": "https://utility-example-001.com/verify/vc-meter-ownership-002"
+        }
+      }
+    }
+  }
+}

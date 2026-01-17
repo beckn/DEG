@@ -1,0 +1,69 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_init",
+    "domain": "beckn.one:deg:p2p-enrollment:2.0.0",
+    "timestamp": "2024-10-15T10:30:05Z",
+    "message_id": "msg-on-init-conflict-001",
+    "transaction_id": "txn-onboard-conflict-001",
+    "bap_id": "utility-portal.example.com",
+    "bap_uri": "https://utility-portal.example.com/beckn",
+    "bpp_id": "vpp-program-owner.example.com",
+    "bpp_uri": "https://vpp-program-owner.example.com/beckn",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-onboard-conflict-001",
+      "beckn:orderStatus": "REJECTED",
+      "beckn:seller": "vpp-program-flex-001",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "did:example:user-12345"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "program-flex-demand-response-001"
+        }
+      ],
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-onboard-001",
+        "beckn:mode": "DIGITAL",
+        "beckn:fulfillmentStatus": "PENDING"
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld",
+        "@type": "EnergyEnrollment",
+        "credentialVerification": {
+          "status": "VERIFIED"
+        },
+        "conflictCheck": {
+          "hasConflict": true,
+          "conflictingEnrollments": [
+            {
+              "enrollmentId": "enrollment-existing-001",
+              "programId": "program-flex-other-001",
+              "conflictReason": "Meter umid-001 is already enrolled in program-flex-other-001 from 2024-09-01 to 2025-09-01",
+              "conflictType": "METER_ALREADY_ENROLLED"
+            }
+          ],
+          "checkedAt": "2024-10-15T10:30:05Z"
+        }
+      }
+    }
+  },
+  "error": {
+    "code": "BIZ_ENROLLMENT_CONFLICT",
+    "message": "Enrollment conflicts with existing enrollment. Meter umid-001 is already enrolled in another program.",
+    "details": {
+      "path": "$.message.order.orderAttributes.conflictCheck",
+      "conflictingEnrollmentId": "enrollment-existing-001",
+      "conflictEndDate": "2025-09-01T00:00:00Z"
+    }
+  }
+}

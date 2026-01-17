@@ -244,24 +244,81 @@ def load_schema_for_context_url(context_url, attribute_schemas_map, registry_lis
         return None
 
 
-def _validate_attribute_object(data, schema_def, schema_type, schema_name, path, errors, registry_list):
+def _validate_attribute_object(data, schema_def, schema_type, schema_name, path, errors, registry_list, schema_url=None):
     """
     Validate a domain-specific attribute object against its schema.
     
-    Modifies the schema to allow @context and @type properties even when
-    additionalProperties is False, as these are required for JSON-LD.
+    Uses $ref to full document to allow nested $ref resolution, then handles
+    @context and @type properties which are required for JSON-LD.
     
     Args:
         data: Object data to validate
-        schema_def: Schema definition from attributes.yaml
+        schema_def: Schema definition from attributes.yaml (used as fallback)
         schema_type: Type name for logging (e.g., "ChargingOffer")
         schema_name: Schema name for logging (e.g., "EvChargingOffer")
         path: JSON path for error reporting
         errors: List to append validation errors to
         registry_list: Registry list for reference resolution
+        schema_url: Full URL to the attributes.yaml file (for $ref resolution)
     """
     print(f"  Validating {schema_type} (from {schema_name}) at {path or 'root'}...")
     
+    # Try using $ref to full document first (allows nested $ref resolution)
+    if schema_url:
+        try:
+            # Get the full document resource from registry
+            full_doc_resource = registry_list[0].get(schema_url)
+            if full_doc_resource:
+                full_doc = full_doc_resource.contents
+                # Extract the schema from the full document
+                if "components" in full_doc and "schemas" in full_doc["components"]:
+                    target_schema = full_doc["components"]["schemas"].get(schema_type)
+                    if target_schema:
+                        # Recursively convert relative $ref to absolute $ref
+                        # Also need to handle nested schemas referenced within this schema
+                        def convert_relative_refs(obj, base_url, full_doc_schemas=None):
+                            """Recursively convert relative $ref to absolute $ref"""
+                            if isinstance(obj, dict):
+                                result = {}
+                                for k, v in obj.items():
+                                    if k == "$ref" and isinstance(v, str) and v.startswith("#"):
+                                        # Convert relative ref to absolute
+                                        result[k] = f"{base_url}{v}"
+                                    elif k == "allOf" and isinstance(v, list):
+                                        # Handle allOf with $ref - convert $ref in allOf items
+                                        result[k] = [convert_relative_refs(item, base_url, full_doc_schemas) for item in v]
+                                    else:
+                                        result[k] = convert_relative_refs(v, base_url, full_doc_schemas)
+                                return result
+                            elif isinstance(obj, list):
+                                return [convert_relative_refs(item, base_url, full_doc_schemas) for item in obj]
+                            return obj
+                        
+                        # Get schema and convert relative $ref to absolute $ref
+                        resolved_schema = copy.deepcopy(target_schema)
+                        resolved_schema = convert_relative_refs(resolved_schema, schema_url)
+                        
+                        # Modify to allow @context and @type (required for JSON-LD)
+                        if resolved_schema.get("additionalProperties") is False:
+                            if "properties" not in resolved_schema:
+                                resolved_schema["properties"] = {}
+                            resolved_schema["properties"]["@context"] = {"type": "string"}
+                            resolved_schema["properties"]["@type"] = {"type": "string"}
+                        
+                        # Validate against the resolved and modified schema
+                        validate(instance=data, schema=resolved_schema, registry=registry_list[0])
+                        print(f"  {schema_type} at {path or 'root'} is VALID.")
+                        return
+        except ValidationError as e:
+            print(f"  {schema_type} at {path or 'root'} is INVALID: {e.message}")
+            print(f"  Path: {e.json_path}")
+            errors.append(f"{path} ({schema_type}): {e.message}")
+            return
+        except Exception as e:
+            # Fallback to direct validation if $ref resolution fails
+            pass
+    
+    # Fallback: direct validation with schema fragment (may fail on nested $ref)
     validation_schema = copy.deepcopy(schema_def)
     if validation_schema.get("additionalProperties") is False:
         if "properties" not in validation_schema:
@@ -378,12 +435,12 @@ def validate_payload(payload, registry_list, attributes_schema, attribute_schema
                                 
                                 # Try exact match first
                                 if schema_type in schemas:
-                                    _validate_attribute_object(data, schemas[schema_type], schema_type, schema_name, path, errors, registry_list)
+                                    _validate_attribute_object(data, schemas[schema_type], schema_type, schema_name, path, errors, registry_list, schema_url)
                                 else:
                                     # Try case-insensitive match
                                     for schema_key, schema_def in schemas.items():
                                         if schema_key.lower() == schema_type.lower():
-                                            _validate_attribute_object(data, schema_def, schema_key, schema_name, path, errors, registry_list)
+                                            _validate_attribute_object(data, schema_def, schema_key, schema_name, path, errors, registry_list, schema_url)
                                             break
             
             # Recursively check children

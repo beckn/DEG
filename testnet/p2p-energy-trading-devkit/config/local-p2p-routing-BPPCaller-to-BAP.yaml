@@ -1,6 +1,5 @@
 routingRules:
-  - domain: "beckn.one:deg:ev-charging:2.0.0"  # Retail domain
-    version: "2.0.0"
+  - version: "2.0.0"
     targetType: "bap"
     endpoints:
       - on_status
@@ -16,6 +15,6 @@ routingRules:
   - version: "2.0.0"
     targetType: "url"
     target:
-      url: "https://34.93.141.21.sslip.io/beckn/v2/catalog"
+      url: "https://34.93.141.21.sslip.io/beckn/catalog"
     endpoints:
       - publish

@@ -31,18 +31,18 @@ modules:
         registry:
           id: dediregistry
           config:
-            url: http://34.14.173.68:8080/dedi
+            url: https://api.testnet.beckn.one/registry/dedi
             registryName: subscribers.beckn.one
             timeout: 10
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: ev-charging.sandbox1.com
-            keyId: 76EU7PktCXdPoNEZBjmg4Eb25A2egsd5MYJ67Qxza7bJQFvBHCYxgk
-            signingPrivateKey: 9NBh67Pk/6v3irrkYZHlQ5E1qw+GivHdDFtKeCylzIM=
-            signingPublicKey: Z3Hnc8FZDo/7dwWApeRVs6OV560gr7uxPsFUDGUMsBg=
-            encrPrivateKey: 9NBh67Pk/6v3irrkYZHlQ5E1qw+GivHdDFtKeCylzIM=
-            encrPublicKey: Z3Hnc8FZDo/7dwWApeRVs6OV560gr7uxPsFUDGUMsBg=
+            networkParticipant: p2p-trading-sandbox1.com
+            keyId: 76EU8aUqHouww7gawT6EibH4bseMCumyDv3sgyXSKENGk8NDcdVwmQ
+            signingPrivateKey: Pc6dkYo5LeP0LkwvZXVRV9pcbeh8jDdtdHWymID5cjw=
+            signingPublicKey: KVYEWkQB2WwnttVMWfy7KrnqiD51ZDvi8vfCac2IwRE=
+            encrPrivateKey: Pc6dkYo5LeP0LkwvZXVRV9pcbeh8jDdtdHWymID5cjw=
+            encrPublicKey: KVYEWkQB2WwnttVMWfy7KrnqiD51ZDvi8vfCac2IwRE=
         schemaValidator:
           id: schemav2validator
           config:
@@ -53,7 +53,7 @@ modules:
             extendedSchema_cacheTTL: "86400"
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
-            extendedSchema_allowedDomains: "raw.githubusercontent.com,schemas.beckn.org"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schemas.beckn.org"            
         cache:
           id: cache
           config:
@@ -63,7 +63,7 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-ev-routing-BAPReceiver.yaml
+            routingConfig: ./config/local-p2p-routing-BAPReceiver.yaml
         middleware:
           - id: reqpreprocessor
             config:
@@ -88,18 +88,18 @@ modules:
         registry:
           id: dediregistry
           config:
-            url: http://34.14.173.68:8080/dedi
+            url: https://api.testnet.beckn.one/registry/dedi
             registryName: subscribers.beckn.one
             timeout: 10
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: ev-charging.sandbox1.com
-            keyId: 76EU7PktCXdPoNEZBjmg4Eb25A2egsd5MYJ67Qxza7bJQFvBHCYxgk
-            signingPrivateKey: 9NBh67Pk/6v3irrkYZHlQ5E1qw+GivHdDFtKeCylzIM=
-            signingPublicKey: Z3Hnc8FZDo/7dwWApeRVs6OV560gr7uxPsFUDGUMsBg=
-            encrPrivateKey: 9NBh67Pk/6v3irrkYZHlQ5E1qw+GivHdDFtKeCylzIM=
-            encrPublicKey: Z3Hnc8FZDo/7dwWApeRVs6OV560gr7uxPsFUDGUMsBg=
+            networkParticipant: p2p-trading-sandbox1.com
+            keyId: 76EU8aUqHouww7gawT6EibH4bseMCumyDv3sgyXSKENGk8NDcdVwmQ
+            signingPrivateKey: Pc6dkYo5LeP0LkwvZXVRV9pcbeh8jDdtdHWymID5cjw=
+            signingPublicKey: KVYEWkQB2WwnttVMWfy7KrnqiD51ZDvi8vfCac2IwRE=
+            encrPrivateKey: Pc6dkYo5LeP0LkwvZXVRV9pcbeh8jDdtdHWymID5cjw=
+            encrPublicKey: KVYEWkQB2WwnttVMWfy7KrnqiD51ZDvi8vfCac2IwRE=
         schemaValidator:
           id: schemav2validator
           config:
@@ -118,7 +118,7 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-ev-routing-BAPCaller.yaml
+            routingConfig: ./config/local-p2p-routing-BAPCaller.yaml
         signer:
           id: signer
         middleware:
@@ -130,4 +130,3 @@ modules:
         - addRoute
         - sign
         - validateSchema
-  

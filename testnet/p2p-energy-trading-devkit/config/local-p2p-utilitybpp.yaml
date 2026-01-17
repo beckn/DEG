@@ -9,7 +9,7 @@ log:
     - subscriber_id
     - module_id
 http:
-  port: 8081
+  port: 8083
   timeout:
     read: 30
     write: 30
@@ -17,11 +17,11 @@ http:
 pluginManager:
   root: ./plugins
 modules:
-  - name: bapTxnReceiver
-    path: /bap/receiver/
+  - name: utilitybppTxnReceiver
+    path: /bpp/receiver/
     handler:
       type: std
-      role: bap
+      role: bpp
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200
@@ -31,18 +31,18 @@ modules:
         registry:
           id: dediregistry
           config:
-            url: http://34.14.173.68:8080/dedi
+            url: https://api.testnet.beckn.one/registry/dedi
             registryName: subscribers.beckn.one
             timeout: 10
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: ev-charging.sandbox1.com
-            keyId: 76EU7PktCXdPoNEZBjmg4Eb25A2egsd5MYJ67Qxza7bJQFvBHCYxgk
-            signingPrivateKey: 9NBh67Pk/6v3irrkYZHlQ5E1qw+GivHdDFtKeCylzIM=
-            signingPublicKey: Z3Hnc8FZDo/7dwWApeRVs6OV560gr7uxPsFUDGUMsBg=
-            encrPrivateKey: 9NBh67Pk/6v3irrkYZHlQ5E1qw+GivHdDFtKeCylzIM=
-            encrPublicKey: Z3Hnc8FZDo/7dwWApeRVs6OV560gr7uxPsFUDGUMsBg=
+            networkParticipant: p2p-trading-sandbox3.com
+            keyId: 76EU8cNkz3dBEVaR5THuyCciMv9FbA2QqDADHX88WPyYP4v5Cp9ADD
+            signingPrivateKey: YW0ObrW6Ca+RLi+rVoxavW6dsC3BuzAx2v9qfutFUcc=
+            signingPublicKey: vSAbdarosQEp7CGf18oYIjdG9ewS1gESsmY3TmfzZog=
+            encrPrivateKey: YW0ObrW6Ca+RLi+rVoxavW6dsC3BuzAx2v9qfutFUcc=
+            encrPublicKey: vSAbdarosQEp7CGf18oYIjdG9ewS1gESsmY3TmfzZog=
         schemaValidator:
           id: schemav2validator
           config:
@@ -53,7 +53,7 @@ modules:
             extendedSchema_cacheTTL: "86400"
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
-            extendedSchema_allowedDomains: "raw.githubusercontent.com,schemas.beckn.org"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schemas.beckn.org"            
         cache:
           id: cache
           config:
@@ -63,22 +63,17 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-ev-routing-BAPReceiver.yaml
-        middleware:
-          - id: reqpreprocessor
-            config:
-              uuidKeys: transaction_id,message_id
-              role: bap
+            routingConfig: ./config/local-p2p-routing-UtilityBPPReceiver.yaml
       steps:
         - validateSign
         - addRoute
         - validateSchema
   
-  - name: bapTxnCaller
-    path: /bap/caller/
+  - name: utilitybppTxnCaller
+    path: /bpp/caller/
     handler:
       type: std
-      role: bap
+      role: bpp
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200
@@ -88,18 +83,18 @@ modules:
         registry:
           id: dediregistry
           config:
-            url: http://34.14.173.68:8080/dedi
+            url: https://api.testnet.beckn.one/registry/dedi
             registryName: subscribers.beckn.one
             timeout: 10
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: ev-charging.sandbox1.com
-            keyId: 76EU7PktCXdPoNEZBjmg4Eb25A2egsd5MYJ67Qxza7bJQFvBHCYxgk
-            signingPrivateKey: 9NBh67Pk/6v3irrkYZHlQ5E1qw+GivHdDFtKeCylzIM=
-            signingPublicKey: Z3Hnc8FZDo/7dwWApeRVs6OV560gr7uxPsFUDGUMsBg=
-            encrPrivateKey: 9NBh67Pk/6v3irrkYZHlQ5E1qw+GivHdDFtKeCylzIM=
-            encrPublicKey: Z3Hnc8FZDo/7dwWApeRVs6OV560gr7uxPsFUDGUMsBg=
+            networkParticipant: p2p-trading-sandbox3.com
+            keyId: 76EU8cNkz3dBEVaR5THuyCciMv9FbA2QqDADHX88WPyYP4v5Cp9ADD
+            signingPrivateKey: YW0ObrW6Ca+RLi+rVoxavW6dsC3BuzAx2v9qfutFUcc=
+            signingPublicKey: vSAbdarosQEp7CGf18oYIjdG9ewS1gESsmY3TmfzZog=
+            encrPrivateKey: YW0ObrW6Ca+RLi+rVoxavW6dsC3BuzAx2v9qfutFUcc=
+            encrPublicKey: vSAbdarosQEp7CGf18oYIjdG9ewS1gESsmY3TmfzZog=
         schemaValidator:
           id: schemav2validator
           config:
@@ -110,7 +105,7 @@ modules:
             extendedSchema_cacheTTL: "86400"
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
-            extendedSchema_allowedDomains: "raw.githubusercontent.com,schemas.beckn.org"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schemas.beckn.org"            
         cache:
           id: cache
           config:
@@ -118,16 +113,15 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-ev-routing-BAPCaller.yaml
+            routingConfig: ./config/local-p2p-routing-UtilityBPPCaller.yaml
         signer:
           id: signer
         middleware:
           - id: reqpreprocessor
             config:
               uuidKeys: transaction_id,message_id
-              role: bap
+              role: bpp          
       steps:
         - addRoute
         - sign
         - validateSchema
-  

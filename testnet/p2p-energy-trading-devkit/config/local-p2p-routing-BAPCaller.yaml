@@ -1,6 +1,5 @@
 routingRules:
-  - domain: "beckn.one:deg:ev-charging:2.0.0"  # Retail domain
-    version: "2.0.0"
+  - version: "2.0.0"
     targetType: "bpp"
     endpoints:
       - select
@@ -13,10 +12,9 @@ routingRules:
       - rating
       - support
 
-  - domain: "beckn.one:deg:ev-charging:2.0.0"  # Retail domain
-    version: "2.0.0"
+  - version: "2.0.0"
     targetType: "url"
-    target: # URL of Catalog Discovery Service
+    target:
       url: "https://34.93.141.21.sslip.io/beckn" #test CDS URL
     endpoints:
       - discover

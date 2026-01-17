@@ -1,0 +1,185 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_status",
+    "timestamp": "2024-10-04T15:00:05Z",
+    "message_id": "msg-on-status-001",
+    "transaction_id": "txn-energy-001",
+    "bap_id": "bap.energy-consumer.com",
+    "bap_uri": "https://bap.energy-consumer.com",
+    "bpp_id": "bpp.energy-provider.com",
+    "bpp_uri": "https://bpp.energy-provider.com",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading:2.0.0"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-energy-001",
+      "beckn:orderStatus": "CREATED",
+      "beckn:seller": "provider-solar-farm-001",
+      "beckn:buyer": {
+        "beckn:id": "buyer-001",
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+                "@type": "beckn:Buyer"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "energy-resource-solar-001",
+          "beckn:quantity": {
+            "unitQuantity": 15.0,
+            "unitText": "kWh"
+          },
+          "beckn:orderItemAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyCustomer/v0.1/context.jsonld",
+            "@type": "EnergyCustomer",
+            "meterId": "der://meter/98765456",
+            "utilityCustomerId": "UTIL-CUST-123456"
+          },
+          "beckn:acceptedOffer": {
+            "beckn:id": "offer-morning-001",
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Morning Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ],
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOffer/v0.2/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "settlementType": "DAILY",
+              "sourceMeterId": "der://meter/100200300",
+              "beckn:price": {
+                "value": 0.15,
+                "currency": "USD",
+                "unitText": "kWh"
+              },
+              "beckn:maxQuantity": {
+                "unitQuantity": 20.0,
+                "unitText": "kWh",
+                "unitCode": "KWH"
+              },
+              "beckn:timeWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T06:00:00Z",
+                "schema:endTime": "2026-01-09T12:00:00Z"
+              }
+            }
+          }
+        },
+        {
+          "beckn:orderedItem": "energy-resource-solar-001",
+          "beckn:quantity": {
+            "unitQuantity": 10.0,
+            "unitText": "kWh"
+          },
+          "beckn:orderItemAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyCustomer/v0.1/context.jsonld",
+            "@type": "EnergyCustomer",
+            "meterId": "der://meter/98765456",
+            "utilityCustomerId": "UTIL-CUST-123456"
+          },
+          "beckn:acceptedOffer": {
+            "beckn:id": "offer-afternoon-001",
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Afternoon Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ],
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOffer/v0.2/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "settlementType": "DAILY",
+              "sourceMeterId": "der://meter/100200300",
+              "beckn:price": {
+                "value": 0.18,
+                "currency": "USD",
+                "unitText": "kWh"
+              },
+              "beckn:maxQuantity": {
+                "unitQuantity": 15.0,
+                "unitText": "kWh",
+                "unitCode": "KWH"
+              },
+              "beckn:timeWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T12:00:00Z",
+                "schema:endTime": "2026-01-09T18:00:00Z"
+              }
+            }
+          }
+        }
+      ],
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-energy-001",
+        "beckn:mode": "DELIVERY",
+        "beckn:deliveryAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeDelivery/v0.2/context.jsonld",
+          "@type": "EnergyTradeDelivery",
+          "deliveryStatus": "IN_PROGRESS",
+          "deliveryMode": "GRID_INJECTION",
+          "deliveredQuantity": 9.8,
+          "deliveryStartTime": "2024-10-04T10:00:00Z",
+          "meterReadings": [
+            {
+              "timestamp": "2024-10-04T10:00:00Z",
+              "sourceReading": 1000.0,
+              "targetReading": 990.0,
+              "energyFlow": 10.0
+            },
+            {
+              "timestamp": "2024-10-04T12:00:00Z",
+              "sourceReading": 1000.5,
+              "targetReading": 990.3,
+              "energyFlow": 10.2
+            },
+            {
+              "timestamp": "2024-10-04T14:00:00Z",
+              "sourceReading": 1001.0,
+              "targetReading": 990.8,
+              "energyFlow": 10.2
+            }
+          ],
+          "telemetry": [
+            {
+              "eventTime": "2024-10-04T12:00:00Z",
+              "metrics": [
+                {
+                  "name": "ENERGY",
+                  "value": 5.8,
+                  "unitCode": "KWH"
+                },
+                {
+                  "name": "POWER",
+                  "value": 2.5,
+                  "unitCode": "KW"
+                },
+                {
+                  "name": "VOLTAGE",
+                  "value": 240.0,
+                  "unitCode": "VLT"
+                }
+              ]
+            }
+          ],
+          "settlementCycleId": "settle-2024-10-04-001",
+          "lastUpdated": "2024-10-04T15:30:00Z"
+        }
+      }
+    }
+  }
+}
