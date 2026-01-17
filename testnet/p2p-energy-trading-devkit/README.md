@@ -1,6 +1,6 @@
 # P2P Energy Trading Devkit
 
-Goal of this devkit is to enable a developer to test round trip Beckn v2.0 mock messages between all network actors (BAP, Prosumer BPP (called BPP for brevity), Utility BPP, see [implementation-guide](/docs/implementation-guides/v2/P2P_Trading/P2P_Trading_implementation_guide_draft.md)), on their local machine within a few minutes.
+Goal of this devkit is to enable a developer to test round trip Beckn v2.0 mock messages between all network actors (BAP, Prosumer BPP (called BPP for brevity), Utility BPP, see [implementation-guide](/docs/implementation-guides/v2/P2P_Trading/P2P_Trading_implementation_guide_DRAFT.md)), on their local machine within a few minutes.
 
 It is a *batteries included* sandbox environment that requires minimal setup, and has environment variables pre-configured, connections to Catalog Discovery Service and Dedi test registry service pre-configured.
 
