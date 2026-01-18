@@ -63,7 +63,7 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-p2p-routing-BPPReceiver-from-BAP.yaml
+            routingConfig: ./config/local-p2p-routing-SellerBPPReceiver-from-BuyerBAP.yaml
       steps:
         - validateSign
         - addRoute
@@ -113,7 +113,7 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-p2p-routing-BPPCaller-to-BAP.yaml
+            routingConfig: ./config/local-p2p-routing-SellerBPPCaller-to-BuyerBAP.yaml
         signer:
           id: signer
         middleware:
@@ -174,7 +174,7 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-p2p-routing-BAPReceiver-from-Utility.yaml
+            routingConfig: ./config/local-p2p-routing-SellerBAPReceiver-from-UtilityBPP.yaml
         middleware:
           - id: reqpreprocessor
             config:
@@ -230,7 +230,7 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-p2p-routing-BAPCaller-to-Utility.yaml
+            routingConfig: ./config/local-p2p-routing-SellerBAPCaller-to-UtilityBPP.yaml
         signer:
           id: signer
         middleware:

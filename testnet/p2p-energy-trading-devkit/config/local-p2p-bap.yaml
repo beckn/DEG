@@ -63,7 +63,7 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-p2p-routing-BAPReceiver.yaml
+            routingConfig: ./config/local-p2p-routing-BuyerBAPReceiver.yaml
         middleware:
           - id: reqpreprocessor
             config:
@@ -118,7 +118,7 @@ modules:
         router:
           id: router
           config:
-            routingConfig: ./config/local-p2p-routing-BAPCaller.yaml
+            routingConfig: ./config/local-p2p-routing-BuyerBAPCaller.yaml
         signer:
           id: signer
         middleware:
