@@ -1,50 +1,57 @@
-# Inter-Energy Retailer P2P Energy Trading 
+# Inter-Energy Retailer P2P Energy Trading (Decentralized Approach)
+
+## Overview
+
+This document describes an alternative approach to inter-energy retailer P2P trading that **eliminates the need for a central trade exchange/ledger**. Instead, each utility maintains its own ledger for its customers, and trust is established through cascading Beckn protocol calls with multi-party digital signatures.
+
+For the original approach using a central ledger, see [Inter_energy_retailer_P2P_trading_draft.md](./Inter_energy_retailer_P2P_trading_draft.md).
+
+For a detailed comparison of both approaches, see [Central_vs_Decentralized_Ledger_Comparison.md](./Central_vs_Decentralized_Ledger_Comparison.md).
+
+---
 
 ## Scenario
 
-P2P trading between prosumers belonging to different energy retailers. Each energy retailer and energy distribution utility handles routine activities: providing electricity connections, certifying meters, billing, maintaining grid infrastructure, and ensuring grid resilience within their jurisdiction.
+P2P trading between prosumers belonging to different energy retailers/distribution utilities (discoms). Each discom handles routine activities: providing electricity connections, certifying meters, billing, maintaining grid infrastructure, and ensuring grid resilience within their jurisdiction.
 
-**Example:** Prosumer P1 (Meter ID: M1, Retailer A) sells electricity to Prosumer P7 (Meter ID: M7, Retailer B).
-
----
-
-## Present World Reality / Constraints[^1]
-
-1. **Physical delivery is guaranteed by the grid.** Unlike other commodity exchanges, electrons flow based on physics. If P1 produces 10 kWh and P7 consumes 10 kWh on connected grids, energy "settles" physically regardless of any contract. The settlement problem is therefore purely financial: who owes whom, based on metered production and consumption.
-
-2. **Energy Retailers face bill collection challenges.** Inter-energy retailer P2P trading must not worsen this problem.
-
-3. **Fewer actors is better.** Requiring many systems or institutions to participate will slow market innovation and adoption.
+**Example:** A seller (Meter ID: M1, Utility A) sells electricity to a buyer (Meter ID: M7, Utility B).
 
 ---
 
-## User Journey
+## Key Architectural Difference
 
-### Model I - Direct Settlement and Contracting
-
-*Energy distribution companies/Energy retailers provide infrastructure and have visibility but are not in the payment flow.*
+| Aspect | Central Ledger Approach | Decentralized Approach |
+|--------|------------------------|------------------------|
+| Trade records | Single central ledger (Trade Exchange) | Each utility maintains its own ledger |
+| Trust model | All parties trust the central ledger | Multi-party signatures create distributed proof |
+| Trading limits | Central ledger tracks all limits | Each utility tracks only its own customers' limits |
+| Reconciliation | Central ledger allocates actual energy | Each utility allocates for its own customers |
+| Privacy | Central entity sees all trade details | Each utility only sees trades involving its customers |
 
 ---
 
 ## Actors
 
-| # | Actor | Role |
-|---|-------|------|
-| 1 | **Energy retailers** | Consumer facing role |
-| 2 | **Energy distribution companies** | Wire role / physical infra operator |
-| 3 | **Buyer** | Energy consumer in P2P trade |
-| 4 | **Seller** | Energy producer in P2P trade |
-| 5 | **Trade platform(s)** | Consumer-facing applications that: |
-|   |                     | - Allow prosumers to interact with the trade exchange |
-|   |                     | - Handle user interfaces for trade placement and management (Energy retailer may also have a consumer interface) |
-|   |                     | - Are a separate entity from the trade exchange itself |
-| 6 | **Trade exchange(s)** | A logical entity (like NYSE/NSE/LSE in stock markets) that: |
-|   |                       | - Runs the permissioned transaction ledger |
-|   |                       | - Establishes relationships with Energy distribution companies/Energy retailers (and is trusted by them) |
-|   |                       | - Provides regulatory backing and trust assurance |
-|   |                       | - May be implemented using various technologies (blockchain, database, etc.) |
+| # | Actor | Role | Beckn Role |
+|---|-------|------|------------|
+| 1 | **BuyerTP** | Consumer's trading platform | BAP (Beckn Application Platform) |
+| 2 | **SellerTP** | Producer's trading platform | BPP (Beckn Provider Platform) |
+| 3 | **BuyerUtility** | Buyer's energy retailer/distribution company | BPP (for limit checks and settlement) |
+| 4 | **SellerUtility** | Seller's energy retailer/distribution company | BPP (for limit checks and settlement) |
+| 5 | **Buyer** | Energy consumer in P2P trade | End user |
+| 6 | **Seller** | Energy producer in P2P trade | End user |
 
-> **Assumption:** Whoever is running the permissioned ledger IS the trade exchange. This is a necessary logical construct. Whoever (regulators or other operators) runs this, that entity becomes the trade exchange.
+> **Note:** When buyer and seller are with the **same utility**, the flow simplifies naturally - BuyerUtility and SellerUtility collapse into a single entity, reducing the number of hops while maintaining the same protocol structure.
+
+---
+
+## Core Design Principles
+
+1. **BuyerTP-initiated, SellerTP-orchestrated flows**: All transactions start from BuyerTP (BAP), and are orchestrated by SellerTP, including informing multiple utilities if needed. Utilities do not need to ordinate directly with eachother.
+2. **Cascading calls**: Multi-party flows cascade through SellerTP to both utilities
+3. **Utility involvement patterns**: Utility participation within init is optional, and only needed in case customers or trading platforms don't have the trading limits imposed by the utility. After the trade is confirmed, a non-blocking intimation is required to sent to utility informing them of trade, so they can avoid double-billing and compute wheeling and deviation charges, post delivery.
+4. **Distributed ledgers**: Each utility maintains its own ledger for its customers only
+5. **Natural collapse**: Same-utility trades collapse to single-discom flow automatically
 
 ---
 
@@ -53,140 +60,373 @@ P2P trading between prosumers belonging to different energy retailers. Each ener
 ```mermaid
 sequenceDiagram
     autonumber
-    participant S as Seller (P1)
-    participant B as Buyer (P7)
-    participant TP as Trade Platform
-    participant TE as Trade Exchange/Ledger
-    participant RA as Retailer A
-    participant RB as Retailer B
-    participant DU_A as Distribution Utility A
-    participant DU_B as Distribution Utility B
+    participant B as Buyer
+    participant BuyerTP as BuyerTP (BAP)
+    participant SellerTP as SellerTP (BPP)
+    participant S as Seller
+    participant BuyerUtility as BuyerUtility
+    participant SellerUtility as SellerUtility
 
     rect rgb(230, 245, 255)
-    note over S,TE: Phase 1: Trade Placement
-    S->>TP: Initiate trade
-    B->>TP: Accept trade
-    TP->>TE: Submit signed contract
-    TE->>TE: Record on ledger
-    Note right of TE: Ledger: Discom A, Discom B, seller, buyer, <br/>Trade Time, Delivery Start/End,<br/>Trade Qty, Actual pushed, Actual pulled Qty
-    DU_A-->>TE: Visibility into upcoming trades
-    DU_B-->>TE: Visibility into upcoming trades
+    note over BuyerTP,SellerTP: Phase 1: Trade Discovery & Selection
+    B->>BuyerTP: Search for energy offers
+    BuyerTP->>SellerTP: /select (choose offer)
+    SellerTP->>BuyerTP: /on_select (offer details)
+    end
+
+    rect rgb(255, 250, 230)
+    note over BuyerTP,SellerUtility: Phase 2: Trade Initialization
+    BuyerTP->>SellerTP: /init (trade details)
+    opt Optional Utility Limit Checks
+        BuyerTP-->>BuyerUtility: /init (if trading limits unknown OR multi-platform onboarding is allowed)
+        SellerTP-->>SellerUtility: /init (cascaded)
+        SellerUtility-->>SellerTP: /on_init (seller's remaining limit)
+        BuyerUtility-->>BuyerTP: /on_init (buyer's remaining limit)
+    end
+    SellerTP->>BuyerTP: /on_init
     end
 
     rect rgb(230, 255, 230)
-    note over S,DU_B: Phase 2: Trade Delivery
-    S->>DU_A: Inject energy at scheduled time
-    DU_A->>DU_A: Grid security check
-    B->>B: Consume energy
+    note over BuyerTP,SellerUtility: Phase 3: Trade Confirmation
+    BuyerTP->>SellerTP: /confirm (trade contract)
+    alt Non-blocking (Recommended)
+        SellerTP->>BuyerTP: /on_confirm (trade confirmed)
+        par Inform utilities
+            SellerTP->>SellerUtility: /confirm (inform utility)
+            SellerUtility->>SellerUtility: Deduct from seller limit, log trade
+            SellerUtility->>SellerTP: /on_confirm (acknowledged)
+        and
+            SellerTP->>BuyerUtility: /confirm (inform utility)
+            BuyerUtility->>BuyerUtility: Deduct from buyer limit, log trade
+            BuyerUtility->>SellerTP: /on_confirm (acknowledged)
+        end
+    else Blocking
+        par Utility confirmations
+            SellerTP->>SellerUtility: /confirm
+            SellerUtility->>SellerUtility: Deduct from seller limit, log trade
+            SellerUtility->>SellerTP: /on_confirm (signed)
+        and
+            SellerTP->>BuyerUtility: /confirm
+            BuyerUtility->>BuyerUtility: Deduct from buyer limit, log trade
+            BuyerUtility->>SellerTP: /on_confirm (signed)
+        end
+        SellerTP->>BuyerTP: /on_confirm (signed sealed order)
+    end
     end
 
-    rect rgb(255, 245, 230)
-    note over TE,RB: Phase 3: Trade Verification
-    DU_A->>TE: Add/allocate actual pushed signed meter data to ledger (P1)
-    DU_B->>TE: Add/allocate actual pulled signed meter data to ledger (P7)
+    opt Phase 3b: Trade Update (e.g., scheduled outage/congestion/trading limit violation)
+        BuyerUtility->>SellerTP: /update (cancel/curtail trade)
+        par Cascade update
+            SellerTP->>SellerUtility: /update (notify of change)
+            SellerUtility->>SellerUtility: Update trade in ledger
+            SellerUtility-->>SellerTP: /on_update (acknowledged)
+        and
+            SellerTP->>BuyerTP: /update (notify of change)
+            BuyerTP->>BuyerTP: Update trade status
+            BuyerTP-->>SellerTP: /on_update (acknowledged)
+        end
+        SellerTP->>BuyerUtility: /on_update (update confirmed)
+        BuyerUtility->>BuyerUtility: Update trade in ledger
     end
 
     rect rgb(255, 230, 230)
-    note over S,B: Phase 4: Financial Settlement
-    Note right of TE: Settlement via chosen<br/>mechanism (Options A-D)
-    B->>S: Payment (via settlement mechanism)
+    note over S,BuyerUtility: Phase 4: Energy Delivery
+    S->>SellerUtility: Request to inject energy
+    SellerUtility->>SellerUtility: Grid security check
+    alt Grid stable
+        SellerUtility->>S: Permit injection
+        S->>S: Inject energy into grid
+        B->>B: Consume energy
+    else Grid unstable
+        SellerUtility-->>S: Reject/limit injection
+    end
     end
 
     rect rgb(245, 230, 255)
-    note over RA,RB: Phase 5: Wheeling & Billing
-    RA->>TE: Look up P2P trades (P1)
-    RB->>TE: Look up P2P trades (P7)
-    RA->>S: Bill (excl. P2P + incl. wheeling)
-    RB->>B: Bill (excl. P2P + incl. wheeling)
-    S->>RA: Pay bill
-    B->>RB: Pay bill
-    RA->>DU_A: Remit wheeling charges
-    RB->>DU_B: Remit wheeling charges
+    note over SellerTP,BuyerUtility: Phase 5: Post-Delivery Allocation
+    SellerUtility->>SellerUtility: Allocate actual pushed to trades
+    BuyerUtility->>BuyerUtility: Allocate actual pulled to trades
+    par Utilities report to SellerTP
+        SellerUtility-->>SellerTP: /on_status (seller allocated qty)
+    and
+        BuyerUtility-->>SellerTP: /on_status (buyer allocated qty)
+    end
+    SellerTP->>BuyerTP: /on_status (trade settlement summary)
+    end
+
+    rect rgb(255, 240, 245)
+    note over S,B: Phase 6: Billing & Settlement
+    B->>S: Pay for P2P trade (post-delivery)
+    SellerUtility->>S: Monthly bill (excl. P2P sold, incl. wheeling)
+    S->>SellerUtility: Pay bill
+    BuyerUtility->>B: Monthly bill (excl. P2P bought, incl. wheeling)
+    B->>BuyerUtility: Pay bill
     end
 ```
 
 ---
 
-## Phase 1: Trade Placement
+## Phase 1: Trade Discovery and Selection
 
-### 1. Trade Placement
-
-- P1 (Energy Retailer A) logs into a trading app and initiates a trade with P7 (Energy Retailer B)
-- Trade contract specifies: fulfillment terms (delivery window, energy quantity), agreed price, meter IDs for both parties, destination energy retailer details
-- Contract is digitally signed by P1 and P7 using certificates issued by the trade exchange
-- **Example:** P1-A agrees to deliver 5 kWh between 2–4 PM at USD 5/kWh to P7-B
-
-> **Note:** As trading volumes grow, matching individual buyers to individual sellers might become impractical. A stock-exchange-style approach, where supply and demand are aggregated and matched algorithmically, may be more viable at scale.
-
-### 2. Ledger Recording
-
-- The trade is recorded on the trade exchange
-- Energy distribution utilities gain visibility into scheduled trades for grid security management, capacity planning and financial reconciliation
+This phase follows standard Beckn discovery flow. Buyer searches for energy offers and selects one.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant S as Seller (P1)<br/>Retailer A
-    participant B as Buyer (P7)<br/>Retailer B
-    participant TP as Trade Platform
-    participant TE as Trade Exchange/Ledger
-    participant DU as Distribution Utility
+    participant B as Buyer
+    participant BuyerTP as BuyerTP (BAP)
+    participant SellerTP as SellerTP (BPP)
+    participant S as Seller
 
-    S->>TP: Login & initiate trade
-    TP->>S: Request trade details
-    S->>TP: Submit trade details<br/>(delivery window, quantity,<br/>price, meter IDs)
-    TP->>B: Trade invitation
-    B->>TP: Accept trade terms
-
-    TP->>TE: Request signing certificates
-    TE-->>TP: Issue certificates
-
-    S->>TP: Digital signature
-    B->>TP: Digital signature
-    TP->>TE: Submit signed contract
-
-    TE->>TE: Validate signatures
-    TE->>TE: Record on permissioned ledger
-    TE-->>TP: Confirmation
-    TP-->>S: Trade confirmed
-    TP-->>B: Trade confirmed
-
-    DU-->>TE: Visibility into scheduled trades<br/>(for grid planning)
+    B->>BuyerTP: Search for energy offers<br/>(delivery window, quantity, location)
+    BuyerTP->>SellerTP: /select
+    Note right of SellerTP: Offer: 5 kWh, 2-4 PM,<br/>$0.50/kWh
+    SellerTP->>BuyerTP: /on_select<br/>(offer details, seller info)
+    BuyerTP->>B: Display offer details
 ```
 
 ---
 
-## Phase 2: Trade Delivery
+## Phase 2: Trade Initialization
+
+The initialization phase optionally checks trading limits with both utilities. This is optional but recommended to prevent trade failures at confirmation time.
+
+### Why Check Limits?
+
+Each utility may impose trading limits on its customers to:
+- Manage grid capacity
+- Control financial exposure
+- Comply with regulatory requirements
+
+### Initialization Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant BuyerTP as BuyerTP (BAP)
+    participant BuyerUtility as BuyerUtility
+    participant SellerTP as SellerTP (BPP)
+    participant SellerUtility as SellerUtility
+
+    Note over BuyerTP,SellerUtility: Trade: 5 kWh, 2-4 PM, $0.50/kWh
+
+    BuyerTP->>SellerTP: /init (trade details)
+
+    opt Optional Utility Limit Checks
+        par Parallel limit checks
+            BuyerTP->>BuyerUtility: /init (buyer limit check)
+            BuyerUtility->>BuyerUtility: Look up buyer's<br/>remaining trading limit
+            BuyerUtility-->>BuyerTP: /on_init<br/>(remaining limit: 20 kWh)
+        and
+            SellerTP->>SellerUtility: /init (seller limit check)
+            SellerUtility->>SellerUtility: Look up seller's<br/>remaining trading limit
+            SellerUtility-->>SellerTP: /on_init<br/>(remaining limit: 15 kWh)
+        end
+    end
+
+    SellerTP->>BuyerTP: /on_init<br/>(trade initialized, limits OK)
+```
+
+### What Each Utility Tracks in Its Own Ledger
+
+| Data Element | Owner | Description |
+|--------------|-------|-------------|
+| Customer's trading limit | Customer's utility | Max energy that customer can trade in a period |
+| Customer's confirmed trades | Customer's utility | All confirmed trades for the customer |
+| Customer's actual delivery/consumption | Customer's utility | Metered data for the customer |
+| Customer's allocated trade quantities | Customer's utility | Post-delivery allocation of actuals to trades |
+
+---
+
+## Phase 3: Trade Confirmation
+
+This is the critical phase that establishes trust without a central ledger. SellerTP coordinates with both utilities in parallel, and each utility logs the trade and (optionally) signs the order.
+
+Two modes are supported:
+
+| Mode | When to Use | Trade Confirmed |
+|------|-------------|-----------------|
+| **Non-blocking (Recommended)** | Utilities cannot block trades; they are informed for record-keeping | Immediately after SellerTP receives `/confirm` |
+| **Blocking** | Utilities must approve before trade is confirmed | After both utilities respond with `/on_confirm` |
+
+### Confirmation Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant BuyerTP as BuyerTP (BAP)
+    participant SellerTP as SellerTP (BPP)
+    participant SellerUtility as SellerUtility
+    participant BuyerUtility as BuyerUtility
+
+    Note over BuyerTP,BuyerUtility: Trade: 5 kWh, 2-4 PM, $0.50/kWh
+
+    BuyerTP->>SellerTP: /confirm (trade contract)
+
+    alt Non-blocking (Recommended)
+        SellerTP->>BuyerTP: /on_confirm (trade confirmed)
+        par Inform utilities
+            SellerTP->>SellerUtility: /confirm (inform utility)
+            SellerUtility->>SellerUtility: Deduct from seller limit, log trade
+            SellerUtility-->>SellerTP: /on_confirm (acknowledged)
+        and
+            SellerTP->>BuyerUtility: /confirm (inform utility)
+            BuyerUtility->>BuyerUtility: Deduct from buyer limit, log trade
+            BuyerUtility-->>SellerTP: /on_confirm (acknowledged)
+        end
+    else Blocking
+        par Utility confirmations
+            SellerTP->>SellerUtility: /confirm
+            SellerUtility->>SellerUtility: Deduct from seller limit, log trade
+            SellerUtility->>SellerTP: /on_confirm (signed)
+        and
+            SellerTP->>BuyerUtility: /confirm
+            BuyerUtility->>BuyerUtility: Deduct from buyer limit, log trade
+            BuyerUtility->>SellerTP: /on_confirm (signed)
+        end
+        SellerTP->>BuyerTP: /on_confirm (signed sealed order)
+    end
+```
+
+### What Each Utility Does on `/confirm`
+
+1. Verify customer identity
+2. Check customer's remaining trading limit
+3. Deduct trade quantity from limit
+4. Log trade in own ledger
+5. (Blocking mode only) Sign the order
+
+### Multi-Party Signature Chain (Blocking Mode)
+
+In blocking mode, the sealed trade order contains signatures from all parties:
+
+| Signature | Attests To |
+|-----------|-----------|
+| BuyerTP | Buyer's intent to purchase |
+| SellerTP | Seller's agreement to supply |
+| BuyerUtility | Trade is within buyer's limits, logged in buyer's utility ledger |
+| SellerUtility | Trade is within seller's limits, logged in seller's utility ledger |
+
+This creates a **tamper-proof, distributed proof of trade commitment** without requiring a central ledger.
+
+### Non-blocking vs Blocking Trade-offs
+
+| Aspect | Non-blocking | Blocking |
+|--------|--------------|----------|
+| **Latency** | Lower (immediate confirmation) | Higher (waits for utilities) |
+| **Utility control** | Utilities informed, cannot block | Utilities can reject trades |
+| **Trust model** | Trust SellerTP to inform utilities | Full multi-party consensus |
+| **Use case** | High-frequency trading, trusted platforms | Regulatory requirement for utility approval |
+
+---
+
+## Phase 3b: Trade Update (Optional)
+
+After a trade is confirmed but before energy delivery, a utility may need to modify or cancel the trade due to operational reasons (e.g., scheduled outage, grid constraints, regulatory intervention).
+
+### Why Trade Updates?
+
+- **Scheduled outages:** Utility plans maintenance that affects the delivery window
+- **Grid constraints:** Forecasted congestion or stability issues
+- **Regulatory intervention:** Compliance requirements or emergency orders
+- **Meter issues:** Problems detected with buyer's or seller's metering equipment
+
+### Update Flow
+
+The initiating utility (in this example, BuyerUtility) sends `/update` to SellerTP, which coordinates the update across all parties.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant BuyerUtility as BuyerUtility
+    participant SellerTP as SellerTP (BPP)
+    participant SellerUtility as SellerUtility
+    participant BuyerTP as BuyerTP (BAP)
+
+    Note over BuyerUtility,BuyerTP: Trade update triggered (e.g., scheduled outage)
+
+    BuyerUtility->>SellerTP: /update (cancel/curtail trade)
+    Note right of SellerTP: Update reason: scheduled outage<br/>Action: cancel OR curtail to X kWh
+
+    par Cascade update to all parties
+        SellerTP->>SellerUtility: /update (notify of change)
+        SellerUtility->>SellerUtility: Update trade in ledger
+        SellerUtility-->>SellerTP: /on_update (acknowledged)
+    and
+        SellerTP->>BuyerTP: /update (notify of change)
+        BuyerTP->>BuyerTP: Update trade status
+        BuyerTP-->>SellerTP: /on_update (acknowledged)
+    end
+
+    SellerTP->>BuyerUtility: /on_update (update confirmed)
+    BuyerUtility->>BuyerUtility: Update trade in ledger
+
+    Note over BuyerUtility,BuyerTP: All parties now have consistent view of modified trade
+```
+
+### Update Types
+
+| Update Type | Description | Effect on Trade |
+|-------------|-------------|-----------------|
+| **Cancel** | Full cancellation of the trade | Trade marked as cancelled; limits restored |
+| **Curtail** | Reduce contracted quantity | Trade quantity reduced; partial limits restored |
+| **Reschedule** | Change delivery window | New delivery window; same quantity |
+
+### What Each Party Does on `/update`
+
+| Party | Actions |
+|-------|---------|
+| **SellerUtility** | Update trade in ledger; adjust seller's trading limit if cancelled/curtailed |
+| **BuyerTP** | Notify buyer of change; update local trade status |
+| **BuyerUtility** | Update trade in ledger; adjust buyer's trading limit if cancelled/curtailed |
+
+### Update Initiation
+
+While this example shows BuyerUtility initiating, updates can also be initiated by:
+
+| Initiator | Route | Use Case |
+|-----------|-------|----------|
+| **BuyerUtility** | BuyerUtility → SellerTP → (SellerUtility, BuyerTP) | Outage on buyer's side |
+| **SellerUtility** | SellerUtility → SellerTP → (BuyerUtility, BuyerTP) | Outage on seller's side |
+| **BuyerTP** | BuyerTP → SellerTP → (SellerUtility, BuyerUtility) | Buyer requests cancellation |
+
+In all cases, SellerTP acts as the coordination hub, ensuring all parties receive the update and acknowledge it.
+
+---
+
+## Phase 4: Energy Delivery
 
 *(Could be anywhere from a few hours to a few days later)*
 
-### 3. Energy Injection
+Energy delivery follows the same physical process as the central ledger approach. The key difference is that each utility records meter data in its own ledger.
+
+### Energy Injection
 
 - At scheduled time, seller injects energy into the grid
-- Corresponding energy distribution utility performs grid security checks and permits injection only if grid stability is maintained
+- Seller's utility performs grid security checks and permits injection only if grid stability is maintained
 
-### 4. Energy Consumption
+### Energy Consumption
 
 - Buyer consumes energy as usual during the delivery window
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant S as Seller (P1)
+    participant S as Seller
     participant SM_S as Seller's<br/>Smart Meter
-    participant DU_A as Distribution<br/>Utility A
-    participant DU_B as Distribution<br/>Utility B
+    participant SellerUtility as SellerUtility
+    participant BuyerUtility as BuyerUtility
     participant SM_B as Buyer's<br/>Smart Meter
-    participant B as Buyer (P7)
+    participant B as Buyer
 
     Note over S,B: Scheduled Delivery Window Begins
 
     S->>SM_S: Generate/inject energy
-    SM_S->>DU_A: Report injection request
+    SM_S->>SellerUtility: Report injection request
 
-    DU_A->>DU_A: Grid security check
+    SellerUtility->>SellerUtility: Grid security check
     alt Grid stable
-        DU_A->>DU_A: Permit injection
+        SellerUtility->>SellerUtility: Permit injection
         SM_S->>SM_S: Energy injected into grid
 
         SM_B->>B: Energy consumed
@@ -194,8 +434,8 @@ sequenceDiagram
         SM_S->>SM_S: Record injection (kWh, timestamp)
         SM_B->>SM_B: Record consumption (kWh, timestamp)
     else Grid unstable
-        DU_A-->>SM_S: Reject/limit injection
-        Note over DU_A: Grid stability<br/>takes priority
+        SellerUtility-->>SM_S: Reject/limit injection
+        Note over SellerUtility: Grid stability<br/>takes priority
     end
 
     Note over S,B: Scheduled Delivery Window Ends
@@ -203,432 +443,186 @@ sequenceDiagram
 
 ---
 
-## Phase 3: Trade Verification
+## Phase 5: Post-Delivery Allocation and Status
 
-*(Will happen at a time gap from execution - verification frequency can be pre-determined, like every x hours)*
+After the delivery window, each utility performs allocation independently for its own customers and reports to SellerTP, which then notifies BuyerTP.
 
-### 5. Trade Verification
+### Why Allocation Matters
 
-- Distribution utilities update the ledger with digitally signed meter data for both parties
-- For overlapping trades (same delivery window), actual energy is allocated FIFO by trade time; reconciled quantity = min(trade qty, actual pushed)
-- Trade exchange/ledger marks trade as complete
+A prosumer may have multiple trades in the same delivery window but inject/consume less than the total contracted amount. Each utility must allocate actual meter readings to specific trades to determine:
+- What quantity was actually delivered/received for each trade
+- What to include in billing adjustments
+- Whether penalties apply for under-delivery
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant TE as Trade Exchange/Ledger
-    participant DU_A as Distribution Utility A
-    participant DU_B as Distribution Utility B
-
-    Note over TE: Verification cycle triggered<br/>(e.g., every X hours)
-
-    DU_A->>TE: Update ledger with signed meter data<br/>(Meter M1, P1 injection: X kWh)
-    DU_B->>TE: Update ledger with signed meter data<br/>(Meter M7, P7 consumption: Y kWh)
-
-    Note over TE: Anti-double-dipping: For overlapping trades,<br/>actual kWh allocated FIFO by trade time.<br/>Recon Qty = min(Trade Qty, Actual Pushed).<br/>(See Overlapping Trade Reconciliation)
-
-    TE->>TE: Validate digital signatures
-    TE->>TE: Compare actuals vs contract
-
-    alt Delivery matches contract
-        TE->>TE: Mark trade COMPLETE
-        Note over TE: Proceed to settlement
-    else Partial delivery
-        TE->>TE: Record actual delivery
-        Note over TE: Apply settlement rules<br/>(see Contract Modification)
-    else No delivery
-        TE->>TE: Mark trade FAILED
-        Note over TE: Trigger penalty/<br/>enforcement
-    end
-```
-
----
-
-## Phase 4: Financial Settlement
-
-### Settlement Options (Open for Group Discussion)
-
----
-
-### Option A: Clearing House Model
-
-- Central clearing house holds funds from the buyer (at the time of trade placement or at a later date for trades happening much later)
-- Releases to seller upon delivery confirmation
-- Similar to stock exchange settlement
-
-| Pros | Cons |
-|------|------|
-| Familiar pattern, trusted intermediary, proven at scale | Requires new infrastructure; problematic for long-horizon trades (when does money go to the clearing house for a T+60 trade - day 1 or day 59?) |
+### Allocation Flow
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant B as Buyer (P7)
-    participant CH as Clearing House
-    participant TE as Trade Exchange
-    participant S as Seller (P1)
+    participant BuyerTP as BuyerTP (BAP)
+    participant SellerTP as SellerTP (BPP)
+    participant SellerUtility as SellerUtility
+    participant BuyerUtility as BuyerUtility
 
-    Note over B,S: At Trade Placement (or later for future trades)
-    B->>CH: Deposit funds
-    CH->>CH: Hold funds in escrow
-    CH-->>B: Deposit confirmed
-
-    Note over B,S: After Trade Verification
-    TE->>CH: Trade verified<br/>(delivery confirmed)
-    CH->>CH: Release funds
-    CH->>S: Transfer payment
-    S-->>CH: Payment received
-
-    CH->>TE: Settlement complete
-```
-
----
-
-### Option B: Money Block / Escrow Model
-
-- Funds blocked at trade placement
-- Released on delivery confirmation
-- Many payment rails like credit cards already support blocking
-
-| Pros | Cons |
-|------|------|
-| Real-time assurance, works for immediate trades | Complex for future trades - how will we block money for 15, 30, 60 days? |
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant B as Buyer (P7)
-    participant Bank as Buyer's Bank/<br/>Payment Rail
-    participant TE as Trade Exchange
-    participant S as Seller (P1)
-
-    Note over B,S: At Trade Placement
-    TE->>Bank: Request fund block<br/>(amount, duration)
-    Bank->>Bank: Block funds in<br/>buyer's account
-    Bank-->>TE: Block confirmed
-    Bank-->>B: Funds blocked notification
-
-    Note over B,S: After Trade Verification
-    TE->>Bank: Release blocked funds<br/>to seller
-    Bank->>Bank: Unblock & transfer
-    Bank->>S: Payment credited
-    Bank-->>B: Funds released notification
-
-    Note over Bank: Challenge: How to maintain<br/>block for 15-60 days?
-```
-
----
-
-### Option C: Prepaid Model
-
-- Every consumer/prosumer pre-pays their smart meter with x amount
-- All purchases are directly addressed by respective retailers' bill collection and payments infra against the bill using the data from trade exchange
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as Seller (P1)
-    participant B as Buyer (P7)
-    participant SM_B as Buyer's<br/>Smart Meter
-    participant RA as Retailer A
-    participant RB as Retailer B
-    participant TE as Trade Exchange
-
-    Note over B: Pre-funding Phase
-    B->>SM_B: Pre-pay smart meter<br/>(top-up balance)
-    SM_B-->>B: Balance: $X
-
-    Note over S,B: After Trade Verification
-    TE->>RB: P2P trade data<br/>(P7 owes P1 $Y)
-
-    RB->>SM_B: Debit P2P purchase
-    SM_B->>SM_B: Deduct from balance
-
-    RB->>RA: Inter-retailer settlement<br/>(P7's payment for P1)
-    RA->>S: Credit to seller<br/>(via regular bill credit)
-
-    Note over B: Next bill cycle
-    RB->>B: Regular bill<br/>(reflects P2P debits)
-```
-
----
-
-### Option D: Country Specific Bill Presentation Rails
-
-**Example: BBPS in India**
-
-Settlement via BBPS with either seller or seller's platform as registered biller.
-
----
-
-#### Sub-option C1: Seller as Bill Presenter
-
-- Seller (with platform support for KYC/registration) registers as biller on BBPS
-- Trade verified → Seller raises invoice to buyer via BBPS
-- Buyer pays within stipulated window
-- Payment flows directly to seller
-- If buyer defaults → Seller's discom notified → Buyer's discom notified for enforcement
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as Seller (P1)
-    participant TP as Trade Platform
-    participant BBPS as BBPS
-    participant B as Buyer (P7)
-    participant RA as Retailer A<br/>(Seller's Discom)
-    participant RB as Retailer B<br/>(Buyer's Discom)
-
-    Note over S: One-time Registration
-    S->>TP: Request BBPS registration
-    TP->>TP: KYC verification
-    TP->>BBPS: Register seller as biller
-    BBPS-->>S: Biller ID assigned
-
-    Note over S,B: After Trade Verification
-    S->>BBPS: Raise invoice to P7<br/>(amount, due date)
-    BBPS->>B: Bill notification
-
-    alt Buyer pays
-        B->>BBPS: Pay invoice
-        BBPS->>S: Direct payment
-        BBPS-->>B: Payment confirmed
-    else Buyer defaults
-        BBPS->>S: Payment overdue
-        S->>RA: Notify default
-        RA->>RB: Cross-retailer notification
-        RB->>B: Enforcement action
-    end
-```
-
----
-
-#### Sub-option C2: Platform as Bill Presenter
-
-- Platform registers as BBPS biller
-- Trade verified → Platform presents invoice to buyer
-- Buyer pays via BBPS
-- Platform credits seller (minus platform fee, if any)
-- If buyer defaults → Platform notifies buyer's discom for enforcement
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as Seller (P1)
-    participant TP as Trade Platform<br/>(BBPS Biller)
-    participant BBPS as BBPS
-    participant B as Buyer (P7)
-    participant RB as Retailer B<br/>(Buyer's Discom)
-
-    Note over TP: Platform is registered<br/>BBPS biller
-
-    Note over S,B: After Trade Verification
-    TP->>BBPS: Present invoice to P7<br/>(amount, due date)
-    BBPS->>B: Bill notification
-
-    alt Buyer pays
-        B->>BBPS: Pay invoice
-        BBPS->>TP: Payment received
-        TP->>TP: Deduct platform fee<br/>(if any)
-        TP->>S: Credit seller
-    else Buyer defaults
-        BBPS->>TP: Payment overdue
-        TP->>RB: Notify default
-        RB->>B: Enforcement action
-    end
-```
-
-| Pros | Cons |
-|------|------|
-| Existing infrastructure, no new rails needed, familiar UX for consumers, handles small ticket sizes well, enforcement can piggyback on discom relationship | "Bill" framing may not fit P2P trade semantics, settlement timing tied to buyer action (not automatic), need to verify BBPS allows this use case |
-
----
-
-## Phase 5: Wheeling Charges and Declaration
-
-This phase ensures accurate billing by preventing double-counting and collecting grid usage (wheeling) fees for P2P energy transfers.
-
-### Step-by-Step Flow
-
-| Step | Action | Purpose |
-|------|--------|---------|
-| 1 | Retailers look up P2P trades from ledger | Retailers learn which energy was traded peer-to-peer |
-| 2 | Retailers prepare bills (excl. P2P energy, incl. wheeling charges) | Customers only pay retailer for non-P2P energy; wheeling fees added |
-| 3 | Customers pay Retailers | Single consolidated bill payment |
-| 4 | Retailers remit wheeling charges to Distribution Utility | Grid usage fees flow to infrastructure operator |
-
-### Anti-Double-Billing Rules
-
-- **Buyer (P7):** Not charged by retailer for energy already purchased via P2P
-- **Seller (P1):** Not credited by retailer for energy already sold via P2P
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant TE as Trade Exchange/Ledger
-    participant RA as Retailer A
-    participant RB as Retailer B
-    participant S as Seller (P1)
-    participant B as Buyer (P7)
-    participant DU as Distribution Utility
-
-    rect rgb(230, 245, 255)
-    Note over TE,RB: Step 1: Ledger Lookup
-    RA->>TE: Look up P2P trades<br/>(P1, billing period)
-    TE-->>RA: P1 sold X kWh, time slot T
-    RB->>TE: Look up P2P trades<br/>(P7, billing period)
-    TE-->>RB: P7 bought X kWh, time slot T
-    end
+    Note over SellerUtility,BuyerUtility: Verification Cycle (e.g., every X hours)
 
     rect rgb(255, 245, 230)
-    Note over RA,RB: Step 2: Retailer Billing
-    RA->>RA: Verify: Exclude P2P energy<br/>from retailer settlement
-    RA->>RA: Add wheeling charges<br/>for P2P transfers
-    RA->>S: Bill (non-P2P energy +<br/>wheeling charges)
-
-    RB->>RB: Verify: Exclude P2P energy<br/>from retailer charges
-    RB->>RB: Add wheeling charges<br/>for P2P transfers
-    RB->>B: Bill (non-P2P energy +<br/>wheeling charges)
+    Note over SellerUtility: Seller-Side Allocation
+    SellerUtility->>SellerUtility: Get all confirmed trades for<br/>seller in delivery period
+    SellerUtility->>SellerUtility: Get actual meter injection data
+    SellerUtility->>SellerUtility: Allocate actuals to trades<br/>(FIFO or pro-rata)
     end
 
-    rect rgb(230, 255, 230)
-    Note over S,B: Step 3: Customer Payment
-    S->>RA: Pay bill
-    B->>RB: Pay bill
+    rect rgb(230, 245, 255)
+    Note over BuyerUtility: Buyer-Side Allocation
+    BuyerUtility->>BuyerUtility: Get all confirmed trades for<br/>buyer in delivery period
+    BuyerUtility->>BuyerUtility: Get actual meter consumption data
+    BuyerUtility->>BuyerUtility: Allocate actuals to trades<br/>(FIFO or pro-rata)
     end
 
-    rect rgb(245, 230, 255)
-    Note over RA,DU: Step 4: Wheeling Remittance
-    RA->>DU: Remit wheeling charges (P1)
-    RB->>DU: Remit wheeling charges (P7)
+    par Utilities report to SellerTP
+        SellerUtility-->>SellerTP: /on_status<br/>(seller allocated qty per trade)
+    and
+        BuyerUtility-->>SellerTP: /on_status<br/>(buyer allocated qty per trade)
     end
+
+    SellerTP->>BuyerTP: /on_status<br/>(trade settlement summary)
+    Note right of BuyerTP: Buyer knows what to expect<br/>in P2P payment and bill adjustment
 ```
 
----
+### Allocation Example (FIFO)
 
-## Phase 6: Enforcement
+**Seller's trades for delivery window 2-4 PM:**
 
-*(Open for Group Discussion)*
+| Trade | Trade Time | Contracted Qty | Priority |
+|-------|------------|----------------|----------|
+| T1 (with Buyer A) | 9:00 AM | 5 kWh | 1st |
+| T2 (with Buyer B) | 9:30 AM | 4 kWh | 2nd |
+| **Total** | | **9 kWh** | |
 
-When a prosumer registers for P2P trading, they sign an agreement consenting to energy retailer/distribution utility enforcement in case of payment default.
+**Actual injection: 7 kWh**
 
-### Enforcement Triggers
+**SellerUtility allocation (FIFO):**
 
-- **Payment default:** Buyer fails to pay within stipulated window
-- **Non-delivery:** Seller fails to inject contracted energy
-- **Repeated violations:** Pattern of defaults or contract breaches
+| Trade | Contracted | Allocated | Status |
+|-------|------------|-----------|--------|
+| T1 | 5 kWh | 5 kWh | Full delivery |
+| T2 | 4 kWh | 2 kWh | Partial delivery |
 
-### Escalation Levels
-
-| Level | Action | When Applied |
-|-------|--------|--------------|
-| 1 | Warning notice | First-time minor default |
-| 2 | Fine added to bill | Repeated defaults or moderate amounts |
-| 3 | P2P trading privileges suspended | Persistent non-compliance |
-| 4 | Service disconnection | Severe cases only |
-
-### Seller Compensation
-
-If enforcement recovery succeeds (e.g., fine collected from defaulting buyer), the affected seller may receive credit through their retailer.
+SellerUtility sends `/on_status` to SellerTP with these allocated quantities.
 
 ---
 
-## Contract Modification and Partial Fulfillment
+## Phase 6: Billing and Settlement
 
-### Pre-delivery Modification
-
-Either party can request changes (quantity, time, cancellation) via trading platform. The other party accepts/rejects. Trade exchange records modified contract with a small penalty to the requester. Energy retailers verify against modified contract.
-
-### Settlement on Actuals
-
-Regardless of contract, settlement = actual verified delivery × agreed price. Deviations handled as:
-
-| Scenario | Settlement |
-|----------|------------|
-| **Seller under-delivers** | Buyer pays for actual; seller penalized |
-| **Buyer under-consumes** | Open question: Pay for actual or contracted? |
-| **Over-delivery/consumption** | Excess settles with respective energy retailer at standard rates |
-
-**Example - Tolerance band:** Minor deviations (±10%?) settle at actuals without penalty.
-
-### Overlapping Trade Reconciliation (Anti-Double-Dipping)
-
-When a prosumer has multiple trades within the same delivery window, actual meter readings must be allocated carefully to prevent double-counting:
-
-1. **FIFO Allocation:** Actual energy is allocated to trades in order of trade placement time (earliest first)
-2. **Per-Trade Cap:** Each trade receives at most its contracted quantity
-3. **Reconciled Qty:** `Recon Qty = min(Trade Qty, Remaining Actual)`
-
-**Example:**
-
-| Trade | Trade Time | Delivery Window | Trade Qty | Actual Injected | Recon Qty |
-|-------|------------|-----------------|-----------|-----------------|-----------|
-| T1 | 9:00 AM | 2–4 PM | 5 kWh | — | 5 kWh |
-| T2 | 9:30 AM | 2–4 PM | 4 kWh | — | 3 kWh |
-| **Total** | — | — | 9 kWh | **8 kWh** | 8 kWh |
-
-*P1 contracted 9 kWh across two trades but only injected 8 kWh. T1 (earlier trade) gets full 5 kWh; T2 gets remaining 3 kWh.*
-
-A more detailed multi-party, multi-epoch example is worked out in a table [here](https://docs.google.com/spreadsheets/d/1ZXdvUnLshdOmiaqJJQuONigPK_KnTZ3Pq8aiLWYClaA/edit?usp=sharing).
-
----
+Settlement involves two separate payment flows:
+1. **P2P payment:** Buyer pays Seller directly for the traded energy (post-delivery)
+2. **Utility billing:** Each utility bills its customer, excluding P2P energy but including wheeling charges
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant P as Requesting Party
-    participant TP as Trade Platform
-    participant TE as Trade Exchange
-    participant O as Other Party
-    participant L as Ledger
+    participant S as Seller
+    participant SellerUtility as SellerUtility
+    participant BuyerUtility as BuyerUtility
+    participant B as Buyer
 
-    Note over P,O: Pre-Delivery Modification
-
-    P->>TP: Request modification<br/>(quantity/time/cancel)
-    TP->>TE: Submit modification request
-    TE->>O: Notify: Modification requested
-
-    alt Other party accepts
-        O->>TE: Accept modification
-        TE->>L: Record modified contract
-        TE->>L: Apply penalty to requester
-        TE-->>P: Modification confirmed<br/>(penalty applied)
-        TE-->>O: Modification confirmed
-    else Other party rejects
-        O->>TE: Reject modification
-        TE-->>P: Modification rejected<br/>(original contract stands)
+    rect rgb(240, 255, 240)
+    Note over S,B: P2P Settlement (Post-Delivery)
+    B->>S: Pay for P2P trade<br/>(allocated qty × agreed price)
+    S-->>B: Payment confirmed
     end
 
-    Note over TE: Settlement Phase
+    Note over SellerUtility,BuyerUtility: Monthly Billing Cycle
 
-    TE->>TE: Compare actuals vs contract
+    rect rgb(255, 245, 230)
+    Note over SellerUtility: Seller's Bill
+    SellerUtility->>SellerUtility: Look up P2P trades from own ledger
+    SellerUtility->>SellerUtility: Calculate: Regular bill<br/>- P2P sold energy credit<br/>+ Wheeling charges
+    SellerUtility->>S: Monthly bill
+    S->>SellerUtility: Pay bill
+    end
 
-    alt Within tolerance (±10%)
-        TE->>L: Settle at actuals<br/>(no penalty)
-    else Seller under-delivers
-        TE->>L: Buyer pays actuals
-        TE->>L: Seller penalized
-    else Over-delivery/consumption
-        TE->>L: Contract amount via P2P
-        Note over TE: Excess settles with<br/>retailer at standard rates
+    rect rgb(230, 245, 255)
+    Note over BuyerUtility: Buyer's Bill
+    BuyerUtility->>BuyerUtility: Look up P2P trades from own ledger
+    BuyerUtility->>BuyerUtility: Calculate: Regular bill<br/>- P2P purchased energy<br/>+ Wheeling charges
+    BuyerUtility->>B: Monthly bill
+    B->>BuyerUtility: Pay bill
     end
 ```
+
+### P2P Payment
+
+The buyer pays the seller directly for the P2P trade after delivery is confirmed (via `/on_status`). Payment amount is based on:
+- **Allocated quantity** (from Phase 5, may be less than contracted if under-delivery)
+- **Agreed price** (from the confirmed trade contract)
+
+Payment mechanism options include direct bank transfer, UPI, or platform-mediated escrow (see original document for detailed settlement options).
+
+### Anti-Double-Billing
+
+- **Buyer:** BuyerUtility excludes P2P energy from regular charges (buyer already paid seller directly)
+- **Seller:** SellerUtility excludes P2P energy from injection credit (seller already received payment from buyer)
+
+---
+
+## Same-Utility Collapse
+
+When buyer and seller are with the **same utility**, the flow simplifies naturally:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant BuyerTP as BuyerTP (BAP)
+    participant SellerTP as SellerTP (BPP)
+    participant Utility as Utility<br/>(same for both)
+
+    BuyerTP->>SellerTP: /confirm (trade contract)
+    SellerTP->>Utility: /confirm (single utility call)
+
+    Utility->>Utility: Check both limits
+    Utility->>Utility: Log single trade entry
+    Utility->>Utility: Sign and seal order
+
+    Utility-->>SellerTP: /on_confirm
+    SellerTP-->>BuyerTP: /on_confirm
+
+    Note over BuyerTP,Utility: Same protocol, fewer hops
+```
+
+The protocol structure remains identical, but:
+- Only one utility is involved
+- No cross-utility confirm/on_confirm
+- Single ledger entry (but from same utility's perspective for both parties)
+
+---
+
+## Comparison with Central Ledger Approach
+
+| Aspect | Central Ledger | Decentralized (This Approach) |
+|--------|---------------|------------------------------|
+| **Trust model** | All trust central exchange | Multi-party signatures |
+| **Privacy** | Central entity sees all trades | Each utility sees only its customers' trades |
+| **Single point of failure** | Yes (central ledger) | No |
+| **Cross-utility coordination** | Via central ledger queries | Via cascading Beckn calls |
+| **Regulatory complexity** | Central exchange needs regulation | Each utility self-regulates |
+| **Deployment** | Requires new central infrastructure | Builds on existing utility systems |
+| **Dispute resolution** | Central ledger is arbiter | Multi-party signatures provide evidence |
 
 ---
 
 ## Open Questions
 
-1. **Settlement Mechanism:** Which approach (clearing house, money block, hybrid, prepaid) and why?
+1. **Signature Format:** What cryptographic format for multi-party signatures? (JWS, EdDSA, etc.)
 
-2. **Smart Meter Data Latency:** How quickly can energy retailers release meter data to trade exchanges? This is the binding constraint on settlement timelines.
+2. **Allocation Consistency:** If FIFO allocation differs between utilities for the same trade (due to data timing), how to reconcile?
 
-3. **Inter-institution Enforcement:** If buyer defaults and buyer's energy retailer needs to act, what compels retailer B to enforce on behalf of a seller in retailer A's territory? What's the contractual or regulatory mechanism?
+3. **Cross-Utility Trust:** What compels SellerUtility to forward `/confirm` to BuyerUtility honestly?
 
-4. **Future Trade Horizon:** Should v1 allow long-horizon trades (T+30, T+60)? If yes, we need the full futures/options complexity.
+4. **Offline Handling:** If a utility is temporarily unavailable during confirmation cascade, how to handle?
 
-5. **Regulatory Structure:** If multiple trade exchanges exist, who regulates them? How do we ensure interoperability (or do we)?
-
-6. **Partial Fulfillment:** How do we deal with partial fulfilment of contract? Is it an all or none model?
+5. **Audit Trail Access:** How do trading platforms access the full signature chain for disputes?
 
 ---
 
