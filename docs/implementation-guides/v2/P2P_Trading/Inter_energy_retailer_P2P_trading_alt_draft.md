@@ -14,7 +14,7 @@ For a detailed comparison of both approaches, see [Central_vs_Decentralized_Ledg
 
 P2P trading between prosumers belonging to different energy retailers/distribution utilities (discoms). Each discom handles routine activities: providing electricity connections, certifying meters, billing, maintaining grid infrastructure, and ensuring grid resilience within their jurisdiction.
 
-**Example:** Prosumer P1 (Meter ID: M1, Utility A) sells electricity to Prosumer P7 (Meter ID: M7, Utility B).
+**Example:** A seller (Meter ID: M1, Utility A) sells electricity to a buyer (Meter ID: M7, Utility B).
 
 ---
 
@@ -61,10 +61,10 @@ P2P trading between prosumers belonging to different energy retailers/distributi
 ```mermaid
 sequenceDiagram
     autonumber
-    participant B as Buyer (P7)
+    participant B as Buyer
     participant BuyerTP as BuyerTP (BAP)
     participant SellerTP as SellerTP (BPP)
-    participant S as Seller (P1)
+    participant S as Seller
     participant BuyerUtility as BuyerUtility
     participant SellerUtility as SellerUtility
 
@@ -79,7 +79,7 @@ sequenceDiagram
     note over BuyerTP,SellerUtility: Phase 2: Trade Initialization
     BuyerTP->>SellerTP: /init (trade details)
     opt Optional Utility Limit Checks
-        BuyerTP-->>BuyerUtility: /init (if trading limits unknown OR multi-platform onboarding)
+        BuyerTP-->>BuyerUtility: /init (if trading limits unknown OR multi-platform onboarding is allowed)
         SellerTP-->>SellerUtility: /init (cascaded)
         SellerUtility-->>SellerTP: /on_init (seller's remaining limit)
         BuyerUtility-->>BuyerTP: /on_init (buyer's remaining limit)
@@ -95,11 +95,11 @@ sequenceDiagram
         par Inform utilities
             SellerTP->>SellerUtility: /confirm (inform utility)
             SellerUtility->>SellerUtility: Deduct from seller limit, log trade
-            SellerUtility-->>SellerTP: /on_confirm (acknowledged)
+            SellerUtility->>SellerTP: /on_confirm (acknowledged)
         and
             SellerTP->>BuyerUtility: /confirm (inform utility)
             BuyerUtility->>BuyerUtility: Deduct from buyer limit, log trade
-            BuyerUtility-->>SellerTP: /on_confirm (acknowledged)
+            BuyerUtility->>SellerTP: /on_confirm (acknowledged)
         end
     else Blocking
         par Utility confirmations
@@ -115,7 +115,7 @@ sequenceDiagram
     end
     end
 
-    opt Phase 3b: Trade Update (e.g., scheduled outage)
+    opt Phase 3b: Trade Update (e.g., scheduled outage/congestion/trading limit violation)
         BuyerUtility->>SellerTP: /update (cancel/curtail trade)
         par Cascade update
             SellerTP->>SellerUtility: /update (notify of change)
@@ -153,9 +153,10 @@ sequenceDiagram
 
     rect rgb(255, 240, 245)
     note over S,B: Phase 6: Billing & Settlement
-    SellerUtility->>S: Monthly bill (excl. P2P sold + wheeling)
+    B->>S: Pay for P2P trade (post-delivery)
+    SellerUtility->>S: Monthly bill (excl. P2P sold, incl. wheeling)
     S->>SellerUtility: Pay bill
-    BuyerUtility->>B: Monthly bill (excl. P2P bought + wheeling)
+    BuyerUtility->>B: Monthly bill (excl. P2P bought, incl. wheeling)
     B->>BuyerUtility: Pay bill
     end
 ```
@@ -408,12 +409,12 @@ Energy delivery follows the same physical process as the central ledger approach
 ```mermaid
 sequenceDiagram
     autonumber
-    participant S as Seller (P1)
+    participant S as Seller
     participant SM_S as Seller's<br/>Smart Meter
     participant SellerUtility as SellerUtility
     participant BuyerUtility as BuyerUtility
     participant SM_B as Buyer's<br/>Smart Meter
-    participant B as Buyer (P7)
+    participant B as Buyer
 
     Note over S,B: Scheduled Delivery Window Begins
 
@@ -491,12 +492,12 @@ sequenceDiagram
 
 ### Allocation Example (FIFO)
 
-**Seller P1's trades for delivery window 2-4 PM:**
+**Seller's trades for delivery window 2-4 PM:**
 
 | Trade | Trade Time | Contracted Qty | Priority |
 |-------|------------|----------------|----------|
-| T1 (with P7) | 9:00 AM | 5 kWh | 1st |
-| T2 (with P8) | 9:30 AM | 4 kWh | 2nd |
+| T1 (with Buyer A) | 9:00 AM | 5 kWh | 1st |
+| T2 (with Buyer B) | 9:30 AM | 4 kWh | 2nd |
 | **Total** | | **9 kWh** | |
 
 **Actual injection: 7 kWh**
@@ -514,15 +515,23 @@ SellerUtility sends `/on_status` to SellerTP with these allocated quantities.
 
 ## Phase 6: Billing and Settlement
 
-Each utility handles billing for its own customers, using only its own ledger data.
+Settlement involves two separate payment flows:
+1. **P2P payment:** Buyer pays Seller directly for the traded energy (post-delivery)
+2. **Utility billing:** Each utility bills its customer, excluding P2P energy but including wheeling charges
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant S as Seller (P1)
+    participant S as Seller
     participant SellerUtility as SellerUtility
     participant BuyerUtility as BuyerUtility
-    participant B as Buyer (P7)
+    participant B as Buyer
+
+    rect rgb(240, 255, 240)
+    Note over S,B: P2P Settlement (Post-Delivery)
+    B->>S: Pay for P2P trade<br/>(allocated qty × agreed price)
+    S-->>B: Payment confirmed
+    end
 
     Note over SellerUtility,BuyerUtility: Monthly Billing Cycle
 
@@ -543,10 +552,18 @@ sequenceDiagram
     end
 ```
 
+### P2P Payment
+
+The buyer pays the seller directly for the P2P trade after delivery is confirmed (via `/on_status`). Payment amount is based on:
+- **Allocated quantity** (from Phase 5, may be less than contracted if under-delivery)
+- **Agreed price** (from the confirmed trade contract)
+
+Payment mechanism options include direct bank transfer, UPI, or platform-mediated escrow (see original document for detailed settlement options).
+
 ### Anti-Double-Billing
 
-- **Buyer (P7):** BuyerUtility excludes P2P energy from regular charges (buyer already paid seller directly)
-- **Seller (P1):** SellerUtility excludes P2P energy from injection credit (seller already received payment from buyer)
+- **Buyer:** BuyerUtility excludes P2P energy from regular charges (buyer already paid seller directly)
+- **Seller:** SellerUtility excludes P2P energy from injection credit (seller already received payment from buyer)
 
 ---
 
