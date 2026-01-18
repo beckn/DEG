@@ -72,36 +72,75 @@ sequenceDiagram
     note over BuyerTP,SellerTP: Phase 1: Trade Discovery & Selection
     B->>BuyerTP: Search for energy offers
     BuyerTP->>SellerTP: /select (choose offer)
-    SellerTP-->>BuyerTP: /on_select (offer details)
+    SellerTP->>BuyerTP: /on_select (offer details)
     end
 
     rect rgb(255, 250, 230)
-    note over BuyerTP,SellerUtility: Phase 2: Trade Initialization (Optional Utility Check)
+    note over BuyerTP,SellerUtility: Phase 2: Trade Initialization
     BuyerTP->>SellerTP: /init (trade details)
-    BuyerTP-->>BuyerUtility: /init (optional)
-    SellerTP-->>SellerUtility: /init (optional, cascaded)
-    SellerUtility-->>SellerTP: /on_init (seller's remaining limit)
-    BuyerUtility-->>BuyerTP: /on_init (buyer's remaining limit)
+    opt Optional Utility Limit Checks
+        BuyerTP-->>BuyerUtility: /init (if trading limits unknown OR multi-platform onboarding)
+        SellerTP-->>SellerUtility: /init (cascaded)
+        SellerUtility-->>SellerTP: /on_init (seller's remaining limit)
+        BuyerUtility-->>BuyerTP: /on_init (buyer's remaining limit)
+    end
     SellerTP->>BuyerTP: /on_init
     end
 
     rect rgb(230, 255, 230)
-    note over BuyerTP,SellerUtility: Phase 3: Trade Confirmation (Multi-Party Signing)
+    note over BuyerTP,SellerUtility: Phase 3: Trade Confirmation
     BuyerTP->>SellerTP: /confirm (trade contract)
-    SellerTP->>SellerUtility: /confirm (cascaded)
-    SellerUtility->>BuyerUtility: /confirm (cross-utility)
-    BuyerUtility->>BuyerUtility: Deduct from buyer limit, log trade
-    BuyerUtility-->>SellerUtility: /on_confirm (signed sealed order)
-    SellerUtility->>SellerUtility: Deduct from seller limit, log trade
-    SellerUtility-->>SellerTP: /on_confirm (signed sealed order)
-    SellerTP->>SellerTP: Sign sealed order
-    SellerTP->>BuyerTP: /on_confirm (signed sealed order)
+    alt Non-blocking (Recommended)
+        SellerTP->>BuyerTP: /on_confirm (trade confirmed)
+        par Inform utilities
+            SellerTP->>SellerUtility: /confirm (inform utility)
+            SellerUtility->>SellerUtility: Deduct from seller limit, log trade
+            SellerUtility-->>SellerTP: /on_confirm (acknowledged)
+        and
+            SellerTP->>BuyerUtility: /confirm (inform utility)
+            BuyerUtility->>BuyerUtility: Deduct from buyer limit, log trade
+            BuyerUtility-->>SellerTP: /on_confirm (acknowledged)
+        end
+    else Blocking
+        par Utility confirmations
+            SellerTP->>SellerUtility: /confirm
+            SellerUtility->>SellerUtility: Deduct from seller limit, log trade
+            SellerUtility->>SellerTP: /on_confirm (signed)
+        and
+            SellerTP->>BuyerUtility: /confirm
+            BuyerUtility->>BuyerUtility: Deduct from buyer limit, log trade
+            BuyerUtility->>SellerTP: /on_confirm (signed)
+        end
+        SellerTP->>BuyerTP: /on_confirm (signed sealed order)
+    end
+    end
+
+    opt Phase 3b: Trade Update (e.g., scheduled outage)
+        BuyerUtility->>SellerTP: /update (cancel/curtail trade)
+        par Cascade update
+            SellerTP->>SellerUtility: /update (notify of change)
+            SellerUtility->>SellerUtility: Update trade in ledger
+            SellerUtility-->>SellerTP: /on_update (acknowledged)
+        and
+            SellerTP->>BuyerTP: /update (notify of change)
+            BuyerTP->>BuyerTP: Update trade status
+            BuyerTP-->>SellerTP: /on_update (acknowledged)
+        end
+        SellerTP->>BuyerUtility: /on_update (update confirmed)
+        BuyerUtility->>BuyerUtility: Update trade in ledger
     end
 
     rect rgb(255, 230, 230)
     note over S,BuyerUtility: Phase 4: Energy Delivery
-    S->>SellerUtility: Inject energy
-    B->>B: Consume energy
+    S->>SellerUtility: Request to inject energy
+    SellerUtility->>SellerUtility: Grid security check
+    alt Grid stable
+        SellerUtility->>S: Permit injection
+        S->>S: Inject energy into grid
+        B->>B: Consume energy
+    else Grid unstable
+        SellerUtility-->>S: Reject/limit injection
+    end
     end
 
     rect rgb(245, 230, 255)
@@ -110,6 +149,14 @@ sequenceDiagram
     SellerUtility-->>SellerTP: /on_status (allocated quantity)
     BuyerUtility->>BuyerUtility: Allocate actual pulled to trades
     BuyerUtility-->>BuyerTP: /on_status (allocated quantity)
+    end
+
+    rect rgb(255, 240, 245)
+    note over S,B: Phase 6: Billing & Settlement
+    SellerUtility->>S: Monthly bill (excl. P2P sold + wheeling)
+    S->>SellerUtility: Pay bill
+    BuyerUtility->>B: Monthly bill (excl. P2P bought + wheeling)
+    B->>BuyerUtility: Pay bill
     end
 ```
 
@@ -161,14 +208,16 @@ sequenceDiagram
 
     BuyerTP->>SellerTP: /init (trade details)
 
-    par Optional Utility Limit Checks
-        BuyerTP->>BuyerUtility: /init (buyer limit check)
-        BuyerUtility->>BuyerUtility: Look up buyer's<br/>remaining trading limit
-        BuyerUtility-->>BuyerTP: /on_init<br/>(remaining limit: 20 kWh)
-    and
-        SellerTP->>SellerUtility: /init (seller limit check)
-        SellerUtility->>SellerUtility: Look up seller's<br/>remaining trading limit
-        SellerUtility-->>SellerTP: /on_init<br/>(remaining limit: 15 kWh)
+    opt Optional Utility Limit Checks
+        par Parallel limit checks
+            BuyerTP->>BuyerUtility: /init (buyer limit check)
+            BuyerUtility->>BuyerUtility: Look up buyer's<br/>remaining trading limit
+            BuyerUtility-->>BuyerTP: /on_init<br/>(remaining limit: 20 kWh)
+        and
+            SellerTP->>SellerUtility: /init (seller limit check)
+            SellerUtility->>SellerUtility: Look up seller's<br/>remaining trading limit
+            SellerUtility-->>SellerTP: /on_init<br/>(remaining limit: 15 kWh)
+        end
     end
 
     SellerTP->>BuyerTP: /on_init<br/>(trade initialized, limits OK)
@@ -185,9 +234,16 @@ sequenceDiagram
 
 ---
 
-## Phase 3: Trade Confirmation (Multi-Party Signing)
+## Phase 3: Trade Confirmation
 
-This is the critical phase that establishes trust without a central ledger. The confirmation cascades through all parties, with each adding their signature to create a tamper-proof audit trail.
+This is the critical phase that establishes trust without a central ledger. SellerTP coordinates with both utilities in parallel, and each utility logs the trade and (optionally) signs the order.
+
+Two modes are supported:
+
+| Mode | When to Use | Trade Confirmed |
+|------|-------------|-----------------|
+| **Non-blocking (Recommended)** | Utilities cannot block trades; they are informed for record-keeping | Immediately after SellerTP receives `/confirm` |
+| **Blocking** | Utilities must approve before trade is confirmed | After both utilities respond with `/on_confirm` |
 
 ### Confirmation Flow
 
@@ -202,49 +258,43 @@ sequenceDiagram
     Note over BuyerTP,BuyerUtility: Trade: 5 kWh, 2-4 PM, $0.50/kWh
 
     BuyerTP->>SellerTP: /confirm (trade contract)
-    Note right of SellerTP: Contract signed by Buyer
 
-    SellerTP->>SellerUtility: /confirm (cascaded)
-    Note right of SellerUtility: Contract signed by Buyer + SellerTP
-
-    SellerUtility->>BuyerUtility: /confirm (cross-utility)
-    Note right of BuyerUtility: Contract signed by Buyer + SellerTP + SellerUtility
-
-    rect rgb(230, 255, 230)
-    Note over BuyerUtility: BuyerUtility Actions:
-    BuyerUtility->>BuyerUtility: 1. Verify buyer identity
-    BuyerUtility->>BuyerUtility: 2. Check buyer's remaining limit
-    BuyerUtility->>BuyerUtility: 3. Deduct trade qty from limit
-    BuyerUtility->>BuyerUtility: 4. Log trade in own ledger
-    BuyerUtility->>BuyerUtility: 5. Sign and seal order
-    end
-
-    BuyerUtility-->>SellerUtility: /on_confirm<br/>(sealed order with BuyerUtility signature)
-
-    rect rgb(255, 245, 230)
-    Note over SellerUtility: SellerUtility Actions:
-    SellerUtility->>SellerUtility: 1. Verify seller identity
-    SellerUtility->>SellerUtility: 2. Check seller's remaining limit
-    SellerUtility->>SellerUtility: 3. Deduct trade qty from limit
-    SellerUtility->>SellerUtility: 4. Log trade in own ledger
-    SellerUtility->>SellerUtility: 5. Add signature to sealed order
-    end
-
-    SellerUtility-->>SellerTP: /on_confirm<br/>(sealed order with both utility signatures)
-
-    SellerTP->>SellerTP: Sign sealed order
-    SellerTP-->>BuyerTP: /on_confirm<br/>(sealed order with all signatures)
-
-    opt Final Acknowledgment
-        BuyerTP->>BuyerTP: Sign the order
-        BuyerTP->>SellerTP: /update (accept_on_confirm)
-        Note over BuyerTP,SellerTP: Order now has 4 signatures:<br/>BuyerTP, SellerTP, BuyerUtility, SellerUtility
+    alt Non-blocking (Recommended)
+        SellerTP->>BuyerTP: /on_confirm (trade confirmed)
+        par Inform utilities
+            SellerTP->>SellerUtility: /confirm (inform utility)
+            SellerUtility->>SellerUtility: Deduct from seller limit, log trade
+            SellerUtility-->>SellerTP: /on_confirm (acknowledged)
+        and
+            SellerTP->>BuyerUtility: /confirm (inform utility)
+            BuyerUtility->>BuyerUtility: Deduct from buyer limit, log trade
+            BuyerUtility-->>SellerTP: /on_confirm (acknowledged)
+        end
+    else Blocking
+        par Utility confirmations
+            SellerTP->>SellerUtility: /confirm
+            SellerUtility->>SellerUtility: Deduct from seller limit, log trade
+            SellerUtility->>SellerTP: /on_confirm (signed)
+        and
+            SellerTP->>BuyerUtility: /confirm
+            BuyerUtility->>BuyerUtility: Deduct from buyer limit, log trade
+            BuyerUtility->>SellerTP: /on_confirm (signed)
+        end
+        SellerTP->>BuyerTP: /on_confirm (signed sealed order)
     end
 ```
 
-### Multi-Party Signature Chain
+### What Each Utility Does on `/confirm`
 
-By the end of confirmation, the sealed trade order contains:
+1. Verify customer identity
+2. Check customer's remaining trading limit
+3. Deduct trade quantity from limit
+4. Log trade in own ledger
+5. (Blocking mode only) Sign the order
+
+### Multi-Party Signature Chain (Blocking Mode)
+
+In blocking mode, the sealed trade order contains signatures from all parties:
 
 | Signature | Attests To |
 |-----------|-----------|
@@ -255,11 +305,105 @@ By the end of confirmation, the sealed trade order contains:
 
 This creates a **tamper-proof, distributed proof of trade commitment** without requiring a central ledger.
 
+### Non-blocking vs Blocking Trade-offs
+
+| Aspect | Non-blocking | Blocking |
+|--------|--------------|----------|
+| **Latency** | Lower (immediate confirmation) | Higher (waits for utilities) |
+| **Utility control** | Utilities informed, cannot block | Utilities can reject trades |
+| **Trust model** | Trust SellerTP to inform utilities | Full multi-party consensus |
+| **Use case** | High-frequency trading, trusted platforms | Regulatory requirement for utility approval |
+
+---
+
+## Phase 3b: Trade Update (Optional)
+
+After a trade is confirmed but before energy delivery, a utility may need to modify or cancel the trade due to operational reasons (e.g., scheduled outage, grid constraints, regulatory intervention).
+
+### Why Trade Updates?
+
+- **Scheduled outages:** Utility plans maintenance that affects the delivery window
+- **Grid constraints:** Forecasted congestion or stability issues
+- **Regulatory intervention:** Compliance requirements or emergency orders
+- **Meter issues:** Problems detected with buyer's or seller's metering equipment
+
+### Update Flow
+
+The initiating utility (in this example, BuyerUtility) sends `/update` to SellerTP, which coordinates the update across all parties.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant BuyerUtility as BuyerUtility
+    participant SellerTP as SellerTP (BPP)
+    participant SellerUtility as SellerUtility
+    participant BuyerTP as BuyerTP (BAP)
+
+    Note over BuyerUtility,BuyerTP: Trade update triggered (e.g., scheduled outage)
+
+    BuyerUtility->>SellerTP: /update (cancel/curtail trade)
+    Note right of SellerTP: Update reason: scheduled outage<br/>Action: cancel OR curtail to X kWh
+
+    par Cascade update to all parties
+        SellerTP->>SellerUtility: /update (notify of change)
+        SellerUtility->>SellerUtility: Update trade in ledger
+        SellerUtility-->>SellerTP: /on_update (acknowledged)
+    and
+        SellerTP->>BuyerTP: /update (notify of change)
+        BuyerTP->>BuyerTP: Update trade status
+        BuyerTP-->>SellerTP: /on_update (acknowledged)
+    end
+
+    SellerTP->>BuyerUtility: /on_update (update confirmed)
+    BuyerUtility->>BuyerUtility: Update trade in ledger
+
+    Note over BuyerUtility,BuyerTP: All parties now have consistent view of modified trade
+```
+
+### Update Types
+
+| Update Type | Description | Effect on Trade |
+|-------------|-------------|-----------------|
+| **Cancel** | Full cancellation of the trade | Trade marked as cancelled; limits restored |
+| **Curtail** | Reduce contracted quantity | Trade quantity reduced; partial limits restored |
+| **Reschedule** | Change delivery window | New delivery window; same quantity |
+
+### What Each Party Does on `/update`
+
+| Party | Actions |
+|-------|---------|
+| **SellerUtility** | Update trade in ledger; adjust seller's trading limit if cancelled/curtailed |
+| **BuyerTP** | Notify buyer of change; update local trade status |
+| **BuyerUtility** | Update trade in ledger; adjust buyer's trading limit if cancelled/curtailed |
+
+### Update Initiation
+
+While this example shows BuyerUtility initiating, updates can also be initiated by:
+
+| Initiator | Route | Use Case |
+|-----------|-------|----------|
+| **BuyerUtility** | BuyerUtility → SellerTP → (SellerUtility, BuyerTP) | Outage on buyer's side |
+| **SellerUtility** | SellerUtility → SellerTP → (BuyerUtility, BuyerTP) | Outage on seller's side |
+| **BuyerTP** | BuyerTP → SellerTP → (SellerUtility, BuyerUtility) | Buyer requests cancellation |
+
+In all cases, SellerTP acts as the coordination hub, ensuring all parties receive the update and acknowledge it.
+
 ---
 
 ## Phase 4: Energy Delivery
 
+*(Could be anywhere from a few hours to a few days later)*
+
 Energy delivery follows the same physical process as the central ledger approach. The key difference is that each utility records meter data in its own ledger.
+
+### Energy Injection
+
+- At scheduled time, seller injects energy into the grid
+- Seller's utility performs grid security checks and permits injection only if grid stability is maintained
+
+### Energy Consumption
+
+- Buyer consumes energy as usual during the delivery window
 
 ```mermaid
 sequenceDiagram
@@ -274,17 +418,20 @@ sequenceDiagram
     Note over S,B: Scheduled Delivery Window Begins
 
     S->>SM_S: Generate/inject energy
-    SM_S->>SellerUtility: Report injection
+    SM_S->>SellerUtility: Report injection request
 
     SellerUtility->>SellerUtility: Grid security check
     alt Grid stable
         SellerUtility->>SellerUtility: Permit injection
-        SM_S->>SM_S: Record injection (kWh, timestamp)
+        SM_S->>SM_S: Energy injected into grid
 
-        SM_B->>BuyerUtility: Report consumption
+        SM_B->>B: Energy consumed
+
+        SM_S->>SM_S: Record injection (kWh, timestamp)
         SM_B->>SM_B: Record consumption (kWh, timestamp)
     else Grid unstable
         SellerUtility-->>SM_S: Reject/limit injection
+        Note over SellerUtility: Grid stability<br/>takes priority
     end
 
     Note over S,B: Scheduled Delivery Window Ends
