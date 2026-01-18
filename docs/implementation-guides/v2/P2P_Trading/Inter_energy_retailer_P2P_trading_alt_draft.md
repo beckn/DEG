@@ -47,12 +47,11 @@ P2P trading between prosumers belonging to different energy retailers/distributi
 
 ## Core Design Principles
 
-1. **BAP-initiated flows**: All transactions start from BuyerTP (BAP), maintaining Beckn protocol symmetry
+1. **BuyerTP-initiated, SellerTP-orchestrated flows**: All transactions start from BuyerTP (BAP), and are orchestrated by SellerTP, including informing multiple utilities if needed. Utilities do not need to ordinate directly with eachother.
 2. **Cascading calls**: Multi-party flows cascade through SellerTP to both utilities
-3. **Optional utility involvement**: Utility participation in init/confirm is optional but recommended for trading limit enforcement
+3. **Utility involvement patterns**: Utility participation within init is optional, and only needed in case customers or trading platforms don't have the trading limits imposed by the utility. After the trade is confirmed, a non-blocking intimation is required to sent to utility informing them of trade, so they can avoid double-billing and compute wheeling and deviation charges, post delivery.
 4. **Distributed ledgers**: Each utility maintains its own ledger for its customers only
-5. **Multi-party signatures**: Tamper-proof audit trail through sequential signing
-6. **Natural collapse**: Same-utility trades collapse to single-discom flow automatically
+5. **Natural collapse**: Same-utility trades collapse to single-discom flow automatically
 
 ---
 
