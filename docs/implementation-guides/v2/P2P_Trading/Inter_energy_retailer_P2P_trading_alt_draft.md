@@ -82,7 +82,7 @@ sequenceDiagram
     SellerTP-->>SellerUtility: /init (optional, cascaded)
     SellerUtility-->>SellerTP: /on_init (seller's remaining limit)
     BuyerUtility-->>BuyerTP: /on_init (buyer's remaining limit)
-    SellerTP-->>BuyerTP: /on_init
+    SellerTP->>BuyerTP: /on_init
     end
 
     rect rgb(230, 255, 230)
@@ -95,7 +95,7 @@ sequenceDiagram
     SellerUtility->>SellerUtility: Deduct from seller limit, log trade
     SellerUtility-->>SellerTP: /on_confirm (signed sealed order)
     SellerTP->>SellerTP: Sign sealed order
-    SellerTP-->>BuyerTP: /on_confirm (signed sealed order)
+    SellerTP->>BuyerTP: /on_confirm (signed sealed order)
     end
 
     rect rgb(255, 230, 230)
@@ -130,8 +130,8 @@ sequenceDiagram
     B->>BuyerTP: Search for energy offers<br/>(delivery window, quantity, location)
     BuyerTP->>SellerTP: /select
     Note right of SellerTP: Offer: 5 kWh, 2-4 PM,<br/>$0.50/kWh
-    SellerTP-->>BuyerTP: /on_select<br/>(offer details, seller info)
-    BuyerTP-->>B: Display offer details
+    SellerTP->>BuyerTP: /on_select<br/>(offer details, seller info)
+    BuyerTP->>B: Display offer details
 ```
 
 ---
@@ -171,7 +171,7 @@ sequenceDiagram
         SellerUtility-->>SellerTP: /on_init<br/>(remaining limit: 15 kWh)
     end
 
-    SellerTP-->>BuyerTP: /on_init<br/>(trade initialized, limits OK)
+    SellerTP->>BuyerTP: /on_init<br/>(trade initialized, limits OK)
 ```
 
 ### What Each Utility Tracks in Its Own Ledger
