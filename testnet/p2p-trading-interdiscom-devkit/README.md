@@ -12,8 +12,8 @@ It is a *batteries included* sandbox environment that requires minimal setup, an
 4. Clone this repository using git command line interface and navigate to the install directory. (TODO: branch p2p-trading needs to be removed after merge to main from the following command)
 
 ```
-git clone -b p2p-trading https://github.com/Beckn-One/DEG.git
-cd DEG/testnet/p2p-energy-trading-devkit/install
+git clone -b p2p-trading https://github.com/beckn/DEG.git
+cd DEG/testnet/p2p-trading-interdiscom-devkit/install
 ```
 
 ### References used in this guide
