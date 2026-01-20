@@ -1,0 +1,75 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "id": "@id",
+        "type": "@type",
+        "schema": "https://schema.org/",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "generation": "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/generation-profile-vc/context.jsonld#",
+
+        "GenerationProfileCredential": {
+            "@id": "generation:GenerationProfileCredential",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "id": "@id",
+                "type": "@type",
+                "consumerNumber": {
+                    "@id": "generation:consumerNumber",
+                    "@type": "xsd:string"
+                },
+                "fullName": {
+                    "@id": "schema:name",
+                    "@type": "xsd:string"
+                },
+                "meterNumber": {
+                    "@id": "generation:meterNumber",
+                    "@type": "xsd:string"
+                },
+                "assetId": {
+                    "@id": "generation:assetId",
+                    "@type": "xsd:string"
+                },
+                "generationType": {
+                    "@id": "generation:generationType",
+                    "@type": "xsd:string"
+                },
+                "capacityKW": {
+                    "@id": "generation:capacityKW",
+                    "@type": "xsd:decimal"
+                },
+                "commissioningDate": {
+                    "@id": "generation:commissioningDate",
+                    "@type": "xsd:date"
+                },
+                "manufacturer": {
+                    "@id": "schema:manufacturer",
+                    "@type": "xsd:string"
+                },
+                "modelNumber": {
+                    "@id": "generation:modelNumber",
+                    "@type": "xsd:string"
+                }
+            }
+        },
+
+        "UtilityIssuer": {
+            "@id": "generation:UtilityIssuer",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "id": "@id",
+                "type": "@type",
+                "name": {
+                    "@id": "schema:name",
+                    "@type": "xsd:string"
+                },
+                "licenseNumber": {
+                    "@id": "generation:licenseNumber",
+                    "@type": "xsd:string"
+                }
+            }
+        }
+    }
+}

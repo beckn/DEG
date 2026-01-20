@@ -1,0 +1,63 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "id": "@id",
+        "type": "@type",
+        "schema": "https://schema.org/",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "utility": "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/program-enrollment-vc/context.jsonld#",
+
+        "UtilityProgramEnrollmentCredential": {
+            "@id": "utility:UtilityProgramEnrollmentCredential",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "id": "@id",
+                "type": "@type",
+                "consumerNumber": {
+                    "@id": "utility:consumerNumber",
+                    "@type": "xsd:string"
+                },
+                "fullName": {
+                    "@id": "schema:name",
+                    "@type": "xsd:string"
+                },
+                "programName": {
+                    "@id": "utility:programName",
+                    "@type": "xsd:string"
+                },
+                "programCode": {
+                    "@id": "utility:programCode",
+                    "@type": "xsd:string"
+                },
+                "enrollmentDate": {
+                    "@id": "utility:enrollmentDate",
+                    "@type": "xsd:date"
+                },
+                "validUntil": {
+                    "@id": "utility:validUntil",
+                    "@type": "xsd:date"
+                }
+            }
+        },
+
+        "UtilityIssuer": {
+            "@id": "utility:UtilityIssuer",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "id": "@id",
+                "type": "@type",
+                "name": {
+                    "@id": "schema:name",
+                    "@type": "xsd:string"
+                },
+                "licenseNumber": {
+                    "@id": "utility:licenseNumber",
+                    "@type": "xsd:string"
+                }
+            }
+        }
+    }
+}

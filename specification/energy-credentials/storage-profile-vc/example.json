@@ -1,0 +1,33 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://schema.org/",
+    "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/storage-profile-vc/context.jsonld"
+  ],
+  "id": "urn:uuid:d4e5f6a7-8901-23ab-cdef-456789012345",
+  "type": ["VerifiableCredential", "StorageProfileCredential"],
+  "issuer": {
+    "id": "did:web:example-utility.com",
+    "name": "Example Energy Utility",
+    "licenseNumber": "REG-2025-00001"
+  },
+  "issuanceDate": "2025-01-13T10:30:00Z",
+  "credentialSubject": {
+    "id": "did:example:consumer:abc123",
+    "consumerNumber": "UTIL-2025-001234567",
+    "fullName": "Jane Doe",
+    "meterNumber": "MET2025789456123",
+    "assetId": "BESS-001",
+    "storageCapacityKWh": 10,
+    "powerRatingKW": 5,
+    "commissioningDate": "2025-01-12",
+    "storageType": "LithiumIon"
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2025-01-13T10:30:00Z",
+    "verificationMethod": "did:web:example-utility.com#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z58DAdFfa9SkqZMVPxAQpic7ndTaXoT..."
+  }
+}

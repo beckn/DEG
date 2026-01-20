@@ -1,0 +1,716 @@
+openapi: 3.1.0
+info:
+  title: DEG Ledger Service API
+  version: 0.3.0
+  description: |
+    DEG Ledger Service stores an immutable, multi-party ledger view of a DEG trade lifecycle.
+
+    ## API usage notes (when to use which API)
+
+    ### 1) Platform Create / Update (Upsert): `POST /ledger/put`
+    Use this endpoint **only for trading platforms** (buyer platform and seller platform) to:
+    - **Create** the ledger record for a trade (first write), or
+    - **Update** platform-owned fields later.
+
+    **Uniqueness key:** `transactionId + orderItemId`
+    - If no record exists for this key, `/ledger/put` creates it and allocates `recordId` + `creationTime`.
+    - If a record exists, `/ledger/put` performs a partial merge of the supplied fields (policy-controlled).
+
+    **Discoms MUST NOT use `/ledger/put`.** Discoms record actuals/status only via `/ledger/record`.
+
+    ### 2) Discom Record actuals / status: `POST /ledger/record`
+    Use this endpoint **only for discoms** to record:
+    - fulfillment actuals (validation metrics), and/or
+    - lifecycle status updates (e.g., COMPLETED, CANCELLED_OUTAGE).
+
+    This endpoint updates an **existing** record identified by `transactionId + orderItemId` (or `recordId`).
+    - If the record does not exist, the service returns **404** (create first via `/ledger/put` by a platform).
+
+    ### 3) Retrieve / Search: `POST /ledger/get`
+    Use this endpoint to retrieve records using filters.
+    The service applies policy-based access control to:
+    - which records can be returned, and
+    - which fields are visible within each record.
+
+servers:
+  - url: https://ledger.example.org
+    description: Example server
+
+tags:
+  - name: Ledger
+    description: Ledger record create/update, retrieval, and discom recording
+
+security:
+  - BecknHttpSignature: []
+    HttpDigest: []
+
+paths:
+  /ledger/put:
+    post:
+      tags: [Ledger]
+      summary: Create or update a ledger record (platform-only upsert by transactionId + orderItemId)
+      description: |
+        Creates or updates a ledger record identified by **transactionId + orderItemId**.
+
+        **Who should use this**
+        - Buyer platform and Seller platform ONLY.
+        - Discoms MUST NOT use this endpoint.
+
+        **Create behavior**
+        - If no record exists for (transactionId, orderItemId), the ledger creates one and generates:
+          - `recordId`
+          - `creationTime`
+
+        **Update behavior**
+        - If a record exists for (transactionId, orderItemId), the ledger applies a **partial merge**:
+          - Only fields present in the request are considered for update.
+          - Field-level permissions are enforced based on caller identity and role.
+
+        **Idempotency (recommended)**
+        - Clients MAY pass `clientReference` to support safe retries.
+        - The ledger MAY treat `(callerId, transactionId, orderItemId, clientReference)` as an idempotency key.
+      operationId: putLedgerRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ledgerPutRequest"
+            examples:
+              buyerPlatformCreate:
+                summary: Buyer platform creates record and writes core trade metadata
+                value:
+                  role: BUYER
+                  transactionId: "tx-123"
+                  orderItemId: "item-1"
+                  platformIdBuyer: "bap.buyer-platform.example"
+                  platformIdSeller: "bpp.seller-platform.example"
+                  discomIdBuyer: "DISCOM_A"
+                  discomIdSeller: "DISCOM_B"
+                  buyerId: "CA-0000123"
+                  sellerId: "DER-9981"
+                  tradeTime: "2026-01-15T10:20:30Z"
+                  deliveryStartTime: "2026-01-15T11:00:00Z"
+                  deliveryEndTime: "2026-01-15T11:30:00Z"
+                  tradeDetails:
+                    - tradeType: ENERGY
+                      tradeQty: 12.5
+                      tradeUnit: KWH
+                  clientReference: "buyer-create-0001"
+      responses:
+        "200":
+          description: Record accepted and applied (created or updated)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ledgerWriteResponse"
+              examples:
+                ok:
+                  value:
+                    success: true
+                    recordId: "rec-9f8a2c"
+                    creationTime: "2026-01-15T10:20:31Z"
+                    rowDigest: "sha256:6d7a...f09c"
+                    message: "Accepted"
+        "400":
+          description: Invalid request (schema/validation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              examples:
+                schemaError:
+                  value:
+                    code: SCH_FIELD_NOT_ALLOWED
+                    message: "Invalid request body"
+                    details:
+                      field: "tradeDetails[0].tradeUnit"
+                      issue: "must be one of [KWH, KW]"
+        "401":
+          description: Authentication/signature failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              examples:
+                badSig:
+                  value:
+                    code: AUT_SIGNATURE_INVALID
+                    message: "Request signature verification failed"
+        "403":
+          description: Authorization/policy failure (caller not allowed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              examples:
+                pol:
+                  value:
+                    code: AUT_NOT_AUTHORIZED
+                    message: "Caller role BUYER cannot write statusSellerDiscom"
+        "409":
+          description: Conflict (e.g., immutable fields mismatch for same uniqueness key)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /ledger/get:
+    post:
+      tags: [Ledger]
+      summary: Retrieve ledger records by filter (policy-restricted)
+      description: |
+        Searches and returns ledger records matching the filter.
+
+        **How to use**
+        - Provide one or more filter fields (e.g., transactionId + orderItemId, buyerId, tradeTime window).
+        - The ledger enforces:
+          - record-level access (which records you can see), and
+          - field-level masking (which fields inside a record you can see), based on caller identity/role.
+
+        **Recommended usage**
+        - For a single record: send `transactionId` + `orderItemId` (or `recordId`).
+        - For reporting: use time-window filters + pagination (`limit`, `offset`).
+      operationId: getLedgerRecords
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ledgerGetRequest"
+            examples:
+              byUniqueKey:
+                summary: Fetch a specific record by uniqueness key
+                value:
+                  transactionId: "tx-123"
+                  orderItemId: "item-1"
+              byBuyerAndTradeWindow:
+                summary: Query by buyer and trade time window
+                value:
+                  buyerId: "CA-0000123"
+                  tradeTimeFrom: "2026-01-01T00:00:00Z"
+                  tradeTimeTo: "2026-02-01T00:00:00Z"
+                  limit: 50
+                  offset: 0
+      responses:
+        "200":
+          description: Matching records (possibly empty)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ledgerGetResponse"
+              examples:
+                empty:
+                  value:
+                    records: []
+                    count: 0
+        "400":
+          description: Invalid request (schema/validation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "401":
+          description: Authentication/signature failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "403":
+          description: Authorization/policy failure (caller not allowed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /ledger/record:
+    post:
+      tags: [Ledger]
+      summary: Record discom actuals and/or lifecycle status (discom-only, existing record)
+      description: |
+        Discom-only endpoint to record fulfillment actuals (validation metrics) and/or lifecycle status.
+
+        **Who should use this**
+        - Buyer discom and Seller discom ONLY.
+        - Platforms SHOULD NOT use this endpoint.
+
+        **Targeting**
+        - Preferred: identify the target record using `transactionId` + `orderItemId`.
+        - Alternative: supply `recordId`.
+
+        **Record existence**
+        - Updates an existing record identified by `transactionId + orderItemId` (or `recordId`).
+        - If no record exists, returns **404**. Platforms must create via `/ledger/put` first.
+
+        **Typical patterns**
+        - Buyer discom:
+          - writes `buyerFulfillmentValidationMetrics`
+          - sets `statusBuyerDiscom`
+        - Seller discom:
+          - writes `sellerFulfillmentValidationMetrics`
+          - sets `statusSellerDiscom`
+
+        **Idempotency (recommended)**
+        - Discoms MAY pass `clientReference` to support safe retries.
+      operationId: recordLedgerActualsOrStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ledgerRecordRequest"
+            examples:
+              buyerDiscomCompleted:
+                summary: Buyer discom records actual pulled and marks completed
+                value:
+                  role: BUYER_DISCOM
+                  transactionId: "tx-123"
+                  orderItemId: "item-1"
+                  buyerFulfillmentValidationMetrics:
+                    - validationMetricType: ACTUAL_PULLED
+                      validationMetricValue: 11.9
+                  statusBuyerDiscom: COMPLETED
+                  clientReference: "bd-actuals-0007"
+              sellerDiscomCancelOutage:
+                summary: Seller discom cancels due to outage
+                value:
+                  role: SELLER_DISCOM
+                  transactionId: "tx-123"
+                  orderItemId: "item-1"
+                  statusSellerDiscom: CANCELLED_OUTAGE
+                  note: "Feeder outage at substation SS-19"
+                  clientReference: "sd-cancel-0021"
+      responses:
+        "200":
+          description: Update accepted and applied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ledgerWriteResponse"
+        "400":
+          description: Invalid request (schema/validation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "401":
+          description: Authentication/signature failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "403":
+          description: Authorization/policy failure (caller not allowed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "404":
+          description: Target record not found for the provided identifiers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              examples:
+                notFound:
+                  value:
+                    code: NOT_FOUND
+                    message: "No ledger record found for transactionId=tx-123 and orderItemId=item-1"
+
+components:
+  securitySchemes:
+    BecknHttpSignature:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: >
+        Beckn HTTP Signature Authorization header.
+        Typical format:
+        Authorization: Signature keyId="did:example:buyer#key-1",algorithm="ed25519",
+        headers="(created) (expires) digest",signature="Base64URL(...)"
+
+        Notes:
+        - Signature covers selected headers and the Digest header.
+        - Key discovery and trust verification are performed via the network registry.
+        - Replay protection is typically enforced using (created)/(expires).
+
+    HttpDigest:
+      type: apiKey
+      in: header
+      name: Digest
+      description: >
+        HTTP Digest header computed over the request body.
+        Format: "BLAKE-512=<base64>"
+
+        Notes:
+        - Digest MUST be included in the HTTP Signature headers list.
+        - Hash algorithm and canonicalization follow network policy.
+
+  schemas:
+    # -------------------------
+    # Enums
+    # -------------------------
+    role:
+      type: string
+      enum: [BUYER, SELLER, BUYER_DISCOM, SELLER_DISCOM]
+
+    discomRole:
+      type: string
+      enum: [BUYER_DISCOM, SELLER_DISCOM]
+
+    tradeType:
+      type: string
+      enum: [ENERGY, RAISE_CAPACITY, LOWER_CAPACITY, PFR, SFR, TC, BDR]
+
+    metricType:
+      type: string
+      enum:
+        - ACTUAL_PUSHED
+        - ACTUAL_PULLED
+        - SETPOINT_FOLLOWING_ERROR
+        - ACTUAL_RAISE_CAPACITY
+        - ACTUAL_LOWER_CAPACITY
+        - FREQUENCY_RESPONSE_ERROR
+        - ACTUAL_DEMAND_REDUCTION
+        - AVAILABILITY
+
+    tradeStatus:
+      type: string
+      enum:
+        - PENDING
+        - CONFIRMED
+        - CANCELLED_OUTAGE
+        - CANCELLED_POL_VIOLATION
+        - CURTAILED_OUTAGE
+        - CURTAILED_POL_VIOLATION
+        - COMPLETED
+
+    tradeUnit:
+      type: string
+      enum: [KWH, KW]
+
+    # -------------------------
+    # Value objects
+    # -------------------------
+    tradeDetail:
+      type: object
+      additionalProperties: false
+      required: [tradeQty, tradeType, tradeUnit]
+      properties:
+        tradeQty:
+          type: number
+        tradeType:
+          $ref: "#/components/schemas/tradeType"
+        tradeUnit:
+          $ref: "#/components/schemas/tradeUnit"
+
+    validationMetric:
+      type: object
+      additionalProperties: false
+      required: [validationMetricType, validationMetricValue]
+      properties:
+        validationMetricType:
+          $ref: "#/components/schemas/metricType"
+        validationMetricValue:
+          type: number
+
+    # -------------------------
+    # Canonical stored record
+    # -------------------------
+    ledgerRecord:
+      type: object
+      description: Canonical ledger record as stored and returned by the service.
+      additionalProperties: false
+      required:
+        - creationTime
+        - recordId
+        - transactionId
+        - orderItemId
+        - platformIdBuyer
+        - platformIdSeller
+        - discomIdBuyer
+        - discomIdSeller
+        - buyerId
+        - sellerId
+      properties:
+        creationTime:
+          type: string
+          format: date-time
+          description: Timestamp when the record was created (generated by ledger)
+        recordId:
+          type: string
+          description: Unique record identifier (generated by ledger)
+        transactionId:
+          type: string
+          description: Beckn transaction identifier (part of uniqueness key)
+        orderItemId:
+          type: string
+          description: Order item identifier (part of uniqueness key)
+        platformIdBuyer:
+          type: string
+          description: Identifier of buyer platform
+        platformIdSeller:
+          type: string
+          description: Identifier of seller platform
+        discomIdBuyer:
+          type: string
+          description: Buyer-side discom identifier
+        discomIdSeller:
+          type: string
+          description: Seller-side discom identifier
+        buyerId:
+          type: string
+          description: Unique buyer identifier (e.g., CA number / utility assigned id)
+        sellerId:
+          type: string
+          description: Unique seller identifier (e.g., DER / prosumer id)
+        tradeTime:
+          type: string
+          format: date-time
+          description: Timestamp when the trade was agreed upon
+        deliveryStartTime:
+          type: string
+          format: date-time
+          description: Timestamp when delivery started
+        deliveryEndTime:
+          type: string
+          format: date-time
+          description: Timestamp when delivery ended
+        tradeDetails:
+          type: array
+          items:
+            $ref: "#/components/schemas/tradeDetail"
+        buyerFulfillmentValidationMetrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/validationMetric"
+        sellerFulfillmentValidationMetrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/validationMetric"
+        statusBuyerDiscom:
+          $ref: "#/components/schemas/tradeStatus"
+        statusSellerDiscom:
+          $ref: "#/components/schemas/tradeStatus"
+        rowDigest:
+          type: string
+          description: Digest of the canonical row state (implementation-specific)
+
+    # -------------------------
+    # Requests / Responses
+    # -------------------------
+    ledgerPutRequest:
+      type: object
+      additionalProperties: false
+      required: [role, transactionId, orderItemId]
+      description: |
+        Partial-write request for creating or updating a ledger record.
+
+        Notes:
+        - Record is uniquely identified by `transactionId + orderItemId`.
+        - Clients SHOULD only include fields they intend to write in this call.
+        - Server enforces role-based write permissions.
+        - Discoms MUST NOT call this endpoint (use /ledger/record).
+      properties:
+        role:
+          $ref: "#/components/schemas/role"
+        transactionId:
+          type: string
+        orderItemId:
+          type: string
+        recordId:
+          type: string
+          description: Optional alternate reference; uniqueness key still applies.
+        platformIdBuyer:
+          type: string
+        platformIdSeller:
+          type: string
+        discomIdBuyer:
+          type: string
+        discomIdSeller:
+          type: string
+        buyerId:
+          type: string
+        sellerId:
+          type: string
+        tradeTime:
+          type: string
+          format: date-time
+        deliveryStartTime:
+          type: string
+          format: date-time
+        deliveryEndTime:
+          type: string
+          format: date-time
+        tradeDetails:
+          type: array
+          items:
+            $ref: "#/components/schemas/tradeDetail"
+        clientReference:
+          type: string
+          description: Optional idempotency token generated by the platform for safe retries.
+
+    ledgerGetRequest:
+      type: object
+      additionalProperties: false
+      description: |
+        Filter-based query. Server applies additional policy constraints based on caller.
+
+        Notes:
+        - For exact lookup, use `transactionId + orderItemId` or `recordId`.
+        - For analytics/reporting, use time windows + pagination.
+      properties:
+        transactionId:
+          type: string
+        orderItemId:
+          type: string
+        recordId:
+          type: string
+        buyerId:
+          type: string
+        sellerId:
+          type: string
+        discomIdBuyer:
+          type: string
+        discomIdSeller:
+          type: string
+        platformIdBuyer:
+          type: string
+        platformIdSeller:
+          type: string
+        creationTimeFrom:
+          type: string
+          format: date-time
+        creationTimeTo:
+          type: string
+          format: date-time
+        tradeTimeFrom:
+          type: string
+          format: date-time
+        tradeTimeTo:
+          type: string
+          format: date-time
+        deliveryStartFrom:
+          type: string
+          format: date-time
+        deliveryStartTo:
+          type: string
+          format: date-time
+        deliveryEndFrom:
+          type: string
+          format: date-time
+        deliveryEndTo:
+          type: string
+          format: date-time
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 50
+        offset:
+          type: integer
+          minimum: 0
+          default: 0
+        sort:
+          type: string
+          enum: [creationTime, tradeTime, deliveryStartTime, deliveryEndTime]
+        sortOrder:
+          type: string
+          enum: [asc, desc]
+          default: desc
+
+    ledgerGetResponse:
+      type: object
+      additionalProperties: false
+      required: [records, count]
+      properties:
+        records:
+          type: array
+          items:
+            $ref: "#/components/schemas/ledgerRecord"
+        count:
+          type: integer
+          description: Number of records returned in this page
+
+    ledgerRecordRequest:
+      type: object
+      additionalProperties: false
+      required: [role]
+      description: |
+        Discom recording request for an existing record.
+
+        Targeting:
+        - Provide either (transactionId + orderItemId) OR recordId.
+        - At least one recordable field SHOULD be present.
+
+        Notes:
+        - Server enforces role-based write permissions.
+        - If the target record does not exist, server returns 404.
+      properties:
+        role:
+          $ref: "#/components/schemas/discomRole"
+        transactionId:
+          type: string
+        orderItemId:
+          type: string
+        recordId:
+          type: string
+        buyerFulfillmentValidationMetrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/validationMetric"
+        sellerFulfillmentValidationMetrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/validationMetric"
+        statusBuyerDiscom:
+          $ref: "#/components/schemas/tradeStatus"
+        statusSellerDiscom:
+          $ref: "#/components/schemas/tradeStatus"
+        note:
+          type: string
+        clientReference:
+          type: string
+          description: Optional idempotency token generated by the discom for safe retries.
+
+    ledgerWriteResponse:
+      type: object
+      additionalProperties: false
+      required: [success, recordId, creationTime, rowDigest]
+      properties:
+        success:
+          type: boolean
+        recordId:
+          type: string
+        creationTime:
+          type: string
+          format: date-time
+        rowDigest:
+          type: string
+          description: Digest of the canonical row state after applying this write
+        message:
+          type: string
+
+    # -------------------------
+    # Error
+    # -------------------------
+    error:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum:
+            - SCH_FIELD_NOT_ALLOWED
+            - SCH_MISSING_REQUIRED
+            - AUT_SIGNATURE_INVALID
+            - AUT_NOT_AUTHORIZED
+            - PRC_CONFLICT
+            - PRC_NOT_FOUND
+            - SRV_INTERNAL_ERROR
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
