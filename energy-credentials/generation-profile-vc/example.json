@@ -1,0 +1,34 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://schema.org/",
+    "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/generation-profile-vc/context.jsonld"
+  ],
+  "id": "urn:uuid:c3d4e5f6-7890-12ab-cdef-345678901234",
+  "type": ["VerifiableCredential", "GenerationProfileCredential"],
+  "issuer": {
+    "id": "did:web:example-utility.com",
+    "name": "Example Energy Utility",
+    "licenseNumber": "REG-2025-00001"
+  },
+  "issuanceDate": "2025-01-13T10:30:00Z",
+  "credentialSubject": {
+    "id": "did:example:consumer:abc123",
+    "consumerNumber": "UTIL-2025-001234567",
+    "fullName": "Jane Doe",
+    "meterNumber": "MET2025789456123",
+    "assetId": "DER-SOLAR-001",
+    "generationType": "Solar",
+    "capacityKW": 3,
+    "commissioningDate": "2025-01-12",
+    "manufacturer": "SunPower Corporation",
+    "modelNumber": "SPR-X22-360"
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2025-01-13T10:30:00Z",
+    "verificationMethod": "did:web:example-utility.com#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z58DAdFfa9SkqZMVPxAQpic7ndTaXoT..."
+  }
+}

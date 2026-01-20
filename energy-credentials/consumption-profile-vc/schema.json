@@ -1,0 +1,161 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/consumption-profile-vc/schema.json",
+    "title": "Consumption Profile Credential Schema",
+    "description": "JSON Schema for connection and consumption characteristics for load management and tariff purposes, issued by electricity distribution utilities.",
+    "type": "object",
+    "required": [
+        "@context",
+        "id",
+        "type",
+        "issuer",
+        "issuanceDate",
+        "credentialSubject"
+    ],
+    "properties": {
+        "@context": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "contains": {
+                "const": "https://www.w3.org/2018/credentials/v1"
+            },
+            "minItems": 2
+        },
+        "id": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "description": "Unique identifier for the credential in URN UUID format"
+        },
+        "type": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "contains": {
+                "const": "ConsumptionProfileCredential"
+            },
+            "minItems": 2
+        },
+        "issuer": {
+            "type": "object",
+            "required": ["id", "name", "licenseNumber"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "DID of the issuing distribution utility"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Name of the distribution utility"
+                },
+                "licenseNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Regulatory license number issued by the local energy regulator"
+                }
+            }
+        },
+        "issuanceDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time when the credential was issued"
+        },
+        "expirationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional expiration date of the credential"
+        },
+        "credentialSubject": {
+            "type": "object",
+            "required": [
+                "id",
+                "consumerNumber",
+                "fullName",
+                "premisesType",
+                "connectionType",
+                "sanctionedLoadKW",
+                "tariffCategoryCode"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "DID of the customer/credential subject (links to customer)"
+                },
+                "consumerNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Full consumer account number assigned by the utility"
+                },
+                "fullName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Consumer name"
+                },
+                "premisesType": {
+                    "type": "string",
+                    "enum": ["Residential", "Commercial", "Industrial", "Agricultural"],
+                    "description": "Type of premises for the electricity connection"
+                },
+                "connectionType": {
+                    "type": "string",
+                    "enum": ["Single-phase", "Three-phase"],
+                    "description": "Type of electrical connection"
+                },
+                "sanctionedLoadKW": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 10000,
+                    "description": "Sanctioned/approved electrical load in kilowatts (kW)"
+                },
+                "tariffCategoryCode": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Billing/tariff category code assigned by the utility"
+                },
+                "meterNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "description": "Meter serial number (optional, for linking to specific meter)"
+                }
+            }
+        },
+        "proof": {
+            "type": "object",
+            "required": ["type", "created", "verificationMethod", "proofPurpose", "proofValue"],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Cryptographic signature type (e.g., Ed25519Signature2020)"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Timestamp when the proof was created"
+                },
+                "verificationMethod": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URI of the verification method/public key"
+                },
+                "proofPurpose": {
+                    "type": "string",
+                    "enum": ["assertionMethod", "authentication"],
+                    "description": "Purpose of the proof"
+                },
+                "proofValue": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The cryptographic signature value"
+                }
+            }
+        }
+    }
+}

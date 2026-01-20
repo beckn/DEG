@@ -1,0 +1,32 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://schema.org/",
+    "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/consumption-profile-vc/context.jsonld"
+  ],
+  "id": "urn:uuid:b2c3d4e5-6789-01ab-cdef-234567890123",
+  "type": ["VerifiableCredential", "ConsumptionProfileCredential"],
+  "issuer": {
+    "id": "did:web:example-utility.com",
+    "name": "Example Energy Utility",
+    "licenseNumber": "REG-2025-00001"
+  },
+  "issuanceDate": "2025-01-13T10:30:00Z",
+  "credentialSubject": {
+    "id": "did:example:consumer:abc123",
+    "consumerNumber": "UTIL-2025-001234567",
+    "fullName": "Jane Doe",
+    "premisesType": "Residential",
+    "connectionType": "Single-phase",
+    "sanctionedLoadKW": 5,
+    "tariffCategoryCode": "RES-01",
+    "meterNumber": "MET2025789456123"
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2025-01-13T10:30:00Z",
+    "verificationMethod": "did:web:example-utility.com#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z58DAdFfa9SkqZMVPxAQpic7ndTaXoT..."
+  }
+}

@@ -1,0 +1,171 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/generation-profile-vc/schema.json",
+    "title": "Generation Profile Credential Schema",
+    "description": "JSON Schema for DER (Distributed Energy Resource) generation capability credentials issued by electricity distribution utilities. Supports multiple generation types including solar, wind, micro-hydro, and others.",
+    "type": "object",
+    "required": [
+        "@context",
+        "id",
+        "type",
+        "issuer",
+        "issuanceDate",
+        "credentialSubject"
+    ],
+    "properties": {
+        "@context": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "contains": {
+                "const": "https://www.w3.org/2018/credentials/v1"
+            },
+            "minItems": 2
+        },
+        "id": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "description": "Unique identifier for the credential in URN UUID format"
+        },
+        "type": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "contains": {
+                "const": "GenerationProfileCredential"
+            },
+            "minItems": 2
+        },
+        "issuer": {
+            "type": "object",
+            "required": ["id", "name", "licenseNumber"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "DID of the issuing distribution utility"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Name of the distribution utility"
+                },
+                "licenseNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Regulatory license number issued by the local energy regulator"
+                }
+            }
+        },
+        "issuanceDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time when the credential was issued"
+        },
+        "expirationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional expiration date of the credential"
+        },
+        "credentialSubject": {
+            "type": "object",
+            "required": [
+                "id",
+                "consumerNumber",
+                "generationType",
+                "capacityKW",
+                "commissioningDate"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "DID of the customer/credential subject (links to customer)"
+                },
+                "consumerNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Consumer account number assigned by the utility"
+                },
+                "fullName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Consumer name (optional)"
+                },
+                "meterNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "description": "Meter serial number associated with this generation asset (optional)"
+                },
+                "assetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Unique identifier for the generation asset (optional, useful when customer has multiple DERs)"
+                },
+                "generationType": {
+                    "type": "string",
+                    "enum": ["Solar", "Wind", "MicroHydro", "Other"],
+                    "description": "Type of distributed energy generation"
+                },
+                "capacityKW": {
+                    "type": "number",
+                    "minimum": 0.1,
+                    "maximum": 10000,
+                    "description": "Installed generation capacity in kilowatts (kW)"
+                },
+                "commissioningDate": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Date when the generation system was activated"
+                },
+                "manufacturer": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Equipment manufacturer (optional)"
+                },
+                "modelNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Equipment model number (optional)"
+                }
+            }
+        },
+        "proof": {
+            "type": "object",
+            "required": ["type", "created", "verificationMethod", "proofPurpose", "proofValue"],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Cryptographic signature type (e.g., Ed25519Signature2020)"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Timestamp when the proof was created"
+                },
+                "verificationMethod": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URI of the verification method/public key"
+                },
+                "proofPurpose": {
+                    "type": "string",
+                    "enum": ["assertionMethod", "authentication"],
+                    "description": "Purpose of the proof"
+                },
+                "proofValue": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The cryptographic signature value"
+                }
+            }
+        }
+    }
+}

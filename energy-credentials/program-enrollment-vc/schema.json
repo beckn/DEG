@@ -1,0 +1,153 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/program-enrollment-vc/schema.json",
+    "title": "Utility Program Enrollment Credential Schema",
+    "description": "JSON Schema for verifying Program Enrollment Credentials issued by electricity distribution utilities when consumers enroll in programs like P2P trading, demand flexibility, virtual power plants, etc.",
+    "type": "object",
+    "required": [
+        "@context",
+        "id",
+        "type",
+        "issuer",
+        "issuanceDate",
+        "credentialSubject"
+    ],
+    "properties": {
+        "@context": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "contains": {
+                "const": "https://www.w3.org/2018/credentials/v1"
+            },
+            "minItems": 2
+        },
+        "id": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "description": "Unique identifier for the credential in URN UUID format"
+        },
+        "type": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "contains": {
+                "const": "UtilityProgramEnrollmentCredential"
+            },
+            "minItems": 2
+        },
+        "issuer": {
+            "type": "object",
+            "required": ["id", "name", "licenseNumber"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "DID of the issuing distribution utility"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Name of the distribution utility"
+                },
+                "licenseNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Regulatory license number issued by the local energy regulator"
+                }
+            }
+        },
+        "issuanceDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time when the credential was issued"
+        },
+        "expirationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Optional expiration date of the credential"
+        },
+        "credentialSubject": {
+            "type": "object",
+            "required": [
+                "id",
+                "consumerNumber",
+                "programName",
+                "programCode",
+                "enrollmentDate"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "DID of the consumer/credential subject"
+                },
+                "consumerNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Unique consumer/customer account number assigned by the utility"
+                },
+                "fullName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Consumer name (optional)"
+                },
+                "programName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Human-readable name of the program (e.g., Peer-to-Peer Energy Trading)"
+                },
+                "programCode": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Unique program identifier code"
+                },
+                "enrollmentDate": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Date when the consumer enrolled in the program"
+                },
+                "validUntil": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Optional end date when the enrollment expires"
+                }
+            }
+        },
+        "proof": {
+            "type": "object",
+            "required": ["type", "created", "verificationMethod", "proofPurpose", "proofValue"],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Cryptographic signature type (e.g., Ed25519Signature2020)"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Timestamp when the proof was created"
+                },
+                "verificationMethod": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URI of the verification method/public key"
+                },
+                "proofPurpose": {
+                    "type": "string",
+                    "enum": ["assertionMethod", "authentication"],
+                    "description": "Purpose of the proof"
+                },
+                "proofValue": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The cryptographic signature value"
+                }
+            }
+        }
+    }
+}

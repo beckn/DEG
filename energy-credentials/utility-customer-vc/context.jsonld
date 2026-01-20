@@ -1,0 +1,89 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "id": "@id",
+        "type": "@type",
+        "schema": "https://schema.org/",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "utility": "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/utility-customer-vc/context.jsonld#",
+
+        "UtilityCustomerCredential": {
+            "@id": "utility:UtilityCustomerCredential",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "id": "@id",
+                "type": "@type",
+                "consumerNumber": {
+                    "@id": "utility:consumerNumber",
+                    "@type": "xsd:string"
+                },
+                "maskedIdNumber": {
+                    "@id": "utility:maskedIdNumber",
+                    "@type": "xsd:string"
+                },
+                "fullName": {
+                    "@id": "schema:name",
+                    "@type": "xsd:string"
+                },
+                "installationAddress": {
+                    "@id": "utility:installationAddress",
+                    "@type": "@id",
+                    "@context": {
+                        "fullAddress": {
+                            "@id": "schema:streetAddress",
+                            "@type": "xsd:string"
+                        },
+                        "city": {
+                            "@id": "schema:addressLocality",
+                            "@type": "xsd:string"
+                        },
+                        "district": {
+                            "@id": "utility:district",
+                            "@type": "xsd:string"
+                        },
+                        "stateProvince": {
+                            "@id": "schema:addressRegion",
+                            "@type": "xsd:string"
+                        },
+                        "postalCode": {
+                            "@id": "schema:postalCode",
+                            "@type": "xsd:string"
+                        },
+                        "country": {
+                            "@id": "schema:addressCountry",
+                            "@type": "xsd:string"
+                        }
+                    }
+                },
+                "meterNumber": {
+                    "@id": "utility:meterNumber",
+                    "@type": "xsd:string"
+                },
+                "serviceConnectionDate": {
+                    "@id": "utility:serviceConnectionDate",
+                    "@type": "xsd:date"
+                }
+            }
+        },
+
+        "UtilityIssuer": {
+            "@id": "utility:UtilityIssuer",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "id": "@id",
+                "type": "@type",
+                "name": {
+                    "@id": "schema:name",
+                    "@type": "xsd:string"
+                },
+                "licenseNumber": {
+                    "@id": "utility:licenseNumber",
+                    "@type": "xsd:string"
+                }
+            }
+        }
+    }
+}

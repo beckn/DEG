@@ -1,0 +1,30 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://schema.org/",
+    "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/program-enrollment-vc/context.jsonld"
+  ],
+  "id": "urn:uuid:7f8e9d0c-5678-1234-abcd-123456789abc",
+  "type": ["VerifiableCredential", "UtilityProgramEnrollmentCredential"],
+  "issuer": {
+    "id": "did:web:example-utility.com",
+    "name": "Example Energy Utility",
+    "licenseNumber": "REG-2025-00001"
+  },
+  "issuanceDate": "2025-01-13T11:00:00Z",
+  "credentialSubject": {
+    "id": "did:example:consumer:abc123",
+    "consumerNumber": "UTIL-2025-001234567",
+    "fullName": "Jane Doe",
+    "programName": "Peer-to-Peer Energy Trading",
+    "programCode": "P2P-2025",
+    "enrollmentDate": "2025-01-13"
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2025-01-13T11:00:00Z",
+    "verificationMethod": "did:web:example-utility.com#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z3FXQehWgc9VfTh8WpLmkJd2rNn..."
+  }
+}
