@@ -113,6 +113,18 @@ DEVKIT_CONFIGS = {
         "examples_path": "examples/enrollment/v2",
         # "output_path": "testnet/p2p-enrollment-devkit/postman",
         "structure": "flat"  # Flat file structure (like p2p-trading)
+    },
+    "p2p-trading-interdiscom": {
+        "domain": "beckn.one:deg:p2p-trading:2.0.0",
+        "bap_id": "p2p-trading-sandbox1.com",
+        "bap_uri": "http://onix-bap:8081/bap/receiver",
+        "bpp_id": "p2p-trading-sandbox2.com",
+        "bpp_uri": "http://onix-bpp:8082/bpp/receiver",
+        "bap_adapter_url": "http://localhost:8081/bap/caller",
+        "bpp_adapter_url": "http://localhost:8082/bpp/caller",
+        "examples_path": "examples/p2p-trading-interdiscom/v2",
+        # "output_path": "testnet/p2p-trading-interdiscom-devkit/postman",
+        "structure": "flat"  # Flat file structure (like p2p-trading)
     }
 }
 
@@ -672,9 +684,9 @@ def main():
     parser.add_argument(
         "--devkit",
         type=str,
-        choices=["ev-charging", "p2p-trading", "p2p-enrollment"],
+        choices=["ev-charging", "p2p-trading", "p2p-enrollment", "p2p-trading-interdiscom"],
         required=True,
-        help="Devkit type: 'ev-charging', 'p2p-trading', or 'p2p-enrollment'"
+        help="Devkit type: 'ev-charging', 'p2p-trading', 'p2p-enrollment', or 'p2p-trading-interdiscom'"
     )
     parser.add_argument(
         "--role",

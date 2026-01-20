@@ -1,0 +1,131 @@
+{
+  "info": {
+    "_postman_id": "3ff3c805-6a0f-4e85-a470-cf855b497315",
+    "name": "p2p-trading-interdiscom:UtilityBPP-DEG",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for Utility BPP (Transmission/Grid Provider Platform) implementing p2p-trading-interdiscom APIs based on Beckn Protocol v2"
+  },
+  "item": [
+    {
+      "name": "confirm",
+      "item": [
+        {
+          "name": "cascaded-confirm-request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"confirm\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\",\n    \"domain\": \"{{domain}}\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:orderStatus\": \"CREATED\",\n      \"beckn:seller\": \"provider-solar-farm-001\",\n      \"beckn:buyer\": {\n        \"beckn:id\": \"buyer-001\",\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\"\n      },\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOrder/v0.2/context.jsonld\",\n        \"@type\": \"EnergyTradeOrderInterUtility\",\n        \"bap_id\": \"p2pTrading-bpp.com\",\n        \"bpp_id\": \"example-transmission-bpp.com\",\n        \"total_quantity\": 15.0,\n        \"utilityIdBuyer\": \"BESCOM-KA\",\n        \"utilityIdSeller\": \"TPDDL-DL\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"energy-resource-solar-001\",\n          \"beckn:quantity\": {\n            \"unitQuantity\": 15.0,\n            \"unitText\": \"kWh\"\n          },\n          \"beckn:orderItemAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyCustomer/v0.1/context.jsonld\",\n            \"@type\": \"EnergyCustomer\",\n            \"meterId\": \"der://meter/98765456\",\n            \"utilityCustomerId\": \"UTIL-CUST-123456\"\n          },\n          \"beckn:acceptedOffer\": {\n            \"beckn:id\": \"offer-morning-001\",\n            \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld\",\n            \"@type\": \"beckn:Offer\",\n            \"beckn:descriptor\": {\n              \"@type\": \"beckn:Descriptor\",\n              \"schema:name\": \"Morning Solar Energy Offer\"\n            },\n            \"beckn:provider\": \"provider-solar-farm-001\",\n            \"beckn:items\": [\n              \"energy-resource-solar-001\"\n            ],\n            \"beckn:offerAttributes\": {\n              \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOffer/v0.2/context.jsonld\",\n              \"@type\": \"EnergyTradeOffer\",\n              \"pricingModel\": \"PER_KWH\",\n              \"settlementType\": \"DAILY\",\n              \"sourceMeterId\": \"der://meter/100200300\",\n              \"beckn:price\": {\n                \"value\": 0.15,\n                \"currency\": \"USD\",\n                \"unitText\": \"kWh\"\n              },\n              \"beckn:maxQuantity\": {\n                \"unitQuantity\": 20.0,\n                \"unitText\": \"kWh\",\n                \"unitCode\": \"KWH\"\n              },\n              \"beckn:timeWindow\": {\n                \"@type\": \"beckn:TimePeriod\",\n                \"schema:startTime\": \"2026-01-09T06:00:00Z\",\n                \"schema:endTime\": \"2026-01-09T12:00:00Z\"\n              }\n            }\n          }\n        }\n      ],\n      \"beckn:fulfillment\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Fulfillment\",\n        \"beckn:id\": \"fulfillment-energy-001\",\n        \"beckn:mode\": \"DELIVERY\"\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bpp_adapter_url}}/confirm",
+              "host": [
+                "{{bpp_adapter_url}}"
+              ],
+              "path": [
+                "confirm"
+              ]
+            },
+            "description": "Confirm request: cascaded-confirm-request"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "init",
+      "item": [
+        {
+          "name": "cascaded-init-request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"init\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\",\n    \"domain\": \"{{domain}}\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:orderStatus\": \"CREATED\",\n      \"beckn:seller\": \"provider-solar-farm-001\",\n      \"beckn:buyer\": {\n        \"beckn:id\": \"buyer-001\",\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\"\n      },\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOrder/v0.2/context.jsonld\",\n        \"@type\": \"EnergyTradeOrderInterUtility\",\n        \"bap_id\": \"p2pTrading-bpp.com\",\n        \"bpp_id\": \"example-transmission-bpp.com\",\n        \"total_quantity\": 15.0,\n        \"utilityIdBuyer\": \"BESCOM-KA\",\n        \"utilityIdSeller\": \"TPDDL-DL\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"energy-resource-solar-001\",\n          \"beckn:quantity\": {\n            \"unitQuantity\": 15.0,\n            \"unitText\": \"kWh\"\n          },\n          \"beckn:orderItemAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyCustomer/v0.1/context.jsonld\",\n            \"@type\": \"EnergyCustomer\",\n            \"meterId\": \"der://meter/98765456\",\n            \"utilityCustomerId\": \"UTIL-CUST-123456\"\n          },\n          \"beckn:acceptedOffer\": {\n            \"beckn:id\": \"offer-morning-001\",\n            \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld\",\n            \"@type\": \"beckn:Offer\",\n            \"beckn:descriptor\": {\n              \"@type\": \"beckn:Descriptor\",\n              \"schema:name\": \"Morning Solar Energy Offer\"\n            },\n            \"beckn:provider\": \"provider-solar-farm-001\",\n            \"beckn:items\": [\n              \"energy-resource-solar-001\"\n            ],\n            \"beckn:offerAttributes\": {\n              \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOffer/v0.2/context.jsonld\",\n              \"@type\": \"EnergyTradeOffer\",\n              \"pricingModel\": \"PER_KWH\",\n              \"settlementType\": \"DAILY\",\n              \"sourceMeterId\": \"der://meter/100200300\",\n              \"beckn:price\": {\n                \"value\": 0.15,\n                \"currency\": \"USD\",\n                \"unitText\": \"kWh\"\n              },\n              \"beckn:maxQuantity\": {\n                \"unitQuantity\": 20.0,\n                \"unitText\": \"kWh\",\n                \"unitCode\": \"KWH\"\n              },\n              \"beckn:timeWindow\": {\n                \"@type\": \"beckn:TimePeriod\",\n                \"schema:startTime\": \"2026-01-09T06:00:00Z\",\n                \"schema:endTime\": \"2026-01-09T12:00:00Z\"\n              }\n            }\n          }\n        }\n      ],\n      \"beckn:fulfillment\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Fulfillment\",\n        \"beckn:id\": \"fulfillment-energy-001\",\n        \"beckn:mode\": \"DELIVERY\"\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bpp_adapter_url}}/init",
+              "host": [
+                "{{bpp_adapter_url}}"
+              ],
+              "path": [
+                "init"
+              ]
+            },
+            "description": "Init request: cascaded-init-request"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pure JS pre-request script to replace moment()",
+          "// 1) ISO 8601 timestamp without needing moment",
+          "const isoTimestamp = new Date().toISOString();",
+          "pm.collectionVariables.set('iso_date', isoTimestamp);",
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "domain",
+      "value": "beckn.one:deg:p2p-trading:2.0.0"
+    },
+    {
+      "key": "version",
+      "value": "2.0.0"
+    },
+    {
+      "key": "bap_id",
+      "value": "p2p-trading-sandbox1.com"
+    },
+    {
+      "key": "bap_uri",
+      "value": "http://onix-bap:8081/bap/receiver"
+    },
+    {
+      "key": "bpp_id",
+      "value": "p2p-trading-sandbox2.com"
+    },
+    {
+      "key": "bpp_uri",
+      "value": "http://onix-bpp:8082/bpp/receiver"
+    },
+    {
+      "key": "transaction_id",
+      "value": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002"
+    },
+    {
+      "key": "iso_date",
+      "value": ""
+    },
+    {
+      "key": "bpp_adapter_url",
+      "value": "http://localhost:8082/bpp/caller"
+    },
+    {
+      "key": "bap_adapter_url",
+      "value": "http://localhost:8081/bap/caller"
+    }
+  ]
+}

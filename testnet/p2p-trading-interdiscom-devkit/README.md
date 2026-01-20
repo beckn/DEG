@@ -150,7 +150,10 @@ A more complete documentation is located [here](https://beckn-labs.gitbook.io/be
 To regenerate the Postman collections for this devkit:
 
 ```bash
-python3 scripts/generate_postman_collection.py --devkit p2p-trading --role BAP --output-dir testnet/p2p-energy-trading-devkit/postman
-python3 scripts/generate_postman_collection.py --devkit p2p-trading --role BPP --output-dir testnet/p2p-energy-trading-devkit/postman
-python3 scripts/generate_postman_collection.py --devkit p2p-trading --role UtilityBPP --output-dir testnet/p2p-energy-trading-devkit/postman
+# From DEG repository root
+python3 scripts/generate_postman_collection.py --devkit p2p-trading-interdiscom --role BAP --output-dir testnet/p2p-trading-interdiscom-devkit/postman
+python3 scripts/generate_postman_collection.py --devkit p2p-trading-interdiscom --role BPP --output-dir testnet/p2p-trading-interdiscom-devkit/postman
+python3 scripts/generate_postman_collection.py --devkit p2p-trading-interdiscom --role UtilityBPP --output-dir testnet/p2p-trading-interdiscom-devkit/postman
 ```
+
+This devkit uses the `EnergyTradeOrderInterUtility` schema which extends `EnergyTradeOrder` with utility/discom identifiers (`utilityIdBuyer`, `utilityIdSeller`) for inter-discom P2P trading scenarios.
