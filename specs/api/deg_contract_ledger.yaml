@@ -364,17 +364,17 @@ components:
 
     # Core domain types (imported from schema pack)
     LedgerRecord:
-      $ref: "../schema/EnergyTradeLedger/attributes.yaml#/components/schemas/LedgerRecord"
+      $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specs/schema/EnergyTradeLedger/attributes.yaml#/components/schemas/LedgerRecord"
 
     TradeDetail:
-      $ref: "../schema/EnergyTradeLedger/attributes.yaml#/components/schemas/TradeDetail"
+      $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specs/schema/EnergyTradeLedger/attributes.yaml#/components/schemas/TradeDetail"
 
     ValidationMetric:
-      $ref: "../schema/EnergyTradeLedger/attributes.yaml#/components/schemas/ValidationMetric"
+      $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specs/schema/EnergyTradeLedger/attributes.yaml#/components/schemas/ValidationMetric"
 
     # Enumerations (imported from schema pack)
     LedgerRole:
-      $ref: "../schema/EnergyTradeLedger/attributes.yaml#/components/schemas/LedgerRole"
+      $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specs/schema/EnergyTradeLedger/attributes.yaml#/components/schemas/LedgerRole"
 
     DiscomRole:
       type: string
@@ -383,16 +383,16 @@ components:
       x-jsonld: { "@id": "role" }
 
     TradeType:
-      $ref: "../schema/EnergyTradeLedger/attributes.yaml#/components/schemas/TradeType"
+      $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specs/schema/EnergyTradeLedger/attributes.yaml#/components/schemas/TradeType"
 
     TradeUnit:
-      $ref: "../schema/EnergyTradeLedger/attributes.yaml#/components/schemas/TradeUnit"
+      $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specs/schema/EnergyTradeLedger/attributes.yaml#/components/schemas/TradeUnit"
 
     MetricType:
-      $ref: "../schema/EnergyTradeLedger/attributes.yaml#/components/schemas/MetricType"
+      $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specs/schema/EnergyTradeLedger/attributes.yaml#/components/schemas/MetricType"
 
     TradeStatus:
-      $ref: "../schema/EnergyTradeLedger/attributes.yaml#/components/schemas/TradeStatus"
+      $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specs/schema/EnergyTradeLedger/attributes.yaml#/components/schemas/TradeStatus"
 
     # =========================================================================
     # API REQUEST/RESPONSE TYPES
