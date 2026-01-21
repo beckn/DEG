@@ -1,6 +1,6 @@
 module github.com/beckn-one/deg/plugins
 
-go 1.22.0
+go 1.24.0
 
 require github.com/beckn-one/beckn-onix v0.0.0
 

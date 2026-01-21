@@ -33,7 +33,10 @@ mkdir -p "$OUTPUT_DIR"
 if [ "$BUILD_MODE" = "docker" ]; then
     echo "Building for linux/amd64 using Docker..."
 
-    # Build using golang Docker image (same as onix-adapter uses)
+    # IMPORTANT: Must use exact same Go version as onix-adapter (1.24.6)
+    # Go plugins require exact version match between plugin and host
+    GO_VERSION="1.24.6"
+
     docker run --rm --platform linux/amd64 \
         -v "$DEG_ROOT:/workspace" \
         -v "$DEG_ROOT/../beckn-onix:/beckn-onix" \
@@ -41,18 +44,15 @@ if [ "$BUILD_MODE" = "docker" ]; then
         -e CGO_ENABLED=1 \
         -e GOOS=linux \
         -e GOARCH=amd64 \
-        golang:1.22 \
+        golang:${GO_VERSION} \
         bash -c "
-            # Temporarily change beckn-onix go version for compatibility
-            sed -i 's/go 1.24.0/go 1.22.0/g' /beckn-onix/go.mod
-            # Update go.mod to use correct beckn-onix path in container
-            sed -i 's|../../beckn-onix|/beckn-onix|g' go.mod
+            # Update go.mod replace directive to use container path
+            # Use specific pattern to avoid corrupting module path
+            sed -i 's|=> ../../beckn-onix|=> /beckn-onix|g' go.mod
             go mod tidy
             go build -buildmode=plugin -o /workspace/testnet/p2p-trading-interdiscom-devkit/plugins/$PLUGIN_NAME.so ./degledgerrecorder/cmd/plugin.go
-            # Restore beckn-onix go.mod
-            sed -i 's/go 1.22.0/go 1.24.0/g' /beckn-onix/go.mod
-            # Restore original go.mod
-            sed -i 's|/beckn-onix|../../beckn-onix|g' go.mod
+            # Restore original go.mod replace directive
+            sed -i 's|=> /beckn-onix|=> ../../beckn-onix|g' go.mod
         "
 else
     echo "Building for local OS/arch..."
