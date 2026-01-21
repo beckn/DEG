@@ -69,17 +69,17 @@ modules:
             config:
               uuidKeys: transaction_id,message_id
               role: bap
-        steps:
-          - id: degledgerrecorder
-            config:
-              ledgerHost: "https://34.93.166.38.sslip.io"
-              role: "BUYER_DISCOM"
-              enabled: "true"
-              asyncTimeout: "30000"
+        # steps:
+        #   - id: degledgerrecorder
+        #     config:
+        #       ledgerHost: "https://34.93.166.38.sslip.io"
+        #       role: "BUYER_DISCOM"
+        #       enabled: "true"
+        #       asyncTimeout: "30000"
       steps:
         - validateSign
         - addRoute
-        - degledgerrecorder
+        # - degledgerrecorder
         - validateSchema
 
   - name: bapTxnCaller

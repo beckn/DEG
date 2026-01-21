@@ -64,18 +64,18 @@ modules:
           id: router
           config:
             routingConfig: ./config/local-p2p-routing-SellerBPPReceiver-from-BuyerBAP.yaml
-        steps:
-          - id: degledgerrecorder
-            config:
-              ledgerHost: "https://34.93.166.38.sslip.io"
-              role: "SELLER_DISCOM"
-              enabled: "true"
-              asyncTimeout: "30000"
+        # steps:
+        #   - id: degledgerrecorder
+        #     config:
+        #       ledgerHost: "https://34.93.166.38.sslip.io"
+        #       role: "SELLER_DISCOM"
+        #       enabled: "true"
+        #       asyncTimeout: "30000"
       steps:
         - validateSign
         - addRoute
-        - degledgerrecorder
-        # - validateSchema
+        # - degledgerrecorder
+        - validateSchema
 
   - name: bppTxnCaller
     path: /bpp/caller/
@@ -188,17 +188,17 @@ modules:
             config:
               uuidKeys: transaction_id,message_id
               role: bap
-        steps:
-          - id: degledgerrecorder
-            config:
-              ledgerHost: "https://34.93.166.38.sslip.io"
-              role: "SELLER_DISCOM"
-              enabled: "true"
-              asyncTimeout: "30000"
+        # steps:
+        #   - id: degledgerrecorder
+        #     config:
+        #       ledgerHost: "https://34.93.166.38.sslip.io"
+        #       role: "SELLER_DISCOM"
+        #       enabled: "true"
+        #       asyncTimeout: "30000"
       steps:
         - validateSign
         - addRoute
-        - degledgerrecorder
+        # - degledgerrecorder
         - validateSchema
 
   # This module sends cascaded requests TO utility BPP (init, confirm)

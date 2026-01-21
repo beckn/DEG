@@ -36,7 +36,7 @@ services:
     volumes:
       - ../config:/app/config
       - ../schemas:/app/schemas
-      - ../plugins:/app/plugins
+      # - ../plugins:/app/plugins
     command: ["./server", "--config=/app/config/local-p2p-bap.yaml"]
 
   onix-bpp:
@@ -58,7 +58,7 @@ services:
     volumes:
       - ../config:/app/config
       - ../schemas:/app/schemas
-      - ../plugins:/app/plugins
+      # - ../plugins:/app/plugins
     command: ["./server", "--config=/app/config/local-p2p-bpp.yaml"]
 
   onix-utilitybpp:
