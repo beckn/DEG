@@ -18,7 +18,7 @@ services:
       retries: 5
   
   onix-bap:
-    image: fidedocker/onix-adapter-deg:p2p-multiarch-v1
+    image: fidedocker/onix-adapter-deg:p2p-multiarch-v2
     container_name: onix-bap
     networks:
       - beckn_network
@@ -38,7 +38,7 @@ services:
     command: ["./server", "--config=/app/config/local-p2p-bap.yaml"]
 
   onix-bpp:
-    image: fidedocker/onix-adapter-deg:p2p-multiarch-v1
+    image: fidedocker/onix-adapter-deg:p2p-multiarch-v2
     container_name: onix-bpp
     networks:
       - beckn_network
@@ -58,7 +58,7 @@ services:
     command: ["./server", "--config=/app/config/local-p2p-bpp.yaml"]
 
   onix-utilitybpp:
-    image: fidedocker/onix-adapter-deg:p2p-multiarch-v1
+    image: fidedocker/onix-adapter-deg:p2p-multiarch-v2
     pull_policy: never 
     container_name: onix-utilitybpp
     networks:
