@@ -1,9 +1,9 @@
 {
   "info": {
-    "_postman_id": "8aa7f145-5b16-4e68-9110-31ae1c0027df",
+    "_postman_id": "bf24a3f1-e754-4248-ad12-69738f45ce92",
     "name": "p2p-trading-interdiscom:BAP-DEG",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "P2P Energy Trading Interdiscom BAP flows"
+    "description": "Postman collection for Buyer Application Platform implementing p2p-trading-interdiscom APIs based on Beckn Protocol v2"
   },
   "item": [
     {
