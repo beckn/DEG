@@ -55,8 +55,8 @@
                     "schema:startTime": "2024-10-04T06:00:00Z",
                     "schema:endTime": "2024-10-04T14:30:00Z"
                   },
-                  "deliveredEnergy": 0.0,
-                  "receivedEnergy": 10.0,
+                  "consumedEnergy": 0.0,
+                  "producedEnergy": 10.0,
                   "allocatedEnergy": 10.0,
                   "unit": "kWh"
                 }

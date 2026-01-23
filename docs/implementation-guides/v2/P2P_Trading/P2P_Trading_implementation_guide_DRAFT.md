@@ -2228,8 +2228,8 @@ This flow demonstrates the cascaded `/confirm` call from the P2P Trading BPP to 
                     "schema:startTime": "2024-10-04T06:00:00Z",
                     "schema:endTime": "2024-10-04T09:00:00Z"
                   },
-                  "deliveredEnergy": 0.0,
-                  "receivedEnergy": 7.5,
+                  "consumedEnergy": 0.0,
+                  "producedEnergy": 7.5,
                   "allocatedEnergy": 7.5,
                   "unit": "kWh"
                 }
@@ -2413,8 +2413,8 @@ When a trade has been curtailed (e.g., due to grid outage), the status response 
                     "schema:startTime": "2024-10-04T06:00:00Z",
                     "schema:endTime": "2024-10-04T14:30:00Z"
                   },
-                  "deliveredEnergy": 0.0,
-                  "receivedEnergy": 10.0,
+                  "consumedEnergy": 0.0,
+                  "producedEnergy": 10.0,
                   "allocatedEnergy": 10.0,
                   "unit": "kWh"
                 }
@@ -2634,8 +2634,8 @@ sequenceDiagram
                     "schema:startTime": "2024-10-04T06:00:00Z",
                     "schema:endTime": "2024-10-04T12:00:00Z"
                   },
-                  "deliveredEnergy": 0.0,
-                  "receivedEnergy": 8.5,
+                  "consumedEnergy": 0.0,
+                  "producedEnergy": 8.5,
                   "allocatedEnergy": 8.5,
                   "unit": "kWh"
                 }
