@@ -39,10 +39,14 @@
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyCustomer/v0.1/context.jsonld",
-            "@type": "EnergyCustomer",
-            "meterId": "der://meter/98765456",
-            "utilityCustomerId": "UTIL-CUST-123456"
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyOrderItem/v0.1/context.jsonld",
+            "@type": "EnergyOrderItem",
+            "providerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyCustomer/v0.1/context.jsonld",
+              "@type": "EnergyCustomer",
+              "meterId": "der://meter/98765456",
+              "utilityCustomerId": "UTIL-CUST-123456"
+            }
           },
           "beckn:acceptedOffer": {
             "beckn:id": "offer-morning-001",
