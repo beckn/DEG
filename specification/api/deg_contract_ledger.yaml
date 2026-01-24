@@ -1,9 +1,11 @@
 openapi: 3.1.0
 info:
   title: DEG Ledger Service API
-  version: 0.3.0
+  version: 0.4.0
   description: |
-    DEG Ledger Service stores an immutable, multi-party ledger view of a DEG trade lifecycle.
+    This specification defines the APIs for the DEG Ledger and Trade Allocation services, covering trade recording, metered actuals, and centralized allocation.
+
+    The Ledger service acts as the immutable, multi-party system of record for DEG trades and actuals, while the Trade Allocation service performs asynchronous, centralized allocation over recorded trades and meter data.
 
     ## API usage notes (when to use which API)
 
@@ -32,6 +34,19 @@ info:
     - which records can be returned, and
     - which fields are visible within each record.
 
+    ### 4) Discom Submit smart-meter data: `POST /meterData/put` 
+    Use this endpoint **only for discoms** to submit meter readings for buyers/sellers so that a centralized allocation algorithm can be run.
+
+    ### 5) Retrieve / Search meter data: `POST /meterData/get` 
+    Use this endpoint to retrieve meter readings by filters (device/time window/etc.). The service applies policy-based access control to returned data.
+
+    ### 6) Run centralized allocation as a job: `POST /ledger/allocate` 
+    Triggers a centralized allocation run over the provided date range (async). 
+
+    ### 7) Enquire allocation job status: `POST /ledger/allocate/status` 
+    Query status using either `jobId` OR `clientReference` (idempotency/correlation id).
+
+
 servers:
   - url: https://ledger.example.org
     description: Example server
@@ -39,6 +54,10 @@ servers:
 tags:
   - name: Ledger
     description: Ledger record create/update, retrieval, and discom recording
+  - name: MeterData
+    description: DISCOM smart-meter readings ingestion and retrieval for centralized allocation    
+  - name: Allocation
+    description: Centralized allocation jobs over trade records and meter readings    
 
 security:
   - BecknHttpSignature: []
@@ -317,6 +336,297 @@ paths:
                     code: NOT_FOUND
                     message: "No ledger record found for transactionId=tx-123 and orderItemId=item-1"
 
+  /meterData/put:
+    post:
+      tags: [MeterData]
+      summary: Submit DISCOM smart-meter block load profile readings (batch)
+      description: |
+        Discom-only endpoint to submit smart-meter readings for centralized allocation.
+
+        **Who should use this**
+        - DISCOMs ONLY.
+
+        **What to submit**
+        - Send meter readings as a batch for a time window (typically multiple blocks across many meters).
+        - Each reading corresponds to a "block" timestamp seen in DISCOM exports.
+
+        **How blocks are interpreted**
+        - `blockTime` represents the timestamp provided by the DISCOM export.
+        - `blockDurationMinutes` is provided at batch level (default 30) and can be overridden per reading.
+
+        **Idempotency (recommended)**
+        - DISCOMs MAY pass `clientReference` at batch level to support safe retries.
+        - The service MAY treat `(discomId, clientReference)` as an idempotency key for the batch.
+
+        **Duplicate detection (recommended)**
+        - Duplicates SHOULD be detected per `(discomId, deviceIdentifier, blockTime, dataType)`.
+      operationId: putMeterDataBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/meterDataPutRequest"
+      responses:
+        "200":
+          description: Batch accepted; ingestion outcome returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/meterDataPutResponse"
+        "400":
+          description: Invalid request (schema/validation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "401":
+          description: Authentication/signature failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "403":
+          description: Authorization/policy failure (caller not allowed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /meterData/get:
+    post:
+      tags: [MeterData]
+      summary: Retrieve DISCOM smart-meter readings by filter (policy-restricted)
+      description: |
+        Retrieves meter readings matching the filter criteria.
+
+        **How to use**
+        - Use `discomId` to scope results to a DISCOM (recommended; may be required by policy).
+        - Use one or more of:
+          - `deviceIdentifier` / `deviceIdentifiers`
+          - time window: `blockTimeFrom` / `blockTimeTo`
+          - `dataType` (default BLOCK_LOAD_PROFILE)
+
+        **Pagination**
+        - Use `limit` and `offset` for paging.
+        - Use `sort` and `sortOrder` to control ordering.
+
+        **Policy**
+        - The service enforces record-level access (which meters/readings you can see)
+          and may apply field-level masking as per network policy.
+      operationId: getMeterData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/meterDataGetRequest"
+            examples:
+              byDeviceAndWindow:
+                summary: Fetch readings for a single meter in a time window
+                value:
+                  discomId: "DISCOM_A"
+                  deviceIdentifier: "AL2074181"
+                  blockTimeFrom: "2024-09-30T00:00:00Z"
+                  blockTimeTo: "2024-10-01T00:00:00Z"
+                  limit: 200
+                  offset: 0
+                  sort: blockTime
+                  sortOrder: asc
+              byManyDevices:
+                summary: Fetch readings for multiple meters
+                value:
+                  discomId: "DISCOM_A"
+                  deviceIdentifiers: ["AL2074181", "AL2797267"]
+                  blockTimeFrom: "2024-12-06T00:00:00Z"
+                  blockTimeTo: "2024-12-07T00:00:00Z"
+                  limit: 500
+                  offset: 0
+      responses:
+        "200":
+          description: Matching readings (possibly empty)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/meterDataGetResponse"
+        "400":
+          description: Invalid request (schema/validation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "401":
+          description: Authentication/signature failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "403":
+          description: Authorization/policy failure (caller not allowed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"                    
+
+  /trade/allocate:
+    post:
+      tags: [Allocation]
+      summary: Trigger centralized allocation over a date range (async job)
+      description: |
+        Triggers a centralized allocation run over the provided date range.
+
+        Returns immediately with a `jobId`. Use `POST /trade/allocate/status` to enquire status.
+      operationId: allocateLedger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/allocationRequest"
+            examples:
+              allocateWindowFifoV1:
+                summary: Allocate using FIFO v1 for a date range
+                value:
+                  fromTime: "2026-01-15T00:00:00Z"
+                  toTime: "2026-01-16T00:00:00Z"
+                  discomIdBuyer: "DISCOM_A"
+                  discomIdSeller: "DISCOM_B"
+                  algorithm:
+                    algorithmType: FIFO
+                    algorithmVersion: "v1"
+                  dryRun: false
+                  clientReference: "alloc-2026-01-15-fifo-v1"
+      responses:
+        "200":
+          description: Allocation job accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/allocationAck"
+              examples:
+                ack:
+                  value:
+                    success: true
+                    jobId: "job-00001234"
+                    acceptedAt: "2026-01-16T01:00:00Z"
+                    clientReference: "alloc-2026-01-15-fifo-v1"
+                    message: "Accepted"
+        "400":
+          description: Invalid request (schema/validation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "401":
+          description: Authentication/signature failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "403":
+          description: Authorization/policy failure (caller not allowed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /trade/allocate/status:
+    post:
+      tags: [Allocation]
+      summary: Get status of a centralized allocation job (by jobId or clientReference)
+      description: |
+        Returns the current status of an allocation job previously created via `POST /trade/allocate`.
+
+        **Lookup keys**
+        - Provide `jobId` OR `clientReference`.
+        - If both are provided, `jobId` takes precedence.
+
+        **Terminal states**
+        - COMPLETED: allocation finished successfully
+        - FAILED: allocation failed; see error information
+        - CANCELLED: allocation was cancelled (if supported)
+      operationId: getAllocationStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/allocationStatusRequest"
+            examples:
+              byJobId:
+                value:
+                  jobId: "job-00001234"
+              byClientReference:
+                value:
+                  clientReference: "alloc-2026-01-15-fifo-v1"
+      responses:
+        "200":
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/allocationStatusResponse"
+              examples:
+                running:
+                  value:
+                    jobId: "job-00001234"
+                    clientReference: "alloc-2026-01-15-fifo-v1"
+                    status: RUNNING
+                    acceptedAt: "2026-01-16T01:00:00Z"
+                    startedAt: "2026-01-16T01:00:10Z"
+                    message: "Running"
+                completed:
+                  value:
+                    jobId: "job-00001234"
+                    clientReference: "alloc-2026-01-15-fifo-v1"
+                    status: COMPLETED
+                    acceptedAt: "2026-01-16T01:00:00Z"
+                    startedAt: "2026-01-16T01:00:10Z"
+                    finishedAt: "2026-01-16T01:03:45Z"
+                    message: "Completed"
+                failed:
+                  value:
+                    jobId: "job-00001234"
+                    clientReference: "alloc-2026-01-15-fifo-v1"
+                    status: FAILED
+                    acceptedAt: "2026-01-16T01:00:00Z"
+                    startedAt: "2026-01-16T01:00:10Z"
+                    finishedAt: "2026-01-16T01:01:02Z"
+                    message: "Failed"
+                    error:
+                      code: PRC_ALLOCATION_FAILED
+                      message: "Allocation failed due to missing meter data for 3 devices"
+        "400":
+          description: Invalid request (schema/validation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "401":
+          description: Authentication/signature failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "403":
+          description: Authorization/policy failure (caller not allowed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "404":
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
 components:
   securitySchemes:
     BecknHttpSignature:
@@ -388,6 +698,22 @@ components:
     tradeUnit:
       type: string
       enum: [KWH, KW]
+
+    meterDataType:
+      type: string
+      enum: [BLOCK_LOAD_PROFILE]
+
+    meterType:
+      type: string
+      enum: ["1-Ph", "3-Ph"]      
+
+    allocationJobStatus:
+      type: string
+      enum: [ACCEPTED, QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED]
+
+    allocationAlgorithmType:
+      type: string
+      enum: [FIFO, PRO_RATA, WEIGHTED, CUSTOM]      
 
     # -------------------------
     # Value objects
@@ -690,6 +1016,251 @@ components:
           description: Digest of the canonical row state after applying this write
         message:
           type: string
+
+    # -------------------------
+    # Meter Data Schemas
+    # -------------------------
+    meterReading:
+      type: object
+      additionalProperties: false
+      required: [deviceIdentifier, blockTime]
+      properties:
+        deviceIdentifier:
+          type: string
+        blockTime:
+          type: string
+          format: date-time
+        blockDurationMinutes:
+          type: integer
+          minimum: 1
+          maximum: 1440
+        kwhImport:
+          type: number
+          minimum: 0
+        kwhExport:
+          type: number
+          minimum: 0
+        kvahImport:
+          type: number
+          minimum: 0
+        kvahExport:
+          type: number
+          minimum: 0
+        avgCurrent:
+          type: number
+          minimum: 0
+        avgVoltage:
+          type: number
+          minimum: 0
+        meterType:
+          $ref: "#/components/schemas/meterType"
+        dataType:
+          $ref: "#/components/schemas/meterDataType"
+        sourceRowHash:
+          type: string
+
+    meterDataPutRequest:
+      type: object
+      additionalProperties: false
+      required: [discomId, role, readings]
+      properties:
+        discomId:
+          type: string
+        role:
+          $ref: "#/components/schemas/discomRole"
+        dataType:
+          $ref: "#/components/schemas/meterDataType"
+        timeZone:
+          type: string
+        blockDurationMinutes:
+          type: integer
+          minimum: 1
+          maximum: 1440
+          default: 30
+        fromTime:
+          type: string
+          format: date-time
+        toTime:
+          type: string
+          format: date-time
+        clientReference:
+          type: string
+        readings:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/meterReading"
+
+    meterDataPutResponse:
+      type: object
+      additionalProperties: false
+      required: [success, receivedCount, acceptedCount, rejectedCount, duplicateCount]
+      properties:
+        success:
+          type: boolean
+        receivedCount:
+          type: integer
+          minimum: 0
+        acceptedCount:
+          type: integer
+          minimum: 0
+        rejectedCount:
+          type: integer
+          minimum: 0
+        duplicateCount:
+          type: integer
+          minimum: 0
+        message:
+          type: string
+        rejected:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [index, code, message]
+            properties:
+              index:
+                type: integer
+                minimum: 0
+              code:
+                type: string
+              message:
+                type: string
+
+    meterDataGetRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        discomId:
+          type: string
+        dataType:
+          $ref: "#/components/schemas/meterDataType"
+        deviceIdentifier:
+          type: string
+        deviceIdentifiers:
+          type: array
+          items:
+            type: string
+        blockTimeFrom:
+          type: string
+          format: date-time
+        blockTimeTo:
+          type: string
+          format: date-time
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 5000
+          default: 1000
+        offset:
+          type: integer
+          minimum: 0
+          default: 0
+        sort:
+          type: string
+          enum: [blockTime, deviceIdentifier]
+          default: blockTime
+        sortOrder:
+          type: string
+          enum: [asc, desc]
+          default: asc
+
+    meterDataGetResponse:
+      type: object
+      additionalProperties: false
+      required: [readings, count]
+      properties:
+        readings:
+          type: array
+          items:
+            $ref: "#/components/schemas/meterReading"
+        count:
+          type: integer
+    
+    # -------------------------
+    # Allocation
+    # -------------------------
+    allocationRequest:
+      type: object
+      additionalProperties: false
+      required: [fromTime, toTime, algorithm]
+      properties:
+        fromTime:
+          type: string
+          format: date-time
+        toTime:
+          type: string
+          format: date-time
+        discomIdBuyer:
+          type: string
+        discomIdSeller:
+          type: string
+        algorithm:
+          type: object
+          additionalProperties: false
+          required: [algorithmType, algorithmVersion]
+          properties:
+            algorithmType:
+              $ref: "#/components/schemas/allocationAlgorithmType"
+            algorithmVersion:
+              type: string
+        dryRun:
+          type: boolean
+          default: false
+        clientReference:
+          type: string
+
+    allocationAck:
+      type: object
+      additionalProperties: false
+      required: [success, jobId, acceptedAt]
+      properties:
+        success:
+          type: boolean
+        jobId:
+          type: string
+        acceptedAt:
+          type: string
+          format: date-time
+        clientReference:
+          type: string
+        message:
+          type: string
+
+    allocationStatusRequest:
+      type: object
+      additionalProperties: false
+      description: Provide `jobId` OR `clientReference`.
+      properties:
+        jobId:
+          type: string
+        clientReference:
+          type: string
+
+    allocationStatusResponse:
+      type: object
+      additionalProperties: false
+      required: [jobId, status, acceptedAt]
+      properties:
+        jobId:
+          type: string
+        clientReference:
+          type: string
+        status:
+          $ref: "#/components/schemas/allocationJobStatus"
+        acceptedAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: string
+          format: date-time
+        message:
+          type: string
+        error:
+          $ref: "#/components/schemas/error"
 
     # -------------------------
     # Error
