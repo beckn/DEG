@@ -28,6 +28,8 @@
           {
             "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
             "@type": "beckn:Item",
+            "beckn:networkId": ["p2p-trading-pilot-network"],
+            "beckn:isActive": true,
             "beckn:id": "energy-resource-solar-001",
             "beckn:descriptor": {
               "@type": "beckn:Descriptor",
@@ -70,6 +72,8 @@
           {
             "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
             "@type": "beckn:Item",
+            "beckn:networkId": ["p2p-trading-pilot-network"],
+            "beckn:isActive": true,
             "beckn:id": "energy-resource-solar-002",
             "beckn:descriptor": {
               "@type": "beckn:Descriptor",
@@ -145,6 +149,11 @@
                 "@type": "beckn:TimePeriod",
                 "schema:startTime": "2024-10-04T00:00:00Z",
                 "schema:endTime": "2024-10-04T23:59:59Z"
+              },
+              "beckn:maxQuantity": {
+                "unitQuantity": 30.5,
+                "unitText": "kWh",
+                "unitCode": "KWH"
               }
             }
           },
@@ -182,6 +191,11 @@
                 "@type": "beckn:TimePeriod",
                 "schema:startTime": "2024-10-04T00:00:00Z",
                 "schema:endTime": "2024-10-11T23:59:59Z"
+              },
+              "beckn:maxQuantity": {
+                "unitQuantity": 50.0,
+                "unitText": "kWh",
+                "unitCode": "KWH"
               }
             }
           }

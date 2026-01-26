@@ -99,7 +99,7 @@ DEVKIT_CONFIGS = {
         "bap_adapter_url": "http://localhost:8081/bap/caller",
         "bpp_adapter_url": "http://localhost:8082/bpp/caller",
         "examples_path": "examples/p2p-trading/v2",
-        # "output_path": "testnet/p2p-energy-trading-devkit/postman",
+        # "output_path": "testnet/p2p-trading-devkit/postman",
         "structure": "flat"  # Flat file structure
     },
     "p2p-enrollment": {

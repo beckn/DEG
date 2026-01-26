@@ -66,6 +66,13 @@
               "pricingModel": "PER_KWH",
               "settlementType": "DAILY",
               "sourceMeterId": "der://meter/100200300",
+              "minimumQuantity": 1.0,
+              "maximumQuantity": 100.0,
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T00:00:00Z",
+                "schema:endTime": "2026-01-09T05:00:00Z"
+              },
               "beckn:price": {
                 "value": 0.15,
                 "currency": "USD",
@@ -118,6 +125,13 @@
               "pricingModel": "PER_KWH",
               "settlementType": "DAILY",
               "sourceMeterId": "der://meter/100200300",
+              "minimumQuantity": 1.0,
+              "maximumQuantity": 100.0,
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T00:00:00Z",
+                "schema:endTime": "2026-01-09T05:00:00Z"
+              },
               "beckn:price": {
                 "value": 0.18,
                 "currency": "USD",
