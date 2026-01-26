@@ -27,7 +27,7 @@ cd DEG/testnet/p2p-energy-trading-devkit/install
 
 1. Spin up the containers using docker compose. Verify that the following containers are running: redis, onix-bap, onix-bpp, onix-utilitybpp, sandbox-bap, sandbox-bpp, sandbox-utilitybpp. You can also navigate to docker desktop and check the containers and their logs.
     ```
-    docker compose -f ./docker-compose-adapter-p2p.yml up -d
+    docker compose -f ./docker-compose-adapter-p2p.yml up -d --build
     docker ps
     ```
 
