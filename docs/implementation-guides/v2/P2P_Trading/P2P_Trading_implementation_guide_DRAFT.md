@@ -162,14 +162,14 @@ sequenceDiagram
 
     P2P Trading BAP->>+P2P Trading BPP: init (Trading Order)
     P2P Trading BPP->>+Utility Company: cascaded init (Initialze a delivery order)
-      Note right of Utility Company: 1. Calculate wheeling charges<br/>2. remaining sanctioned load
+      Note right of Utility Company: 1. Calculate wheeling charges<br/>2. remaining trading limit
     Utility Company-->>-P2P Trading BPP: on_init (Wheeling charges, remaining trading limit etc. )
     P2P Trading BPP-->>-P2P Trading BAP: cascaded_on_init
 
     P2P Trading BAP->>+P2P Trading BPP: confirm (Trading Order)
     P2P Trading BPP->>+Utility Company: cascaded confirm (Initialize a delivery order)
       Note right of Utility Company: 1. Log trade<br/>2. Deduct from trading limits.
-    Utility Company-->>-P2P Trading BPP: on_confirm (remaining sanctioned load etc. )
+    Utility Company-->>-P2P Trading BPP: on_confirm (remaining trading limit etc. )
     P2P Trading BPP-->>-P2P Trading BAP: on_confirm (Trading Order)
     Note over P2P Trading BAP, Utility Company: Closing Bell
 
