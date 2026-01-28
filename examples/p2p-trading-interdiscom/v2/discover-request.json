@@ -1,0 +1,34 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "discover",
+    "timestamp": "2024-10-04T10:00:00Z",
+    "message_id": "msg-discover-001",
+    "transaction_id": "txn-energy-001",
+    "bap_id": "bap.energy-consumer.com",
+    "bap_uri": "https://bap.energy-consumer.com",
+    "bpp_id": "bpp.energy-provider.com",
+    "bpp_uri": "https://bpp.energy-provider.com",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0",
+    "location": {
+      "city": {
+        "code": "BLR",
+        "name": "Bangalore"
+      },
+      "country": {
+        "code": "IND",
+        "name": "India"
+      }
+    },
+    "schema_context": [
+      "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyResource/v0.2/context.jsonld"
+    ]
+  },
+  "message": {
+    "filters": {
+      "type": "jsonpath",
+      "expression": "$[?('p2p-interdiscom-trading-pilot-network' == @.beckn:networkId && @.beckn:itemAttributes.sourceType == 'SOLAR' && @.beckn:itemAttributes.deliveryMode == 'GRID_INJECTION' && @.beckn:itemAttributes.availableQuantity >= 10.0 )]"
+    }
+  }
+}

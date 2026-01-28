@@ -1,0 +1,198 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_init",
+    "timestamp": "2024-10-04T10:20:05Z",
+    "message_id": "msg-on-init-001",
+    "transaction_id": "txn-energy-001",
+    "bap_id": "bap.energy-consumer.com",
+    "bap_uri": "https://bap.energy-consumer.com",
+    "bpp_id": "bpp.energy-provider.com",
+    "bpp_uri": "https://bpp.energy-provider.com",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:orderStatus": "CREATED",
+      "beckn:seller": "provider-solar-farm-001",
+      "beckn:buyer": {
+        "beckn:id": "buyer-001",
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer"
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOrder/v0.2/context.jsonld",
+        "@type": "EnergyTradeOrderInterUtility",
+        "bap_id": "bap.energy-consumer.com",
+        "bpp_id": "bpp.energy-provider.com",
+        "total_quantity": 25.0,
+        "utilityIdBuyer": "BESCOM-KA",
+        "utilityIdSeller": "TPDDL-DL"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "energy-resource-solar-001",
+          "beckn:quantity": {
+            "unitQuantity": 15.0,
+            "unitText": "kWh"
+          },
+          "beckn:orderItemAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyOrderItem/v0.1/context.jsonld",
+            "@type": "EnergyOrderItem",
+            "providerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyCustomer/v0.1/context.jsonld",
+              "@type": "EnergyCustomer",
+              "meterId": "der://meter/98765456",
+              "utilityCustomerId": "UTIL-CUST-123456",
+              "utilityId": "TPDDL-DL"
+            }
+          },
+          "beckn:acceptedOffer": {
+            "beckn:id": "offer-morning-001",
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Morning Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ],
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOffer/v0.2/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "settlementType": "DAILY",
+              "sourceMeterId": "der://meter/100200300",
+              "minimumQuantity": 1.0,
+              "maximumQuantity": 100.0,
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T00:00:00Z",
+                "schema:endTime": "2026-01-09T05:00:00Z"
+              },
+              "beckn:price": {
+                "value": 0.15,
+                "currency": "USD",
+                "unitText": "kWh"
+              },
+              "beckn:maxQuantity": {
+                "unitQuantity": 20.0,
+                "unitText": "kWh",
+                "unitCode": "KWH"
+              },
+              "beckn:timeWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T06:00:00Z",
+                "schema:endTime": "2026-01-09T12:00:00Z"
+              }
+            }
+          }
+        },
+        {
+          "beckn:orderedItem": "energy-resource-solar-001",
+          "beckn:quantity": {
+            "unitQuantity": 10.0,
+            "unitText": "kWh"
+          },
+          "beckn:orderItemAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyOrderItem/v0.1/context.jsonld",
+            "@type": "EnergyOrderItem",
+            "providerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyCustomer/v0.1/context.jsonld",
+              "@type": "EnergyCustomer",
+              "meterId": "der://meter/98765456",
+              "utilityCustomerId": "UTIL-CUST-123456",
+              "utilityId": "TPDDL-DL"
+            }
+          },
+          "beckn:acceptedOffer": {
+            "beckn:id": "offer-afternoon-001",
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Afternoon Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ],
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOffer/v0.2/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "settlementType": "DAILY",
+              "sourceMeterId": "der://meter/100200300",
+              "minimumQuantity": 1.0,
+              "maximumQuantity": 100.0,
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T00:00:00Z",
+                "schema:endTime": "2026-01-09T05:00:00Z"
+              },
+              "beckn:price": {
+                "value": 0.18,
+                "currency": "USD",
+                "unitText": "kWh"
+              },
+              "beckn:maxQuantity": {
+                "unitQuantity": 15.0,
+                "unitText": "kWh",
+                "unitCode": "KWH"
+              },
+              "beckn:timeWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T12:00:00Z",
+                "schema:endTime": "2026-01-09T18:00:00Z"
+              }
+            }
+          }
+        }
+      ],
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-energy-001",
+        "beckn:mode": "DELIVERY"
+      },
+      "beckn:payment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Payment",
+        "beckn:id": "payment-p2p-energy-001",
+        "beckn:amount": {
+          "currency": "USD",
+          "value": 4.05
+        },
+        "beckn:beneficiary": "BPP",
+        "beckn:paymentStatus": "AUTHORIZED",
+        "beckn:paymentAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/PaymentSettlement/v1/context.jsonld",
+          "@type": "PaymentSettlement",
+          "settlementAccounts": [
+            {
+              "beneficiaryId": "bap.energy-consumer.com",
+              "accountHolderName": "Energy Consumer BAP Pvt Ltd",
+              "accountNumber": "1234567890",
+              "ifscCode": "HDFC0001234",
+              "bankName": "HDFC Bank",
+              "vpa": "energy-consumer@upi"
+            },
+            {
+              "beneficiaryId": "bpp.energy-provider.com",
+              "accountHolderName": "Solar Farm Energy Provider Pvt Ltd",
+              "accountNumber": "9876543210",
+              "ifscCode": "ICICI0005678",
+              "bankName": "ICICI Bank",
+              "vpa": "solar-provider@upi"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

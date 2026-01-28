@@ -1,0 +1,20 @@
+routingRules:
+  - version: "2.0.0"
+    targetType: "bap"
+    endpoints:
+      - on_status
+      - on_cancel
+      - on_update
+      - on_select
+      - on_init
+      - on_confirm
+      - on_track
+      - on_rating
+      - on_support
+
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "https://34.93.141.21.sslip.io/beckn/catalog"
+    endpoints:
+      - publish

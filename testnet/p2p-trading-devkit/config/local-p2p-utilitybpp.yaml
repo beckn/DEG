@@ -1,0 +1,127 @@
+appName: "onix-local"
+log:
+  level: debug
+  destinations:
+    - type: stdout
+  contextKeys:
+    - transaction_id
+    - message_id
+    - subscriber_id
+    - module_id
+http:
+  port: 8083
+  timeout:
+    read: 30
+    write: 30
+    idle: 30
+pluginManager:
+  root: ./plugins
+modules:
+  - name: utilitybppTxnReceiver
+    path: /bpp/receiver/
+    handler:
+      type: std
+      role: bpp
+      httpClientConfig:
+        maxIdleConns: 1000
+        maxIdleConnsPerHost: 200
+        idleConnTimeout: 300s
+        responseHeaderTimeout: 5s
+      plugins:
+        registry:
+          id: dediregistry
+          config:
+            url: https://api.testnet.beckn.one/registry/dedi
+            registryName: subscribers.beckn.one
+            timeout: 10
+        keyManager:
+          id: simplekeymanager
+          config:
+            networkParticipant: p2p-trading-sandbox3.com
+            keyId: 76EU8cNkz3dBEVaR5THuyCciMv9FbA2QqDADHX88WPyYP4v5Cp9ADD
+            signingPrivateKey: YW0ObrW6Ca+RLi+rVoxavW6dsC3BuzAx2v9qfutFUcc=
+            signingPublicKey: vSAbdarosQEp7CGf18oYIjdG9ewS1gESsmY3TmfzZog=
+            encrPrivateKey: YW0ObrW6Ca+RLi+rVoxavW6dsC3BuzAx2v9qfutFUcc=
+            encrPublicKey: vSAbdarosQEp7CGf18oYIjdG9ewS1gESsmY3TmfzZog=
+        schemaValidator:
+          id: schemav2validator
+          config:
+            type: url
+            location: https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/api/beckn.yaml
+            cacheTTL: "3600"
+            extendedSchema_enabled: "true"
+            extendedSchema_cacheTTL: "86400"
+            extendedSchema_maxCacheSize: "100"
+            extendedSchema_downloadTimeout: "30"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schemas.beckn.org"            
+        cache:
+          id: cache
+          config:
+            addr: redis:6379
+        signValidator:
+          id: signvalidator
+        router:
+          id: router
+          config:
+            routingConfig: ./config/local-p2p-routing-UtilityBPPReceiver.yaml
+      steps:
+        - validateSign
+        - addRoute
+        - validateSchema
+  
+  - name: utilitybppTxnCaller
+    path: /bpp/caller/
+    handler:
+      type: std
+      role: bpp
+      httpClientConfig:
+        maxIdleConns: 1000
+        maxIdleConnsPerHost: 200
+        idleConnTimeout: 300s
+        responseHeaderTimeout: 5s
+      plugins:
+        registry:
+          id: dediregistry
+          config:
+            url: https://api.testnet.beckn.one/registry/dedi
+            registryName: subscribers.beckn.one
+            timeout: 10
+        keyManager:
+          id: simplekeymanager
+          config:
+            networkParticipant: p2p-trading-sandbox3.com
+            keyId: 76EU8cNkz3dBEVaR5THuyCciMv9FbA2QqDADHX88WPyYP4v5Cp9ADD
+            signingPrivateKey: YW0ObrW6Ca+RLi+rVoxavW6dsC3BuzAx2v9qfutFUcc=
+            signingPublicKey: vSAbdarosQEp7CGf18oYIjdG9ewS1gESsmY3TmfzZog=
+            encrPrivateKey: YW0ObrW6Ca+RLi+rVoxavW6dsC3BuzAx2v9qfutFUcc=
+            encrPublicKey: vSAbdarosQEp7CGf18oYIjdG9ewS1gESsmY3TmfzZog=
+        schemaValidator:
+          id: schemav2validator
+          config:
+            type: url
+            location: https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/api/beckn.yaml
+            cacheTTL: "3600"
+            extendedSchema_enabled: "true"
+            extendedSchema_cacheTTL: "86400"
+            extendedSchema_maxCacheSize: "100"
+            extendedSchema_downloadTimeout: "30"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schemas.beckn.org"            
+        cache:
+          id: cache
+          config:
+            addr: redis:6379
+        router:
+          id: router
+          config:
+            routingConfig: ./config/local-p2p-routing-UtilityBPPCaller.yaml
+        signer:
+          id: signer
+        middleware:
+          - id: reqpreprocessor
+            config:
+              uuidKeys: transaction_id,message_id
+              role: bpp          
+      steps:
+        - addRoute
+        - sign
+        - validateSchema

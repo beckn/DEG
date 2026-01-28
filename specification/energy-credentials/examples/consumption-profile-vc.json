@@ -1,0 +1,25 @@
+{                                                                                                                                                                                                            
+    "@context": [                                                                                                                                                                                              
+      "https://www.w3.org/2018/credentials/v1",                                                                                                                                                                
+      "https://schema.org/",                                                                                                                                                                                   
+      "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/consumption-profile-vc/context.jsonld"                                                                                                   
+    ],                                                                                                                                                                                                         
+    "id": "urn:uuid:b2c3d4e5-6789-01ab-cdef-234567890123",                                                                                                                                                     
+    "type": ["VerifiableCredential", "ConsumptionProfileCredential"],                                                                                                                                          
+    "issuer": {                                                                                                                                                                                                
+      "id": "did:web:bescom.karnataka.gov.in",                                                                                                                                                                 
+      "name": "BESCOM - Bangalore Electricity Supply Company",                                                                                                                                                 
+      "licenseNumber": "KERC/DL/BESCOM/2024"                                                                                                                                                                   
+    },                                                                                                                                                                                                         
+    "issuanceDate": "2025-01-15T10:30:00Z",                                                                                                                                                                    
+    "credentialSubject": {                                                                                                                                                                                     
+      "id": "did:example:consumer:priya123",                                                                                                                                                                   
+      "consumerNumber": "BESCOM-2025-MR4-567890",                                                                                                                                                              
+      "fullName": "Priya Sharma",                                                                                                                                                                              
+      "premisesType": "Residential",                                                                                                                                                                           
+      "connectionType": "Single-phase",                                                                                                                                                                        
+      "sanctionedLoadKW": 5,                                                                                                                                                                                   
+      "tariffCategoryCode": "LT-2a",                                                                                                                                                                           
+      "meterNumber": "BESCOM-SM-2025-789456"                                                                                                                                                                   
+    }                                                                                                                                                                                                          
+  }      

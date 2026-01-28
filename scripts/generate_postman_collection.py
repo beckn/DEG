@@ -99,22 +99,47 @@ DEVKIT_CONFIGS = {
         "bap_adapter_url": "http://localhost:8081/bap/caller",
         "bpp_adapter_url": "http://localhost:8082/bpp/caller",
         "examples_path": "examples/p2p-trading/v2",
-        # "output_path": "testnet/p2p-energy-trading-devkit/postman",
+        # "output_path": "testnet/p2p-trading-devkit/postman",
         "structure": "flat"  # Flat file structure
+    },
+    "p2p-enrollment": {
+        "domain": "beckn.one:deg:p2p-enrollment:2.0.0",
+        "bap_id": "p2p-enrollment-sandbox1.com",
+        "bap_uri": "http://onix-bap:8081/bap/receiver",
+        "bpp_id": "p2p-enrollment-sandbox2.com",
+        "bpp_uri": "http://onix-bpp:8082/bpp/receiver",
+        "bap_adapter_url": "http://localhost:8081/bap/caller",
+        "bpp_adapter_url": "http://localhost:8082/bpp/caller",
+        "examples_path": "examples/enrollment/v2",
+        # "output_path": "testnet/p2p-enrollment-devkit/postman",
+        "structure": "flat"  # Flat file structure (like p2p-trading)
+    },
+    "p2p-trading-interdiscom": {
+        "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0",
+        "bap_id": "p2p-trading-sandbox1.com",
+        "bap_uri": "http://onix-bap:8081/bap/receiver",
+        "bpp_id": "p2p-trading-sandbox2.com",
+        "bpp_uri": "http://onix-bpp:8082/bpp/receiver",
+        "bap_adapter_url": "http://localhost:8081/bap/caller",
+        "bpp_adapter_url": "http://localhost:8082/bpp/caller",
+        "examples_path": "examples/p2p-trading-interdiscom/v2",
+        # "output_path": "testnet/p2p-trading-interdiscom-devkit/postman",
+        "structure": "flat"  # Flat file structure (like p2p-trading)
     }
 }
 
 # Role-based file name filters (regex patterns)
 ROLE_FILTERS = {
     "BAP": [
-        r".*-request\.json$",  # P2P trading: *-request.json
+        r".*-request.*\.json$",  # P2P trading/enrollment: *-request*.json (includes suffixes like -otp, -oauth2)
         r"^\d+_(discover|select|init|confirm|status|update|track|rating|support|cancel)\.json$",  # EV charging: numbered folders
         r"^(discover|select|init|confirm|status|update|track|rating|support|cancel).*\.json$"  # General pattern
     ],
     "BPP": [
-        r".*-response\.json$",  # P2P trading: *-response.json
+        r"^(?!cascaded-).*-response.*\.json$",  # P2P trading/enrollment: *-response*.json (excludes cascaded-)
         r"^\d+_on_(discover|select|init|confirm|update|track|status|rating|support|cancel).*\.json$",  # EV charging: on_* folders
-        r"^on_(discover|select|init|confirm|update|track|status|rating|support|cancel).*\.json$"  # General pattern
+        r"^on[-_](discover|select|init|confirm|update|track|status|rating|support|cancel).*\.json$",  # General pattern (on- or on_)
+        r"^publish-.*\.json$"  # BPP-initiated publish action to CDS
     ],
     "UtilityBPP": [
         r"^cascaded-.*\.json$"  # Cascaded requests/responses
@@ -133,6 +158,11 @@ BAP_ACTIONS = {
     "rating": "rating",
     "support": "support",
     "cancel": "cancel",
+}
+
+# BPP-initiated actions (not callbacks, but BPP initiating requests to CDS, etc.)
+BPP_INITIATED_ACTIONS = {
+    "publish": "publish",
 }
 
 # BPP response actions
@@ -185,47 +215,63 @@ def extract_action_from_filename(filename: str, role: str) -> Optional[str]:
         "discover-request.json" (BAP) -> "discover"
         "discover-response.json" (BPP) -> "on_discover"
         "cascaded-init-request.json" (UtilityBPP) -> "init"
+        "init-request-otp.json" (BAP) -> "init"
+        "on-init-response-oauth2.json" (BPP) -> "on_init"
     """
     # Remove .json extension
     name = filename.replace('.json', '')
     
-    # Handle P2P trading flat structure - strict role-based matching
+    # Handle P2P trading/enrollment flat structure - strict role-based matching
     if role == "BAP":
-        # BAP only matches *-request.json (not *-response.json)
-        if name.endswith('-request'):
-            action = name.replace('-request', '')
-            if action in BAP_ACTIONS:
-                return action
-        # Also handle cascaded requests for BAP (though typically UtilityBPP)
-        if name.startswith('cascaded-') and name.endswith('-request'):
-            action = name.replace('cascaded-', '').replace('-request', '')
-            if action in BAP_ACTIONS:
-                return action
+        # BAP only matches *-request*.json (not *-response*.json)
+        # Pattern: action-request or action-request-suffix
+        if '-request' in name and '-response' not in name:
+            # Extract action from before -request
+            match = re.match(r'^(cascaded-)?([a-z]+)-request', name, re.IGNORECASE)
+            if match:
+                is_cascaded = match.group(1) is not None
+                action = match.group(2)
+                if action in BAP_ACTIONS:
+                    return action
     
     elif role == "BPP":
-        # BPP only matches *-response.json (not *-request.json)
-        if name.endswith('-response'):
-            # For responses, the action in filename is the request action
-            # We need to convert to BPP action (e.g., "discover" -> "on_discover")
-            request_action = name.replace('-response', '')
-            # Check if it's a direct BPP action
-            if request_action in BPP_ACTIONS:
-                return request_action
-            # Convert request action to response action
-            if request_action in BAP_ACTIONS:
-                return f"on_{request_action}"
-        # Handle cascaded responses
-        if name.startswith('cascaded-') and name.endswith('-response'):
-            request_action = name.replace('cascaded-', '').replace('-response', '')
-            if request_action in BAP_ACTIONS:
-                return f"on_{request_action}"
+        # BPP matches *-response*.json (not *-request*.json) AND publish-*.json
+        # Patterns: action-response, on-action-response, action-response-suffix, publish-*
+
+        # First check for BPP-initiated actions (like publish-catalog.json)
+        if name.startswith('publish-'):
+            match = re.match(r'^(publish)-', name, re.IGNORECASE)
+            if match:
+                action = match.group(1).lower()
+                if action in BPP_INITIATED_ACTIONS:
+                    return action
+
+        if '-response' in name and '-request' not in name:
+            # First try: on-action-response pattern (e.g., on-init-response-oauth2)
+            match = re.match(r'^(cascaded-)?(on[-_])?([a-z]+)-response', name, re.IGNORECASE)
+            if match:
+                is_cascaded = match.group(1) is not None
+                has_on_prefix = match.group(2) is not None
+                action = match.group(3)
+
+                if has_on_prefix:
+                    # Already has on_ prefix (e.g., on-init-response -> on_init)
+                    bpp_action = f"on_{action}"
+                    if bpp_action in BPP_ACTIONS:
+                        return bpp_action
+                else:
+                    # No on_ prefix, convert to BPP action (e.g., discover-response -> on_discover)
+                    if action in BAP_ACTIONS:
+                        return f"on_{action}"
     
     elif role == "UtilityBPP":
-        # UtilityBPP matches cascaded-*-request.json
-        if name.startswith('cascaded-') and name.endswith('-request'):
-            action = name.replace('cascaded-', '').replace('-request', '')
-            if action in BAP_ACTIONS:
-                return action
+        # UtilityBPP matches cascaded-*-request*.json
+        if name.startswith('cascaded-') and '-request' in name:
+            match = re.match(r'^cascaded-([a-z]+)-request', name, re.IGNORECASE)
+            if match:
+                action = match.group(1)
+                if action in BAP_ACTIONS:
+                    return action
     
     return None
 
@@ -527,7 +573,8 @@ def generate_collection(
         action_mapping = BAP_ACTIONS
         adapter_url_var = "bap_adapter_url"
     elif role == "BPP":
-        action_mapping = BPP_ACTIONS
+        # BPP uses both callback actions and BPP-initiated actions (like publish to CDS)
+        action_mapping = {**BPP_ACTIONS, **BPP_INITIATED_ACTIONS}
         adapter_url_var = "bpp_adapter_url"
     elif role == "UtilityBPP":
         action_mapping = BAP_ACTIONS  # UtilityBPP uses BAP actions
@@ -587,16 +634,14 @@ def generate_collection(
             )
             action_items.append(request)
         
-        # Create folder even if empty (for actions with no examples yet, like status)
-        folder = {
-            "name": action,
-            "item": action_items
-        }
-        collection_items.append(folder)
+        # Only create folder if it has requests
         if action_items:
+            folder = {
+                "name": action,
+                "item": action_items
+            }
+            collection_items.append(folder)
             print(f"  Created folder '{action}' with {len(action_items)} request(s)")
-        else:
-            print(f"  Created empty folder '{action}' (no examples found)")
     
     # Build collection
     collection = {
@@ -639,9 +684,9 @@ def main():
     parser.add_argument(
         "--devkit",
         type=str,
-        choices=["ev-charging", "p2p-trading"],
+        choices=["ev-charging", "p2p-trading", "p2p-enrollment", "p2p-trading-interdiscom"],
         required=True,
-        help="Devkit type: 'ev-charging' or 'p2p-trading'"
+        help="Devkit type: 'ev-charging', 'p2p-trading', 'p2p-enrollment', or 'p2p-trading-interdiscom'"
     )
     parser.add_argument(
         "--role",

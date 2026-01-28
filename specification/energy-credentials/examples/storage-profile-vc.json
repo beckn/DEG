@@ -1,0 +1,26 @@
+{                                                                                                                                                                                                            
+    "@context": [                                                                                                                                                                                              
+      "https://www.w3.org/2018/credentials/v1",                                                                                                                                                                
+      "https://schema.org/",                                                                                                                                                                                   
+      "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/storage-profile-vc/context.jsonld"                                                                                                       
+    ],                                                                                                                                                                                                         
+    "id": "urn:uuid:d4e5f6a7-8901-23ab-cdef-456789012345",                                                                                                                                                     
+    "type": ["VerifiableCredential", "StorageProfileCredential"],                                                                                                                                              
+    "issuer": {                                                                                                                                                                                                
+      "id": "did:web:bescom.karnataka.gov.in",                                                                                                                                                                 
+      "name": "BESCOM - Bangalore Electricity Supply Company",                                                                                                                                                 
+      "licenseNumber": "KERC/DL/BESCOM/2024"                                                                                                                                                                   
+    },                                                                                                                                                                                                         
+    "issuanceDate": "2025-01-15T10:30:00Z",                                                                                                                                                                    
+    "credentialSubject": {                                                                                                                                                                                     
+      "id": "did:example:consumer:priya123",                                                                                                                                                                   
+      "consumerNumber": "BESCOM-2025-MR4-567890",                                                                                                                                                              
+      "fullName": "Priya Sharma",                                                                                                                                                                              
+      "meterNumber": "BESCOM-SM-2025-789456",                                                                                                                                                                  
+      "assetId": "BESS-KA-BLR-2025-000456",                                                                                                                                                                    
+      "storageCapacityKWh": 10,                                                                                                                                                                                
+      "powerRatingKW": 5,                                                                                                                                                                                      
+      "commissioningDate": "2025-01-12",                                                                                                                                                                       
+      "storageType": "LithiumIon"                                                                                                                                                                              
+    }                                                                                                                                                                                                          
+  }  

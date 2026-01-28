@@ -1,0 +1,10 @@
+routingRules:
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "http://sandbox-utilitybpp:3003/api/webhook"
+    endpoints:
+      - init  # cascaded init from P2P Trading BPP
+      - confirm  # cascaded confirm from P2P Trading BPP
+
+

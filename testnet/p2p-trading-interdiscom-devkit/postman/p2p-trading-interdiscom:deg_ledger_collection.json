@@ -1,0 +1,121 @@
+{
+  "info": {
+    "_postman_id": "18b48b79-2246-4b7b-b16c-df9a67af6dfb",
+    "name": "p2p-trading-interdiscom:DEG Ledger Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "20005936"
+  },
+  "item": [
+    {
+      "name": "Platform Create Trade Record",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"role\": \"SELLER_DISCOM\",\n    \"transactionId\": \"txn-2026-01-20-001\",\n    \"orderItemId\": \"item-001\",\n    \"platformIdBuyer\": \"bap.energy-exchange.in\",\n    \"platformIdSeller\": \"bpp.solar-prosumer.in\",\n    \"discomIdBuyer\": \"BESCOM-SR\",\n    \"discomIdSeller\": \"TPDDL-DL\",\n    \"buyerId\": \"CA-BESCOM-1234567\",\n    \"sellerId\": \"DEG-TPDDL-87654321\",\n    \"tradeTime\": \"2026-01-20T18:30:00.000Z\",\n    \"deliveryStartTime\": \"2026-01-20T19:30:00.000Z\",\n    \"deliveryEndTime\": \"2026-01-20T20:30:00.000Z\",\n    \"tradeDetails\": [\n      {\n        \"tradeQty\": 5.5,\n        \"tradeType\": \"ENERGY\",\n        \"tradeUnit\": \"KWH\"\n      }\n    ],\n    \"clientReference\": \"client-ref-001\"\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{deg_ledger_host}}/ledger/put",
+          "host": [
+            "{{deg_ledger_host}}"
+          ],
+          "path": [
+            "ledger",
+            "put"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Trade Record",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"role\": \"BUYER_DISCOM\",\n    \"transactionId\": \"txn-2026-01-20-001\",\n    \"orderItemId\": \"item-001\",\n    \"buyerFulfillmentValidationMetrics\": [\n        {\n            \"validationMetricType\": \"ACTUAL_PUSHED\",\n            \"validationMetricValue\": 4.9\n        }\n    ],\n    \"statusBuyerDiscom\": \"COMPLETED\",\n    \"note\": \"Buyer discom validation complete\",\n    \"clientReference\": \"client-ref-002\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{deg_ledger_host}}/ledger/record",
+          "host": [
+            "{{deg_ledger_host}}"
+          ],
+          "path": [
+            "ledger",
+            "record"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Record",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"discomIdBuyer\": \"BESCOM-SR\",\n    \"transactionId\": \"txn-2026-01-20-001\",\n    \"limit\": 25,\n    \"offset\": 0,\n    \"sort\": \"tradeTime\",\n    \"sortOrder\": \"desc\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{deg_ledger_host}}/ledger/get",
+          "host": [
+            "{{deg_ledger_host}}"
+          ],
+          "path": [
+            "ledger",
+            "get"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "deg_ledger_host",
+      "value": "https://34.93.166.38.sslip.io"
+    }
+  ]
+}
