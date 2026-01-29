@@ -338,7 +338,7 @@ Specifically, please use the following configuration:
 
 ### 8.2.3. 10.2.3 Performing a test transaction
 
-Step 1 : Download the postman collection, from [here](/testnet/p2p-energy-trading-devkit/postman).
+Step 1 : Download the postman collection, from [here](/testnet/p2p-trading-devkit/postman).
 
 Step 2 : Run API calls
 
