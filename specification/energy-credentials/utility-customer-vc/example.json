@@ -13,7 +13,7 @@
   },
   "issuanceDate": "2025-01-13T10:30:00Z",
   "credentialStatus": {
-    "id": "https://dedi.global/dedi/query/5HmKwpkCnLdpTEU8WHy4dy5K5mnbXMpqFZycEqpaQjFgwvfS:degcredentials/utility-customer/a1b2c3d4-5678-90ab-cdef-123456789012",
+    "id": "https://dedi.global/dedi/query/did:web:example-utility.com/VC_revocation_registry",
     "type": "dediregistry"
   },
   "credentialSubject": {
