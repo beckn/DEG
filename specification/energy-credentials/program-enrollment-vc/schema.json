@@ -70,6 +70,23 @@
             "format": "date-time",
             "description": "Optional expiration date of the credential"
         },
+        "credentialStatus": {
+            "type": "object",
+            "required": ["id", "type"],
+            "description": "Revocation status information for the credential",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to query the revocation status of the credential via DeDi registry"
+                },
+                "type": {
+                    "type": "string",
+                    "const": "dediregistry",
+                    "description": "Type of status check mechanism (DeDi Registry)"
+                }
+            }
+        },
         "credentialSubject": {
             "type": "object",
             "required": [

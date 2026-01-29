@@ -12,6 +12,10 @@
     "licenseNumber": "REG-2025-00001"
   },
   "issuanceDate": "2025-01-13T11:00:00Z",
+  "credentialStatus": {
+    "id": "https://dedi.global/dedi/query/did:web:example-utility.com/VC_revocation_registry",
+    "type": "dediregistry"
+  },
   "credentialSubject": {
     "id": "did:example:consumer:abc123",
     "consumerNumber": "UTIL-2025-001234567",
