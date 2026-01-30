@@ -1,0 +1,69 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_update",
+    "domain": "beckn.one:deg:p2p-enrollment:2.0.0",
+    "timestamp": "2024-11-20T15:00:05Z",
+    "message_id": "msg-on-update-unenroll-001",
+    "transaction_id": "txn-unenroll-001",
+    "bap_id": "utility-portal.example.com",
+    "bap_uri": "https://utility-portal.example.com/beckn",
+    "bpp_id": "vpp-program-owner.example.com",
+    "bpp_uri": "https://vpp-program-owner.example.com/beckn",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-onboard-consumer-001",
+      "beckn:orderStatus": "CANCELLED",
+      "beckn:seller": "vpp-program-flex-001",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "did:example:user-12345"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "program-flex-demand-response-001"
+        }
+      ],
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-onboard-001",
+        "beckn:mode": "DIGITAL",
+        "beckn:fulfillmentStatus": "CANCELLED"
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld",
+        "@type": "EnergyEnrollment",
+        "enrollmentId": "enrollment-consumer-001",
+        "status": "CANCELLED",
+        "updateType": "UNENROLLMENT",
+        "unenrollment": {
+          "enrollmentId": "enrollment-consumer-001",
+          "status": "CANCELLED",
+          "cancelledAt": "2024-11-20T15:00:05Z",
+          "enrollmentCredentialStatus": {
+            "statusListUrl": "https://vpp-program-owner.example.com/status/enrollment-list",
+            "statusListIndex": "12345",
+            "revoked": true
+          },
+          "consentsRevoked": [
+            {
+              "consentCredentialId": "https://vpp-program-owner.example.com/credentials/vc:consent:consumer-001",
+              "statusListUrl": "https://vpp-program-owner.example.com/status/consent-list",
+              "statusListIndex": "94567",
+              "revoked": true
+            }
+          ],
+          "message": "Enrollment and all associated consents have been revoked. Enrollment credential and consent credentials have been added to revocation status lists."
+        },
+        "loggedAt": "2024-11-20T15:00:05Z",
+        "logReference": "log-unenrollment-consumer-001"
+      }
+    }
+  }
+}

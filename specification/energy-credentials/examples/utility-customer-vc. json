@@ -1,0 +1,31 @@
+{                                                                                                                                                                                                            
+    "@context": [                                                                                                                                                                                              
+      "https://www.w3.org/2018/credentials/v1",                                                                                                                                                                
+      "https://schema.org/",                                                                                                                                                                                   
+      "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/utility-customer-vc/context.jsonld"                                                                                                      
+    ],                                                                                                                                                                                                         
+    "id": "urn:uuid:a1b2c3d4-5678-90ab-cdef-123456789012",                                                                                                                                                     
+    "type": ["VerifiableCredential", "UtilityCustomerCredential"],                                                                                                                                             
+    "issuer": {                                                                                                                                                                                                
+      "id": "did:web:bescom.karnataka.gov.in",                                                                                                                                                                 
+      "name": "BESCOM - Bangalore Electricity Supply Company",                                                                                                                                                 
+      "licenseNumber": "KERC/DL/BESCOM/2024"                                                                                                                                                                   
+    },                                                                                                                                                                                                         
+    "issuanceDate": "2025-01-15T10:30:00Z",                                                                                                                                                                    
+    "credentialSubject": {                                                                                                                                                                                     
+      "id": "did:example:consumer:priya123",                                                                                                                                                                   
+      "consumerNumber": "BESCOM-2025-MR4-567890",                                                                                                                                                              
+      "maskedIdNumber": "XXXX-XXXX-4523",                                                                                                                                                                      
+      "fullName": "Priya Sharma",                                                                                                                                                                              
+      "installationAddress": {                                                                                                                                                                                 
+        "fullAddress": "42, 3rd Cross, Indiranagar",                                                                                                                                                           
+        "city": "Bengaluru",                                                                                                                                                                                   
+        "district": "Bengaluru Urban",                                                                                                                                                                         
+        "stateProvince": "Karnataka",                                                                                                                                                                          
+        "postalCode": "560038",                                                                                                                                                                                
+        "country": "IN"                                                                                                                                                                                        
+      },                                                                                                                                                                                                       
+      "meterNumber": "BESCOM-SM-2025-789456",                                                                                                                                                                  
+      "serviceConnectionDate": "2020-03-15"                                                                                                                                                                    
+    }                                                                                                                                                                                                          
+  }    

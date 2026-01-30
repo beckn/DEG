@@ -1,0 +1,206 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "catalog_publish",
+    "timestamp": "2024-10-04T08:00:00Z",
+    "message_id": "msg-publish-001",
+    "transaction_id": "txn-catalog-001",
+    "bap_id": "bap.energy-consumer.com",
+    "bap_uri": "https://bap.energy-consumer.com",
+    "bpp_id": "bpp.energy-provider.com",
+    "bpp_uri": "https://bpp.energy-provider.com",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading:2.0.0"
+  },
+  "message": {
+    "catalogs": [
+      {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Catalog",
+        "beckn:id": "catalog-energy-001",
+        "beckn:descriptor": {
+          "@type": "beckn:Descriptor",
+          "schema:name": "Solar Energy Trading Catalog"
+        },
+        "beckn:bppId": "bpp.energy-provider.com",
+        "beckn:bppUri": "https://bpp.energy-provider.com",
+        "beckn:items": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Item",
+            "beckn:networkId": ["p2p-trading-pilot-network"],
+            "beckn:isActive": true,
+            "beckn:id": "energy-resource-solar-001",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Solar Energy - 30.5 kWh",
+              "beckn:shortDesc": "Carbon Offset Certified Solar Energy",
+              "beckn:longDesc": "High-quality solar energy from verified source with carbon offset certification"
+            },
+            "beckn:provider": {
+              "beckn:id": "provider-solar-farm-001",
+              "beckn:descriptor": {
+                "@type": "beckn:Descriptor",
+                "schema:name": "Solar Farm 001"
+              }
+            },
+            "beckn:itemAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyResource/v0.2/context.jsonld",
+              "@type": "EnergyResource",
+              "sourceType": "SOLAR",
+              "deliveryMode": "GRID_INJECTION",
+              "certificationStatus": "Carbon Offset Certified",
+              "meterId": "der://meter/100200300",
+              "availableQuantity": 30.5,
+              "productionWindow": [
+                {
+                  "@type": "beckn:TimePeriod",
+                  "schema:startTime": "2024-10-04T10:00:00Z",
+                  "schema:endTime": "2024-10-04T18:00:00Z"
+                }
+              ],
+              "sourceVerification": {
+                "verified": true,
+                "verificationDate": "2024-09-01T00:00:00Z",
+                "certificates": [
+                  "https://example.com/certs/solar-panel-cert.pdf"
+                ]
+              },
+              "productionAsynchronous": true
+            }
+          },
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Item",
+            "beckn:networkId": ["p2p-trading-pilot-network"],
+            "beckn:isActive": true,
+            "beckn:id": "energy-resource-solar-002",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Solar Energy - 50.0 kWh",
+              "beckn:shortDesc": "Standard Solar Energy",
+              "beckn:longDesc": "Reliable solar energy from verified source"
+            },
+            "beckn:provider": {
+              "beckn:id": "provider-solar-farm-001",
+              "beckn:descriptor": {
+                "@type": "beckn:Descriptor",
+                "schema:name": "Solar Farm 001"
+              }
+            },
+            "beckn:itemAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyResource/v0.2/context.jsonld",
+              "@type": "EnergyResource",
+              "sourceType": "SOLAR",
+              "deliveryMode": "GRID_INJECTION",
+              "certificationStatus": "Standard Certified",
+              "meterId": "der://meter/100200301",
+              "availableQuantity": 50.0,
+              "productionWindow": [
+                {
+                  "@type": "beckn:TimePeriod",
+                  "schema:startTime": "2024-10-04T08:00:00Z",
+                  "schema:endTime": "2024-10-04T16:00:00Z"
+                }
+              ],
+              "sourceVerification": {
+                "verified": true,
+                "verificationDate": "2024-09-01T00:00:00Z",
+                "certificates": [
+                  "https://example.com/certs/solar-panel-cert-2.pdf"
+                ]
+              },
+              "productionAsynchronous": true
+            }
+          }
+        ],
+        "beckn:offers": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-energy-001",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Daily Settlement Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ],
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 0.15,
+              "schema:priceCurrency": "USD",
+              "schema:unitText": "kWh"
+            },
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOffer/v0.2/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "settlementType": "DAILY",
+              "wheelingCharges": {
+                "amount": 2.5,
+                "currency": "USD",
+                "description": "PG&E Grid Services wheeling charge"
+              },
+              "minimumQuantity": 1.0,
+              "maximumQuantity": 100.0,
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2024-10-04T00:00:00Z",
+                "schema:endTime": "2024-10-04T23:59:59Z"
+              },
+              "beckn:maxQuantity": {
+                "unitQuantity": 30.5,
+                "unitText": "kWh",
+                "unitCode": "KWH"
+              }
+            }
+          },
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-energy-002",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Bulk Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-002"
+            ],
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 0.12,
+              "schema:priceCurrency": "USD",
+              "schema:unitText": "kWh"
+            },
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyTradeOffer/v0.2/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "settlementType": "WEEKLY",
+              "wheelingCharges": {
+                "amount": 2.0,
+                "currency": "USD",
+                "description": "PG&E Grid Services wheeling charge"
+              },
+              "minimumQuantity": 10.0,
+              "maximumQuantity": 500.0,
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2024-10-04T00:00:00Z",
+                "schema:endTime": "2024-10-11T23:59:59Z"
+              },
+              "beckn:maxQuantity": {
+                "unitQuantity": 50.0,
+                "unitText": "kWh",
+                "unitCode": "KWH"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

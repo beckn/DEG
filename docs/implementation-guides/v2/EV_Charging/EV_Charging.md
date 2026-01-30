@@ -303,7 +303,7 @@ Specifically, for EV Charging, please use the following configuration:
 
 ### 11.2.3. 10.2.3 Performing a test EV charging transaction
 
-Step 1 : Download the postman collection, from [here](/testnet/postman-collections/v2/EV_Charging/).
+Step 1 : Download the postman collection, from [here](/testnet/ev-charging-devkit/postman/).
 
 Step 2 : Run API calls
 
@@ -684,7 +684,7 @@ Note: Users can discover the charging station through off-network channels (such
               "WALLET"
             ],
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingOffer/v1/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EvChargingOffer/v1/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {
@@ -729,7 +729,7 @@ Note: Users can discover the charging station through off-network channels (such
               "CREDIT_CARD"
             ],
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingOffer/v1/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EvChargingOffer/v1/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {

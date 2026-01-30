@@ -1,0 +1,22 @@
+routingRules:
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "http://sandbox-bpp:3002/api/webhook"
+    endpoints:
+      - select
+      - init
+      - confirm
+      - status
+      - track
+      - cancel
+      - update
+      - rating
+      - support
+
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "http://sandbox-bpp:3002/api/webhook"
+    endpoints:
+      - catalog/on_publish #publish response from CDS after catalog update

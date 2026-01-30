@@ -1,0 +1,46 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "update",
+    "domain": "beckn.one:deg:p2p-enrollment:2.0.0",
+    "timestamp": "2024-11-20T14:30:00Z",
+    "message_id": "msg-update-consent-revoke-001",
+    "transaction_id": "txn-revoke-consent-001",
+    "bap_id": "utility-portal.example.com",
+    "bap_uri": "https://utility-portal.example.com/beckn",
+    "bpp_id": "vpp-program-owner.example.com",
+    "bpp_uri": "https://vpp-program-owner.example.com/beckn",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-onboard-consumer-001",
+      "beckn:orderStatus": "CONFIRMED",
+      "beckn:seller": "vpp-program-flex-001",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "did:example:user-12345"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "program-flex-demand-response-001"
+        }
+      ],
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld",
+        "@type": "EnergyEnrollment",
+        "updateType": "CONSENT_REVOCATION",
+        "consentRevocation": {
+          "consentCredentialId": "https://vpp-program-owner.example.com/credentials/vc:consent:consumer-001",
+          "consentType": "DATA_COLLECTION",
+          "reason": "USER_REQUESTED",
+          "revokedAt": "2024-11-20T14:30:00Z",
+          "effectiveDate": "2024-11-20T14:30:00Z"
+        }
+      }
+    }
+  }
+}

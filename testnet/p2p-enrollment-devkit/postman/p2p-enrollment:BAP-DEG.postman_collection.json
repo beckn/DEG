@@ -1,0 +1,349 @@
+{
+  "info": {
+    "_postman_id": "117bba7b-4d45-4ef6-ace8-0254f4e7406e",
+    "name": "p2p-enrollment:BAP-DEG",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for Buyer Application Platform implementing p2p-enrollment APIs based on Beckn Protocol v2"
+  },
+  "item": [
+    {
+      "name": "cancel",
+      "item": []
+    },
+    {
+      "name": "confirm",
+      "item": [
+        {
+          "name": "confirm-request-oauth2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"confirm\",\n    \"domain\": \"{{domain}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:id\": \"order-onboard-oauth2-001\",\n      \"beckn:orderStatus\": \"PENDING\",\n      \"beckn:seller\": \"vpp-program-flex-001\",\n      \"beckn:buyer\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\",\n        \"beckn:id\": \"user-12345\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"program-p2p-trading-001\"\n        }\n      ],\n      \"beckn:fulfillment\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Fulfillment\",\n        \"beckn:id\": \"fulfillment-onboard-001\",\n        \"beckn:mode\": \"DIGITAL\",\n        \"beckn:fulfillmentStatus\": \"PENDING\"\n      },\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n        \"@type\": \"EnergyEnrollment\",\n        \"userAuth\": {\n          \"authMethod\": \"OIDC\",\n          \"accessToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoicHJvZ3JhbS1vd25lci1icHAiLCJpc3MiOiJodHRwczovL3V0aWxpdHktaWRwLmV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MDAwMDAwLCJleHAiOjE3MjkwMDM2MDB9.signature\"\n        },\n        \"meters\": [\n          {\n            \"meterId\": \"umid-001\",\n            \"meterNumber\": \"MTR-987654321\",\n            \"connectionType\": \"residential\"\n          }\n        ],\n        \"startDate\": \"2024-11-01T00:00:00Z\",\n        \"endDate\": \"2025-10-31T23:59:59Z\"\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/confirm",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "confirm"
+              ]
+            },
+            "description": "Confirm request: confirm-request-oauth2"
+          },
+          "response": []
+        },
+        {
+          "name": "confirm-request-otp",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"confirm\",\n    \"domain\": \"{{domain}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:id\": \"order-onboard-otp-001\",\n      \"beckn:orderStatus\": \"PENDING\",\n      \"beckn:seller\": \"vpp-program-flex-001\",\n      \"beckn:buyer\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\",\n        \"beckn:id\": \"pending-verification\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"program-p2p-trading-001\"\n        }\n      ],\n      \"beckn:fulfillment\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Fulfillment\",\n        \"beckn:id\": \"fulfillment-onboard-001\",\n        \"beckn:mode\": \"DIGITAL\",\n        \"beckn:fulfillmentStatus\": \"PENDING\"\n      },\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n        \"@type\": \"EnergyEnrollment\",\n        \"userAuth\": {\n          \"authMethod\": \"OTP\",\n          \"mobile\": \"+919999999999\",\n          \"nguid\": \"LQUejkRbBL9nJGQiqbComfQ242AHnbG3hnwWdHJut59jqmdJygnVHoiyDcnAUrKm\",\n          \"otp\": \"123456\",\n          \"utilityCustomerId\": \"CUST-123456\",\n          \"userType\": \"CONSUMER\"\n        },\n        \"meters\": [\n          {\n            \"meterId\": \"umid-001\",\n            \"meterNumber\": \"MTR-987654321\",\n            \"connectionType\": \"residential\"\n          }\n        ],\n        \"startDate\": \"2024-11-01T00:00:00Z\",\n        \"endDate\": \"2025-10-31T23:59:59Z\"\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/confirm",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "confirm"
+              ]
+            },
+            "description": "Confirm request: confirm-request-otp"
+          },
+          "response": []
+        },
+        {
+          "name": "confirm-request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"confirm\",\n    \"domain\": \"{{domain}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:id\": \"order-onboard-consumer-001\",\n      \"beckn:orderStatus\": \"PENDING\",\n      \"beckn:seller\": \"vpp-program-flex-001\",\n      \"beckn:buyer\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\",\n        \"beckn:id\": \"did:example:user-12345\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"program-flex-demand-response-001\"\n        }\n      ],\n      \"beckn:fulfillment\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Fulfillment\",\n        \"beckn:id\": \"fulfillment-onboard-001\",\n        \"beckn:mode\": \"DIGITAL\",\n        \"beckn:fulfillmentStatus\": \"PENDING\"\n      },\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n        \"@type\": \"EnergyEnrollment\",\n        \"startDate\": \"2024-11-01T00:00:00Z\",\n        \"endDate\": \"2025-10-31T23:59:59Z\",\n        \"consents\": [\n          {\n            \"type\": \"DATA_COLLECTION\",\n            \"granted\": true,\n            \"grantedAt\": \"2024-10-15T10:33:00Z\",\n            \"description\": \"Consent to collect and share meter data for program participation\"\n          },\n          {\n            \"type\": \"DER_CONTROL\",\n            \"granted\": false,\n            \"description\": \"Consent to control DER devices for demand response (not applicable for this enrollment)\"\n          }\n        ]\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/confirm",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "confirm"
+              ]
+            },
+            "description": "Confirm request: confirm-request"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "item": []
+    },
+    {
+      "name": "init",
+      "item": [
+        {
+          "name": "init-request-oauth2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"init\",\n    \"domain\": \"{{domain}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:id\": \"order-onboard-oauth2-001\",\n      \"beckn:orderStatus\": \"CREATED\",\n      \"beckn:seller\": \"vpp-program-flex-001\",\n      \"beckn:buyer\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\",\n        \"beckn:id\": \"pending-verification\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"program-p2p-trading-001\"\n        }\n      ],\n      \"beckn:fulfillment\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Fulfillment\",\n        \"beckn:id\": \"fulfillment-onboard-001\",\n        \"beckn:mode\": \"DIGITAL\",\n        \"beckn:fulfillmentStatus\": \"PENDING\"\n      },\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n        \"@type\": \"EnergyEnrollment\",\n        \"userAuth\": {\n          \"authMethod\": \"OIDC\",\n          \"accessToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEyMzQ1IiwiYXVkIjoicHJvZ3JhbS1vd25lci1icHAiLCJpc3MiOiJodHRwczovL3V0aWxpdHktaWRwLmV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MDAwMDAwLCJleHAiOjE3MjkwMDM2MDB9.signature\",\n          \"idToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTEyMzQ1IiwibmFtZSI6IlJhamVzaCBLdW1hciIsImVtYWlsIjoicmFqZXNoQGV4YW1wbGUuY29tIiwiaXNzIjoiaHR0cHM6Ly91dGlsaXR5LWlkcC5leGFtcGxlLmNvbSIsImlhdCI6MTcyOTAwMDAwMCwiZXhwIjoxNzI5MDAzNjAwfQ.signature\"\n        },\n        \"customer\": {\n          \"name\": \"Rajesh Kumar\"\n        }\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/init",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "init"
+              ]
+            },
+            "description": "Init request: init-request-oauth2"
+          },
+          "response": []
+        },
+        {
+          "name": "init-request-otp",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"init\",\n    \"domain\": \"{{domain}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:id\": \"order-onboard-otp-001\",\n      \"beckn:orderStatus\": \"CREATED\",\n      \"beckn:seller\": \"vpp-program-flex-001\",\n      \"beckn:buyer\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\",\n        \"beckn:id\": \"pending-verification\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"program-p2p-trading-001\"\n        }\n      ],\n      \"beckn:fulfillment\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Fulfillment\",\n        \"beckn:id\": \"fulfillment-onboard-001\",\n        \"beckn:mode\": \"DIGITAL\",\n        \"beckn:fulfillmentStatus\": \"PENDING\"\n      },\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n        \"@type\": \"EnergyEnrollment\",\n        \"userAuth\": {\n          \"authMethod\": \"OTP\",\n          \"mobile\": \"+919999999999\",\n          \"utilityCustomerId\": \"CUST-123456\",\n          \"userType\": \"CONSUMER\"\n        },\n        \"customer\": {\n          \"name\": \"Rajesh Kumar\"\n        }\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/init",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "init"
+              ]
+            },
+            "description": "Init request: init-request-otp"
+          },
+          "response": []
+        },
+        {
+          "name": "init-request-prosumer-solar-battery",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"init\",\n    \"domain\": \"{{domain}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:id\": \"order-onboard-prosumer-001\",\n      \"beckn:orderStatus\": \"CREATED\",\n      \"beckn:seller\": \"vpp-program-p2p-001\",\n      \"beckn:buyer\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\",\n        \"beckn:id\": \"did:example:prosumer-789\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"program-vpp-p2p-001\"\n        }\n      ],\n      \"beckn:fulfillment\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Fulfillment\",\n        \"beckn:id\": \"fulfillment-onboard-prosumer-001\",\n        \"beckn:mode\": \"DIGITAL\",\n        \"beckn:fulfillmentStatus\": \"PENDING\",\n        \"beckn:deliveryAttributes\": {\n          \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n          \"@type\": \"EnergyEnrollment\",\n          \"meters\": [\n            {\n              \"meterId\": \"umid-002\",\n              \"utilityId\": \"utility-example-001\"\n            }\n          ],\n          \"ders\": [\n            {\n              \"derId\": \"der-solar-001\",\n              \"type\": \"SOLAR_PV\",\n              \"capacityValue\": 10.0,\n              \"capacityUnit\": \"kW\"\n            },\n            {\n              \"derId\": \"der-battery-001\",\n              \"type\": \"BATTERY_STORAGE\",\n              \"capacityValue\": 15.0,\n              \"capacityUnit\": \"kWh\"\n            }\n          ]\n        }\n      },\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n        \"@type\": \"EnergyEnrollment\",\n        \"userAuth\": {\n          \"authMethod\": \"OTP\",\n          \"mobile\": \"+919876543210\",\n          \"userType\": \"PROSUMER\"\n        },\n        \"meterOwnershipCredential\": {\n          \"credentialId\": \"vc-meter-ownership-002\",\n          \"type\": \"MeterOwnershipCredential\",\n          \"format\": \"VC-JWT\",\n          \"credentialData\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...\",\n          \"verificationUrl\": \"https://utility-example-001.com/verify/vc-meter-ownership-002\"\n        }\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/init",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "init"
+              ]
+            },
+            "description": "Init request: init-request-prosumer-solar-battery"
+          },
+          "response": []
+        },
+        {
+          "name": "init-request-simple-consumer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"init\",\n    \"domain\": \"{{domain}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:id\": \"order-onboard-consumer-001\",\n      \"beckn:orderStatus\": \"CREATED\",\n      \"beckn:seller\": \"vpp-program-flex-001\",\n      \"beckn:buyer\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\",\n        \"beckn:id\": \"did:example:user-12345\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"program-flex-demand-response-001\"\n        }\n      ],\n      \"beckn:fulfillment\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Fulfillment\",\n        \"beckn:id\": \"fulfillment-onboard-001\",\n        \"beckn:mode\": \"DIGITAL\",\n        \"beckn:fulfillmentStatus\": \"PENDING\",\n        \"beckn:deliveryAttributes\": {\n          \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n          \"@type\": \"EnergyEnrollment\",\n          \"customer\": {\n            \"name\": \"Rajesh Kumar\",\n            \"email\": \"rajesh.kumar@example.com\"\n          },\n          \"meters\": [\n            {\n              \"meterId\": \"umid-001\",\n              \"utilityId\": \"utility-example-001\"\n            }\n          ],\n          \"ders\": []\n        }\n      },\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n        \"@type\": \"EnergyEnrollment\",\n        \"meterOwnershipCredential\": {\n          \"credentialId\": \"vc-meter-ownership-001\",\n          \"type\": \"MeterOwnershipCredential\",\n          \"format\": \"VC-JWT\",\n          \"credentialData\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSJdLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiTWV0ZXJPd25lcnNoaXBDcmVkZW50aWFsIl0sImNyZWRlbnRpYWxTdWJqZWN0Ijp7ImlkIjoiZGlkOmV4YW1wbGU6dXNlci0xMjM0NSIsIm1ldGVySWQiOiJ1bWlkLTAwMSIsInV0aWxpdHlJZCI6InV0aWxpdHktZXhhbXBsZS0wMDEiLCJvd25lcnNoaXBTdGF0dXMiOiJPV05FUiIsInZhbGlkRnJvbSI6IjIwMjQtMDEtMDFUMDA6MDA6MDBaIiwidmFsaWRVbnRpbCI6IjIwMjUtMTItMzFUMjM6NTk6NTlaIn19LCJpc3MiOiJkaWQ6ZXhhbXBsZTp1dGlsaXR5LWNyZWRlbnRpYWwtaXNzdWVyIiwiaWF0IjoxNzA0MDY3MjAwfQ.signature\",\n          \"verificationUrl\": \"https://utility-example-001.com/verify/vc-meter-ownership-001\"\n        }\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/init",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "init"
+              ]
+            },
+            "description": "Init request: init-request-simple-consumer"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "rating",
+      "item": []
+    },
+    {
+      "name": "select",
+      "item": []
+    },
+    {
+      "name": "status",
+      "item": []
+    },
+    {
+      "name": "support",
+      "item": []
+    },
+    {
+      "name": "track",
+      "item": []
+    },
+    {
+      "name": "update",
+      "item": [
+        {
+          "name": "update-request-consent-revocation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"update\",\n    \"domain\": \"{{domain}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:id\": \"order-onboard-consumer-001\",\n      \"beckn:orderStatus\": \"CONFIRMED\",\n      \"beckn:seller\": \"vpp-program-flex-001\",\n      \"beckn:buyer\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\",\n        \"beckn:id\": \"did:example:user-12345\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"program-flex-demand-response-001\"\n        }\n      ],\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n        \"@type\": \"EnergyEnrollment\",\n        \"updateType\": \"CONSENT_REVOCATION\",\n        \"consentRevocation\": {\n          \"consentCredentialId\": \"https://vpp-program-owner.example.com/credentials/vc:consent:consumer-001\",\n          \"consentType\": \"DATA_COLLECTION\",\n          \"reason\": \"USER_REQUESTED\",\n          \"revokedAt\": \"2024-11-20T14:30:00Z\",\n          \"effectiveDate\": \"2024-11-20T14:30:00Z\"\n        }\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/update",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "update"
+              ]
+            },
+            "description": "Update request: update-request-consent-revocation"
+          },
+          "response": []
+        },
+        {
+          "name": "update-request-unenrollment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"update\",\n    \"domain\": \"{{domain}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"order\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Order\",\n      \"beckn:id\": \"order-onboard-consumer-001\",\n      \"beckn:orderStatus\": \"CONFIRMED\",\n      \"beckn:seller\": \"vpp-program-flex-001\",\n      \"beckn:buyer\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:Buyer\",\n        \"beckn:id\": \"did:example:user-12345\"\n      },\n      \"beckn:orderItems\": [\n        {\n          \"beckn:orderedItem\": \"program-flex-demand-response-001\"\n        }\n      ],\n      \"beckn:orderAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/p2p-trading/schema/EnergyEnrollment/v0.2/context.jsonld\",\n        \"@type\": \"EnergyEnrollment\",\n        \"updateType\": \"UNENROLLMENT\",\n        \"unenrollment\": {\n          \"enrollmentId\": \"enrollment-consumer-001\",\n          \"reason\": \"USER_REQUESTED\",\n          \"effectiveDate\": \"2024-11-20T15:00:00Z\",\n          \"revokeAllConsents\": true\n        }\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/update",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "update"
+              ]
+            },
+            "description": "Update request: update-request-unenrollment"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pure JS pre-request script to replace moment()",
+          "// 1) ISO 8601 timestamp without needing moment",
+          "const isoTimestamp = new Date().toISOString();",
+          "pm.collectionVariables.set('iso_date', isoTimestamp);",
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "domain",
+      "value": "beckn.one:deg:p2p-enrollment:2.0.0"
+    },
+    {
+      "key": "version",
+      "value": "2.0.0"
+    },
+    {
+      "key": "bap_id",
+      "value": "p2p-enrollment-sandbox1.com"
+    },
+    {
+      "key": "bap_uri",
+      "value": "http://onix-bap:8081/bap/receiver"
+    },
+    {
+      "key": "bpp_id",
+      "value": "p2p-enrollment-sandbox2.com"
+    },
+    {
+      "key": "bpp_uri",
+      "value": "http://onix-bpp:8082/bpp/receiver"
+    },
+    {
+      "key": "transaction_id",
+      "value": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002"
+    },
+    {
+      "key": "iso_date",
+      "value": ""
+    },
+    {
+      "key": "bap_adapter_url",
+      "value": "http://localhost:8081/bap/caller"
+    }
+  ]
+}

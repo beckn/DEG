@@ -1,0 +1,10 @@
+routingRules:
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "http://sandbox-bpp:3002/api/bap-webhook"
+    endpoints:
+      - on_init
+      - on_confirm
+      - on_update
+

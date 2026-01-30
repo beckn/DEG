@@ -1,0 +1,52 @@
+# Dockerfile for building onix-adapter with DEG plugins
+# This ensures the adapter and plugins are built with the same Go version
+# and beckn-onix package versions for compatibility.
+#
+# Build from DEG repo root:
+#   docker build -f build/Dockerfile.onix-adapter-deg -t onix-adapter-deg \
+#     --build-context beckn-onix=../beckn-onix .
+#
+# Or from parent directory containing both repos:
+#   docker build -f DEG/build/Dockerfile.onix-adapter-deg -t onix-adapter-deg \
+#     --build-context beckn-onix=beckn-onix DEG
+
+FROM golang:1.24-bullseye AS builder
+
+WORKDIR /workspace
+
+# Copy beckn-onix source
+COPY --from=beckn-onix . ./beckn-onix/
+
+# Copy DEG plugins source
+COPY plugins ./deg-plugins/
+
+# Build onix-adapter server
+WORKDIR /workspace/beckn-onix
+RUN go mod download
+RUN go build -o server cmd/adapter/main.go
+
+# Build standard beckn-onix plugins
+RUN mkdir -p plugins
+RUN ./install/build-plugins.sh
+
+# Build DEG plugins
+WORKDIR /workspace/deg-plugins
+
+# Update go.mod to use local beckn-onix
+RUN sed -i 's|=> ../../beckn-onix|=> /workspace/beckn-onix|g' go.mod
+RUN go mod tidy
+
+# Build DEG ledger recorder plugin
+RUN go build -buildmode=plugin -o /workspace/beckn-onix/plugins/degledgerrecorder.so ./degledgerrecorder/cmd/plugin.go
+
+# Create minimal runtime image
+FROM cgr.dev/chainguard/wolfi-base
+WORKDIR /app
+
+# Copy binary and all plugins (standard + DEG)
+COPY --from=builder /workspace/beckn-onix/server .
+COPY --from=builder /workspace/beckn-onix/plugins ./plugins
+
+EXPOSE 8081
+
+CMD ["sh", "-c", "./server --config=${CONFIG_FILE}"]
