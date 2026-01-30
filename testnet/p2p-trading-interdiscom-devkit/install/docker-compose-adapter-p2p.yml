@@ -19,7 +19,7 @@ services:
   
   onix-bap:
     # image: fidedocker/onix-adapter-deg:p2p-multiarch-v2
-    image: onix-adapter-deg:p2p-multiarch-v3
+    image: fidedocker/onix-adapter-deg:p2p-multiarch-v3
     container_name: onix-bap
     networks:
       - beckn_network
@@ -40,7 +40,7 @@ services:
 
   onix-bpp:
     # image: fidedocker/onix-adapter-deg:p2p-multiarch-v2
-    image: onix-adapter-deg:p2p-multiarch-v3
+    image: fidedocker/onix-adapter-deg:p2p-multiarch-v3
     container_name: onix-bpp
     networks:
       - beckn_network
@@ -61,7 +61,7 @@ services:
 
   onix-utilitybpp:
     # image: fidedocker/onix-adapter-deg:p2p-multiarch-v2
-    image: onix-adapter-deg:p2p-multiarch-v3
+    image: fidedocker/onix-adapter-deg:p2p-multiarch-v3
     pull_policy: never 
     container_name: onix-utilitybpp
     networks:
