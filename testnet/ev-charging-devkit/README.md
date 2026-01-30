@@ -143,7 +143,7 @@ This devkit reuses the DeDi registry records from other DEG devkits:
 - BAP: `ev-charging.sandbox1.com` (unique keys for this domain)
 - BPP: `ev-charging.sandbox2.com` (unique keys for this domain)
 
-The test registry service is accessed at `https://api.testnet.beckn.one/registry/dedi`.
+The test registry service is accessed at `https://api.dev.beckn.io/registry/dedi`.
 
 ## EV Charging Flow Overview
 

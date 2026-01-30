@@ -31,7 +31,7 @@ modules:
         registry:
           id: dediregistry
           config:
-            url: https://api.testnet.beckn.one/registry/dedi
+            url: https://api.dev.beckn.io/registry/dedi
             registryName: subscribers.beckn.one
             timeout: 10
         keyManager:
@@ -91,7 +91,7 @@ modules:
         registry:
           id: dediregistry
           config:
-            url: https://api.testnet.beckn.one/registry/dedi
+            url: https://api.dev.beckn.io/registry/dedi
             registryName: subscribers.beckn.one
             timeout: 10
         keyManager:
@@ -150,7 +150,7 @@ modules:
         registry:
           id: dediregistry
           config:
-            url: https://api.testnet.beckn.one/registry/dedi
+            url: https://api.dev.beckn.io/registry/dedi
             registryName: subscribers.beckn.one
             timeout: 10
         keyManager:
@@ -216,7 +216,7 @@ modules:
         registry:
           id: dediregistry
           config:
-            url: https://api.testnet.beckn.one/registry/dedi
+            url: https://api.dev.beckn.io/registry/dedi
             registryName: subscribers.beckn.one
             timeout: 10
         keyManager:

@@ -118,7 +118,7 @@ This devkit reuses the DeDi registry records from the P2P Trading devkit:
 - BAP: `p2p-trading-sandbox1.com` (same keys, different domain)
 - BPP: `p2p-trading-sandbox2.com` (same keys, different domain)
 
-The registry service is accessed at `https://api.testnet.beckn.one/registry/dedi`.
+The registry service is accessed at `https://api.dev.beckn.io/registry/dedi`.
 
 ## Enrollment Flow Overview
 
