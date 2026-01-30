@@ -20,11 +20,11 @@ This plugin intercepts `on_confirm` beckn protocol messages and creates correspo
 ## Building
 
 ```bash
-# From DEG repository root
-./build/build-ledger-plugin.sh
+# From DEG repository root - builds Docker image with plugin included
+./build/build-multiarch.sh --load
 ```
 
-This will produce `degledgerrecorder.so` in `testnet/p2p-trading-interdiscom-devkit/plugins/`.
+This builds the `onix-adapter-deg` Docker image with the plugin included.
 
 ## Configuration
 

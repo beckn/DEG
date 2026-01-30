@@ -14,8 +14,9 @@
 #   ./build-multiarch.sh --platform amd64   # Build specific platform only
 #
 # Environment Variables:
+#   BECKN_ONIX_ROOT - Path to beckn-onix repo (will prompt if not set and default not found)
 #   IMAGE_NAME      - Image name (default: onix-adapter-deg)
-#   IMAGE_TAG       - Image tag (default: latest)
+#   IMAGE_TAG       - Image tag (default: p2p-multiarch-v3)
 #   REGISTRY        - Registry prefix (default: none, local build)
 #   PLATFORMS       - Platforms to build (default: linux/amd64,linux/arm64)
 #   BUILDER_NAME    - Buildx builder name (default: deg-multiarch)
@@ -25,12 +26,35 @@ set -e
 # Script directory and paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEG_ROOT="$(dirname "$SCRIPT_DIR")"
-# add path to beckn-onix repo to environment variable BECKN_ONIX_ROOT
-BECKN_ONIX_ROOT="${BECKN_ONIX_ROOT:-$DEG_ROOT/../beckn-onix}"
+
+# Resolve beckn-onix path
+if [ -n "$BECKN_ONIX_ROOT" ] && [ -d "$BECKN_ONIX_ROOT" ]; then
+    # Use environment variable if set and valid
+    :
+else
+    # Prompt user for path
+    echo ""
+    read -p "Enter path to beckn-onix repository: " USER_BECKN_ONIX_PATH
+
+    if [ -z "$USER_BECKN_ONIX_PATH" ]; then
+        echo "ERROR: beckn-onix path is required"
+        exit 1
+    fi
+
+    # Expand ~ to home directory
+    USER_BECKN_ONIX_PATH="${USER_BECKN_ONIX_PATH/#\~/$HOME}"
+
+    if [ ! -d "$USER_BECKN_ONIX_PATH" ]; then
+        echo "ERROR: Directory not found: $USER_BECKN_ONIX_PATH"
+        exit 1
+    fi
+
+    BECKN_ONIX_ROOT="$USER_BECKN_ONIX_PATH"
+fi
 
 # Configuration with defaults
 IMAGE_NAME="${IMAGE_NAME:-onix-adapter-deg}"
-IMAGE_TAG="${IMAGE_TAG:-latest}"
+IMAGE_TAG="${IMAGE_TAG:-p2p-multiarch-v3}"
 REGISTRY="${REGISTRY:-}"
 PLATFORMS="${PLATFORMS:-linux/amd64,linux/arm64}"
 BUILDER_NAME="${BUILDER_NAME:-deg-multiarch}"
@@ -68,16 +92,16 @@ while [[ $# -gt 0 ]]; do
             echo "  --push              Push to registry after build"
             echo "  --load              Load into local Docker (single arch only)"
             echo "  --platform ARCH     Build for specific platform (amd64, arm64)"
-            echo "  --tag TAG           Image tag (default: latest)"
+            echo "  --tag TAG           Image tag (default: p2p-multiarch-v3)"
             echo "  --registry REG      Registry prefix (e.g., docker.io/myuser)"
             echo "  --help              Show this help message"
             echo ""
             echo "Environment Variables:"
+            echo "  BECKN_ONIX_ROOT     Path to beckn-onix repo (prompts if not set)"
             echo "  IMAGE_NAME          Image name (default: onix-adapter-deg)"
-            echo "  IMAGE_TAG           Image tag (default: latest)"
+            echo "  IMAGE_TAG           Image tag (default: p2p-multiarch-v3)"
             echo "  REGISTRY            Registry prefix"
             echo "  PLATFORMS           Platforms (default: linux/amd64,linux/arm64)"
-            echo "  BECKN_ONIX_ROOT     Path to beckn-onix repo"
             exit 0
             ;;
         *)
@@ -104,13 +128,6 @@ echo "Image:           $FULL_IMAGE"
 echo "Platforms:       $PLATFORMS"
 echo "Builder:         $BUILDER_NAME"
 echo "============================================"
-
-# Verify beckn-onix exists
-if [ ! -d "$BECKN_ONIX_ROOT" ]; then
-    echo "ERROR: beckn-onix directory not found at $BECKN_ONIX_ROOT"
-    echo "Set BECKN_ONIX_ROOT environment variable to the correct path"
-    exit 1
-fi
 
 # Verify Dockerfile exists
 if [ ! -f "$DOCKERFILE" ]; then

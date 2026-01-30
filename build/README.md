@@ -7,7 +7,6 @@ This directory contains build scripts and Docker configurations for the DEG Ledg
 | File | Description |
 |------|-------------|
 | `Dockerfile.onix-adapter-deg` | Dockerfile for building onix-adapter with DEG plugins |
-| `build-ledger-plugin.sh` | Build DEG plugin locally or for linux/amd64 |
 | `build-multiarch.sh` | Build multi-arch Docker image (amd64 + arm64) |
 
 ## Multi-Architecture Builds
@@ -28,8 +27,8 @@ The `build-multiarch.sh` script builds Docker images for multiple architectures 
      ```
 
 3. **beckn-onix repository**
-   - Must be available at `../beckn-onix` relative to DEG repo
-   - Or set `BECKN_ONIX_ROOT` environment variable
+   - Script will prompt for path if not found at default location (`../beckn-onix`)
+   - Or set `BECKN_ONIX_ROOT` environment variable to skip prompt
 
 ### Usage
 
@@ -55,12 +54,12 @@ The `build-multiarch.sh` script builds Docker images for multiple architectures 
 
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `BECKN_ONIX_ROOT` | (prompts if not found) | Path to beckn-onix repo |
 | `IMAGE_NAME` | `onix-adapter-deg` | Docker image name |
-| `IMAGE_TAG` | `latest` | Docker image tag |
+| `IMAGE_TAG` | `p2p-multiarch-v3` | Docker image tag |
 | `REGISTRY` | (none) | Registry prefix (e.g., `docker.io/user`) |
 | `PLATFORMS` | `linux/amd64,linux/arm64` | Target platforms |
 | `BUILDER_NAME` | `deg-multiarch` | Buildx builder name |
-| `BECKN_ONIX_ROOT` | `../beckn-onix` | Path to beckn-onix repo |
 
 ### Examples
 
@@ -91,18 +90,6 @@ docker buildx imagetools inspect docker.io/mycompany/onix-adapter-deg:v1.2.3
 **GitHub Actions CI/CD**
 
 See `.github/workflows/build-multiarch.yml` for automated multi-arch builds.
-
-## Single-Architecture Plugin Build
-
-For local development or when you only need a single architecture:
-
-```bash
-# Build plugin for current OS/architecture
-./build/build-ledger-plugin.sh
-
-# Build plugin for linux/amd64 using Docker
-./build/build-ledger-plugin.sh docker
-```
 
 ## Go Plugin Compatibility
 
