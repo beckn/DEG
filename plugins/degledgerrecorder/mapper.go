@@ -92,6 +92,67 @@ type TradeDetail struct {
 	TradeUnit string  `json:"tradeUnit"`
 }
 
+// -------------------------
+// on_status → /ledger/record mapping
+// -------------------------
+
+// LedgerRecordRequest represents the request body for the ledger RECORD API (discom actuals).
+type LedgerRecordRequest struct {
+	Role                              string             `json:"role"`
+	TransactionID                     string             `json:"transactionId"`
+	OrderItemID                       string             `json:"orderItemId"`
+	BuyerFulfillmentValidationMetrics []ValidationMetric `json:"buyerFulfillmentValidationMetrics,omitempty"`
+	SellerFulfillmentValidationMetrics []ValidationMetric `json:"sellerFulfillmentValidationMetrics,omitempty"`
+	// StatusBuyerDiscom  string `json:"statusBuyerDiscom,omitempty"`  // Future: leave empty for now
+	// StatusSellerDiscom string `json:"statusSellerDiscom,omitempty"` // Future: leave empty for now
+	ClientReference string `json:"clientReference,omitempty"`
+}
+
+// ValidationMetric represents a fulfillment validation metric.
+type ValidationMetric struct {
+	ValidationMetricType  string  `json:"validationMetricType"`
+	ValidationMetricValue float64 `json:"validationMetricValue"`
+}
+
+// OnStatusPayload represents the structure of an on_status beckn message.
+// Uses the same context structure as on_confirm.
+type OnStatusPayload struct {
+	Context OnConfirmContext `json:"context"` // Reuse context structure
+	Message OnStatusMessage  `json:"message"`
+}
+
+// OnStatusMessage represents the message portion of the on_status message.
+type OnStatusMessage struct {
+	Order OnStatusOrder `json:"order"`
+}
+
+// OnStatusOrder represents the order in on_status with fulfillment attributes.
+type OnStatusOrder struct {
+	ID              string                 `json:"beckn:id"`
+	OrderStatus     string                 `json:"beckn:orderStatus"`
+	Seller          string                 `json:"beckn:seller"`
+	Buyer           map[string]interface{} `json:"beckn:buyer"`
+	OrderAttributes map[string]interface{} `json:"beckn:orderAttributes"`
+	OrderItems      []OnStatusOrderItem    `json:"beckn:orderItems"`
+}
+
+// OnStatusOrderItem represents an order item in on_status with fulfillment data.
+type OnStatusOrderItem struct {
+	OrderedItem         string                 `json:"beckn:orderedItem"`
+	Quantity            Quantity               `json:"beckn:quantity"`
+	OrderItemAttributes map[string]interface{} `json:"beckn:orderItemAttributes"`
+	AcceptedOffer       AcceptedOffer          `json:"beckn:acceptedOffer"`
+}
+
+// MeterReading represents a meter reading from fulfillmentAttributes.
+type MeterReading struct {
+	TimeWindow      map[string]interface{} `json:"beckn:timeWindow"`
+	ConsumedEnergy  float64                `json:"consumedEnergy"`
+	ProducedEnergy  float64                `json:"producedEnergy"`
+	AllocatedEnergy float64                `json:"allocatedEnergy"`
+	Unit            string                 `json:"unit"`
+}
+
 // ParseOnConfirm parses the raw JSON body into an OnConfirmPayload.
 func ParseOnConfirm(body []byte) (*OnConfirmPayload, error) {
 	var payload OnConfirmPayload
@@ -234,4 +295,144 @@ func ExtractAction(urlPath string, body []byte) string {
 	}
 
 	return ""
+}
+
+// -------------------------
+// on_status parsing and mapping
+// -------------------------
+
+// ParseOnStatus parses the raw JSON body into an OnStatusPayload.
+func ParseOnStatus(body []byte) (*OnStatusPayload, error) {
+	var payload OnStatusPayload
+	if err := json.Unmarshal(body, &payload); err != nil {
+		return nil, fmt.Errorf("failed to parse on_status payload: %w", err)
+	}
+	return &payload, nil
+}
+
+// MapToLedgerRecordRequests converts an on_status payload to ledger RECORD requests.
+// Returns one LedgerRecordRequest per order item with aggregated meter readings.
+// role should be BUYER_DISCOM or SELLER_DISCOM.
+func MapToLedgerRecordRequests(payload *OnStatusPayload, role string) []LedgerRecordRequest {
+	records := make([]LedgerRecordRequest, 0, len(payload.Message.Order.OrderItems))
+
+	isBuyerDiscom := role == "BUYER_DISCOM"
+
+	for _, item := range payload.Message.Order.OrderItems {
+		// Extract meter readings from fulfillmentAttributes
+		meterReadings := extractMeterReadings(item.OrderItemAttributes)
+		if len(meterReadings) == 0 {
+			continue // Skip items without meter readings
+		}
+
+		// Aggregate allocatedEnergy from all meter readings
+		totalAllocatedEnergy := 0.0
+		for _, reading := range meterReadings {
+			totalAllocatedEnergy += reading.AllocatedEnergy
+		}
+
+		// Create validation metric based on role
+		// BUYER_DISCOM → ACTUAL_PULLED
+		// SELLER_DISCOM → ACTUAL_PUSHED
+		var metricType string
+		if isBuyerDiscom {
+			metricType = "ACTUAL_PULLED"
+		} else {
+			metricType = "ACTUAL_PUSHED"
+		}
+
+		metric := ValidationMetric{
+			ValidationMetricType:  metricType,
+			ValidationMetricValue: totalAllocatedEnergy,
+		}
+
+		record := LedgerRecordRequest{
+			Role:            role,
+			TransactionID:   payload.Context.TransactionID,
+			OrderItemID:     item.AcceptedOffer.ID,
+			ClientReference: generateClientReference(payload.Context.TransactionID, item.AcceptedOffer.ID),
+		}
+
+		// Assign metrics based on role
+		if isBuyerDiscom {
+			record.BuyerFulfillmentValidationMetrics = []ValidationMetric{metric}
+		} else {
+			record.SellerFulfillmentValidationMetrics = []ValidationMetric{metric}
+		}
+
+		records = append(records, record)
+	}
+
+	return records
+}
+
+// extractMeterReadings extracts meter readings from orderItemAttributes.fulfillmentAttributes.meterReadings
+func extractMeterReadings(orderItemAttrs map[string]interface{}) []MeterReading {
+	if orderItemAttrs == nil {
+		return nil
+	}
+
+	// Navigate: orderItemAttributes → fulfillmentAttributes → meterReadings
+	fulfillmentAttrs, ok := orderItemAttrs["fulfillmentAttributes"]
+	if !ok {
+		return nil
+	}
+
+	fulfillmentMap, ok := fulfillmentAttrs.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	meterReadingsRaw, ok := fulfillmentMap["meterReadings"]
+	if !ok {
+		return nil
+	}
+
+	meterReadingsSlice, ok := meterReadingsRaw.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	readings := make([]MeterReading, 0, len(meterReadingsSlice))
+	for _, readingRaw := range meterReadingsSlice {
+		readingMap, ok := readingRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		reading := MeterReading{
+			ConsumedEnergy:  extractFloat(readingMap, "consumedEnergy"),
+			ProducedEnergy:  extractFloat(readingMap, "producedEnergy"),
+			AllocatedEnergy: extractFloat(readingMap, "allocatedEnergy"),
+			Unit:            extractStringField(readingMap, "unit"),
+		}
+
+		if tw, ok := readingMap["beckn:timeWindow"]; ok {
+			if twMap, ok := tw.(map[string]interface{}); ok {
+				reading.TimeWindow = twMap
+			}
+		}
+
+		readings = append(readings, reading)
+	}
+
+	return readings
+}
+
+// extractFloat extracts a float64 from a map, handling both float64 and int types.
+func extractFloat(m map[string]interface{}, key string) float64 {
+	if m == nil {
+		return 0
+	}
+	if v, ok := m[key]; ok {
+		switch val := v.(type) {
+		case float64:
+			return val
+		case int:
+			return float64(val)
+		case int64:
+			return float64(val)
+		}
+	}
+	return 0
 }

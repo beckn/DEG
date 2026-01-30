@@ -108,6 +108,127 @@ func (c *LedgerClient) PutRecord(ctx context.Context, record LedgerPutRequest) (
 	return nil, lastErr
 }
 
+// RecordActuals sends meter readings/validation metrics to the ledger RECORD API.
+// This is for discom roles (BUYER_DISCOM, SELLER_DISCOM).
+func (c *LedgerClient) RecordActuals(ctx context.Context, record LedgerRecordRequest) (*LedgerPutResponse, error) {
+	var lastErr error
+
+	for attempt := 0; attempt <= c.retryCount; attempt++ {
+		if attempt > 0 {
+			fmt.Printf("[DEGLedgerRecorder] Retry attempt %d/%d for order_item_id=%s (record actuals)\n",
+				attempt, c.retryCount, record.OrderItemID)
+		}
+
+		resp, err := c.doRecordRequest(ctx, record, attempt)
+		if err == nil {
+			return resp, nil
+		}
+
+		lastErr = err
+
+		// Don't retry on context cancellation
+		if ctx.Err() != nil {
+			return nil, fmt.Errorf("context cancelled: %w", ctx.Err())
+		}
+
+		// Don't retry on 404 (record not found)
+		if strings.Contains(err.Error(), "404") {
+			return nil, err
+		}
+
+		// Simple backoff for retries
+		if attempt < c.retryCount {
+			backoff := time.Duration(attempt+1) * 100 * time.Millisecond
+			fmt.Printf("[DEGLedgerRecorder] Backing off for %v before retry\n", backoff)
+			time.Sleep(backoff)
+		}
+	}
+
+	return nil, lastErr
+}
+
+// doRecordRequest performs a single request to the ledger RECORD API.
+func (c *LedgerClient) doRecordRequest(ctx context.Context, record LedgerRecordRequest, attempt int) (*LedgerPutResponse, error) {
+	// Generate unique request ID for correlation
+	requestID := uuid.New().String()[:8]
+	startTime := time.Now()
+
+	// Serialize the request body
+	body, err := json.Marshal(record)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal ledger record request: %w", err)
+	}
+
+	// Create the HTTP request
+	url := fmt.Sprintf("%s/ledger/record", c.baseURL)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Set headers
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("X-Request-ID", requestID)
+
+	// Add authentication header
+	if c.signer != nil && c.signer.IsConfigured() {
+		authHeader, err := c.signer.GenerateAuthHeader(body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate Authorization header: %w", err)
+		}
+		req.Header.Set("Authorization", authHeader)
+	} else if c.apiKey != "" {
+		req.Header.Set(c.authHeader, c.apiKey)
+	}
+
+	// Log request details
+	c.logRecordRequest(requestID, req, record, attempt)
+
+	// Execute the request
+	resp, err := c.httpClient.Do(req)
+	duration := time.Since(startTime)
+
+	if err != nil {
+		c.logError(requestID, "HTTP request failed", err, duration)
+		return nil, fmt.Errorf("ledger record request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.logError(requestID, "Failed to read response body", err, duration)
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	// Log response details
+	c.logResponse(requestID, resp, respBody, duration)
+
+	// Handle different status codes
+	switch resp.StatusCode {
+	case http.StatusOK:
+		var ledgerResp LedgerPutResponse
+		if err := json.Unmarshal(respBody, &ledgerResp); err != nil {
+			return nil, fmt.Errorf("failed to parse success response: %w", err)
+		}
+		return &ledgerResp, nil
+
+	case http.StatusNotFound:
+		return nil, fmt.Errorf("ledger record not found (404): %s", string(respBody))
+
+	case http.StatusBadRequest, http.StatusUnauthorized, http.StatusForbidden, http.StatusConflict:
+		var errResp LedgerErrorResponse
+		if err := json.Unmarshal(respBody, &errResp); err != nil {
+			return nil, fmt.Errorf("ledger API error (status %d): %s", resp.StatusCode, string(respBody))
+		}
+		return nil, fmt.Errorf("ledger API error (status %d, code %s): %s", resp.StatusCode, errResp.Code, errResp.Message)
+
+	default:
+		return nil, fmt.Errorf("unexpected status code %d: %s", resp.StatusCode, string(respBody))
+	}
+}
+
 // doPutRequest performs a single PUT request to the ledger API.
 func (c *LedgerClient) doPutRequest(ctx context.Context, record LedgerPutRequest, attempt int) (*LedgerPutResponse, error) {
 	// Generate unique request ID for correlation
@@ -214,6 +335,57 @@ func (c *LedgerClient) logRequest(requestID string, req *http.Request, record Le
 	fmt.Println("")
 	fmt.Println("╔════════════════════════════════════════════════════════════════════╗")
 	fmt.Println("║              DEGLedgerRecorder - OUTGOING REQUEST                  ║")
+	fmt.Println("╠════════════════════════════════════════════════════════════════════╣")
+	fmt.Printf("║ Request ID:     %s\n", requestID)
+	fmt.Printf("║ Timestamp:      %s\n", time.Now().UTC().Format(time.RFC3339))
+	fmt.Printf("║ Attempt:        %d/%d\n", attempt+1, c.retryCount+1)
+	fmt.Printf("║ Method:         %s\n", req.Method)
+	fmt.Printf("║ URL:            %s\n", req.URL.String())
+	fmt.Println("╠════════════════════════════════════════════════════════════════════╣")
+	fmt.Println("║ HEADERS:")
+	for k, v := range headers {
+		fmt.Printf("║   %s: %s\n", k, v)
+	}
+	fmt.Println("╠════════════════════════════════════════════════════════════════════╣")
+	fmt.Println("║ REQUEST BODY (JSON):")
+
+	// Pretty print the request body
+	prettyBody, err := json.MarshalIndent(record, "║   ", "  ")
+	if err != nil {
+		fmt.Printf("║   (error formatting body: %v)\n", err)
+	} else {
+		lines := strings.Split(string(prettyBody), "\n")
+		for _, line := range lines {
+			fmt.Printf("║   %s\n", line)
+		}
+	}
+	fmt.Println("╚════════════════════════════════════════════════════════════════════╝")
+}
+
+// logRecordRequest logs the full HTTP request details for /ledger/record.
+func (c *LedgerClient) logRecordRequest(requestID string, req *http.Request, record LedgerRecordRequest, attempt int) {
+	// Build headers map (masking sensitive values)
+	headers := make(map[string]string)
+	for key, values := range req.Header {
+		value := strings.Join(values, ", ")
+		// Mask auth-related headers
+		if strings.Contains(strings.ToLower(key), "auth") ||
+			strings.Contains(strings.ToLower(key), "api-key") ||
+			strings.Contains(strings.ToLower(key), "x-api-key") ||
+			key == c.authHeader {
+			if len(value) > 8 {
+				headers[key] = value[:4] + "****" + value[len(value)-4:]
+			} else {
+				headers[key] = "****"
+			}
+		} else {
+			headers[key] = value
+		}
+	}
+
+	fmt.Println("")
+	fmt.Println("╔════════════════════════════════════════════════════════════════════╗")
+	fmt.Println("║         DEGLedgerRecorder - OUTGOING REQUEST (RECORD)              ║")
 	fmt.Println("╠════════════════════════════════════════════════════════════════════╣")
 	fmt.Printf("║ Request ID:     %s\n", requestID)
 	fmt.Printf("║ Timestamp:      %s\n", time.Now().UTC().Format(time.RFC3339))

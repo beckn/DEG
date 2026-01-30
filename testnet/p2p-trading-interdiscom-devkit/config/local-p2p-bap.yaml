@@ -73,14 +73,19 @@ modules:
           - id: degledgerrecorder
             config:
               ledgerHost: "https://34.93.166.38.sslip.io"
-              role: "BUYER_DISCOM"
+              role: "BUYER"
+              actions: "on_confirm,on_status"  # Handle both actions 
               enabled: "true"
               asyncTimeout: "30000"
+              # Signing config (same keys as simplekeymanager)
+              signingPrivateKey: Pc6dkYo5LeP0LkwvZXVRV9pcbeh8jDdtdHWymID5cjw=
+              networkParticipant: p2p-trading-sandbox1.com
+              keyId: 76EU8aUqHouww7gawT6EibH4bseMCumyDv3sgyXSKENGk8NDcdVwmQ
       steps:
         - validateSign
         - addRoute
-        - degledgerrecorder
         - validateSchema
+        - degledgerrecorder
 
   - name: bapTxnCaller
     path: /bap/caller/

@@ -64,17 +64,9 @@ modules:
           id: router
           config:
             routingConfig: ./config/local-p2p-routing-SellerBPPReceiver-from-BuyerBAP.yaml
-        steps:
-          - id: degledgerrecorder
-            config:
-              ledgerHost: "https://34.93.166.38.sslip.io"
-              role: "SELLER_DISCOM"
-              enabled: "true"
-              asyncTimeout: "30000"
       steps:
         - validateSign
         - addRoute
-        - degledgerrecorder
         - validateSchema
 
   - name: bppTxnCaller
@@ -129,10 +121,23 @@ modules:
             config:
               uuidKeys: transaction_id,message_id
               role: bpp          
+        steps:
+          - id: degledgerrecorder
+            config:
+              ledgerHost: "https://34.93.166.38.sslip.io"
+              role: "SELLER"
+              actions: "on_confirm,on_status"  # Handle both actions 
+              enabled: "true"
+              asyncTimeout: "30000"
+              # Signing config (same keys as simplekeymanager)
+              signingPrivateKey: AC72WfPu5ly3T7rXfRHrLA/l++BxbsNwe0qitgT9u6U=
+              networkParticipant: p2p-trading-sandbox2.com
+              keyId: 76EU7Mvhh7jaEf7Lcac5R1PPeFL4ddr1ALs2QYzpyTRE8g15Yr1p7C
       steps:
         - addRoute
         - sign
-        # - validateSchema
+        - validateSchema
+        - degledgerrecorder
   
   # BAP Modules: For cascaded calls to utility BPP
   # This module receives responses FROM utility BPP (on_init, on_confirm, on_update)
@@ -188,17 +193,9 @@ modules:
             config:
               uuidKeys: transaction_id,message_id
               role: bap
-        steps:
-          - id: degledgerrecorder
-            config:
-              ledgerHost: "https://34.93.166.38.sslip.io"
-              role: "SELLER_DISCOM"
-              enabled: "true"
-              asyncTimeout: "30000"
       steps:
         - validateSign
         - addRoute
-        - degledgerrecorder
         - validateSchema
 
   # This module sends cascaded requests TO utility BPP (init, confirm)

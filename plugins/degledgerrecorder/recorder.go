@@ -3,6 +3,7 @@ package degledgerrecorder
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/beckn-one/beckn-onix/pkg/log"
@@ -52,6 +53,10 @@ func New(cfg map[string]string) (*DEGLedgerRecorder, error) {
 		fmt.Printf("[DEGLedgerRecorder] WARNING: No authentication configured for ledger API calls\n")
 	}
 
+	// Log enabled actions and role
+	fmt.Printf("[DEGLedgerRecorder] Enabled actions: [%s], role: %s\n",
+		strings.Join(config.Actions, ", "), config.Role)
+
 	client := NewLedgerClient(
 		config.LedgerHost,
 		config.AsyncTimeout,
@@ -69,7 +74,7 @@ func New(cfg map[string]string) (*DEGLedgerRecorder, error) {
 }
 
 // Run implements the Step interface. It processes the request and records
-// on_confirm events to the DEG Ledger asynchronously.
+// events to the DEG Ledger based on configured actions.
 func (r *DEGLedgerRecorder) Run(ctx *model.StepContext) error {
 	// Skip if plugin is disabled
 	if !r.config.Enabled {
@@ -80,12 +85,26 @@ func (r *DEGLedgerRecorder) Run(ctx *model.StepContext) error {
 	// Extract the action from the request
 	action := ExtractAction(ctx.Request.URL.Path, ctx.Body)
 
-	// Only process on_confirm actions
-	if action != "on_confirm" {
-		log.Debugf(ctx, "DEGLedgerRecorder: action '%s' is not on_confirm, skipping", action)
+	// Check if this action is enabled
+	if !r.config.IsActionEnabled(action) {
+		log.Debugf(ctx, "DEGLedgerRecorder: action '%s' not in configured actions %v, skipping", action, r.config.Actions)
 		return nil
 	}
 
+	// Route to the appropriate handler based on action
+	switch action {
+	case ActionOnConfirm:
+		return r.handleOnConfirm(ctx)
+	case ActionOnStatus:
+		return r.handleOnStatus(ctx)
+	default:
+		log.Debugf(ctx, "DEGLedgerRecorder: no handler for action '%s', skipping", action)
+		return nil
+	}
+}
+
+// handleOnConfirm processes on_confirm events and sends to /ledger/put.
+func (r *DEGLedgerRecorder) handleOnConfirm(ctx *model.StepContext) error {
 	log.Infof(ctx, "DEGLedgerRecorder: processing on_confirm")
 
 	// DEBUG: Log the raw body received
@@ -99,7 +118,6 @@ func (r *DEGLedgerRecorder) Run(ctx *model.StepContext) error {
 	// Parse the on_confirm payload
 	payload, err := ParseOnConfirm(ctx.Body)
 	if err != nil {
-		// Log error but don't fail the main flow
 		log.Warnf(ctx, "DEGLedgerRecorder: failed to parse on_confirm payload: %v", err)
 		return nil
 	}
@@ -114,8 +132,8 @@ func (r *DEGLedgerRecorder) Run(ctx *model.StepContext) error {
 
 	// DEBUG: Log mapped records
 	for i, rec := range records {
-		log.Debugf(ctx, "DEGLedgerRecorder DEBUG: record[%d] - transactionId=%s, orderItemId=%s, platformIdBuyer=%s, platformIdSeller=%s, discomIdBuyer=%s, discomIdSeller=%s",
-			i, rec.TransactionID, rec.OrderItemID, rec.PlatformIDBuyer, rec.PlatformIDSeller, rec.DiscomIDBuyer, rec.DiscomIDSeller)
+		log.Debugf(ctx, "DEGLedgerRecorder DEBUG: record[%d] - transactionId=%s, orderItemId=%s, platformIdBuyer=%s, platformIdSeller=%s",
+			i, rec.TransactionID, rec.OrderItemID, rec.PlatformIDBuyer, rec.PlatformIDSeller)
 	}
 
 	if len(records) == 0 {
@@ -127,13 +145,68 @@ func (r *DEGLedgerRecorder) Run(ctx *model.StepContext) error {
 		len(records), payload.Context.TransactionID)
 
 	// Send records to ledger asynchronously (fire-and-forget)
-	r.sendRecordsAsync(ctx, records, payload.Context.TransactionID)
+	r.sendPutRecordsAsync(ctx, records, payload.Context.TransactionID)
 
 	return nil
 }
 
-// sendRecordsAsync sends ledger records in the background without blocking the main flow.
-func (r *DEGLedgerRecorder) sendRecordsAsync(parentCtx *model.StepContext, records []LedgerPutRequest, transactionID string) {
+// handleOnStatus processes on_status events and sends meter readings to /ledger/record.
+func (r *DEGLedgerRecorder) handleOnStatus(ctx *model.StepContext) error {
+	log.Infof(ctx, "DEGLedgerRecorder: processing on_status")
+
+	// Validate role - only discom roles can use /ledger/record
+	if !r.config.IsDiscomRole() {
+		log.Warnf(ctx, "DEGLedgerRecorder: on_status requires BUYER_DISCOM or SELLER_DISCOM role, got %s", r.config.Role)
+		return nil
+	}
+
+	// DEBUG: Log the raw body received
+	log.Debugf(ctx, "DEGLedgerRecorder DEBUG: raw body length=%d", len(ctx.Body))
+	if len(ctx.Body) < 5000 {
+		log.Debugf(ctx, "DEGLedgerRecorder DEBUG: raw body:\n%s", string(ctx.Body))
+	} else {
+		log.Debugf(ctx, "DEGLedgerRecorder DEBUG: raw body (truncated):\n%s...", string(ctx.Body[:5000]))
+	}
+
+	// Parse the on_status payload
+	payload, err := ParseOnStatus(ctx.Body)
+	if err != nil {
+		log.Warnf(ctx, "DEGLedgerRecorder: failed to parse on_status payload: %v", err)
+		return nil
+	}
+
+	// DEBUG: Log parsed payload details
+	log.Debugf(ctx, "DEGLedgerRecorder DEBUG: parsed context - transaction_id=%s, action=%s",
+		payload.Context.TransactionID, payload.Context.Action)
+	log.Debugf(ctx, "DEGLedgerRecorder DEBUG: order items count=%d", len(payload.Message.Order.OrderItems))
+
+	// Map to ledger record requests (one per order item with meter readings)
+	records := MapToLedgerRecordRequests(payload, r.config.Role)
+
+	// DEBUG: Log mapped records
+	for i, rec := range records {
+		metricCount := len(rec.BuyerFulfillmentValidationMetrics) + len(rec.SellerFulfillmentValidationMetrics)
+		log.Debugf(ctx, "DEGLedgerRecorder DEBUG: record[%d] - transactionId=%s, orderItemId=%s, metrics=%d",
+			i, rec.TransactionID, rec.OrderItemID, metricCount)
+	}
+
+	if len(records) == 0 {
+		log.Warnf(ctx, "DEGLedgerRecorder: no meter readings found in on_status, skipping ledger recording")
+		return nil
+	}
+
+	log.Infof(ctx, "DEGLedgerRecorder: mapped %d ledger record requests from on_status (transaction_id=%s)",
+		len(records), payload.Context.TransactionID)
+
+	// Send records to ledger asynchronously (fire-and-forget)
+	r.sendRecordActualsAsync(ctx, records, payload.Context.TransactionID)
+
+	return nil
+}
+
+// sendPutRecordsAsync sends ledger PUT records in the background without blocking the main flow.
+// Used for on_confirm → /ledger/put
+func (r *DEGLedgerRecorder) sendPutRecordsAsync(parentCtx *model.StepContext, records []LedgerPutRequest, transactionID string) {
 	for _, record := range records {
 		r.wg.Add(1)
 		go func(rec LedgerPutRequest) {
@@ -146,13 +219,40 @@ func (r *DEGLedgerRecorder) sendRecordsAsync(parentCtx *model.StepContext, recor
 			resp, err := r.client.PutRecord(ctx, rec)
 			if err != nil {
 				log.Errorf(parentCtx, err,
-					"DEGLedgerRecorder: failed to record to ledger (transaction_id=%s, order_item_id=%s): %v",
+					"DEGLedgerRecorder: failed to PUT record to ledger (transaction_id=%s, order_item_id=%s): %v",
 					rec.TransactionID, rec.OrderItemID, err)
 				return
 			}
 
 			log.Infof(parentCtx,
-				"DEGLedgerRecorder: successfully recorded to ledger (transaction_id=%s, order_item_id=%s, record_id=%s)",
+				"DEGLedgerRecorder: successfully PUT record to ledger (transaction_id=%s, order_item_id=%s, record_id=%s)",
+				rec.TransactionID, rec.OrderItemID, resp.RecordID)
+		}(record)
+	}
+}
+
+// sendRecordActualsAsync sends meter readings/validation metrics in the background.
+// Used for on_status → /ledger/record
+func (r *DEGLedgerRecorder) sendRecordActualsAsync(parentCtx *model.StepContext, records []LedgerRecordRequest, transactionID string) {
+	for _, record := range records {
+		r.wg.Add(1)
+		go func(rec LedgerRecordRequest) {
+			defer r.wg.Done()
+
+			// Create a new context with timeout for the async operation
+			ctx, cancel := context.WithTimeout(context.Background(), r.config.AsyncTimeout)
+			defer cancel()
+
+			resp, err := r.client.RecordActuals(ctx, rec)
+			if err != nil {
+				log.Errorf(parentCtx, err,
+					"DEGLedgerRecorder: failed to RECORD actuals to ledger (transaction_id=%s, order_item_id=%s): %v",
+					rec.TransactionID, rec.OrderItemID, err)
+				return
+			}
+
+			log.Infof(parentCtx,
+				"DEGLedgerRecorder: successfully RECORDED actuals to ledger (transaction_id=%s, order_item_id=%s, record_id=%s)",
 				rec.TransactionID, rec.OrderItemID, resp.RecordID)
 		}(record)
 	}
