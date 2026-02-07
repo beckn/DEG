@@ -50,13 +50,16 @@
             }
           },
           "beckn:attributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyTradeDelivery/v0.2/context.jsonld",
-            "@type": "EnergyTradeDelivery",
-            "deliveryStatus": "IN_PROGRESS",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_delivery_context.jsonld",
+            "@type": "EnergyDelivery",
+            "status": "IN_PROGRESS",
             "deliveryMode": "GRID_INJECTION",
-            "deliveredQuantity": 9.2,
-            "deliveryStartTime": "2025-06-15T06:00:00+05:30",
-            "deliveryEndTime": null,
+            "energyFlow": {
+              "delivered": { "value": 9.2, "unitCode": "KWH" }
+            },
+            "timing": {
+              "startTime": "2025-06-15T06:00:00+05:30"
+            },
             "meterReadings": [
               {
                 "timeWindow": {
@@ -65,7 +68,8 @@
                 },
                 "consumedEnergy": 3.1,
                 "producedEnergy": 3.2,
-                "allocatedEnergy": 3.1
+                "allocatedEnergy": 3.1,
+                "unit": "KWH"
               },
               {
                 "timeWindow": {
@@ -74,7 +78,8 @@
                 },
                 "consumedEnergy": 3.0,
                 "producedEnergy": 3.5,
-                "allocatedEnergy": 3.0
+                "allocatedEnergy": 3.0,
+                "unit": "KWH"
               },
               {
                 "timeWindow": {
@@ -83,32 +88,10 @@
                 },
                 "consumedEnergy": 3.1,
                 "producedEnergy": 4.0,
-                "allocatedEnergy": 3.1
+                "allocatedEnergy": 3.1,
+                "unit": "KWH"
               }
             ],
-            "telemetry": [
-              {
-                "eventTime": "2025-06-15T12:00:00+05:30",
-                "metrics": [
-                  {
-                    "name": "ENERGY",
-                    "value": 9.2,
-                    "unitCode": "KWH"
-                  },
-                  {
-                    "name": "POWER",
-                    "value": 4.8,
-                    "unitCode": "KW"
-                  },
-                  {
-                    "name": "VOLTAGE",
-                    "value": 230.0,
-                    "unitCode": "VLT"
-                  }
-                ]
-              }
-            ],
-            "settlementCycleId": "settle-2025-06-15-001",
             "lastUpdated": "2025-06-15T12:00:00+05:30"
           }
         }
@@ -128,23 +111,15 @@
             "unit": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyOrderItem/v0.2/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_order_item_context.jsonld",
             "@type": "EnergyOrderItem",
-            "providerAttributes": {
-              "@type": "EnergyCustomer",
-              "meterId": "der://meter/98765456",
-              "utilityId": "BESCOM-KA",
-              "utilityCustomerId": "BESCOM-2024-CON-08832"
+            "deliveryWindow": {
+              "start": "06:00:00+05:30",
+              "end": "12:00:00+05:30"
             },
-            "fulfillmentAttributes": {
-              "@type": "EnergyTradeDelivery",
-              "deliveryStatus": "COMPLETED",
-              "deliveryMode": "GRID_INJECTION",
-              "deliveredQuantity": 9.2,
-              "deliveryWindow": {
-                "start": "2025-06-15T06:00:00+05:30",
-                "end": "2025-06-15T12:00:00+05:30"
-              },
+            "delivery": {
+              "status": "COMPLETED",
+              "deliveredQuantity": { "value": 9.2, "unitCode": "KWH" },
               "meterReadings": [
                 {
                   "timeWindow": {
@@ -153,7 +128,8 @@
                   },
                   "consumedEnergy": 3.1,
                   "producedEnergy": 3.2,
-                  "allocatedEnergy": 3.1
+                  "allocatedEnergy": 3.1,
+                  "unit": "KWH"
                 },
                 {
                   "timeWindow": {
@@ -162,7 +138,8 @@
                   },
                   "consumedEnergy": 3.0,
                   "producedEnergy": 3.5,
-                  "allocatedEnergy": 3.0
+                  "allocatedEnergy": 3.0,
+                  "unit": "KWH"
                 },
                 {
                   "timeWindow": {
@@ -171,7 +148,8 @@
                   },
                   "consumedEnergy": 3.1,
                   "producedEnergy": 4.0,
-                  "allocatedEnergy": 3.1
+                  "allocatedEnergy": 3.1,
+                  "unit": "KWH"
                 }
               ]
             }
@@ -191,23 +169,15 @@
             "unit": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyOrderItem/v0.2/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_order_item_context.jsonld",
             "@type": "EnergyOrderItem",
-            "providerAttributes": {
-              "@type": "EnergyCustomer",
-              "meterId": "der://meter/98765456",
-              "utilityId": "BESCOM-KA",
-              "utilityCustomerId": "BESCOM-2024-CON-08832"
+            "deliveryWindow": {
+              "start": "12:00:00+05:30",
+              "end": "18:00:00+05:30"
             },
-            "fulfillmentAttributes": {
-              "@type": "EnergyTradeDelivery",
-              "deliveryStatus": "PENDING",
-              "deliveryMode": "GRID_INJECTION",
-              "deliveredQuantity": 0.0,
-              "deliveryWindow": {
-                "start": "2025-06-15T12:00:00+05:30",
-                "end": "2025-06-15T18:00:00+05:30"
-              },
+            "delivery": {
+              "status": "PENDING",
+              "deliveredQuantity": { "value": 0.0, "unitCode": "KWH" },
               "meterReadings": []
             }
           }
@@ -223,23 +193,17 @@
         }
       ],
       "beckn:orderAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyTradeOrder/v0.2/context.jsonld",
-        "@type": "EnergyTradeOrder",
-        "bap_id": "bap.energy-buyer.in",
-        "bpp_id": "bpp.solarfarm-delhi.in",
-        "total_quantity": 20.0,
-        "degContract": {
-          "@type": "DEGContract",
-          "contractType": "P2P_ENERGY_TRADE",
-          "version": "0.3.0",
-          "contractState": "ACTIVE",
-          "deliveryProgress": {
-            "totalContracted": 20.0,
-            "totalDelivered": 9.2,
-            "morningSlotDelivered": 9.2,
-            "afternoonSlotDelivered": 0.0,
-            "complianceStatus": "ON_TRACK"
-          }
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "P2P_ENERGY_TRADE",
+        "version": "0.4.0",
+        "contractState": "ACTIVE",
+        "deliveryProgress": {
+          "totalContracted": 20.0,
+          "totalDelivered": 9.2,
+          "morningSlotDelivered": 9.2,
+          "afternoonSlotDelivered": 0.0,
+          "complianceStatus": "ON_TRACK"
         }
       }
     }

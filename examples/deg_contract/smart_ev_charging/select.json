@@ -27,6 +27,16 @@
         "beckn:telephone": "+91-9821234567",
         "beckn:email": "ankit.sharma@example.com"
       },
+      "beckn:buyerAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_buyer_context.jsonld",
+        "@type": "EnergyBuyer",
+        "vehicle": {
+          "registration": "MH-02-AB-1234",
+          "makeModel": "Tata Nexon EV Max",
+          "batteryKwh": 60,
+          "connectorType": "CCS2"
+        }
+      },
       "beckn:orderItems": [
         {
           "beckn:orderedItem": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G",
@@ -60,7 +70,7 @@
         }
       ],
       "beckn:orderAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/DEGContract/v1/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
         "@type": "DEGContract",
         "contractType": "COMPOSITE",
         "contractState": "NEGOTIATED",

@@ -125,260 +125,239 @@
         }
       },
       "beckn:orderAttributes": {
-        "@context": [
-          "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingSession/v1/context.jsonld",
-          "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld"
-        ],
-        "@type": "ChargingSession",
-        "buyerFinderFee": {
-          "feeType": "PERCENTAGE",
-          "feeValue": 2.5
-        },
-        "preferences": {
-          "startTime": "2026-01-15T11:00:00Z",
-          "endTime": "2026-01-15T12:30:00Z"
-        },
-        "degContract": {
-          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
-          "@type": "DEGContract",
-          "contractType": "EV_CHARGING",
-          "version": "1.0.0",
-          "contractState": "COMMITTED",
-          "roles": [
-            {
-              "@type": "DEGRole",
-              "roleId": "cpo",
-              "roleType": "CPO",
-              "party": {
-                "partyId": "chargezone-blr",
-                "partyType": "PROVIDER",
-                "platformId": "chargezone-bpp.in"
-              },
-              "inputs": [
-                {
-                  "@type": "RoleInput",
-                  "inputId": "evse_id",
-                  "inputType": "DER_ID",
-                  "required": true,
-                  "value": "IN*CZ*KOR*01*CCS2*A",
-                  "providedAt": "TEMPLATE"
-                },
-                {
-                  "@type": "RoleInput",
-                  "inputId": "tariff_rate",
-                  "inputType": "PARAMETER",
-                  "required": true,
-                  "value": 18.0,
-                  "providedAt": "TEMPLATE"
-                },
-                {
-                  "@type": "RoleInput",
-                  "inputId": "max_power_kw",
-                  "inputType": "PARAMETER",
-                  "required": true,
-                  "value": 60,
-                  "providedAt": "TEMPLATE"
-                }
-              ],
-              "obligations": ["delivery_obligation", "quality_obligation"]
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "EV_CHARGING",
+        "version": "1.0.0",
+        "contractState": "COMMITTED",
+        "roles": [
+          {
+            "@type": "DEGRole",
+            "roleId": "cpo",
+            "roleType": "CPO",
+            "party": {
+              "partyId": "chargezone-blr",
+              "partyType": "PROVIDER",
+              "platformId": "chargezone-bpp.in"
             },
-            {
-              "@type": "DEGRole",
-              "roleId": "ev_driver",
-              "roleType": "CONSUMER",
-              "party": {
-                "partyId": "user-ravi-456",
-                "partyType": "BUYER",
-                "platformId": "ev-bap.mobility-app.in",
-                "attributes": {
+            "inputs": [
+              {
+                "@type": "RoleInput",
+                "inputId": "evse_id",
+                "inputType": "DER_ID",
+                "required": true,
+                "value": "IN*CZ*KOR*01*CCS2*A",
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "tariff_rate",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 18.0,
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "max_power_kw",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 60,
+                "providedAt": "TEMPLATE"
+              }
+            ],
+            "obligations": ["delivery_obligation", "quality_obligation"]
+          },
+          {
+            "@type": "DEGRole",
+            "roleId": "ev_driver",
+            "roleType": "CONSUMER",
+            "party": {
+              "partyId": "user-ravi-456",
+              "partyType": "BUYER",
+              "platformId": "ev-bap.mobility-app.in"
+            },
+            "inputs": [
+              {
+                "@type": "RoleInput",
+                "inputId": "requested_kwh",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 30,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "vehicle_connector",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": "CCS2",
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "preferred_start_time",
+                "inputType": "PARAMETER",
+                "required": false,
+                "value": "2026-01-15T11:00:00Z",
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "preferred_end_time",
+                "inputType": "PARAMETER",
+                "required": false,
+                "value": "2026-01-15T12:30:00Z",
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "billing_info",
+                "inputType": "CREDENTIAL",
+                "required": true,
+                "value": {
                   "displayName": "Ravi Shankar",
+                  "taxID": "GSTIN29AABCS1234D1Z5",
                   "telephone": "+91-9845012345",
                   "email": "ravi.shankar@gmail.com",
-                  "taxID": "GSTIN29AABCS1234D1Z5"
-                }
-              },
-              "inputs": [
-                {
-                  "@type": "RoleInput",
-                  "inputId": "requested_kwh",
-                  "inputType": "PARAMETER",
-                  "required": true,
-                  "value": 30,
-                  "providedAt": "NEGOTIATION"
+                  "billingAddress": {
+                    "streetAddress": "42, 3rd Cross, HSR Layout Sector 2",
+                    "addressLocality": "Bengaluru",
+                    "addressRegion": "Karnataka",
+                    "postalCode": "560102",
+                    "addressCountry": "IN"
+                  }
                 },
-                {
-                  "@type": "RoleInput",
-                  "inputId": "vehicle_connector",
-                  "inputType": "PARAMETER",
-                  "required": true,
-                  "value": "CCS2",
-                  "providedAt": "NEGOTIATION"
-                },
-                {
-                  "@type": "RoleInput",
-                  "inputId": "preferred_start_time",
-                  "inputType": "PARAMETER",
-                  "required": false,
-                  "value": "2026-01-15T11:00:00Z",
-                  "providedAt": "NEGOTIATION"
-                },
-                {
-                  "@type": "RoleInput",
-                  "inputId": "preferred_end_time",
-                  "inputType": "PARAMETER",
-                  "required": false,
-                  "value": "2026-01-15T12:30:00Z",
-                  "providedAt": "NEGOTIATION"
-                },
-                {
-                  "@type": "RoleInput",
-                  "inputId": "billing_info",
-                  "inputType": "CREDENTIAL",
-                  "required": true,
-                  "value": {
-                    "displayName": "Ravi Shankar",
-                    "taxID": "GSTIN29AABCS1234D1Z5",
-                    "telephone": "+91-9845012345",
-                    "email": "ravi.shankar@gmail.com",
-                    "billingAddress": {
-                      "streetAddress": "42, 3rd Cross, HSR Layout Sector 2",
-                      "addressLocality": "Bengaluru",
-                      "addressRegion": "Karnataka",
-                      "postalCode": "560102",
-                      "addressCountry": "IN"
-                    }
-                  },
-                  "providedAt": "COMMITMENT"
-                },
-                {
-                  "@type": "RoleInput",
-                  "inputId": "meter_reading_start",
-                  "inputType": "METER_ID",
-                  "required": true,
-                  "value": null,
-                  "providedAt": "FULFILLMENT"
-                }
-              ],
-              "obligations": ["payment_obligation", "cancellation_terms"]
-            }
-          ],
-          "terms": [
-            {
-              "@type": "DEGTerm",
-              "termId": "pricing_term",
-              "termType": "PAYMENT",
-              "description": "Energy charged at 18 INR/kWh. Estimated total for 30 kWh = 540 INR.",
-              "condition": { "expr": "contractState == 'ACTIVE' AND deliveredEnergy > 0" },
-              "obligation": { "expr": "payment.amount == 18.0 * fulfillment.deliveredEnergy" },
-              "appliesTo": ["ev_driver"]
-            },
-            {
-              "@type": "DEGTerm",
-              "termId": "delivery_obligation",
-              "termType": "DELIVERY",
-              "description": "CPO must deliver 30 kWh within the agreed time window.",
-              "condition": { "expr": "contractState == 'ACTIVE'" },
-              "obligation": { "expr": "fulfillment.deliveredEnergy >= 30" },
-              "appliesTo": ["cpo"]
-            },
-            {
-              "@type": "DEGTerm",
-              "termId": "payment_obligation",
-              "termType": "PAYMENT",
-              "description": "EV driver must complete payment of 649.35 INR.",
-              "condition": { "expr": "contractState == 'COMMITTED'" },
-              "obligation": { "expr": "payment.status == 'COMPLETED' AND payment.amount >= 649.35" },
-              "appliesTo": ["ev_driver"]
-            },
-            {
-              "@type": "DEGTerm",
-              "termId": "cancellation_terms",
-              "termType": "CANCELLATION",
-              "description": "Free cancellation before 2026-01-15T10:45:00Z. Late cancellation fee: 162.34 INR.",
-              "condition": { "expr": "cancellation.requested == true" },
-              "obligation": {
-                "rule": {
-                  "operator": "IF_THEN",
-                  "operands": [
-                    { "expr": "cancellation.time < '2026-01-15T10:45:00Z'" },
-                    { "expr": "cancellation.fee == 0" }
-                  ]
-                }
-              },
-              "consequence": { "expr": "cancellation.fee == 162.34" },
-              "appliesTo": ["ev_driver"]
-            }
-          ],
-          "energySpec": {
-            "@type": "EnergySpecification",
-            "energyType": "ELECTRICAL",
-            "sourceType": "GRID",
-            "quantity": {
-              "unitText": "Kilowatt Hour",
-              "unitCode": "KWH",
-              "unitQuantity": 30
-            }
-          },
-          "fulfillmentSpec": {
-            "@type": "FulfillmentSpecification",
-            "deliveryMode": "EV_CHARGING",
-            "deliveryWindow": {
-              "startTime": "2026-01-15T11:00:00Z",
-              "endTime": "2026-01-15T12:30:00Z"
-            },
-            "location": {
-              "geo": { "type": "Point", "coordinates": [77.6104, 12.9352] }
-            },
-            "meterIds": ["IN*CZ*KOR*01*CCS2*A*METER"]
-          },
-          "settlementSpec": {
-            "@type": "SettlementSpecification",
-            "paymentType": "PRE_ORDER",
-            "currency": "INR",
-            "settlementCycle": "IMMEDIATE",
-            "acceptedPaymentMethods": ["UPI", "CREDIT_CARD", "WALLET"]
-          },
-          "revenueModel": {
-            "@type": "RevenueModel",
-            "flows": [
-              {
-                "@type": "RevenueFlow",
-                "flowId": "charging_payment",
-                "from": "ev_driver",
-                "to": "cpo",
-                "flowType": "ENERGY_PAYMENT",
-                "formula": { "expr": "18.0 * 30" },
-                "currency": "INR",
-                "computedAmount": 540.0,
-                "triggeredBy": "pricing_term",
-                "schedule": "ON_DELIVERY"
+                "providedAt": "COMMITMENT"
               },
               {
-                "@type": "RevenueFlow",
-                "flowId": "platform_fee",
-                "from": "ev_driver",
-                "to": "platform",
-                "flowType": "PLATFORM_FEE",
-                "formula": { "expr": "540.0 * 0.025" },
-                "currency": "INR",
-                "computedAmount": 13.5,
-                "triggeredBy": "payment_obligation",
-                "schedule": "ON_DELIVERY"
-              },
-              {
-                "@type": "RevenueFlow",
-                "flowId": "gst_tax",
-                "from": "ev_driver",
-                "to": "tax_authority",
-                "flowType": "TAX",
-                "formula": { "expr": "(540.0 + 13.5) * 0.18" },
-                "currency": "INR",
-                "computedAmount": 99.63,
-                "triggeredBy": "payment_obligation",
-                "schedule": "ON_DELIVERY"
+                "@type": "RoleInput",
+                "inputId": "meter_reading_start",
+                "inputType": "METER_ID",
+                "required": true,
+                "value": null,
+                "providedAt": "FULFILLMENT"
               }
-            ]
+            ],
+            "obligations": ["payment_obligation", "cancellation_terms"]
           }
+        ],
+        "terms": [
+          {
+            "@type": "DEGTerm",
+            "termId": "pricing_term",
+            "termType": "PAYMENT",
+            "description": "Energy charged at 18 INR/kWh. Estimated total for 30 kWh = 540 INR.",
+            "condition": { "expr": "contractState == 'ACTIVE' AND deliveredEnergy > 0" },
+            "obligation": { "expr": "payment.amount == 18.0 * fulfillment.deliveredEnergy" },
+            "appliesTo": ["ev_driver"]
+          },
+          {
+            "@type": "DEGTerm",
+            "termId": "delivery_obligation",
+            "termType": "DELIVERY",
+            "description": "CPO must deliver 30 kWh within the agreed time window.",
+            "condition": { "expr": "contractState == 'ACTIVE'" },
+            "obligation": { "expr": "fulfillment.deliveredEnergy >= 30" },
+            "appliesTo": ["cpo"]
+          },
+          {
+            "@type": "DEGTerm",
+            "termId": "payment_obligation",
+            "termType": "PAYMENT",
+            "description": "EV driver must complete payment of 649.35 INR.",
+            "condition": { "expr": "contractState == 'COMMITTED'" },
+            "obligation": { "expr": "payment.status == 'COMPLETED' AND payment.amount >= 649.35" },
+            "appliesTo": ["ev_driver"]
+          },
+          {
+            "@type": "DEGTerm",
+            "termId": "cancellation_terms",
+            "termType": "CANCELLATION",
+            "description": "Free cancellation before 2026-01-15T10:45:00Z. Late cancellation fee: 162.34 INR.",
+            "condition": { "expr": "cancellation.requested == true" },
+            "obligation": {
+              "rule": {
+                "operator": "IF_THEN",
+                "operands": [
+                  { "expr": "cancellation.time < '2026-01-15T10:45:00Z'" },
+                  { "expr": "cancellation.fee == 0" }
+                ]
+              }
+            },
+            "consequence": { "expr": "cancellation.fee == 162.34" },
+            "appliesTo": ["ev_driver"]
+          }
+        ],
+        "energySpec": {
+          "@type": "EnergySpecification",
+          "energyType": "ELECTRICAL",
+          "sourceType": "GRID",
+          "quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 30
+          }
+        },
+        "fulfillmentSpec": {
+          "@type": "FulfillmentSpecification",
+          "deliveryMode": "EV_CHARGING",
+          "deliveryWindow": {
+            "startTime": "2026-01-15T11:00:00Z",
+            "endTime": "2026-01-15T12:30:00Z"
+          },
+          "location": {
+            "geo": { "type": "Point", "coordinates": [77.6104, 12.9352] }
+          },
+          "meterIds": ["IN*CZ*KOR*01*CCS2*A*METER"]
+        },
+        "settlementSpec": {
+          "@type": "SettlementSpecification",
+          "paymentType": "PRE_ORDER",
+          "currency": "INR",
+          "settlementCycle": "IMMEDIATE",
+          "acceptedPaymentMethods": ["UPI", "CREDIT_CARD", "WALLET"]
+        },
+        "revenueModel": {
+          "@type": "RevenueModel",
+          "flows": [
+            {
+              "@type": "RevenueFlow",
+              "flowId": "charging_payment",
+              "from": "ev_driver",
+              "to": "cpo",
+              "flowType": "ENERGY_PAYMENT",
+              "formula": { "expr": "18.0 * 30" },
+              "currency": "INR",
+              "computedAmount": 540.0,
+              "triggeredBy": "pricing_term",
+              "schedule": "ON_DELIVERY"
+            },
+            {
+              "@type": "RevenueFlow",
+              "flowId": "platform_fee",
+              "from": "ev_driver",
+              "to": "platform",
+              "flowType": "PLATFORM_FEE",
+              "formula": { "expr": "540.0 * 0.025" },
+              "currency": "INR",
+              "computedAmount": 13.5,
+              "triggeredBy": "payment_obligation",
+              "schedule": "ON_DELIVERY"
+            },
+            {
+              "@type": "RevenueFlow",
+              "flowId": "gst_tax",
+              "from": "ev_driver",
+              "to": "tax_authority",
+              "flowType": "TAX",
+              "formula": { "expr": "(540.0 + 13.5) * 0.18" },
+              "currency": "INR",
+              "computedAmount": 99.63,
+              "triggeredBy": "payment_obligation",
+              "schedule": "ON_DELIVERY"
+            }
+          ]
         }
       }
     }

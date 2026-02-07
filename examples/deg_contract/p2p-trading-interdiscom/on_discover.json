@@ -41,37 +41,64 @@
                 "schema:name": "Delhi Solar Prosumer"
               },
               "beckn:providerAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyCustomer/v0.2/context.jsonld",
-                "@type": "EnergyCustomer",
-                "meterId": "der://meter/100200300",
-                "utilityId": "TPDDL-DL",
-                "utilityCustomerId": "TPDDL-2024-SOL-00451",
-                "sanctionedLoad": 10.0,
-                "connectionType": "LT-DOMESTIC"
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_provider_context.jsonld",
+                "@type": "EnergyProvider",
+                "operatorName": "Delhi Solar Prosumer",
+                "identifier": "delhi-solar-prosumer-001",
+                "gridAccount": {
+                  "meterId": "der://meter/100200300",
+                  "utilityId": "TPDDL-DL",
+                  "utilityCustomerId": "TPDDL-2024-SOL-00451",
+                  "sanctionedLoad": 10.0,
+                  "connectionType": "LT-DOMESTIC"
+                },
+                "registration": {
+                  "gstNumber": "07AABCS1234D1Z5"
+                }
               }
             },
             "beckn:itemAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyResource/v0.2/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_resource_context.jsonld",
               "@type": "EnergyResource",
+              "resourceType": "GENERATION_PLANT",
               "sourceType": "SOLAR",
               "deliveryMode": "GRID_INJECTION",
-              "certificationStatus": "Green Energy Certified",
-              "meterId": "der://meter/100200300",
-              "inverterId": "inv-delhi-sol-78901",
-              "availableQuantity": 50.0,
-              "installedCapacity": 10.0,
+              "capacity": {
+                "installed": { "value": 10, "unitCode": "KW" },
+                "available": { "value": 50, "unitCode": "KWH" }
+              },
+              "metering": {
+                "meterId": "der://meter/100200300",
+                "inverterId": "inv-delhi-sol-78901"
+              },
+              "capabilities": {
+                "productionAsynchronous": true
+              },
+              "location": {
+                "geo": { "type": "Point", "coordinates": [77.209, 28.6139] },
+                "address": {
+                  "streetAddress": "42, Safdarjung Enclave",
+                  "addressLocality": "New Delhi",
+                  "addressRegion": "Delhi",
+                  "postalCode": "110001",
+                  "addressCountry": "IN"
+                }
+              },
+              "certification": {
+                "status": "Green Energy Certified",
+                "verification": {
+                  "verified": true,
+                  "verificationDate": "2025-01-15",
+                  "certificates": [
+                    "https://mnre.gov.in/certs/rooftop-solar-cert-00451.pdf"
+                  ]
+                }
+              },
               "productionWindow": {
-                "start": "2025-06-15T06:00:00+05:30",
-                "end": "2025-06-15T18:00:00+05:30"
+                "start": "06:00:00+05:30",
+                "end": "18:00:00+05:30"
               },
-              "sourceVerification": {
-                "verified": true,
-                "verificationDate": "2025-01-15T00:00:00+05:30",
-                "certificates": [
-                  "https://mnre.gov.in/certs/rooftop-solar-cert-00451.pdf"
-                ]
-              },
-              "productionAsynchronous": true
+              "rating": { "value": 4.4, "count": 89 }
             }
           }
         ],
@@ -93,337 +120,310 @@
               "schema:unitText": "kWh"
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyTradeOffer/v0.2/context.jsonld",
-              "@type": "EnergyTradeOffer",
-              "pricingModel": "PER_KWH",
-              "settlementType": "DAILY",
-              "wheelingCharges": {
-                "amount": 0.50,
-                "currency": "INR",
-                "description": "Inter-DISCOM wheeling charge (TPDDL to BESCOM)"
-              },
-              "minimumQuantity": 5.0,
-              "maximumQuantity": 25.0,
-              "deliveryWindow": {
-                "start": "2025-06-15T06:00:00+05:30",
-                "end": "2025-06-15T12:00:00+05:30"
-              },
-              "validityWindow": {
-                "start": "2025-06-15T00:00:00+05:30",
-                "end": "2025-06-15T23:59:59+05:30"
-              },
-              "degContract": {
-                "@type": "DEGContract",
-                "contractType": "P2P_ENERGY_TRADE",
-                "version": "0.3.0",
-                "contractState": "TEMPLATE",
-                "roles": [
-                  {
-                    "roleId": "seller",
-                    "roleType": "PROSUMER",
-                    "party": {
-                      "partyId": "provider-solar-delhi-001",
-                      "partyType": "PROVIDER",
-                      "platformId": "bpp.solarfarm-delhi.in",
-                      "attributes": {
-                        "@type": "EnergyCustomer",
-                        "meterId": "der://meter/100200300",
-                        "utilityId": "TPDDL-DL",
-                        "utilityCustomerId": "TPDDL-2024-SOL-00451",
-                        "sanctionedLoad": 10.0
-                      }
-                    },
-                    "inputs": [
-                      {
-                        "inputId": "source_meter",
-                        "inputType": "METER_ID",
-                        "value": "der://meter/100200300",
-                        "providedAt": "TEMPLATE"
-                      },
-                      {
-                        "inputId": "energy_source",
-                        "inputType": "PARAMETER",
-                        "value": "SOLAR",
-                        "providedAt": "TEMPLATE"
-                      },
-                      {
-                        "inputId": "available_kwh",
-                        "inputType": "PARAMETER",
-                        "value": 25.0,
-                        "providedAt": "TEMPLATE"
-                      },
-                      {
-                        "inputId": "source_utility",
-                        "inputType": "PARAMETER",
-                        "value": "TPDDL-DL",
-                        "providedAt": "TEMPLATE"
-                      }
-                    ],
-                    "obligations": ["delivery_obligation"]
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+              "@type": "DEGContract",
+              "contractType": "P2P_ENERGY_TRADE",
+              "version": "0.4.0",
+              "contractState": "TEMPLATE",
+              "roles": [
+                {
+                  "roleId": "seller",
+                  "roleType": "PROSUMER",
+                  "party": {
+                    "partyId": "provider-solar-delhi-001",
+                    "partyType": "PROVIDER",
+                    "platformId": "bpp.solarfarm-delhi.in"
                   },
-                  {
-                    "roleId": "buyer",
-                    "roleType": "CONSUMER",
-                    "party": null,
-                    "inputs": [
-                      {
-                        "inputId": "destination_meter",
-                        "inputType": "METER_ID",
-                        "required": true,
-                        "value": null,
-                        "providedAt": "NEGOTIATION",
-                        "description": "Buyer's meter ID for energy delivery"
+                  "inputs": [
+                    {
+                      "inputId": "source_meter",
+                      "inputType": "METER_ID",
+                      "value": "der://meter/100200300",
+                      "providedAt": "TEMPLATE"
+                    },
+                    {
+                      "inputId": "energy_source",
+                      "inputType": "PARAMETER",
+                      "value": "SOLAR",
+                      "providedAt": "TEMPLATE"
+                    },
+                    {
+                      "inputId": "available_kwh",
+                      "inputType": "PARAMETER",
+                      "value": 25.0,
+                      "providedAt": "TEMPLATE"
+                    },
+                    {
+                      "inputId": "source_utility",
+                      "inputType": "PARAMETER",
+                      "value": "TPDDL-DL",
+                      "providedAt": "TEMPLATE"
+                    }
+                  ],
+                  "obligations": ["delivery_obligation"]
+                },
+                {
+                  "roleId": "buyer",
+                  "roleType": "CONSUMER",
+                  "party": null,
+                  "inputs": [
+                    {
+                      "inputId": "destination_meter",
+                      "inputType": "METER_ID",
+                      "required": true,
+                      "value": null,
+                      "providedAt": "NEGOTIATION",
+                      "description": "Buyer's meter ID for energy delivery"
+                    },
+                    {
+                      "inputId": "requested_kwh",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "value": null,
+                      "schema": {
+                        "type": "number",
+                        "minimum": 5.0,
+                        "maximum": 25.0
                       },
-                      {
-                        "inputId": "requested_kwh",
-                        "inputType": "PARAMETER",
-                        "required": true,
-                        "value": null,
-                        "schema": {
-                          "type": "number",
-                          "minimum": 5.0,
-                          "maximum": 25.0
+                      "providedAt": "NEGOTIATION",
+                      "description": "Quantity of energy requested in kWh"
+                    },
+                    {
+                      "inputId": "buyer_utility_id",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "value": null,
+                      "providedAt": "COMMITMENT",
+                      "description": "Buyer's DISCOM utility identifier"
+                    },
+                    {
+                      "inputId": "buyer_utility_customer_id",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "value": null,
+                      "providedAt": "COMMITMENT",
+                      "description": "Buyer's utility customer account number"
+                    }
+                  ],
+                  "obligations": ["pricing", "payment_obligation"]
+                },
+                {
+                  "roleId": "source_utility",
+                  "roleType": "DISCOM",
+                  "party": {
+                    "partyId": "TPDDL-DL",
+                    "partyType": "PROVIDER",
+                    "platformId": "bpp.tpddl.gov.in"
+                  },
+                  "inputs": [
+                    {
+                      "inputId": "source_wheeling_charge",
+                      "inputType": "PARAMETER",
+                      "value": null,
+                      "providedAt": "COMMITMENT",
+                      "filledBy": "source_utility",
+                      "description": "Wheeling charge from source DISCOM"
+                    }
+                  ],
+                  "obligations": ["utility_registration"]
+                },
+                {
+                  "roleId": "destination_utility",
+                  "roleType": "DISCOM",
+                  "party": null,
+                  "inputs": [
+                    {
+                      "inputId": "destination_wheeling_charge",
+                      "inputType": "PARAMETER",
+                      "value": null,
+                      "providedAt": "COMMITMENT",
+                      "filledBy": "destination_utility",
+                      "description": "Wheeling charge from destination DISCOM"
+                    }
+                  ],
+                  "obligations": ["utility_registration"]
+                }
+              ],
+              "terms": [
+                {
+                  "termId": "delivery_obligation",
+                  "termType": "DELIVERY",
+                  "condition": {
+                    "expr": "currentTime WITHIN deliveryWindow"
+                  },
+                  "obligation": {
+                    "rule": {
+                      "operator": "AND",
+                      "operands": [
+                        {
+                          "field": "deliveredQuantity",
+                          "operator": "GTE",
+                          "value": "requestedKwh * 0.9"
                         },
-                        "providedAt": "NEGOTIATION",
-                        "description": "Quantity of energy requested in kWh"
-                      },
-                      {
-                        "inputId": "buyer_utility_id",
-                        "inputType": "PARAMETER",
-                        "required": true,
-                        "value": null,
-                        "providedAt": "COMMITMENT",
-                        "description": "Buyer's DISCOM utility identifier"
-                      },
-                      {
-                        "inputId": "buyer_utility_customer_id",
-                        "inputType": "PARAMETER",
-                        "required": true,
-                        "value": null,
-                        "providedAt": "COMMITMENT",
-                        "description": "Buyer's utility customer account number"
-                      }
-                    ],
-                    "obligations": ["pricing", "payment_obligation"]
+                        {
+                          "field": "deliveredQuantity",
+                          "operator": "LTE",
+                          "value": "requestedKwh * 1.1"
+                        }
+                      ]
+                    }
+                  },
+                  "consequence": {
+                    "expr": "deviationPenalty = abs(deliveredQuantity - requestedKwh) * deviationPenaltyPerKwh"
+                  },
+                  "appliesTo": ["seller"]
+                },
+                {
+                  "termId": "pricing",
+                  "termType": "PAYMENT",
+                  "condition": {
+                    "expr": "true"
+                  },
+                  "obligation": {
+                    "expr": "payment = deliveredQuantity * pricePerKwh + totalWheelingCharge"
+                  },
+                  "appliesTo": ["buyer"]
+                },
+                {
+                  "termId": "utility_registration",
+                  "termType": "QUALITY",
+                  "condition": {
+                    "expr": "contractState == COMMITTED"
+                  },
+                  "obligation": {
+                    "policyRef": {
+                      "type": "REGO",
+                      "package": "deg.contracts.p2p_trade",
+                      "entrypoint": "open_access_check"
+                    }
+                  },
+                  "appliesTo": ["source_utility", "destination_utility"]
+                },
+                {
+                  "termId": "payment_obligation",
+                  "termType": "PAYMENT",
+                  "condition": {
+                    "expr": "deliveryStatus == COMPLETED"
+                  },
+                  "obligation": {
+                    "expr": "settlePayment WITHIN 24 hours OF deliveryCompletion"
+                  },
+                  "appliesTo": ["buyer"]
+                },
+                {
+                  "termId": "cancellation",
+                  "termType": "CANCELLATION",
+                  "condition": {
+                    "expr": "contractState IN [COMMITTED, ACTIVE] AND cancellationRequestTime < deliveryWindow.start - PT1H"
+                  },
+                  "consequence": {
+                    "expr": "cancellationFee = 0"
+                  },
+                  "appliesTo": ["buyer", "seller"]
+                }
+              ],
+              "energySpec": {
+                "energyType": "ELECTRICAL",
+                "sourceType": "SOLAR",
+                "quantity": {
+                  "unitText": "kWh",
+                  "maxQuantity": 25.0
+                },
+                "qualityConstraints": {
+                  "greenCertRequired": true
+                }
+              },
+              "fulfillmentSpec": {
+                "deliveryMode": "GRID_INJECTION",
+                "deliveryWindow": {
+                  "start": "2025-06-15T06:00:00+05:30",
+                  "end": "2025-06-15T12:00:00+05:30"
+                },
+                "meterIds": ["der://meter/100200300"],
+                "signals": []
+              },
+              "settlementSpec": {
+                "paymentType": "POST_DELIVERY",
+                "currency": "INR",
+                "settlementCycle": "DAILY"
+              },
+              "revenueModel": {
+                "flows": [
+                  {
+                    "flowId": "energy_payment",
+                    "from": "buyer",
+                    "to": "seller",
+                    "flowType": "ENERGY_PAYMENT",
+                    "formula": {
+                      "expr": "deliveredKwh * pricePerKwh"
+                    },
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "pricing"
                   },
                   {
-                    "roleId": "source_utility",
-                    "roleType": "UTILITY",
-                    "party": {
-                      "partyId": "TPDDL-DL",
-                      "partyType": "PROVIDER",
-                      "platformId": "bpp.tpddl.gov.in"
+                    "flowId": "wheeling_charge",
+                    "from": "buyer",
+                    "to": "source_utility",
+                    "flowType": "WHEELING_CHARGE",
+                    "formula": {
+                      "expr": "deliveredKwh * sourceWheelingRatePerKwh"
                     },
-                    "inputs": [
-                      {
-                        "inputId": "source_wheeling_charge",
-                        "inputType": "PARAMETER",
-                        "value": null,
-                        "providedAt": "COMMITMENT",
-                        "filledBy": "source_utility",
-                        "description": "Wheeling charge from source DISCOM"
-                      }
-                    ],
-                    "obligations": ["utility_registration"]
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "utility_registration"
                   },
                   {
-                    "roleId": "destination_utility",
-                    "roleType": "UTILITY",
-                    "party": null,
-                    "inputs": [
-                      {
-                        "inputId": "destination_wheeling_charge",
-                        "inputType": "PARAMETER",
-                        "value": null,
-                        "providedAt": "COMMITMENT",
-                        "filledBy": "destination_utility",
-                        "description": "Wheeling charge from destination DISCOM"
-                      }
-                    ],
-                    "obligations": ["utility_registration"]
-                  }
-                ],
-                "terms": [
-                  {
-                    "termId": "delivery_obligation",
-                    "termType": "DELIVERY",
-                    "condition": {
-                      "expr": "currentTime WITHIN deliveryWindow"
+                    "flowId": "dest_wheeling_charge",
+                    "from": "buyer",
+                    "to": "destination_utility",
+                    "flowType": "WHEELING_CHARGE",
+                    "formula": {
+                      "expr": "deliveredKwh * destinationWheelingRatePerKwh"
                     },
-                    "obligation": {
-                      "rule": {
-                        "operator": "AND",
-                        "operands": [
-                          {
-                            "field": "deliveredQuantity",
-                            "operator": "GTE",
-                            "value": "requestedKwh * 0.9"
-                          },
-                          {
-                            "field": "deliveredQuantity",
-                            "operator": "LTE",
-                            "value": "requestedKwh * 1.1"
-                          }
-                        ]
-                      }
-                    },
-                    "consequence": {
-                      "expr": "deviationPenalty = abs(deliveredQuantity - requestedKwh) * deviationPenaltyPerKwh"
-                    },
-                    "appliesTo": ["seller"]
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "utility_registration"
                   },
                   {
-                    "termId": "pricing",
-                    "termType": "PAYMENT",
-                    "condition": {
-                      "expr": "true"
+                    "flowId": "platform_fee_buyer",
+                    "from": "buyer",
+                    "to": "platform",
+                    "flowType": "PLATFORM_FEE",
+                    "formula": {
+                      "expr": "energyPayment * 0.01"
                     },
-                    "obligation": {
-                      "expr": "payment = deliveredQuantity * pricePerKwh + totalWheelingCharge"
-                    },
-                    "appliesTo": ["buyer"]
+                    "currency": "INR",
+                    "computedAmount": null
                   },
                   {
-                    "termId": "utility_registration",
-                    "termType": "QUALITY",
-                    "condition": {
-                      "expr": "contractState == COMMITTED"
+                    "flowId": "platform_fee_seller",
+                    "from": "seller",
+                    "to": "platform",
+                    "flowType": "PLATFORM_FEE",
+                    "formula": {
+                      "expr": "energyPayment * 0.01"
                     },
-                    "obligation": {
+                    "currency": "INR",
+                    "computedAmount": null
+                  },
+                  {
+                    "flowId": "deviation_penalty",
+                    "from": "seller",
+                    "to": "buyer",
+                    "flowType": "DEVIATION_PENALTY",
+                    "formula": {
                       "policyRef": {
                         "type": "REGO",
                         "package": "deg.contracts.p2p_trade",
-                        "entrypoint": "open_access_check"
+                        "entrypoint": "deviation_penalty"
                       }
                     },
-                    "appliesTo": ["source_utility", "destination_utility"]
-                  },
-                  {
-                    "termId": "payment_obligation",
-                    "termType": "PAYMENT",
-                    "condition": {
-                      "expr": "deliveryStatus == COMPLETED"
-                    },
-                    "obligation": {
-                      "expr": "settlePayment WITHIN 24 hours OF deliveryCompletion"
-                    },
-                    "appliesTo": ["buyer"]
-                  },
-                  {
-                    "termId": "cancellation",
-                    "termType": "CANCELLATION",
-                    "condition": {
-                      "expr": "contractState IN [COMMITTED, ACTIVE] AND cancellationRequestTime < deliveryWindow.start - PT1H"
-                    },
-                    "consequence": {
-                      "expr": "cancellationFee = 0"
-                    },
-                    "appliesTo": ["buyer", "seller"]
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "delivery_obligation"
                   }
-                ],
-                "energySpec": {
-                  "energyType": "ELECTRICAL",
-                  "sourceType": "SOLAR",
-                  "quantity": {
-                    "unitText": "kWh",
-                    "maxQuantity": 25.0
-                  },
-                  "qualityConstraints": {
-                    "greenCertRequired": true
-                  }
-                },
-                "fulfillmentSpec": {
-                  "deliveryMode": "GRID_INJECTION",
-                  "deliveryWindow": {
-                    "start": "2025-06-15T06:00:00+05:30",
-                    "end": "2025-06-15T12:00:00+05:30"
-                  },
-                  "meterIds": ["der://meter/100200300"],
-                  "signals": []
-                },
-                "settlementSpec": {
-                  "paymentType": "POST_DELIVERY",
-                  "currency": "INR",
-                  "settlementCycle": "DAILY"
-                },
-                "revenueModel": {
-                  "flows": [
-                    {
-                      "flowId": "energy_payment",
-                      "from": "buyer",
-                      "to": "seller",
-                      "flowType": "ENERGY_PAYMENT",
-                      "formula": {
-                        "expr": "deliveredKwh * pricePerKwh"
-                      },
-                      "currency": "INR",
-                      "computedAmount": null,
-                      "triggeredBy": "pricing"
-                    },
-                    {
-                      "flowId": "wheeling_charge",
-                      "from": "buyer",
-                      "to": "source_utility",
-                      "flowType": "WHEELING_CHARGE",
-                      "formula": {
-                        "expr": "deliveredKwh * sourceWheelingRatePerKwh"
-                      },
-                      "currency": "INR",
-                      "computedAmount": null,
-                      "triggeredBy": "utility_registration"
-                    },
-                    {
-                      "flowId": "dest_wheeling_charge",
-                      "from": "buyer",
-                      "to": "destination_utility",
-                      "flowType": "WHEELING_CHARGE",
-                      "formula": {
-                        "expr": "deliveredKwh * destinationWheelingRatePerKwh"
-                      },
-                      "currency": "INR",
-                      "computedAmount": null,
-                      "triggeredBy": "utility_registration"
-                    },
-                    {
-                      "flowId": "platform_fee_buyer",
-                      "from": "buyer",
-                      "to": "platform",
-                      "flowType": "PLATFORM_FEE",
-                      "formula": {
-                        "expr": "energyPayment * 0.01"
-                      },
-                      "currency": "INR",
-                      "computedAmount": null
-                    },
-                    {
-                      "flowId": "platform_fee_seller",
-                      "from": "seller",
-                      "to": "platform",
-                      "flowType": "PLATFORM_FEE",
-                      "formula": {
-                        "expr": "energyPayment * 0.01"
-                      },
-                      "currency": "INR",
-                      "computedAmount": null
-                    },
-                    {
-                      "flowId": "deviation_penalty",
-                      "from": "seller",
-                      "to": "buyer",
-                      "flowType": "DEVIATION_PENALTY",
-                      "formula": {
-                        "policyRef": {
-                          "type": "REGO",
-                          "package": "deg.contracts.p2p_trade",
-                          "entrypoint": "deviation_penalty"
-                        }
-                      },
-                      "currency": "INR",
-                      "computedAmount": null,
-                      "triggeredBy": "delivery_obligation"
-                    }
-                  ]
-                }
+                ]
               }
             }
           },
@@ -444,331 +444,304 @@
               "schema:unitText": "kWh"
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyTradeOffer/v0.2/context.jsonld",
-              "@type": "EnergyTradeOffer",
-              "pricingModel": "PER_KWH",
-              "settlementType": "DAILY",
-              "wheelingCharges": {
-                "amount": 0.50,
-                "currency": "INR",
-                "description": "Inter-DISCOM wheeling charge (TPDDL to BESCOM)"
-              },
-              "minimumQuantity": 5.0,
-              "maximumQuantity": 25.0,
-              "deliveryWindow": {
-                "start": "2025-06-15T12:00:00+05:30",
-                "end": "2025-06-15T18:00:00+05:30"
-              },
-              "validityWindow": {
-                "start": "2025-06-15T00:00:00+05:30",
-                "end": "2025-06-15T23:59:59+05:30"
-              },
-              "degContract": {
-                "@type": "DEGContract",
-                "contractType": "P2P_ENERGY_TRADE",
-                "version": "0.3.0",
-                "contractState": "TEMPLATE",
-                "roles": [
-                  {
-                    "roleId": "seller",
-                    "roleType": "PROSUMER",
-                    "party": {
-                      "partyId": "provider-solar-delhi-001",
-                      "partyType": "PROVIDER",
-                      "platformId": "bpp.solarfarm-delhi.in",
-                      "attributes": {
-                        "@type": "EnergyCustomer",
-                        "meterId": "der://meter/100200300",
-                        "utilityId": "TPDDL-DL",
-                        "utilityCustomerId": "TPDDL-2024-SOL-00451",
-                        "sanctionedLoad": 10.0
-                      }
-                    },
-                    "inputs": [
-                      {
-                        "inputId": "source_meter",
-                        "inputType": "METER_ID",
-                        "value": "der://meter/100200300",
-                        "providedAt": "TEMPLATE"
-                      },
-                      {
-                        "inputId": "energy_source",
-                        "inputType": "PARAMETER",
-                        "value": "SOLAR",
-                        "providedAt": "TEMPLATE"
-                      },
-                      {
-                        "inputId": "available_kwh",
-                        "inputType": "PARAMETER",
-                        "value": 25.0,
-                        "providedAt": "TEMPLATE"
-                      },
-                      {
-                        "inputId": "source_utility",
-                        "inputType": "PARAMETER",
-                        "value": "TPDDL-DL",
-                        "providedAt": "TEMPLATE"
-                      }
-                    ],
-                    "obligations": ["delivery_obligation"]
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+              "@type": "DEGContract",
+              "contractType": "P2P_ENERGY_TRADE",
+              "version": "0.4.0",
+              "contractState": "TEMPLATE",
+              "roles": [
+                {
+                  "roleId": "seller",
+                  "roleType": "PROSUMER",
+                  "party": {
+                    "partyId": "provider-solar-delhi-001",
+                    "partyType": "PROVIDER",
+                    "platformId": "bpp.solarfarm-delhi.in"
                   },
-                  {
-                    "roleId": "buyer",
-                    "roleType": "CONSUMER",
-                    "party": null,
-                    "inputs": [
-                      {
-                        "inputId": "destination_meter",
-                        "inputType": "METER_ID",
-                        "required": true,
-                        "value": null,
-                        "providedAt": "NEGOTIATION"
+                  "inputs": [
+                    {
+                      "inputId": "source_meter",
+                      "inputType": "METER_ID",
+                      "value": "der://meter/100200300",
+                      "providedAt": "TEMPLATE"
+                    },
+                    {
+                      "inputId": "energy_source",
+                      "inputType": "PARAMETER",
+                      "value": "SOLAR",
+                      "providedAt": "TEMPLATE"
+                    },
+                    {
+                      "inputId": "available_kwh",
+                      "inputType": "PARAMETER",
+                      "value": 25.0,
+                      "providedAt": "TEMPLATE"
+                    },
+                    {
+                      "inputId": "source_utility",
+                      "inputType": "PARAMETER",
+                      "value": "TPDDL-DL",
+                      "providedAt": "TEMPLATE"
+                    }
+                  ],
+                  "obligations": ["delivery_obligation"]
+                },
+                {
+                  "roleId": "buyer",
+                  "roleType": "CONSUMER",
+                  "party": null,
+                  "inputs": [
+                    {
+                      "inputId": "destination_meter",
+                      "inputType": "METER_ID",
+                      "required": true,
+                      "value": null,
+                      "providedAt": "NEGOTIATION"
+                    },
+                    {
+                      "inputId": "requested_kwh",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "value": null,
+                      "schema": {
+                        "type": "number",
+                        "minimum": 5.0,
+                        "maximum": 25.0
                       },
-                      {
-                        "inputId": "requested_kwh",
-                        "inputType": "PARAMETER",
-                        "required": true,
-                        "value": null,
-                        "schema": {
-                          "type": "number",
-                          "minimum": 5.0,
-                          "maximum": 25.0
+                      "providedAt": "NEGOTIATION"
+                    },
+                    {
+                      "inputId": "buyer_utility_id",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "value": null,
+                      "providedAt": "COMMITMENT"
+                    },
+                    {
+                      "inputId": "buyer_utility_customer_id",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "value": null,
+                      "providedAt": "COMMITMENT"
+                    }
+                  ],
+                  "obligations": ["pricing", "payment_obligation"]
+                },
+                {
+                  "roleId": "source_utility",
+                  "roleType": "DISCOM",
+                  "party": {
+                    "partyId": "TPDDL-DL",
+                    "partyType": "PROVIDER",
+                    "platformId": "bpp.tpddl.gov.in"
+                  },
+                  "inputs": [
+                    {
+                      "inputId": "source_wheeling_charge",
+                      "inputType": "PARAMETER",
+                      "value": null,
+                      "providedAt": "COMMITMENT",
+                      "filledBy": "source_utility"
+                    }
+                  ],
+                  "obligations": ["utility_registration"]
+                },
+                {
+                  "roleId": "destination_utility",
+                  "roleType": "DISCOM",
+                  "party": null,
+                  "inputs": [
+                    {
+                      "inputId": "destination_wheeling_charge",
+                      "inputType": "PARAMETER",
+                      "value": null,
+                      "providedAt": "COMMITMENT",
+                      "filledBy": "destination_utility"
+                    }
+                  ],
+                  "obligations": ["utility_registration"]
+                }
+              ],
+              "terms": [
+                {
+                  "termId": "delivery_obligation",
+                  "termType": "DELIVERY",
+                  "condition": {
+                    "expr": "currentTime WITHIN deliveryWindow"
+                  },
+                  "obligation": {
+                    "rule": {
+                      "operator": "AND",
+                      "operands": [
+                        {
+                          "field": "deliveredQuantity",
+                          "operator": "GTE",
+                          "value": "requestedKwh * 0.9"
                         },
-                        "providedAt": "NEGOTIATION"
-                      },
-                      {
-                        "inputId": "buyer_utility_id",
-                        "inputType": "PARAMETER",
-                        "required": true,
-                        "value": null,
-                        "providedAt": "COMMITMENT"
-                      },
-                      {
-                        "inputId": "buyer_utility_customer_id",
-                        "inputType": "PARAMETER",
-                        "required": true,
-                        "value": null,
-                        "providedAt": "COMMITMENT"
-                      }
-                    ],
-                    "obligations": ["pricing", "payment_obligation"]
+                        {
+                          "field": "deliveredQuantity",
+                          "operator": "LTE",
+                          "value": "requestedKwh * 1.1"
+                        }
+                      ]
+                    }
+                  },
+                  "consequence": {
+                    "expr": "deviationPenalty = abs(deliveredQuantity - requestedKwh) * deviationPenaltyPerKwh"
+                  },
+                  "appliesTo": ["seller"]
+                },
+                {
+                  "termId": "pricing",
+                  "termType": "PAYMENT",
+                  "condition": {
+                    "expr": "true"
+                  },
+                  "obligation": {
+                    "expr": "payment = deliveredQuantity * pricePerKwh + totalWheelingCharge"
+                  },
+                  "appliesTo": ["buyer"]
+                },
+                {
+                  "termId": "utility_registration",
+                  "termType": "QUALITY",
+                  "condition": {
+                    "expr": "contractState == COMMITTED"
+                  },
+                  "obligation": {
+                    "policyRef": {
+                      "type": "REGO",
+                      "package": "deg.contracts.p2p_trade",
+                      "entrypoint": "open_access_check"
+                    }
+                  },
+                  "appliesTo": ["source_utility", "destination_utility"]
+                },
+                {
+                  "termId": "payment_obligation",
+                  "termType": "PAYMENT",
+                  "condition": {
+                    "expr": "deliveryStatus == COMPLETED"
+                  },
+                  "obligation": {
+                    "expr": "settlePayment WITHIN 24 hours OF deliveryCompletion"
+                  },
+                  "appliesTo": ["buyer"]
+                },
+                {
+                  "termId": "cancellation",
+                  "termType": "CANCELLATION",
+                  "condition": {
+                    "expr": "contractState IN [COMMITTED, ACTIVE] AND cancellationRequestTime < deliveryWindow.start - PT1H"
+                  },
+                  "consequence": {
+                    "expr": "cancellationFee = 0"
+                  },
+                  "appliesTo": ["buyer", "seller"]
+                }
+              ],
+              "energySpec": {
+                "energyType": "ELECTRICAL",
+                "sourceType": "SOLAR",
+                "quantity": {
+                  "unitText": "kWh",
+                  "maxQuantity": 25.0
+                },
+                "qualityConstraints": {
+                  "greenCertRequired": true
+                }
+              },
+              "fulfillmentSpec": {
+                "deliveryMode": "GRID_INJECTION",
+                "deliveryWindow": {
+                  "start": "2025-06-15T12:00:00+05:30",
+                  "end": "2025-06-15T18:00:00+05:30"
+                },
+                "meterIds": ["der://meter/100200300"],
+                "signals": []
+              },
+              "settlementSpec": {
+                "paymentType": "POST_DELIVERY",
+                "currency": "INR",
+                "settlementCycle": "DAILY"
+              },
+              "revenueModel": {
+                "flows": [
+                  {
+                    "flowId": "energy_payment",
+                    "from": "buyer",
+                    "to": "seller",
+                    "flowType": "ENERGY_PAYMENT",
+                    "formula": {
+                      "expr": "deliveredKwh * pricePerKwh"
+                    },
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "pricing"
                   },
                   {
-                    "roleId": "source_utility",
-                    "roleType": "UTILITY",
-                    "party": {
-                      "partyId": "TPDDL-DL",
-                      "partyType": "PROVIDER",
-                      "platformId": "bpp.tpddl.gov.in"
+                    "flowId": "wheeling_charge",
+                    "from": "buyer",
+                    "to": "source_utility",
+                    "flowType": "WHEELING_CHARGE",
+                    "formula": {
+                      "expr": "deliveredKwh * sourceWheelingRatePerKwh"
                     },
-                    "inputs": [
-                      {
-                        "inputId": "source_wheeling_charge",
-                        "inputType": "PARAMETER",
-                        "value": null,
-                        "providedAt": "COMMITMENT",
-                        "filledBy": "source_utility"
-                      }
-                    ],
-                    "obligations": ["utility_registration"]
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "utility_registration"
                   },
                   {
-                    "roleId": "destination_utility",
-                    "roleType": "UTILITY",
-                    "party": null,
-                    "inputs": [
-                      {
-                        "inputId": "destination_wheeling_charge",
-                        "inputType": "PARAMETER",
-                        "value": null,
-                        "providedAt": "COMMITMENT",
-                        "filledBy": "destination_utility"
-                      }
-                    ],
-                    "obligations": ["utility_registration"]
-                  }
-                ],
-                "terms": [
-                  {
-                    "termId": "delivery_obligation",
-                    "termType": "DELIVERY",
-                    "condition": {
-                      "expr": "currentTime WITHIN deliveryWindow"
+                    "flowId": "dest_wheeling_charge",
+                    "from": "buyer",
+                    "to": "destination_utility",
+                    "flowType": "WHEELING_CHARGE",
+                    "formula": {
+                      "expr": "deliveredKwh * destinationWheelingRatePerKwh"
                     },
-                    "obligation": {
-                      "rule": {
-                        "operator": "AND",
-                        "operands": [
-                          {
-                            "field": "deliveredQuantity",
-                            "operator": "GTE",
-                            "value": "requestedKwh * 0.9"
-                          },
-                          {
-                            "field": "deliveredQuantity",
-                            "operator": "LTE",
-                            "value": "requestedKwh * 1.1"
-                          }
-                        ]
-                      }
-                    },
-                    "consequence": {
-                      "expr": "deviationPenalty = abs(deliveredQuantity - requestedKwh) * deviationPenaltyPerKwh"
-                    },
-                    "appliesTo": ["seller"]
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "utility_registration"
                   },
                   {
-                    "termId": "pricing",
-                    "termType": "PAYMENT",
-                    "condition": {
-                      "expr": "true"
+                    "flowId": "platform_fee_buyer",
+                    "from": "buyer",
+                    "to": "platform",
+                    "flowType": "PLATFORM_FEE",
+                    "formula": {
+                      "expr": "energyPayment * 0.01"
                     },
-                    "obligation": {
-                      "expr": "payment = deliveredQuantity * pricePerKwh + totalWheelingCharge"
-                    },
-                    "appliesTo": ["buyer"]
+                    "currency": "INR",
+                    "computedAmount": null
                   },
                   {
-                    "termId": "utility_registration",
-                    "termType": "QUALITY",
-                    "condition": {
-                      "expr": "contractState == COMMITTED"
+                    "flowId": "platform_fee_seller",
+                    "from": "seller",
+                    "to": "platform",
+                    "flowType": "PLATFORM_FEE",
+                    "formula": {
+                      "expr": "energyPayment * 0.01"
                     },
-                    "obligation": {
+                    "currency": "INR",
+                    "computedAmount": null
+                  },
+                  {
+                    "flowId": "deviation_penalty",
+                    "from": "seller",
+                    "to": "buyer",
+                    "flowType": "DEVIATION_PENALTY",
+                    "formula": {
                       "policyRef": {
                         "type": "REGO",
                         "package": "deg.contracts.p2p_trade",
-                        "entrypoint": "open_access_check"
+                        "entrypoint": "deviation_penalty"
                       }
                     },
-                    "appliesTo": ["source_utility", "destination_utility"]
-                  },
-                  {
-                    "termId": "payment_obligation",
-                    "termType": "PAYMENT",
-                    "condition": {
-                      "expr": "deliveryStatus == COMPLETED"
-                    },
-                    "obligation": {
-                      "expr": "settlePayment WITHIN 24 hours OF deliveryCompletion"
-                    },
-                    "appliesTo": ["buyer"]
-                  },
-                  {
-                    "termId": "cancellation",
-                    "termType": "CANCELLATION",
-                    "condition": {
-                      "expr": "contractState IN [COMMITTED, ACTIVE] AND cancellationRequestTime < deliveryWindow.start - PT1H"
-                    },
-                    "consequence": {
-                      "expr": "cancellationFee = 0"
-                    },
-                    "appliesTo": ["buyer", "seller"]
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "delivery_obligation"
                   }
-                ],
-                "energySpec": {
-                  "energyType": "ELECTRICAL",
-                  "sourceType": "SOLAR",
-                  "quantity": {
-                    "unitText": "kWh",
-                    "maxQuantity": 25.0
-                  },
-                  "qualityConstraints": {
-                    "greenCertRequired": true
-                  }
-                },
-                "fulfillmentSpec": {
-                  "deliveryMode": "GRID_INJECTION",
-                  "deliveryWindow": {
-                    "start": "2025-06-15T12:00:00+05:30",
-                    "end": "2025-06-15T18:00:00+05:30"
-                  },
-                  "meterIds": ["der://meter/100200300"],
-                  "signals": []
-                },
-                "settlementSpec": {
-                  "paymentType": "POST_DELIVERY",
-                  "currency": "INR",
-                  "settlementCycle": "DAILY"
-                },
-                "revenueModel": {
-                  "flows": [
-                    {
-                      "flowId": "energy_payment",
-                      "from": "buyer",
-                      "to": "seller",
-                      "flowType": "ENERGY_PAYMENT",
-                      "formula": {
-                        "expr": "deliveredKwh * pricePerKwh"
-                      },
-                      "currency": "INR",
-                      "computedAmount": null,
-                      "triggeredBy": "pricing"
-                    },
-                    {
-                      "flowId": "wheeling_charge",
-                      "from": "buyer",
-                      "to": "source_utility",
-                      "flowType": "WHEELING_CHARGE",
-                      "formula": {
-                        "expr": "deliveredKwh * sourceWheelingRatePerKwh"
-                      },
-                      "currency": "INR",
-                      "computedAmount": null,
-                      "triggeredBy": "utility_registration"
-                    },
-                    {
-                      "flowId": "dest_wheeling_charge",
-                      "from": "buyer",
-                      "to": "destination_utility",
-                      "flowType": "WHEELING_CHARGE",
-                      "formula": {
-                        "expr": "deliveredKwh * destinationWheelingRatePerKwh"
-                      },
-                      "currency": "INR",
-                      "computedAmount": null,
-                      "triggeredBy": "utility_registration"
-                    },
-                    {
-                      "flowId": "platform_fee_buyer",
-                      "from": "buyer",
-                      "to": "platform",
-                      "flowType": "PLATFORM_FEE",
-                      "formula": {
-                        "expr": "energyPayment * 0.01"
-                      },
-                      "currency": "INR",
-                      "computedAmount": null
-                    },
-                    {
-                      "flowId": "platform_fee_seller",
-                      "from": "seller",
-                      "to": "platform",
-                      "flowType": "PLATFORM_FEE",
-                      "formula": {
-                        "expr": "energyPayment * 0.01"
-                      },
-                      "currency": "INR",
-                      "computedAmount": null
-                    },
-                    {
-                      "flowId": "deviation_penalty",
-                      "from": "seller",
-                      "to": "buyer",
-                      "flowType": "DEVIATION_PENALTY",
-                      "formula": {
-                        "policyRef": {
-                          "type": "REGO",
-                          "package": "deg.contracts.p2p_trade",
-                          "entrypoint": "deviation_penalty"
-                        }
-                      },
-                      "currency": "INR",
-                      "computedAmount": null,
-                      "triggeredBy": "delivery_obligation"
-                    }
-                  ]
-                }
+                ]
               }
             }
           }

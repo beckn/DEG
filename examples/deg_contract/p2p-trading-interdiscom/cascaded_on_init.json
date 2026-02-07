@@ -23,6 +23,19 @@
         "beckn:descriptor": {
           "@type": "beckn:Descriptor",
           "schema:name": "TPDDL - Tata Power Delhi Distribution Limited"
+        },
+        "beckn:providerAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_provider_context.jsonld",
+          "@type": "EnergyProvider",
+          "operatorName": "TPDDL - Tata Power Delhi Distribution Limited",
+          "identifier": "TPDDL-DL",
+          "gridAccount": {
+            "utilityId": "TPDDL-DL",
+            "connectionType": "UTILITY_GRID"
+          },
+          "registration": {
+            "licenseNumber": "DERC/2004/001"
+          }
         }
       },
       "beckn:fulfillments": [
@@ -93,11 +106,51 @@
         ]
       },
       "beckn:orderAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyTradeOrder/v0.2/context.jsonld",
-        "@type": "EnergyTradeOrder",
-        "bap_id": "bpp.solarfarm-delhi.in",
-        "bpp_id": "bpp.tpddl.gov.in",
-        "total_quantity": 20.0,
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "P2P_ENERGY_TRADE",
+        "version": "0.4.0",
+        "contractState": "COMMITTED",
+        "roles": [
+          {
+            "roleId": "source_utility",
+            "roleType": "DISCOM",
+            "party": {
+              "partyId": "TPDDL-DL",
+              "partyType": "PROVIDER",
+              "platformId": "bpp.tpddl.gov.in"
+            },
+            "inputs": [
+              {
+                "inputId": "source_wheeling_charge",
+                "inputType": "PARAMETER",
+                "value": 0.25,
+                "providedAt": "COMMITMENT",
+                "filledBy": "source_utility"
+              }
+            ],
+            "obligations": ["utility_registration"]
+          },
+          {
+            "roleId": "destination_utility",
+            "roleType": "DISCOM",
+            "party": {
+              "partyId": "BESCOM-KA",
+              "partyType": "PROVIDER",
+              "platformId": "bpp.bescom.gov.in"
+            },
+            "inputs": [
+              {
+                "inputId": "destination_wheeling_charge",
+                "inputType": "PARAMETER",
+                "value": 0.25,
+                "providedAt": "COMMITMENT",
+                "filledBy": "destination_utility"
+              }
+            ],
+            "obligations": ["utility_registration"]
+          }
+        ],
         "wheelingDetails": {
           "sourceDiscom": {
             "discomId": "TPDDL-DL",
@@ -119,11 +172,24 @@
             "description": "Inter-state transmission via ISTS waived for solar under Green Energy Open Access Rules 2022"
           }
         },
-        "tradeDetails": {
-          "contractedQuantity": 20.0,
+        "energySpec": {
+          "energyType": "ELECTRICAL",
           "sourceType": "SOLAR",
-          "tradeStartTime": "2025-06-15T06:00:00+05:30",
-          "tradeEndTime": "2025-06-15T18:00:00+05:30",
+          "quantity": {
+            "unitText": "kWh",
+            "unitQuantity": 20.0
+          }
+        },
+        "fulfillmentSpec": {
+          "deliveryMode": "GRID_INJECTION",
+          "deliveryWindow": {
+            "start": "2025-06-15T06:00:00+05:30",
+            "end": "2025-06-15T18:00:00+05:30"
+          },
+          "meterIds": [
+            "der://meter/100200300",
+            "der://meter/98765456"
+          ],
           "interDiscom": true,
           "sourceDiscom": "TPDDL-DL",
           "destinationDiscom": "BESCOM-KA"

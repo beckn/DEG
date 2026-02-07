@@ -25,6 +25,21 @@
         },
         "beckn:bppId": "bpp.tata-ezcharge.example.com",
         "beckn:bppUri": "https://bpp.tata-ezcharge.example.com/bpp",
+        "beckn:providerAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_provider_context.jsonld",
+          "@type": "EnergyProvider",
+          "operatorName": "Tata Power EZ Charge",
+          "operatorCode": "TATA-EZCHARGE",
+          "identifier": "tata-ezcharge-mumbai",
+          "contact": {
+            "email": "support@tata-ezcharge.com",
+            "phone": "+91-1800-209-4567"
+          },
+          "registration": {
+            "gstNumber": "27AABCT1234F1ZR",
+            "cpoLicense": "MERC/CPO/2025/0042"
+          }
+        },
         "beckn:items": [
           {
             "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
@@ -63,45 +78,50 @@
               }
             },
             "beckn:itemAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingService/v1/context.jsonld",
-              "@type": "ChargingService",
-              "connectorType": "CCS2",
-              "maxPowerKW": 60,
-              "minPowerKW": 5,
-              "v2gSupported": true,
-              "reservationSupported": true,
-              "chargingStation": {
-                "id": "IN-TATA-BKC-STATION-01",
-                "serviceLocation": {
-                  "@type": "beckn:Location",
-                  "geo": {
-                    "type": "Point",
-                    "coordinates": [
-                      72.8614,
-                      19.0596
-                    ]
-                  },
-                  "address": {
-                    "streetAddress": "Tata Power EZ Charge Hub, Bandra Kurla Complex",
-                    "addressLocality": "Mumbai",
-                    "addressRegion": "Maharashtra",
-                    "postalCode": "400051",
-                    "addressCountry": "IN"
-                  }
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_resource_context.jsonld",
+              "@type": "EnergyResource",
+              "resourceType": "EV_CHARGER",
+              "sourceType": "GRID",
+              "deliveryMode": "V2G",
+              "capacity": {
+                "installed": { "value": 60, "unitCode": "KW" },
+                "power": {
+                  "min": { "value": 5, "unitCode": "KW" },
+                  "max": { "value": 60, "unitCode": "KW" }
                 }
               },
-              "amenityFeature": [
-                "RESTROOM",
-                "WI-FI",
-                "PARKING",
-                "CAFE"
-              ],
-              "evseId": "IN*TATA*BKC*01*CCS2*A",
-              "parkingType": "OffStreet",
-              "powerType": "DC",
-              "connectorFormat": "CABLE",
-              "chargingSpeed": "FAST",
-              "vehicleType": "4-WHEELER"
+              "connector": {
+                "type": "CCS2",
+                "format": "CABLE",
+                "powerType": "DC",
+                "chargingSpeed": "FAST"
+              },
+              "metering": {
+                "evseId": "IN*TATA*BKC*01*CCS2*A",
+                "meterId": "METER-TATA-BKC-V2G-001"
+              },
+              "capabilities": {
+                "v2gSupported": true,
+                "reservationSupported": true,
+                "vehicleType": "4-WHEELER"
+              },
+              "location": {
+                "stationId": "IN-TATA-BKC-STATION-01",
+                "geo": {
+                  "type": "Point",
+                  "coordinates": [72.8614, 19.0596]
+                },
+                "address": {
+                  "streetAddress": "Tata Power EZ Charge Hub, Bandra Kurla Complex",
+                  "addressLocality": "Mumbai",
+                  "addressRegion": "Maharashtra",
+                  "postalCode": "400051",
+                  "addressCountry": "IN"
+                },
+                "parkingType": "OffStreet"
+              },
+              "amenities": ["RESTROOM", "WI-FI", "PARKING", "CAFE"],
+              "rating": { "value": 4.6, "count": 215 }
             }
           }
         ],
@@ -138,7 +158,7 @@
               "WALLET"
             ],
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/DEGContract/v1/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
               "@type": "DEGContract",
               "contractType": "COMPOSITE",
               "contractState": "TEMPLATE",
@@ -211,12 +231,7 @@
                   "party": {
                     "partyId": "tata-ezcharge-mumbai",
                     "partyType": "PROVIDER",
-                    "platformId": "bpp.tata-ezcharge.example.com",
-                    "attributes": {
-                      "companyName": "Tata Power EZ Charge",
-                      "gstin": "27AABCT1234F1ZR",
-                      "cpoLicense": "MERC/CPO/2025/0042"
-                    }
+                    "platformId": "bpp.tata-ezcharge.example.com"
                   },
                   "inputs": [
                     {
@@ -259,12 +274,7 @@
                   "party": {
                     "partyId": "msedcl-mumbai",
                     "partyType": "PROVIDER",
-                    "platformId": "bpp.msedcl-grid.example.com",
-                    "attributes": {
-                      "operatorName": "Maharashtra State Electricity Distribution Co. Ltd",
-                      "gridRegion": "Mumbai Metropolitan",
-                      "licenseNumber": "MERC/DISCOM/MUM/001"
-                    }
+                    "platformId": "bpp.msedcl-grid.example.com"
                   },
                   "inputs": [
                     {
@@ -510,10 +520,7 @@
                   "@type": "beckn:Location",
                   "geo": {
                     "type": "Point",
-                    "coordinates": [
-                      72.8614,
-                      19.0596
-                    ]
+                    "coordinates": [72.8614, 19.0596]
                   },
                   "address": {
                     "streetAddress": "Tata Power EZ Charge Hub, Bandra Kurla Complex",

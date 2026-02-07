@@ -37,167 +37,134 @@
         "beckn:id": "fulfillment-v2g-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingSession/v1/context.jsonld",
-          "@type": "ChargingSession",
-          "sessionStatus": "ACTIVE",
-          "energyFlowDirection": "FROM_VEHICLE",
-          "connectorType": "CCS2",
-          "maxPowerKW": 60,
-          "v2gEnabled": true,
-          "v2gStatus": "DISCHARGING",
-          "gridStatus": "STRESSED",
-          "v2gEvent": {
-            "eventId": "V2G-EVENT-20260208-001",
-            "eventType": "GRID_STRESS_V2G_DISPATCH",
-            "triggeredAt": "2026-02-08T10:02:00Z",
-            "triggerSource": "MSEDCL Grid Frequency Monitor",
-            "triggerSignal": {
-              "signalType": "GRID_FREQUENCY",
-              "observedValue": 49.35,
-              "thresholdValue": 49.5,
-              "unit": "Hz",
-              "source": "mqtt://grid-signals.msedcl.example.com:8883/frequency/mumbai"
-            },
-            "curtailmentSignal": {
-              "signalType": "CURTAILMENT_COMMAND",
-              "status": "ACTIVE",
-              "dispatchedAt": "2026-02-08T10:02:15Z",
-              "requestedCapacityKw": 30,
-              "source": "https://api.msedcl-grid.example.com/v2/curtailment-signals"
-            },
-            "policyEvaluation": {
-              "policyRef": {
-                "type": "REGO",
-                "package": "deg.contracts.v2g",
-                "uri": "https://policies.deg-network.io/v2g/v1.rego"
-              },
-              "evaluatedAt": "2026-02-08T10:02:20Z",
-              "results": {
-                "v2g_eligible": {
-                  "entrypoint": "v2g_eligible",
-                  "result": true,
-                  "inputs": {
-                    "vehicleBatteryPct": 68.0,
-                    "v2gCapable": true,
-                    "v2gSupported": true,
-                    "minChargeLevelPct": 30
-                  }
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_delivery_context.jsonld",
+          "@type": "EnergyDelivery",
+          "status": "ACTIVE",
+          "deliveryMode": "V2G",
+          "energyFlow": {
+            "direction": "FROM_VEHICLE",
+            "delivered": { "value": 13.8, "unitCode": "KWH" },
+            "discharged": { "value": 1.5, "unitCode": "KWH" },
+            "net": { "value": 12.3, "unitCode": "KWH" }
+          },
+          "timing": {
+            "startTime": "2026-02-08T09:20:00Z",
+            "elapsed": "PT45M"
+          },
+          "connector": {
+            "type": "CCS2",
+            "maxPowerKW": 60
+          },
+          "v2g": {
+            "enabled": true,
+            "status": "DISCHARGING",
+            "events": [
+              {
+                "eventId": "V2G-EVENT-20260208-001",
+                "eventType": "GRID_STRESS_V2G_DISPATCH",
+                "triggeredAt": "2026-02-08T10:02:00Z",
+                "triggerSource": "MSEDCL Grid Frequency Monitor",
+                "triggerSignal": {
+                  "signalType": "GRID_FREQUENCY",
+                  "observedValue": 49.35,
+                  "thresholdValue": 49.5,
+                  "unit": "Hz",
+                  "source": "mqtt://grid-signals.msedcl.example.com:8883/frequency/mumbai"
                 },
-                "should_discharge": {
-                  "entrypoint": "should_discharge",
-                  "result": true,
-                  "inputs": {
-                    "gridStress": true,
-                    "vehicleBatteryPct": 68.0,
-                    "minChargeLevelPct": 30
-                  }
+                "curtailmentSignal": {
+                  "signalType": "CURTAILMENT_COMMAND",
+                  "status": "ACTIVE",
+                  "dispatchedAt": "2026-02-08T10:02:15Z",
+                  "requestedCapacityKw": 30,
+                  "source": "https://api.msedcl-grid.example.com/v2/curtailment-signals"
                 },
-                "max_discharge_kwh": {
-                  "entrypoint": "max_discharge_kwh",
-                  "result": 22.8,
-                  "inputs": {
-                    "vehicleBatteryKwh": 60,
-                    "vehicleBatteryPct": 68.0,
-                    "minChargeLevelPct": 30
+                "policyEvaluation": {
+                  "policyRef": {
+                    "type": "REGO",
+                    "package": "deg.contracts.v2g",
+                    "uri": "https://policies.deg-network.io/v2g/v1.rego"
                   },
-                  "calculation": "currentKwh (40.8) - minKwh (18.0) = 22.8 kWh available for discharge"
+                  "evaluatedAt": "2026-02-08T10:02:20Z",
+                  "results": {
+                    "v2g_eligible": {
+                      "entrypoint": "v2g_eligible",
+                      "result": true,
+                      "inputs": {
+                        "vehicleBatteryPct": 68.0,
+                        "v2gCapable": true,
+                        "v2gSupported": true,
+                        "minChargeLevelPct": 30
+                      }
+                    },
+                    "should_discharge": {
+                      "entrypoint": "should_discharge",
+                      "result": true,
+                      "inputs": {
+                        "gridStress": true,
+                        "vehicleBatteryPct": 68.0,
+                        "minChargeLevelPct": 30
+                      }
+                    },
+                    "max_discharge_kwh": {
+                      "entrypoint": "max_discharge_kwh",
+                      "result": 22.8,
+                      "inputs": {
+                        "vehicleBatteryKwh": 60,
+                        "vehicleBatteryPct": 68.0,
+                        "minChargeLevelPct": 30
+                      },
+                      "calculation": "currentKwh (40.8) - minKwh (18.0) = 22.8 kWh available for discharge"
+                    }
+                  }
                 }
               }
-            }
+            ]
           },
-          "chargingTelemetry": [
+          "grid": {
+            "status": "STRESSED"
+          },
+          "vehicle": {
+            "registration": "MH-02-AB-1234",
+            "makeModel": "Tata Nexon EV Max",
+            "batteryKwh": 60,
+            "minChargeLevelPct": 30
+          },
+          "telemetry": [
             {
               "eventTime": "2026-02-08T10:00:00Z",
               "metrics": [
-                {
-                  "name": "STATE_OF_CHARGE",
-                  "value": 68.0,
-                  "unitCode": "PERCENTAGE"
-                },
-                {
-                  "name": "POWER",
-                  "value": 48.2,
-                  "unitCode": "KW"
-                },
-                {
-                  "name": "ENERGY_DELIVERED",
-                  "value": 13.8,
-                  "unitCode": "KWH"
-                },
-                {
-                  "name": "ENERGY_FLOW_DIRECTION",
-                  "value": "TO_VEHICLE",
-                  "unitCode": "DIRECTION"
-                }
+                { "name": "STATE_OF_CHARGE", "value": 68.0, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": 48.2, "unitCode": "KW" },
+                { "name": "ENERGY_DELIVERED", "value": 13.8, "unitCode": "KWH" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "TO_VEHICLE", "unitCode": "DIRECTION" }
               ]
             },
             {
               "eventTime": "2026-02-08T10:02:30Z",
               "metrics": [
-                {
-                  "name": "STATE_OF_CHARGE",
-                  "value": 67.8,
-                  "unitCode": "PERCENTAGE"
-                },
-                {
-                  "name": "POWER",
-                  "value": -30.0,
-                  "unitCode": "KW",
-                  "note": "Negative power = discharging from vehicle to grid"
-                },
-                {
-                  "name": "ENERGY_DISCHARGED",
-                  "value": 0.25,
-                  "unitCode": "KWH"
-                },
-                {
-                  "name": "ENERGY_FLOW_DIRECTION",
-                  "value": "FROM_VEHICLE",
-                  "unitCode": "DIRECTION"
-                },
-                {
-                  "name": "GRID_FREQUENCY",
-                  "value": 49.38,
-                  "unitCode": "HZ"
-                }
+                { "name": "STATE_OF_CHARGE", "value": 67.8, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": -30.0, "unitCode": "KW", "note": "Negative power = discharging from vehicle to grid" },
+                { "name": "ENERGY_DISCHARGED", "value": 0.25, "unitCode": "KWH" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "FROM_VEHICLE", "unitCode": "DIRECTION" },
+                { "name": "GRID_FREQUENCY", "value": 49.38, "unitCode": "HZ" }
               ]
             },
             {
               "eventTime": "2026-02-08T10:05:00Z",
               "metrics": [
-                {
-                  "name": "STATE_OF_CHARGE",
-                  "value": 67.0,
-                  "unitCode": "PERCENTAGE"
-                },
-                {
-                  "name": "POWER",
-                  "value": -30.0,
-                  "unitCode": "KW"
-                },
-                {
-                  "name": "ENERGY_DISCHARGED",
-                  "value": 1.5,
-                  "unitCode": "KWH"
-                },
-                {
-                  "name": "ENERGY_FLOW_DIRECTION",
-                  "value": "FROM_VEHICLE",
-                  "unitCode": "DIRECTION"
-                },
-                {
-                  "name": "GRID_FREQUENCY",
-                  "value": 49.42,
-                  "unitCode": "HZ"
-                }
+                { "name": "STATE_OF_CHARGE", "value": 67.0, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": -30.0, "unitCode": "KW" },
+                { "name": "ENERGY_DISCHARGED", "value": 1.5, "unitCode": "KWH" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "FROM_VEHICLE", "unitCode": "DIRECTION" },
+                { "name": "GRID_FREQUENCY", "value": 49.42, "unitCode": "HZ" }
               ]
             }
           ],
-          "sessionSummary": {
-            "totalEnergyDeliveredKwh": 13.8,
-            "totalEnergyDischargedKwh": 1.5,
-            "netEnergyToVehicleKwh": 12.3,
-            "elapsedTime": "PT45M",
+          "summary": {
+            "totalDeliveredKwh": 13.8,
+            "totalDischargedKwh": 1.5,
+            "netKwh": 12.3,
+            "duration": "PT45M",
             "v2gEventsCount": 1,
             "v2gEventActive": true,
             "v2gEventDuration": "PT3M",
@@ -217,11 +184,12 @@
               "value": 92.40,
               "description": "INR 110.40 charging - INR 18.00 V2G earnings"
             }
-          }
+          },
+          "lastUpdated": "2026-02-08T10:05:00Z"
         }
       },
       "beckn:orderAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/DEGContract/v1/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
         "@type": "DEGContract",
         "contractType": "COMPOSITE",
         "contractState": "ACTIVE",

@@ -68,10 +68,11 @@
         }
       ],
       "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
         "@type": "DEGContract",
         "contractType": "P2P_ENERGY_TRADE",
-        "version": "0.3.0",
-        "contractState": "COMMITTED",
+        "version": "0.4.0",
+        "contractState": "ACTIVE",
         "confirmation": {
           "buyerConfirmed": true,
           "buyerConfirmedAt": "2025-06-15T06:45:00Z",

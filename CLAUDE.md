@@ -162,24 +162,19 @@ All DEG payloads are JSON-LD documents with:
 - **schema: prefix**: Schema.org fields
 - **Domain-specific objects**: Embedded in `*Attributes` fields
 
-Example structure:
+Example structure (PURE architecture — DEGContract is the direct `@type`):
 ```json
 {
-  "context": { "domain": "beckn.one:deg:ev-charging:*", ... },
+  "context": { "domain": "beckn.one:deg:ev-charging:2.0.0", ... },
   "message": {
     "order": {
       "@context": "https://raw.githubusercontent.com/.../core/v2/context.jsonld",
       "@type": "beckn:Order",
-      "beckn:orderItems": [{
-        "beckn:acceptedOffer": {
-          "@type": "beckn:Offer",
-          "beckn:offerAttributes": {
-            "@context": "https://raw.githubusercontent.com/.../EvChargingOffer/v1/context.jsonld",
-            "@type": "ChargingOffer",
-            ...
-          }
-        }
-      }]
+      "beckn:buyerAttributes": { "@type": "EnergyBuyer", "vehicle": { ... } },
+      "beckn:orderAttributes": { "@type": "DEGContract", "contractState": "ACTIVE", ... },
+      "beckn:fulfillment": {
+        "beckn:deliveryAttributes": { "@type": "EnergyDelivery", "status": "ACTIVE", ... }
+      }
     }
   }
 }
@@ -275,7 +270,7 @@ When modifying or adding schemas:
 ## DEGContract-as-Code (Generalized Energy Contracts)
 
 **Status:** Active development (Feb 2026)
-**Origin:** `ref_docs/generalize_deg_shcemas/` → reorganized into specification/, docs/, examples/
+**Architecture:** PURE — DEGContract is the top-level `@type` in offerAttributes/orderAttributes
 
 ### Concept
 
@@ -283,15 +278,41 @@ DEGContract is a **composable, multi-party contract schema** that unifies EV cha
 
 Key idea: **Contract-as-Code** — contract terms reference executable OPA/Rego policies for complex business logic (pricing, eligibility, penalties), while simple conditions use inline expressions or structured rule trees.
 
-### How DEGContract Maps to Beckn Protocol
+### Pure Beckn Slot Mapping
 
-| Beckn Lifecycle | Contract State | Where DEGContract Lives |
-|----------------|---------------|------------------------|
-| `on_discover` (catalog) | **TEMPLATE** | `Offer.offerAttributes.degContract` |
-| `select` / `on_select` | **NEGOTIATED** | `Order.orderAttributes.degContract` |
-| `init` / `on_init` | **COMMITTED** | `Order.orderAttributes.degContract` |
-| `confirm` / `on_confirm` | **ACTIVE** | `Order.orderAttributes.degContract` |
-| `on_status` (final) | **SETTLED** | `Order.orderAttributes.degContract` (with `computedAmount`) |
+DEGContract is the **primary `@type`** in `offerAttributes` and `orderAttributes` (no wrapper schemas). Domain-specific data lives in dedicated Beckn attribute slots using 4 first-principles schemas.
+
+| Beckn Slot | `@type` | Purpose | First Appears |
+|------------|---------|---------|--------------|
+| `itemAttributes` | **EnergyResource** | Physical resource description (charger, solar, battery) | `on_discover` |
+| `offerAttributes` | **DEGContract** (TEMPLATE) | Contract template with open role slots | `on_discover` |
+| `providerAttributes` | **EnergyProvider** | Provider identity, registration, grid account | `on_discover` |
+| `buyerAttributes` | **EnergyBuyer** | Buyer vehicle info or grid account | `select` |
+| `orderAttributes` | **DEGContract** (NEGOTIATED→SETTLED) | Contract through full lifecycle | `select` onwards |
+| `deliveryAttributes` | **EnergyDelivery** | Runtime telemetry, session state, V2G events | `on_confirm` |
+| `paymentAttributes` | **PaymentSettlement** | Settlement accounts & reconciliation | `init` |
+
+### 4 Domain Schemas (First Principles)
+
+**EnergyResource** (`itemAttributes`) — One unified schema for ALL energy resources. Uses `resourceType` as discriminator:
+- `resourceType`: EV_CHARGER | GENERATION_PLANT | BATTERY_STORAGE | GRID_CONNECTION
+- `sourceType`: GRID | SOLAR | WIND | BATTERY | HYBRID
+- `deliveryMode`: EV_CHARGING | GRID_INJECTION | V2G | BATTERY_SWAP
+- `capacity`, `connector`, `metering`, `capabilities`, `location`, `amenities`, `certification`, `rating`
+
+**EnergyDelivery** (`deliveryAttributes`) — One unified schema for ALL runtime fulfillment. Uses sparse sub-objects:
+- `status`: PENDING | ACTIVE | PAUSED | COMPLETED | FAILED
+- `deliveryMode`: EV_CHARGING | GRID_INJECTION | V2G
+- `energyFlow` (direction, delivered, discharged, net, curtailed)
+- `telemetry[]`, `meterReadings[]` (P2P), `v2g` (V2G events), `vehicle`, `grid`, `summary`
+
+**EnergyProvider** (`providerAttributes`) — Unified provider identity (CPO, prosumer, utility):
+- `operatorName`, `operatorCode`, `identifier`, `contact`, `registration`
+- `gridAccount` (for prosumers: meterId, utilityId, sanctionedLoad, connectionType)
+
+**EnergyBuyer** (`buyerAttributes`) — Sparse, domain-specific buyer info (core identity stays in `beckn:Buyer`):
+- `vehicle` (registration, makeModel, batteryKwh, connectorType) — for EV use cases
+- `gridAccount` (meterId, utilityId, sanctionedLoad) — for P2P use cases
 
 ### Core Design Patterns
 
@@ -302,49 +323,45 @@ Key idea: **Contract-as-Code** — contract terms reference executable OPA/Rego 
    - `rule`: Structured operator tree (`{ operator: "AND", operands: [...] }`)
    - `policyRef`: External OPA/Rego policy (`{ type: "REGO", package: "deg.contracts.ev_charging", entrypoint: "total_charge" }`)
 
-3. **Multi-Party Revenue Model with Net-Zero Invariant** — Every contract has a `revenueModel` with directed `flows[]` (from → to). At discovery, flows show formulas; at settlement, flows show `computedAmount`. The sum of all net positions across all roles must equal zero.
+3. **Multi-Party Revenue Model with Net-Zero Invariant** — Every contract has a `revenueModel` with directed `flows[]` (from → to). At discovery, flows show formulas; at settlement, flows show `computedAmount`. For every party, `sum(inflows) - sum(outflows)` across ALL parties = 0.
 
-4. **Composite Contracts** — `contractType: "COMPOSITE"` with `composedOf: ["EV_CHARGING", "DEMAND_FLEXIBILITY"]` allows combining multiple use case logics in one contract (e.g., smart EV charging that also participates in V2G grid services).
+4. **Composite Contracts** — `contractType: "COMPOSITE"` with `composedOf: ["EV_CHARGING", "DEMAND_FLEXIBILITY"]` allows combining multiple use case logics in one contract.
 
 ### DEGContract Schema Components
 
 - **DEGContract** — Top-level: contractType, contractState, roles[], terms[], energySpec, fulfillmentSpec, settlementSpec, revenueModel
-- **DEGRole** — roleId, roleType (PRODUCER|CONSUMER|AGGREGATOR|GRID_OPERATOR|CPO|UTILITY|PROSUMER|DISCOM), party, inputs[], obligations[]
-- **RoleInput** — inputId, inputType (PARAMETER|ITEM_REF|CREDENTIAL|SIGNAL|METER_ID|LOCATION|DER_ID), providedAt (TEMPLATE|NEGOTIATION|COMMITMENT|FULFILLMENT), value
-- **DEGTerm** — termId, termType (DELIVERY|PAYMENT|QUALITY|SIGNAL_RESPONSE|CANCELLATION), condition (PolicyExpression), obligation, appliesTo[]
+- **DEGRole** — roleId, roleType, party (simplified: partyId, partyType, platformId), inputs[], obligations[]
+- **RoleInput** — inputId, inputType, providedAt (TEMPLATE|NEGOTIATION|COMMITMENT|FULFILLMENT), value
+- **DEGTerm** — termId, termType, condition (PolicyExpression), obligation, appliesTo[]
 - **RevenueModel** — flows[] (RevenueFlow), netZeroCheck
-- **RevenueFlow** — flowId, from, to, flowType (ENERGY_PAYMENT|INCENTIVE|GRID_SERVICE_FEE|PLATFORM_FEE|TAX|CREDIT|WHEELING_CHARGE), formula, computedAmount, currency
+- **RevenueFlow** — flowId, from, to, flowType, formula, computedAmount, currency
 
 ### File Layout
 
 ```
 specification/
 ├── schema/
-│   └── deg_contract_schema.yaml          # OpenAPI 3.1.1 formal schema (610 lines)
+│   └── deg_contract_schema.yaml          # OpenAPI 3.1.1 formal schema
 ├── policies/                              # OPA/Rego policy packages
 │   ├── ev_charging.rego                   # Connector compat, pricing, cancellation
 │   ├── p2p_trade.rego                     # Delivery compliance, deviation penalty
 │   ├── demand_flex.rego                   # Trigger conditions, curtailment, incentives
 │   ├── v2g.rego                           # V2G eligibility, discharge decisions
 │   └── revenue.rego                       # Generic net-zero revenue computation
-└── deg_contract_beckn_flow.arazzo.yaml    # Arazzo spec: 3 workflows for full Beckn flows
-
-docs/implementation-guides/deg_contract/
-├── DEG_Contract_Specification.md          # Core spec (761 lines)
-└── Mapping_Existing_Schemas.md            # Maps existing EV/P2P/Flex schemas → DEGContract
+└── deg_contract_beckn_flow.arazzo.yaml    # Arazzo spec: 3 workflows
 
 examples/deg_contract/
-├── README.md                              # Overview + Beckn slot mapping table
+├── README.md                              # Overview + Pure Beckn slot mapping
 ├── ev_charging/                           # 9 files: discover → settlement
-│   ├── on_discover.json                   #   ChargeZone Bangalore, 2 roles (CPO + driver)
-│   ├── select.json → on_update_complete.json
+│   ├── on_discover.json                   #   EnergyResource + EnergyProvider + DEGContract
+│   └── on_update_complete.json            #   EnergyDelivery (COMPLETED) + DEGContract (SETTLED)
 ├── p2p-trading-interdiscom/               # 11 files: discover → settlement (incl. cascaded)
-│   ├── on_discover.json                   #   Delhi→Karnataka solar, 4 roles + 6 revenue flows
+│   ├── on_discover.json                   #   GENERATION_PLANT resource, 4 roles + 6 revenue flows
 │   ├── cascaded_init.json                 #   P2P BPP acts as BAP to utility BPP
-│   └── on_status_completed.json           #   Full settlement with net-zero check
+│   └── on_status_completed.json           #   Full settlement with net-zero verified
 └── smart_ev_charging/                     # 10 files: discover → V2G event → settlement
-    ├── on_discover.json                   #   Tata EZ Charge Mumbai, COMPOSITE contract, 3 roles
-    ├── on_update_v2g_event.json           #   Grid stress V2G activation with Rego eval results
+    ├── on_discover.json                   #   V2G-capable EV_CHARGER, COMPOSITE contract, 3 roles
+    ├── on_update_v2g_event.json           #   Grid stress V2G activation with Rego eval
     └── on_status_complete.json            #   4-party revenue: ev_owner, CPO, grid_operator, platform
 ```
 
@@ -352,7 +369,7 @@ examples/deg_contract/
 
 **1. EV Charging** (`ev_charging/`)
 - 2 roles: `cpo` (CPO) + `ev_driver` (CONSUMER)
-- Revenue: charging_payment + platform_fee + GST + idle_fee - refund
+- Revenue: charging_payment + platform_fee + GST + idle_fee - refund_overcharge
 - Rego: `deg.contracts.ev_charging` (connector compat, time-of-day pricing, cancellation)
 
 **2. P2P Inter-Discom Trading** (`p2p-trading-interdiscom/`)
@@ -370,9 +387,10 @@ examples/deg_contract/
 ### Working with DEGContract Examples
 
 - All 30 JSON files validated with `python3 -c "import json; json.load(open(f))"`
-- Each example preserves all fields from the original v2 examples (ChargingService itemAttributes, EnergyResource, EnergyCustomer, etc.) while adding the DEGContract layer
+- **PURE architecture**: DEGContract is the direct `@type` in offerAttributes/orderAttributes — no wrapper schemas (ChargingOffer, EnergyTradeOffer etc. are NOT used)
+- Domain data in dedicated Beckn slots: EnergyResource in itemAttributes, EnergyDelivery in deliveryAttributes, EnergyProvider in providerAttributes, EnergyBuyer in buyerAttributes
 - Revenue model `computedAmount` values only appear in SETTLED state; TEMPLATE state has `computedAmount: null`
-- The `netZeroCheck` in settled examples shows per-role positions summing to zero
+- Net-zero verified: `sum(all per-party net positions) == 0` in all 3 settled examples
 
 ### Reference Files (Original Working Docs)
 
