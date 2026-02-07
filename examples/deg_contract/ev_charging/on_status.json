@@ -1,0 +1,312 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_status",
+    "domain": "beckn.one:deg:ev-charging:2.0.0",
+    "bap_id": "ev-bap.mobility-app.in",
+    "bap_uri": "https://ev-bap.mobility-app.in/beckn/v2",
+    "bpp_id": "chargezone-bpp.in",
+    "bpp_uri": "https://api.chargezone-bpp.in/beckn/v2",
+    "transaction_id": "txn-ev-001",
+    "message_id": "msg-on_status-001",
+    "timestamp": "2026-01-15T11:15:00Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-ev-cz-001",
+      "beckn:orderStatus": "INPROGRESS",
+      "beckn:seller": "chargezone-blr",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "user-ravi-456"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*chargezone*cs-blr-01*IN*CZ*KOR*01*CCS2*A"
+        }
+      ],
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-cz-001",
+        "beckn:mode": "RESERVATION",
+        "trackingAction": {
+          "@type": "beckn:TrackAction",
+          "target": {
+            "@type": "schema:EntryPoint",
+            "url": "https://track.chargezone.in/session/SESSION-CZ-2026011501"
+          }
+        },
+        "beckn:deliveryAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingSession/v1/context.jsonld",
+          "@type": "ChargingSession",
+          "sessionStatus": "ACTIVE",
+          "chargingTelemetry": [
+            {
+              "eventTime": "2026-01-15T11:10:00Z",
+              "metrics": [
+                {
+                  "name": "STATE_OF_CHARGE",
+                  "value": 42.0,
+                  "unitCode": "PERCENTAGE"
+                },
+                {
+                  "name": "POWER",
+                  "value": 52.3,
+                  "unitCode": "KW"
+                },
+                {
+                  "name": "ENERGY",
+                  "value": 4.8,
+                  "unitCode": "KWH"
+                },
+                {
+                  "name": "VOLTAGE",
+                  "value": 412,
+                  "unitCode": "VLT"
+                },
+                {
+                  "name": "CURRENT",
+                  "value": 127.0,
+                  "unitCode": "AMP"
+                }
+              ]
+            },
+            {
+              "eventTime": "2026-01-15T11:15:00Z",
+              "metrics": [
+                {
+                  "name": "STATE_OF_CHARGE",
+                  "value": 48.5,
+                  "unitCode": "PERCENTAGE"
+                },
+                {
+                  "name": "POWER",
+                  "value": 55.1,
+                  "unitCode": "KW"
+                },
+                {
+                  "name": "ENERGY",
+                  "value": 9.4,
+                  "unitCode": "KWH"
+                },
+                {
+                  "name": "VOLTAGE",
+                  "value": 418,
+                  "unitCode": "VLT"
+                },
+                {
+                  "name": "CURRENT",
+                  "value": 131.8,
+                  "unitCode": "AMP"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "beckn:orderAttributes": {
+        "@context": [
+          "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingSession/v1/context.jsonld",
+          "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld"
+        ],
+        "@type": "ChargingSession",
+        "degContract": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+          "@type": "DEGContract",
+          "contractType": "EV_CHARGING",
+          "version": "1.0.0",
+          "contractState": "ACTIVE",
+          "roles": [
+            {
+              "@type": "DEGRole",
+              "roleId": "cpo",
+              "roleType": "CPO",
+              "party": {
+                "partyId": "chargezone-blr",
+                "partyType": "PROVIDER",
+                "platformId": "chargezone-bpp.in"
+              },
+              "inputs": [
+                {
+                  "@type": "RoleInput",
+                  "inputId": "evse_id",
+                  "inputType": "DER_ID",
+                  "required": true,
+                  "value": "IN*CZ*KOR*01*CCS2*A",
+                  "providedAt": "TEMPLATE"
+                },
+                {
+                  "@type": "RoleInput",
+                  "inputId": "tariff_rate",
+                  "inputType": "PARAMETER",
+                  "required": true,
+                  "value": 18.0,
+                  "providedAt": "TEMPLATE"
+                }
+              ],
+              "obligations": ["delivery_obligation", "quality_obligation"]
+            },
+            {
+              "@type": "DEGRole",
+              "roleId": "ev_driver",
+              "roleType": "CONSUMER",
+              "party": {
+                "partyId": "user-ravi-456",
+                "partyType": "BUYER",
+                "platformId": "ev-bap.mobility-app.in"
+              },
+              "inputs": [
+                {
+                  "@type": "RoleInput",
+                  "inputId": "requested_kwh",
+                  "inputType": "PARAMETER",
+                  "required": true,
+                  "value": 30,
+                  "providedAt": "NEGOTIATION"
+                },
+                {
+                  "@type": "RoleInput",
+                  "inputId": "meter_reading_start",
+                  "inputType": "METER_ID",
+                  "required": true,
+                  "value": 15230.4,
+                  "providedAt": "FULFILLMENT"
+                }
+              ],
+              "obligations": ["payment_obligation"]
+            }
+          ],
+          "terms": [
+            {
+              "@type": "DEGTerm",
+              "termId": "pricing_term",
+              "termType": "PAYMENT",
+              "description": "Energy charged at 18 INR/kWh. Current consumed: 9.4 kWh. Running cost: 169.20 INR.",
+              "condition": { "expr": "contractState == 'ACTIVE' AND deliveredEnergy > 0" },
+              "obligation": { "expr": "payment.amount == 18.0 * fulfillment.deliveredEnergy" },
+              "appliesTo": ["ev_driver"]
+            },
+            {
+              "@type": "DEGTerm",
+              "termId": "delivery_obligation",
+              "termType": "DELIVERY",
+              "description": "CPO delivering energy. Progress: 9.4 / 30 kWh (31.3%).",
+              "condition": { "expr": "contractState == 'ACTIVE'" },
+              "obligation": { "expr": "fulfillment.deliveredEnergy >= 30" },
+              "appliesTo": ["cpo"]
+            },
+            {
+              "@type": "DEGTerm",
+              "termId": "quality_obligation",
+              "termType": "QUALITY",
+              "description": "Power output within range. Current: 55.1 kW (max 60 kW). Voltage: 418V within safe range.",
+              "condition": { "expr": "contractState == 'ACTIVE' AND sessionStatus == 'ACTIVE'" },
+              "obligation": {
+                "rule": {
+                  "operator": "AND",
+                  "operands": [
+                    {
+                      "rule": {
+                        "operator": "BETWEEN",
+                        "operands": [
+                          { "field": "telemetry.power" },
+                          { "value": 5 },
+                          { "value": 60 }
+                        ]
+                      }
+                    },
+                    {
+                      "rule": {
+                        "operator": "BETWEEN",
+                        "operands": [
+                          { "field": "telemetry.voltage" },
+                          { "value": 200 },
+                          { "value": 920 }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "appliesTo": ["cpo"]
+            }
+          ],
+          "energySpec": {
+            "@type": "EnergySpecification",
+            "energyType": "ELECTRICAL",
+            "sourceType": "GRID",
+            "quantity": {
+              "unitText": "Kilowatt Hour",
+              "unitCode": "KWH",
+              "unitQuantity": 30
+            }
+          },
+          "fulfillmentSpec": {
+            "@type": "FulfillmentSpecification",
+            "deliveryMode": "EV_CHARGING",
+            "deliveryWindow": {
+              "startTime": "2026-01-15T11:00:00Z",
+              "endTime": "2026-01-15T12:30:00Z"
+            },
+            "location": {
+              "geo": { "type": "Point", "coordinates": [77.6104, 12.9352] }
+            },
+            "meterIds": ["IN*CZ*KOR*01*CCS2*A*METER"],
+            "signals": [
+              {
+                "@type": "SignalSpec",
+                "signalType": "METER_READING",
+                "source": "wss://ocpp.chargezone.in/cs/IN-CZ-KOR-01",
+                "protocol": "OCPP",
+                "sampleRate": "PT30S"
+              }
+            ]
+          },
+          "revenueModel": {
+            "@type": "RevenueModel",
+            "flows": [
+              {
+                "@type": "RevenueFlow",
+                "flowId": "charging_payment",
+                "from": "ev_driver",
+                "to": "cpo",
+                "flowType": "ENERGY_PAYMENT",
+                "formula": { "expr": "18.0 * fulfillment.deliveredEnergy" },
+                "currency": "INR",
+                "triggeredBy": "pricing_term",
+                "schedule": "ON_DELIVERY"
+              },
+              {
+                "@type": "RevenueFlow",
+                "flowId": "platform_fee",
+                "from": "ev_driver",
+                "to": "platform",
+                "flowType": "PLATFORM_FEE",
+                "formula": { "expr": "charging_payment.computedAmount * 0.025" },
+                "currency": "INR",
+                "triggeredBy": "payment_obligation",
+                "schedule": "ON_DELIVERY"
+              },
+              {
+                "@type": "RevenueFlow",
+                "flowId": "gst_tax",
+                "from": "ev_driver",
+                "to": "tax_authority",
+                "flowType": "TAX",
+                "formula": { "expr": "(charging_payment.computedAmount + platform_fee.computedAmount) * 0.18" },
+                "currency": "INR",
+                "triggeredBy": "payment_obligation",
+                "schedule": "ON_DELIVERY"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

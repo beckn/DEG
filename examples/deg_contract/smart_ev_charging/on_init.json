@@ -1,0 +1,151 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_init",
+    "domain": "beckn.one:deg:smart-ev-charging:2.0.0",
+    "timestamp": "2026-02-08T09:02:05Z",
+    "message_id": "msg-on-init-v2g-001",
+    "transaction_id": "txn-smart-ev-v2g-001",
+    "bap_id": "ev-app.example.com",
+    "bap_uri": "https://ev-app.example.com/bap",
+    "bpp_id": "bpp.tata-ezcharge.example.com",
+    "bpp_uri": "https://bpp.tata-ezcharge.example.com/bpp",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-smart-ev-v2g-001",
+      "beckn:orderStatus": "CREATED",
+      "beckn:seller": "tata-ezcharge-mumbai",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "ev-owner-ankit-001",
+        "beckn:role": "BUYER",
+        "beckn:displayName": "Ankit Sharma",
+        "beckn:telephone": "+91-9821234567",
+        "beckn:email": "ankit.sharma@example.com",
+        "beckn:taxID": "GSTIN27ABCDS5678K1Z9"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G",
+          "beckn:quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 20
+          },
+          "beckn:price": {
+            "currency": "INR",
+            "value": 8.0,
+            "applicableQuantity": {
+              "unitText": "Kilowatt Hour",
+              "unitCode": "KWH",
+              "unitQuantity": 1
+            }
+          }
+        }
+      ],
+      "beckn:orderValue": {
+        "currency": "INR",
+        "value": 163.20,
+        "components": [
+          {
+            "type": "UNIT",
+            "value": 160.0,
+            "currency": "INR",
+            "description": "Estimated charging cost (20 kWh x INR 8/kWh peak rate)"
+          },
+          {
+            "type": "FEE",
+            "value": 3.20,
+            "currency": "INR",
+            "description": "Platform fee (2%)"
+          }
+        ]
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/DEGContract/v1/context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "COMPOSITE",
+        "contractState": "COMMITTED",
+        "version": "1.0.0",
+        "v2gTermsSummary": {
+          "v2gConsent": true,
+          "minChargeLevelPct": 30,
+          "vehicleBatteryKwh": 60,
+          "v2gRatePerKwh": 12.0,
+          "v2gRateCurrency": "INR",
+          "maxDischargeKwh": 9.0,
+          "gridStressTrigger": "Automatic — based on grid frequency and curtailment signals from MSEDCL",
+          "disclaimer": "V2G discharge is conditional on grid stress events. Earnings are not guaranteed and depend on grid conditions during the charging session."
+        },
+        "cancellationPolicy": {
+          "midChargeFeePercent": 30,
+          "description": "30% of estimated total if cancelled during active charging"
+        },
+        "pricingSchedule": {
+          "chargingRates": [
+            {
+              "period": "PEAK",
+              "hours": "10:00-18:00",
+              "ratePerKwh": 8.0,
+              "currency": "INR"
+            },
+            {
+              "period": "NORMAL",
+              "hours": "06:00-10:00, 18:00-22:00",
+              "ratePerKwh": 6.5,
+              "currency": "INR"
+            },
+            {
+              "period": "OFF_PEAK",
+              "hours": "22:00-06:00",
+              "ratePerKwh": 5.0,
+              "currency": "INR"
+            }
+          ],
+          "v2gRate": {
+            "ratePerKwh": 12.0,
+            "currency": "INR"
+          }
+        }
+      },
+      "beckn:payment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Payment",
+        "beckn:id": "payment-v2g-001",
+        "beckn:amount": {
+          "currency": "INR",
+          "value": 163.20
+        },
+        "beckn:paymentURL": "https://payments.tata-ezcharge.example.com/pay?txn=txn-smart-ev-v2g-001&amount=163.20&currency=INR",
+        "beckn:beneficiary": "BPP",
+        "beckn:paymentStatus": "AWAITING",
+        "beckn:paymentAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/PaymentSettlement/v1/context.jsonld",
+          "@type": "PaymentSettlement",
+          "paymentNote": "Payment will be adjusted at session end based on actual charging consumed and any V2G earnings. Estimated hold: INR 163.20. Final amount may be lower if V2G events occur.",
+          "settlementAccounts": [
+            {
+              "beneficiaryId": "bpp.tata-ezcharge.example.com",
+              "accountHolderName": "Tata Power EZ Charge Pvt Ltd",
+              "accountNumber": "5432109876543",
+              "ifscCode": "HDFC0001234",
+              "bankName": "HDFC Bank",
+              "vpa": "tataezcharge@hdfcbank"
+            }
+          ],
+          "v2gPayoutAccount": {
+            "beneficiaryId": "ev-owner-ankit-001",
+            "accountHolderName": "Ankit Sharma",
+            "vpa": "ankit.sharma@upi",
+            "description": "V2G earnings will be credited to this account upon session settlement"
+          }
+        }
+      }
+    }
+  }
+}

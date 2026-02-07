@@ -1,0 +1,281 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "init",
+    "timestamp": "2025-06-15T06:40:00Z",
+    "message_id": "msg-init-interdiscom-001",
+    "transaction_id": "txn-p2p-interdiscom-001",
+    "bap_id": "bap.energy-buyer.in",
+    "bap_uri": "https://bap.energy-buyer.in",
+    "bpp_id": "bpp.solarfarm-delhi.in",
+    "bpp_uri": "https://bpp.solarfarm-delhi.in",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-interdiscom-001",
+      "beckn:items": [
+        {
+          "beckn:id": "energy-resource-solar-delhi-001",
+          "quantity": {
+            "count": 20.0,
+            "unit": "kWh"
+          }
+        }
+      ],
+      "beckn:offers": [
+        {
+          "beckn:id": "offer-solar-morning-001"
+        },
+        {
+          "beckn:id": "offer-solar-afternoon-001"
+        }
+      ],
+      "beckn:provider": {
+        "beckn:id": "provider-solar-delhi-001"
+      },
+      "beckn:buyer": {
+        "@type": "beckn:Buyer",
+        "beckn:buyerAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyCustomer/v0.2/context.jsonld",
+          "@type": "EnergyCustomer",
+          "meterId": "der://meter/98765456",
+          "utilityId": "BESCOM-KA",
+          "utilityCustomerId": "BESCOM-2024-CON-08832",
+          "sanctionedLoad": 5.0,
+          "connectionType": "LT-DOMESTIC"
+        }
+      },
+      "beckn:fulfillments": [
+        {
+          "@type": "beckn:Fulfillment",
+          "beckn:id": "fulfillment-interdiscom-001",
+          "beckn:type": "ENERGY_DELIVERY",
+          "beckn:customer": {
+            "@type": "beckn:Customer",
+            "beckn:person": {
+              "@type": "schema:Person",
+              "schema:name": "Priya Sharma"
+            },
+            "beckn:contact": {
+              "@type": "schema:ContactPoint",
+              "schema:telephone": "+91-9876543210",
+              "schema:email": "priya.sharma@example.com"
+            }
+          },
+          "beckn:stops": [
+            {
+              "@type": "beckn:Stop",
+              "beckn:id": "stop-source-001",
+              "beckn:type": "START",
+              "beckn:location": {
+                "@type": "beckn:Location",
+                "beckn:address": "der://meter/100200300",
+                "beckn:descriptor": {
+                  "@type": "beckn:Descriptor",
+                  "schema:name": "Solar Farm - South Delhi (TPDDL)"
+                }
+              },
+              "beckn:time": {
+                "@type": "beckn:Time",
+                "beckn:range": {
+                  "start": "2025-06-15T06:00:00+05:30",
+                  "end": "2025-06-15T18:00:00+05:30"
+                }
+              }
+            },
+            {
+              "@type": "beckn:Stop",
+              "beckn:id": "stop-destination-001",
+              "beckn:type": "END",
+              "beckn:location": {
+                "@type": "beckn:Location",
+                "beckn:address": "der://meter/98765456",
+                "beckn:descriptor": {
+                  "@type": "beckn:Descriptor",
+                  "schema:name": "Consumer - Koramangala, Bangalore (BESCOM)"
+                }
+              },
+              "beckn:time": {
+                "@type": "beckn:Time",
+                "beckn:range": {
+                  "start": "2025-06-15T06:00:00+05:30",
+                  "end": "2025-06-15T18:00:00+05:30"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "beckn:payments": [
+        {
+          "@type": "beckn:Payment",
+          "beckn:id": "payment-interdiscom-001",
+          "beckn:type": "ON-FULFILLMENT",
+          "beckn:status": "NOT-PAID",
+          "beckn:collected_by": "BPP",
+          "beckn:paymentAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/PaymentSettlement/v0.2/context.jsonld",
+            "@type": "PaymentSettlement",
+            "paymentAttributes": {
+              "settlementAccounts": [
+                {
+                  "accountType": "UPI",
+                  "accountId": "priya.sharma@okicici",
+                  "accountHolder": "Priya Sharma",
+                  "role": "buyer"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "beckn:billing": {
+        "@type": "beckn:Billing",
+        "beckn:name": "Priya Sharma",
+        "beckn:email": "priya.sharma@example.com",
+        "beckn:phone": "+91-9876543210",
+        "beckn:address": "42, 3rd Cross, Koramangala, Bangalore 560034"
+      },
+      "beckn:orderAttributes": {
+        "@type": "DEGContract",
+        "contractType": "P2P_ENERGY_TRADE",
+        "version": "0.3.0",
+        "contractState": "COMMITTED",
+        "roles": [
+          {
+            "roleId": "seller",
+            "roleType": "PROSUMER",
+            "party": {
+              "partyId": "provider-solar-delhi-001",
+              "partyType": "PROVIDER",
+              "platformId": "bpp.solarfarm-delhi.in",
+              "attributes": {
+                "@type": "EnergyCustomer",
+                "meterId": "der://meter/100200300",
+                "utilityId": "TPDDL-DL",
+                "utilityCustomerId": "TPDDL-2024-SOL-00451",
+                "sanctionedLoad": 10.0
+              }
+            },
+            "inputs": [
+              {
+                "inputId": "source_meter",
+                "inputType": "METER_ID",
+                "value": "der://meter/100200300",
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "inputId": "energy_source",
+                "inputType": "PARAMETER",
+                "value": "SOLAR",
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "inputId": "available_kwh",
+                "inputType": "PARAMETER",
+                "value": 25.0,
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "inputId": "source_utility",
+                "inputType": "PARAMETER",
+                "value": "TPDDL-DL",
+                "providedAt": "TEMPLATE"
+              }
+            ],
+            "obligations": ["delivery_obligation"]
+          },
+          {
+            "roleId": "buyer",
+            "roleType": "CONSUMER",
+            "party": {
+              "partyId": "buyer-bangalore-001",
+              "partyType": "BUYER",
+              "platformId": "bap.energy-buyer.in",
+              "attributes": {
+                "@type": "EnergyCustomer",
+                "meterId": "der://meter/98765456",
+                "utilityId": "BESCOM-KA",
+                "utilityCustomerId": "BESCOM-2024-CON-08832",
+                "sanctionedLoad": 5.0
+              }
+            },
+            "inputs": [
+              {
+                "inputId": "destination_meter",
+                "inputType": "METER_ID",
+                "required": true,
+                "value": "der://meter/98765456",
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "requested_kwh",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 20.0,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "buyer_utility_id",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": "BESCOM-KA",
+                "providedAt": "COMMITMENT"
+              },
+              {
+                "inputId": "buyer_utility_customer_id",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": "BESCOM-2024-CON-08832",
+                "providedAt": "COMMITMENT"
+              }
+            ],
+            "obligations": ["pricing", "payment_obligation"]
+          },
+          {
+            "roleId": "source_utility",
+            "roleType": "UTILITY",
+            "party": {
+              "partyId": "TPDDL-DL",
+              "partyType": "PROVIDER",
+              "platformId": "bpp.tpddl.gov.in"
+            },
+            "inputs": [
+              {
+                "inputId": "source_wheeling_charge",
+                "inputType": "PARAMETER",
+                "value": null,
+                "providedAt": "COMMITMENT",
+                "filledBy": "source_utility"
+              }
+            ],
+            "obligations": ["utility_registration"]
+          },
+          {
+            "roleId": "destination_utility",
+            "roleType": "UTILITY",
+            "party": {
+              "partyId": "BESCOM-KA",
+              "partyType": "PROVIDER",
+              "platformId": "bpp.bescom.gov.in"
+            },
+            "inputs": [
+              {
+                "inputId": "destination_wheeling_charge",
+                "inputType": "PARAMETER",
+                "value": null,
+                "providedAt": "COMMITMENT",
+                "filledBy": "destination_utility"
+              }
+            ],
+            "obligations": ["utility_registration"]
+          }
+        ]
+      }
+    }
+  }
+}

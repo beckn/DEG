@@ -1,0 +1,138 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "init",
+    "timestamp": "2025-06-15T06:40:10Z",
+    "message_id": "msg-cascaded-init-interdiscom-001",
+    "transaction_id": "txn-p2p-interdiscom-001",
+    "bap_id": "bpp.solarfarm-delhi.in",
+    "bap_uri": "https://bpp.solarfarm-delhi.in/cascaded/bap",
+    "bpp_id": "bpp.tpddl.gov.in",
+    "bpp_uri": "https://bpp.tpddl.gov.in/pilot/bpp/energy/v2",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0",
+    "location": {
+      "city": {
+        "code": "DL",
+        "name": "Delhi"
+      },
+      "country": {
+        "code": "IND",
+        "name": "India"
+      }
+    }
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-cascaded-utility-interdiscom-001",
+      "beckn:provider": {
+        "@type": "beckn:Provider",
+        "beckn:id": "provider-tpddl-001",
+        "beckn:descriptor": {
+          "@type": "beckn:Descriptor",
+          "schema:name": "TPDDL - Tata Power Delhi Distribution Limited"
+        }
+      },
+      "beckn:fulfillments": [
+        {
+          "@type": "beckn:Fulfillment",
+          "beckn:id": "fulfillment-utility-registration-interdiscom-001",
+          "beckn:type": "ENERGY_DELIVERY",
+          "beckn:customer": {
+            "@type": "beckn:Customer",
+            "beckn:person": {
+              "@type": "schema:Person",
+              "schema:name": "Delhi Solar Prosumer"
+            },
+            "beckn:contact": {
+              "@type": "schema:ContactPoint",
+              "schema:telephone": "+91-11-27654321"
+            }
+          },
+          "beckn:stops": [
+            {
+              "@type": "beckn:Stop",
+              "beckn:id": "stop-source-utility-001",
+              "beckn:type": "START",
+              "beckn:location": {
+                "@type": "beckn:Location",
+                "beckn:address": "der://meter/100200300",
+                "beckn:descriptor": {
+                  "@type": "beckn:Descriptor",
+                  "schema:name": "Source Meter - TPDDL Delhi"
+                }
+              },
+              "beckn:time": {
+                "@type": "beckn:Time",
+                "beckn:range": {
+                  "start": "2025-06-15T06:00:00+05:30",
+                  "end": "2025-06-15T18:00:00+05:30"
+                }
+              }
+            },
+            {
+              "@type": "beckn:Stop",
+              "beckn:id": "stop-target-utility-001",
+              "beckn:type": "END",
+              "beckn:location": {
+                "@type": "beckn:Location",
+                "beckn:address": "der://meter/98765456",
+                "beckn:descriptor": {
+                  "@type": "beckn:Descriptor",
+                  "schema:name": "Destination Meter - BESCOM Bangalore"
+                }
+              },
+              "beckn:time": {
+                "@type": "beckn:Time",
+                "beckn:range": {
+                  "start": "2025-06-15T06:00:00+05:30",
+                  "end": "2025-06-15T18:00:00+05:30"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyTradeOrder/v0.2/context.jsonld",
+        "@type": "EnergyTradeOrder",
+        "bap_id": "bpp.solarfarm-delhi.in",
+        "bpp_id": "bpp.tpddl.gov.in",
+        "total_quantity": 20.0,
+        "sourceCustomer": {
+          "@type": "EnergyCustomer",
+          "meterId": "der://meter/100200300",
+          "utilityId": "TPDDL-DL",
+          "utilityCustomerId": "TPDDL-2024-SOL-00451",
+          "sanctionedLoad": 10.0,
+          "connectionType": "LT-DOMESTIC"
+        },
+        "destinationCustomer": {
+          "@type": "EnergyCustomer",
+          "meterId": "der://meter/98765456",
+          "utilityId": "BESCOM-KA",
+          "utilityCustomerId": "BESCOM-2024-CON-08832",
+          "sanctionedLoad": 5.0,
+          "connectionType": "LT-DOMESTIC"
+        },
+        "tradeDetails": {
+          "contractedQuantity": 20.0,
+          "sourceType": "SOLAR",
+          "tradeStartTime": "2025-06-15T06:00:00+05:30",
+          "tradeEndTime": "2025-06-15T18:00:00+05:30",
+          "interDiscom": true,
+          "sourceDiscom": "TPDDL-DL",
+          "destinationDiscom": "BESCOM-KA"
+        }
+      },
+      "beckn:billing": {
+        "@type": "beckn:Billing",
+        "beckn:name": "P2P Trading Platform (acting as BAP)",
+        "beckn:email": "utility-ops@solarfarm-delhi.in",
+        "beckn:phone": "+91-11-27654321"
+      }
+    }
+  }
+}

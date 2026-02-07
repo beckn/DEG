@@ -1,0 +1,631 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_discover",
+    "domain": "beckn.one:deg:smart-ev-charging:2.0.0",
+    "timestamp": "2026-02-08T09:00:05Z",
+    "transaction_id": "txn-smart-ev-v2g-001",
+    "message_id": "msg-on-discover-v2g-001",
+    "bap_id": "ev-app.example.com",
+    "bap_uri": "https://ev-app.example.com/bap",
+    "bpp_id": "smart-ev-cds.example.com",
+    "bpp_uri": "https://smart-ev-cds.example.com/pilot/cds/energy/v2",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "catalogs": [
+      {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Catalog",
+        "beckn:id": "catalog-smart-ev-v2g-001",
+        "beckn:descriptor": {
+          "@type": "beckn:Descriptor",
+          "schema:name": "Smart EV Charging with V2G Services",
+          "beckn:shortDesc": "V2G-capable EV charging network enabling bidirectional energy flow, demand flexibility, and grid services across Mumbai"
+        },
+        "beckn:bppId": "bpp.tata-ezcharge.example.com",
+        "beckn:bppUri": "https://bpp.tata-ezcharge.example.com/bpp",
+        "beckn:items": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Item",
+            "beckn:id": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "DC Fast Charger - CCS2 (60kW) V2G-Capable",
+              "beckn:shortDesc": "Bidirectional DC fast charger with Vehicle-to-Grid capability",
+              "beckn:longDesc": "60kW bidirectional DC fast charging station supporting CCS2 connector with V2G (Vehicle-to-Grid) capability. Enables charging your EV during normal grid conditions and discharging back to grid during peak demand, earning you money while supporting grid stability."
+            },
+            "beckn:category": {
+              "@type": "schema:CategoryCode",
+              "schema:codeValue": "smart-ev-charging",
+              "schema:name": "Smart EV Charging with V2G"
+            },
+            "beckn:availabilityWindow": [
+              {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "00:00:00",
+                "schema:endTime": "23:59:59"
+              }
+            ],
+            "beckn:rateable": true,
+            "beckn:rating": {
+              "@type": "beckn:Rating",
+              "beckn:ratingValue": 4.6,
+              "beckn:ratingCount": 215
+            },
+            "beckn:isActive": true,
+            "beckn:provider": {
+              "beckn:id": "tata-ezcharge-mumbai",
+              "beckn:descriptor": {
+                "@type": "beckn:Descriptor",
+                "schema:name": "Tata Power EZ Charge"
+              }
+            },
+            "beckn:itemAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingService/v1/context.jsonld",
+              "@type": "ChargingService",
+              "connectorType": "CCS2",
+              "maxPowerKW": 60,
+              "minPowerKW": 5,
+              "v2gSupported": true,
+              "reservationSupported": true,
+              "chargingStation": {
+                "id": "IN-TATA-BKC-STATION-01",
+                "serviceLocation": {
+                  "@type": "beckn:Location",
+                  "geo": {
+                    "type": "Point",
+                    "coordinates": [
+                      72.8614,
+                      19.0596
+                    ]
+                  },
+                  "address": {
+                    "streetAddress": "Tata Power EZ Charge Hub, Bandra Kurla Complex",
+                    "addressLocality": "Mumbai",
+                    "addressRegion": "Maharashtra",
+                    "postalCode": "400051",
+                    "addressCountry": "IN"
+                  }
+                }
+              },
+              "amenityFeature": [
+                "RESTROOM",
+                "WI-FI",
+                "PARKING",
+                "CAFE"
+              ],
+              "evseId": "IN*TATA*BKC*01*CCS2*A",
+              "parkingType": "OffStreet",
+              "powerType": "DC",
+              "connectorFormat": "CABLE",
+              "chargingSpeed": "FAST",
+              "vehicleType": "4-WHEELER"
+            }
+          }
+        ],
+        "beckn:offers": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-smart-ev-v2g-001",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Smart V2G Charging Plan - CCS2 60kW",
+              "beckn:shortDesc": "Charge at time-of-day rates, earn money by discharging to grid during peak demand"
+            },
+            "beckn:items": [
+              "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G"
+            ],
+            "beckn:price": {
+              "currency": "INR",
+              "value": 8.0,
+              "applicableQuantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 1
+              }
+            },
+            "beckn:validity": {
+              "@type": "beckn:TimePeriod",
+              "schema:startDate": "2026-01-01T00:00:00Z",
+              "schema:endDate": "2026-06-30T23:59:59Z"
+            },
+            "beckn:acceptedPaymentMethod": [
+              "UPI",
+              "CREDIT_CARD",
+              "WALLET"
+            ],
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/DEGContract/v1/context.jsonld",
+              "@type": "DEGContract",
+              "contractType": "COMPOSITE",
+              "contractState": "TEMPLATE",
+              "version": "1.0.0",
+              "composedOf": [
+                "EV_CHARGING",
+                "DEMAND_FLEXIBILITY"
+              ],
+              "roles": [
+                {
+                  "roleId": "ev_owner",
+                  "roleType": "PROSUMER",
+                  "party": null,
+                  "inputs": [
+                    {
+                      "inputId": "vehicle_battery_kwh",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "description": "Total battery capacity of the EV in kWh",
+                      "schema": {
+                        "type": "number",
+                        "minimum": 10,
+                        "maximum": 200
+                      },
+                      "value": null,
+                      "providedAt": "NEGOTIATION"
+                    },
+                    {
+                      "inputId": "min_charge_level_pct",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "description": "Minimum battery percentage the EV owner wants to retain (V2G will not discharge below this level)",
+                      "schema": {
+                        "type": "number",
+                        "minimum": 20,
+                        "maximum": 80,
+                        "default": 30
+                      },
+                      "value": null,
+                      "providedAt": "NEGOTIATION"
+                    },
+                    {
+                      "inputId": "v2g_consent",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "description": "EV owner consents to V2G discharge when grid stress is detected",
+                      "schema": {
+                        "type": "boolean"
+                      },
+                      "value": null,
+                      "providedAt": "COMMITMENT"
+                    },
+                    {
+                      "inputId": "vehicle_registration",
+                      "inputType": "CREDENTIAL",
+                      "required": true,
+                      "description": "Vehicle registration number for identification",
+                      "value": null,
+                      "providedAt": "COMMITMENT"
+                    }
+                  ],
+                  "obligations": [
+                    "charging_payment",
+                    "cancellation"
+                  ]
+                },
+                {
+                  "roleId": "cpo_aggregator",
+                  "roleType": "AGGREGATOR",
+                  "party": {
+                    "partyId": "tata-ezcharge-mumbai",
+                    "partyType": "PROVIDER",
+                    "platformId": "bpp.tata-ezcharge.example.com",
+                    "attributes": {
+                      "companyName": "Tata Power EZ Charge",
+                      "gstin": "27AABCT1234F1ZR",
+                      "cpoLicense": "MERC/CPO/2025/0042"
+                    }
+                  },
+                  "inputs": [
+                    {
+                      "inputId": "charger_id",
+                      "inputType": "ITEM_REF",
+                      "required": true,
+                      "value": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G",
+                      "providedAt": "TEMPLATE"
+                    },
+                    {
+                      "inputId": "connector_type",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "value": "CCS2",
+                      "providedAt": "TEMPLATE"
+                    },
+                    {
+                      "inputId": "max_power_kw",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "value": 60,
+                      "providedAt": "TEMPLATE"
+                    },
+                    {
+                      "inputId": "v2g_supported",
+                      "inputType": "PARAMETER",
+                      "required": true,
+                      "value": true,
+                      "providedAt": "TEMPLATE"
+                    }
+                  ],
+                  "obligations": [
+                    "charging_delivery",
+                    "v2g_payment_to_owner"
+                  ]
+                },
+                {
+                  "roleId": "grid_operator",
+                  "roleType": "GRID_OPERATOR",
+                  "party": {
+                    "partyId": "msedcl-mumbai",
+                    "partyType": "PROVIDER",
+                    "platformId": "bpp.msedcl-grid.example.com",
+                    "attributes": {
+                      "operatorName": "Maharashtra State Electricity Distribution Co. Ltd",
+                      "gridRegion": "Mumbai Metropolitan",
+                      "licenseNumber": "MERC/DISCOM/MUM/001"
+                    }
+                  },
+                  "inputs": [
+                    {
+                      "inputId": "grid_frequency_feed",
+                      "inputType": "SIGNAL",
+                      "required": true,
+                      "description": "Real-time grid frequency signal used to detect grid stress",
+                      "value": {
+                        "source": "mqtt://grid-signals.msedcl.example.com:8883/frequency/mumbai",
+                        "protocol": "MQTT",
+                        "sampleRate": "PT5S"
+                      },
+                      "providedAt": "TEMPLATE"
+                    },
+                    {
+                      "inputId": "curtailment_signal",
+                      "inputType": "SIGNAL",
+                      "required": true,
+                      "description": "Explicit curtailment/V2G dispatch signal from grid operator",
+                      "value": {
+                        "source": "https://api.msedcl-grid.example.com/v2/curtailment-signals",
+                        "protocol": "HTTP_WEBHOOK",
+                        "sampleRate": "PT1M"
+                      },
+                      "providedAt": "TEMPLATE"
+                    }
+                  ],
+                  "obligations": [
+                    "grid_v2g_payment"
+                  ]
+                }
+              ],
+              "terms": [
+                {
+                  "termId": "charging_delivery",
+                  "termType": "DELIVERY",
+                  "description": "CPO delivers charging energy to the EV when grid conditions are normal",
+                  "condition": {
+                    "expr": "sessionStatus == 'ACTIVE' AND energyFlowDirection == 'TO_VEHICLE'"
+                  },
+                  "obligation": {
+                    "expr": "deliverPower(connectorType, maxPowerKW) WITHIN sessionWindow"
+                  },
+                  "appliesTo": [
+                    "cpo_aggregator"
+                  ]
+                },
+                {
+                  "termId": "v2g_discharge",
+                  "termType": "SIGNAL_RESPONSE",
+                  "description": "When grid stress is detected AND the EV battery level is above the owner's minimum threshold, discharge energy from EV to grid",
+                  "condition": {
+                    "rule": {
+                      "operator": "AND",
+                      "operands": [
+                        {
+                          "field": "gridStress",
+                          "value": true
+                        },
+                        {
+                          "rule": {
+                            "operator": "GT",
+                            "operands": [
+                              {
+                                "field": "vehicleBatteryPct"
+                              },
+                              {
+                                "field": "contract.inputs.min_charge_level_pct"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "policyRef": {
+                      "type": "REGO",
+                      "uri": "https://policies.deg-network.io/v2g/v1.rego",
+                      "package": "deg.contracts.v2g",
+                      "entrypoint": "should_discharge"
+                    }
+                  },
+                  "obligation": {
+                    "expr": "dischargeToGrid(maxDischargeKwh) WHERE maxDischargeKwh = eval('deg.contracts.v2g.max_discharge_kwh')"
+                  },
+                  "appliesTo": [
+                    "cpo_aggregator",
+                    "ev_owner"
+                  ]
+                },
+                {
+                  "termId": "v2g_eligibility",
+                  "termType": "QUALITY",
+                  "description": "V2G operations are only permitted when the vehicle and charger support V2G and battery is above minimum level",
+                  "condition": {
+                    "policyRef": {
+                      "type": "REGO",
+                      "uri": "https://policies.deg-network.io/v2g/v1.rego",
+                      "package": "deg.contracts.v2g",
+                      "entrypoint": "v2g_eligible"
+                    }
+                  },
+                  "obligation": {
+                    "expr": "v2gCapable == true AND v2gSupported == true AND vehicleBatteryPct > minChargeLevelPct"
+                  },
+                  "appliesTo": [
+                    "ev_owner",
+                    "cpo_aggregator"
+                  ]
+                },
+                {
+                  "termId": "charging_payment",
+                  "termType": "PAYMENT",
+                  "description": "EV owner pays for charging at time-of-day rates: INR 8/kWh peak (10AM-6PM), INR 5/kWh off-peak (10PM-6AM), INR 6.50/kWh normal hours",
+                  "condition": {
+                    "expr": "chargedKwh > 0"
+                  },
+                  "obligation": {
+                    "policyRef": {
+                      "type": "REGO",
+                      "uri": "https://policies.deg-network.io/ev_charging/v1.rego",
+                      "package": "deg.contracts.ev_charging",
+                      "entrypoint": "total_charge"
+                    }
+                  },
+                  "appliesTo": [
+                    "ev_owner"
+                  ]
+                },
+                {
+                  "termId": "v2g_payment_to_owner",
+                  "termType": "PAYMENT",
+                  "description": "EV owner earns INR 12/kWh for energy discharged to grid during V2G events",
+                  "condition": {
+                    "expr": "dischargedKwh > 0"
+                  },
+                  "obligation": {
+                    "expr": "pay(ev_owner, dischargedKwh * v2gRate)"
+                  },
+                  "appliesTo": [
+                    "cpo_aggregator"
+                  ]
+                },
+                {
+                  "termId": "grid_v2g_payment",
+                  "termType": "PAYMENT",
+                  "description": "Grid operator pays CPO/aggregator INR 18/kWh for V2G grid services provided",
+                  "condition": {
+                    "expr": "dischargedKwh > 0"
+                  },
+                  "obligation": {
+                    "expr": "pay(cpo_aggregator, dischargedKwh * gridV2gRate)"
+                  },
+                  "appliesTo": [
+                    "grid_operator"
+                  ]
+                },
+                {
+                  "termId": "cancellation",
+                  "termType": "CANCELLATION",
+                  "description": "If the EV owner cancels mid-charge, a 30% cancellation fee of the estimated total applies",
+                  "condition": {
+                    "expr": "cancelRequested == true AND sessionStatus == 'ACTIVE'"
+                  },
+                  "obligation": {
+                    "expr": "cancellationFee = estimatedTotal * 0.30"
+                  },
+                  "consequence": {
+                    "policyRef": {
+                      "type": "REGO",
+                      "uri": "https://policies.deg-network.io/ev_charging/v1.rego",
+                      "package": "deg.contracts.ev_charging",
+                      "entrypoint": "cancellation_fee"
+                    }
+                  },
+                  "appliesTo": [
+                    "ev_owner"
+                  ]
+                },
+                {
+                  "termId": "pricing",
+                  "termType": "PAYMENT",
+                  "description": "Time-of-day pricing schedule for charging",
+                  "condition": {
+                    "expr": "true"
+                  },
+                  "obligation": {
+                    "rule": {
+                      "operator": "IF_THEN",
+                      "operands": [
+                        {
+                          "expr": "hour >= 10 AND hour < 18",
+                          "result": {
+                            "chargingRatePerKwh": 8.0,
+                            "period": "PEAK"
+                          }
+                        },
+                        {
+                          "expr": "hour >= 22 OR hour < 6",
+                          "result": {
+                            "chargingRatePerKwh": 5.0,
+                            "period": "OFF_PEAK"
+                          }
+                        },
+                        {
+                          "expr": "(hour >= 6 AND hour < 10) OR (hour >= 18 AND hour < 22)",
+                          "result": {
+                            "chargingRatePerKwh": 6.5,
+                            "period": "NORMAL"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "appliesTo": [
+                    "ev_owner",
+                    "cpo_aggregator"
+                  ]
+                }
+              ],
+              "energySpec": {
+                "energyType": "ELECTRICAL",
+                "sourceType": "GRID",
+                "quantity": {
+                  "unitText": "Kilowatt Hour",
+                  "unitCode": "KWH",
+                  "unitQuantity": 60
+                },
+                "qualityConstraints": {
+                  "voltageRange": {
+                    "min": 300,
+                    "max": 500
+                  }
+                }
+              },
+              "fulfillmentSpec": {
+                "deliveryMode": "V2G",
+                "deliveryWindow": {
+                  "@type": "beckn:TimePeriod",
+                  "schema:startDate": "2026-02-08T09:00:00Z",
+                  "schema:endDate": "2026-02-08T23:59:59Z"
+                },
+                "location": {
+                  "@type": "beckn:Location",
+                  "geo": {
+                    "type": "Point",
+                    "coordinates": [
+                      72.8614,
+                      19.0596
+                    ]
+                  },
+                  "address": {
+                    "streetAddress": "Tata Power EZ Charge Hub, Bandra Kurla Complex",
+                    "addressLocality": "Mumbai",
+                    "addressRegion": "Maharashtra",
+                    "postalCode": "400051",
+                    "addressCountry": "IN"
+                  }
+                },
+                "meterIds": [
+                  "METER-TATA-BKC-V2G-001"
+                ],
+                "signals": [
+                  {
+                    "signalType": "GRID_FREQUENCY",
+                    "source": "mqtt://grid-signals.msedcl.example.com:8883/frequency/mumbai",
+                    "protocol": "MQTT",
+                    "sampleRate": "PT5S"
+                  },
+                  {
+                    "signalType": "CURTAILMENT_COMMAND",
+                    "source": "https://api.msedcl-grid.example.com/v2/curtailment-signals",
+                    "protocol": "HTTP_WEBHOOK",
+                    "sampleRate": "PT1M"
+                  },
+                  {
+                    "signalType": "PRICE_SIGNAL",
+                    "source": "mqtt://grid-signals.msedcl.example.com:8883/tod-pricing/mumbai",
+                    "protocol": "MQTT",
+                    "sampleRate": "PT15M"
+                  }
+                ]
+              },
+              "settlementSpec": {
+                "paymentType": "POST_DELIVERY",
+                "currency": "INR",
+                "settlementCycle": "IMMEDIATE",
+                "escrowRequired": false,
+                "acceptedPaymentMethods": [
+                  "UPI",
+                  "CREDIT_CARD",
+                  "WALLET"
+                ]
+              },
+              "revenueModel": {
+                "flows": [
+                  {
+                    "flowId": "charging_payment",
+                    "from": "ev_owner",
+                    "to": "cpo_aggregator",
+                    "flowType": "ENERGY_PAYMENT",
+                    "formula": {
+                      "expr": "chargedKwh * chargingRatePerKwh",
+                      "policyRef": {
+                        "type": "REGO",
+                        "package": "deg.contracts.ev_charging",
+                        "entrypoint": "total_charge"
+                      }
+                    },
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "charging_payment",
+                    "schedule": "ON_DELIVERY"
+                  },
+                  {
+                    "flowId": "v2g_payment",
+                    "from": "cpo_aggregator",
+                    "to": "ev_owner",
+                    "flowType": "INCENTIVE",
+                    "formula": {
+                      "expr": "dischargedKwh * 12.0"
+                    },
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "v2g_payment_to_owner",
+                    "schedule": "ON_DELIVERY"
+                  },
+                  {
+                    "flowId": "grid_v2g_payment",
+                    "from": "grid_operator",
+                    "to": "cpo_aggregator",
+                    "flowType": "GRID_SERVICE_FEE",
+                    "formula": {
+                      "expr": "dischargedKwh * 18.0"
+                    },
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "triggeredBy": "grid_v2g_payment",
+                    "schedule": "ON_SETTLEMENT"
+                  },
+                  {
+                    "flowId": "platform_fee",
+                    "from": "cpo_aggregator",
+                    "to": "platform",
+                    "flowType": "PLATFORM_FEE",
+                    "formula": {
+                      "expr": "chargingPayment * 0.02"
+                    },
+                    "currency": "INR",
+                    "computedAmount": null,
+                    "schedule": "ON_SETTLEMENT"
+                  }
+                ],
+                "netZeroCheck": {
+                  "expr": "sum(flows[*].computedAmount) == 0"
+                }
+              }
+            },
+            "beckn:provider": "tata-ezcharge-mumbai"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_init",
+    "timestamp": "2025-06-15T06:40:15Z",
+    "message_id": "msg-cascaded-on-init-interdiscom-001",
+    "transaction_id": "txn-p2p-interdiscom-001",
+    "bap_id": "bpp.solarfarm-delhi.in",
+    "bap_uri": "https://bpp.solarfarm-delhi.in/cascaded/bap",
+    "bpp_id": "bpp.tpddl.gov.in",
+    "bpp_uri": "https://bpp.tpddl.gov.in/pilot/bpp/energy/v2",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-cascaded-utility-interdiscom-001",
+      "beckn:provider": {
+        "@type": "beckn:Provider",
+        "beckn:id": "provider-tpddl-001",
+        "beckn:descriptor": {
+          "@type": "beckn:Descriptor",
+          "schema:name": "TPDDL - Tata Power Delhi Distribution Limited"
+        }
+      },
+      "beckn:fulfillments": [
+        {
+          "@type": "beckn:Fulfillment",
+          "beckn:id": "fulfillment-utility-registration-interdiscom-001",
+          "beckn:type": "ENERGY_DELIVERY",
+          "beckn:customer": {
+            "@type": "beckn:Customer",
+            "beckn:person": {
+              "@type": "schema:Person",
+              "schema:name": "Delhi Solar Prosumer"
+            },
+            "beckn:contact": {
+              "@type": "schema:ContactPoint",
+              "schema:telephone": "+91-11-27654321"
+            }
+          },
+          "beckn:stops": [
+            {
+              "@type": "beckn:Stop",
+              "beckn:id": "stop-source-utility-001",
+              "beckn:type": "START",
+              "beckn:location": {
+                "@type": "beckn:Location",
+                "beckn:address": "der://meter/100200300"
+              }
+            },
+            {
+              "@type": "beckn:Stop",
+              "beckn:id": "stop-target-utility-001",
+              "beckn:type": "END",
+              "beckn:location": {
+                "@type": "beckn:Location",
+                "beckn:address": "der://meter/98765456"
+              }
+            }
+          ]
+        }
+      ],
+      "beckn:quote": {
+        "@type": "beckn:Quotation",
+        "beckn:price": {
+          "@type": "schema:PriceSpecification",
+          "schema:price": 10.00,
+          "schema:priceCurrency": "INR",
+          "schema:description": "Total inter-DISCOM wheeling charges for 20 kWh"
+        },
+        "beckn:breakup": [
+          {
+            "@type": "beckn:Breakup",
+            "beckn:title": "TPDDL Source Wheeling Charge (20 kWh @ INR 0.25/kWh)",
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 5.00,
+              "schema:priceCurrency": "INR"
+            }
+          },
+          {
+            "@type": "beckn:Breakup",
+            "beckn:title": "BESCOM Destination Wheeling Charge (20 kWh @ INR 0.25/kWh)",
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 5.00,
+              "schema:priceCurrency": "INR"
+            }
+          }
+        ]
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/EnergyTradeOrder/v0.2/context.jsonld",
+        "@type": "EnergyTradeOrder",
+        "bap_id": "bpp.solarfarm-delhi.in",
+        "bpp_id": "bpp.tpddl.gov.in",
+        "total_quantity": 20.0,
+        "wheelingDetails": {
+          "sourceDiscom": {
+            "discomId": "TPDDL-DL",
+            "wheelingRatePerKwh": 0.25,
+            "currency": "INR",
+            "openAccessApproved": true,
+            "approvalRef": "TPDDL/OA/2025/06/00789"
+          },
+          "destinationDiscom": {
+            "discomId": "BESCOM-KA",
+            "wheelingRatePerKwh": 0.25,
+            "currency": "INR",
+            "openAccessApproved": true,
+            "approvalRef": "BESCOM/OA/2025/06/01234"
+          },
+          "transmissionCharge": {
+            "chargePerKwh": 0.00,
+            "currency": "INR",
+            "description": "Inter-state transmission via ISTS waived for solar under Green Energy Open Access Rules 2022"
+          }
+        },
+        "tradeDetails": {
+          "contractedQuantity": 20.0,
+          "sourceType": "SOLAR",
+          "tradeStartTime": "2025-06-15T06:00:00+05:30",
+          "tradeEndTime": "2025-06-15T18:00:00+05:30",
+          "interDiscom": true,
+          "sourceDiscom": "TPDDL-DL",
+          "destinationDiscom": "BESCOM-KA"
+        }
+      },
+      "beckn:billing": {
+        "@type": "beckn:Billing",
+        "beckn:name": "P2P Trading Platform (acting as BAP)",
+        "beckn:email": "utility-ops@solarfarm-delhi.in",
+        "beckn:phone": "+91-11-27654321"
+      },
+      "beckn:cancellationTerms": [
+        {
+          "@type": "beckn:CancellationTerm",
+          "beckn:externalRef": {
+            "@type": "schema:MediaObject",
+            "schema:encodingFormat": "text/html",
+            "schema:contentUrl": "https://tpddl.com/open-access/cancellation-terms.html"
+          },
+          "beckn:cancellationFee": {
+            "@type": "schema:PriceSpecification",
+            "schema:price": 0.0,
+            "schema:priceCurrency": "INR",
+            "schema:description": "No cancellation fee if cancelled 1 hour before delivery window"
+          }
+        }
+      ]
+    }
+  }
+}

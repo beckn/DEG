@@ -1,0 +1,129 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_select",
+    "timestamp": "2025-06-15T06:35:05Z",
+    "message_id": "msg-on-select-interdiscom-001",
+    "transaction_id": "txn-p2p-interdiscom-001",
+    "bap_id": "bap.energy-buyer.in",
+    "bap_uri": "https://bap.energy-buyer.in",
+    "bpp_id": "bpp.solarfarm-delhi.in",
+    "bpp_uri": "https://bpp.solarfarm-delhi.in",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-interdiscom-001",
+      "beckn:items": [
+        {
+          "beckn:id": "energy-resource-solar-delhi-001",
+          "quantity": {
+            "count": 20.0,
+            "unit": "kWh"
+          }
+        }
+      ],
+      "beckn:offers": [
+        {
+          "beckn:id": "offer-solar-morning-001"
+        },
+        {
+          "beckn:id": "offer-solar-afternoon-001"
+        }
+      ],
+      "beckn:provider": {
+        "beckn:id": "provider-solar-delhi-001"
+      },
+      "beckn:quote": {
+        "@type": "beckn:Quotation",
+        "beckn:price": {
+          "@type": "schema:PriceSpecification",
+          "schema:price": 95.70,
+          "schema:priceCurrency": "INR",
+          "schema:description": "Total estimated cost for 20 kWh (10 kWh morning + 10 kWh afternoon)"
+        },
+        "beckn:breakup": [
+          {
+            "@type": "beckn:Breakup",
+            "beckn:title": "Morning Slot Energy Cost (10 kWh @ INR 4.50/kWh)",
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 45.00,
+              "schema:priceCurrency": "INR"
+            }
+          },
+          {
+            "@type": "beckn:Breakup",
+            "beckn:title": "Afternoon Slot Energy Cost (10 kWh @ INR 4.00/kWh)",
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 40.00,
+              "schema:priceCurrency": "INR"
+            }
+          },
+          {
+            "@type": "beckn:Breakup",
+            "beckn:title": "Inter-DISCOM Wheeling Charges (20 kWh @ INR 0.50/kWh)",
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 10.00,
+              "schema:priceCurrency": "INR"
+            }
+          },
+          {
+            "@type": "beckn:Breakup",
+            "beckn:title": "Platform Fee (1% of energy cost)",
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 0.85,
+              "schema:priceCurrency": "INR"
+            }
+          }
+        ]
+      },
+      "beckn:orderItems": [
+        {
+          "@type": "beckn:OrderItem",
+          "beckn:id": "order-item-morning-001",
+          "beckn:offer": {
+            "beckn:id": "offer-solar-morning-001"
+          },
+          "beckn:item": {
+            "beckn:id": "energy-resource-solar-delhi-001"
+          },
+          "beckn:quantity": {
+            "count": 10.0,
+            "unit": "kWh"
+          },
+          "beckn:price": {
+            "@type": "schema:PriceSpecification",
+            "schema:price": 45.00,
+            "schema:priceCurrency": "INR"
+          }
+        },
+        {
+          "@type": "beckn:OrderItem",
+          "beckn:id": "order-item-afternoon-001",
+          "beckn:offer": {
+            "beckn:id": "offer-solar-afternoon-001"
+          },
+          "beckn:item": {
+            "beckn:id": "energy-resource-solar-delhi-001"
+          },
+          "beckn:quantity": {
+            "count": 10.0,
+            "unit": "kWh"
+          },
+          "beckn:price": {
+            "@type": "schema:PriceSpecification",
+            "schema:price": 40.00,
+            "schema:priceCurrency": "INR"
+          }
+        }
+      ]
+    }
+  }
+}

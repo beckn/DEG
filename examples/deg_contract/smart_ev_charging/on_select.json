@@ -1,0 +1,183 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_select",
+    "domain": "beckn.one:deg:smart-ev-charging:2.0.0",
+    "timestamp": "2026-02-08T09:01:05Z",
+    "message_id": "msg-on-select-v2g-001",
+    "transaction_id": "txn-smart-ev-v2g-001",
+    "bap_id": "ev-app.example.com",
+    "bap_uri": "https://ev-app.example.com/bap",
+    "bpp_id": "bpp.tata-ezcharge.example.com",
+    "bpp_uri": "https://bpp.tata-ezcharge.example.com/bpp",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:orderStatus": "CREATED",
+      "beckn:seller": "tata-ezcharge-mumbai",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "ev-owner-ankit-001",
+        "beckn:role": "BUYER",
+        "beckn:displayName": "Ankit Sharma",
+        "beckn:telephone": "+91-9821234567",
+        "beckn:email": "ankit.sharma@example.com"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G",
+          "beckn:quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 20
+          },
+          "beckn:acceptedOffer": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-smart-ev-v2g-001",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Smart V2G Charging Plan - CCS2 60kW"
+            },
+            "beckn:items": [
+              "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G"
+            ],
+            "beckn:provider": "tata-ezcharge-mumbai",
+            "beckn:price": {
+              "currency": "INR",
+              "value": 8.0,
+              "applicableQuantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 1
+              }
+            }
+          },
+          "beckn:price": {
+            "currency": "INR",
+            "value": 8.0,
+            "applicableQuantity": {
+              "unitText": "Kilowatt Hour",
+              "unitCode": "KWH",
+              "unitQuantity": 1
+            }
+          }
+        }
+      ],
+      "beckn:orderValue": {
+        "currency": "INR",
+        "value": 160.0,
+        "components": [
+          {
+            "type": "UNIT",
+            "value": 160.0,
+            "currency": "INR",
+            "description": "Estimated charging cost (20 kWh x INR 8/kWh peak rate)"
+          },
+          {
+            "type": "DISCOUNT",
+            "value": 0.0,
+            "currency": "INR",
+            "description": "No discount applied — time-of-day pricing active"
+          },
+          {
+            "type": "FEE",
+            "value": 3.20,
+            "currency": "INR",
+            "description": "Platform fee (2%)"
+          }
+        ],
+        "estimatedCharging": {
+          "estimatedKwh": 20,
+          "estimatedDuration": "PT1H30M",
+          "currentPricingPeriod": "PEAK",
+          "currentRate": {
+            "currency": "INR",
+            "value": 8.0,
+            "unitCode": "KWH"
+          },
+          "estimatedCost": {
+            "currency": "INR",
+            "value": 160.0
+          }
+        },
+        "estimatedV2gEarnings": {
+          "potentialV2gKwh": 9.0,
+          "v2gRate": {
+            "currency": "INR",
+            "value": 12.0,
+            "unitCode": "KWH"
+          },
+          "potentialEarnings": {
+            "currency": "INR",
+            "value": 108.0
+          },
+          "note": "V2G earnings depend on grid stress events. The EV has 60 kWh battery at 45% SOC (27 kWh). With 30% minimum (18 kWh), up to 9 kWh is available for V2G discharge. Actual discharge depends on grid conditions."
+        },
+        "estimatedNetCost": {
+          "bestCase": {
+            "currency": "INR",
+            "value": 52.0,
+            "description": "If full V2G potential realized: INR 160 charging - INR 108 V2G earnings = INR 52"
+          },
+          "worstCase": {
+            "currency": "INR",
+            "value": 163.20,
+            "description": "No V2G events: INR 160 charging + INR 3.20 platform fee = INR 163.20"
+          }
+        }
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/DEGContract/v1/context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "COMPOSITE",
+        "contractState": "NEGOTIATED",
+        "version": "1.0.0",
+        "vehicleProfile": {
+          "batteryCapacityKwh": 60,
+          "currentSocPct": 45,
+          "targetSocPct": 80,
+          "minChargeLevelPct": 30,
+          "availableForV2gKwh": 9.0,
+          "estimatedChargeKwh": 21.0,
+          "estimatedChargeDuration": "PT1H30M"
+        },
+        "pricingSchedule": {
+          "chargingRates": [
+            {
+              "period": "PEAK",
+              "hours": "10:00-18:00",
+              "ratePerKwh": 8.0,
+              "currency": "INR"
+            },
+            {
+              "period": "NORMAL",
+              "hours": "06:00-10:00, 18:00-22:00",
+              "ratePerKwh": 6.5,
+              "currency": "INR"
+            },
+            {
+              "period": "OFF_PEAK",
+              "hours": "22:00-06:00",
+              "ratePerKwh": 5.0,
+              "currency": "INR"
+            }
+          ],
+          "v2gRate": {
+            "ratePerKwh": 12.0,
+            "currency": "INR",
+            "description": "Paid to EV owner for V2G discharge"
+          }
+        },
+        "cancellationPolicy": {
+          "midChargeFeePercent": 30,
+          "description": "If cancelled while charging is active, 30% of estimated total applies as cancellation fee"
+        }
+      }
+    }
+  }
+}

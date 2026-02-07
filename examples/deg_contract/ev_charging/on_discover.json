@@ -1,0 +1,543 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_discover",
+    "domain": "beckn.one:deg:ev-charging:2.0.0",
+    "bap_id": "ev-bap.mobility-app.in",
+    "bap_uri": "https://ev-bap.mobility-app.in/beckn/v2",
+    "bpp_id": "chargezone-bpp.in",
+    "bpp_uri": "https://api.chargezone-bpp.in/beckn/v2",
+    "transaction_id": "txn-ev-001",
+    "message_id": "msg-on_discover-001",
+    "timestamp": "2026-01-15T10:30:05Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "catalogs": [
+      {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Catalog",
+        "beckn:id": "catalog-chargezone-blr-001",
+        "beckn:descriptor": {
+          "@type": "beckn:Descriptor",
+          "schema:name": "ChargeZone EV Charging Network",
+          "beckn:shortDesc": "Premium fast charging stations across Bengaluru with CCS2 and Type2 connectors"
+        },
+        "beckn:bppId": "chargezone-bpp.in",
+        "beckn:bppUri": "https://api.chargezone-bpp.in/beckn/v2",
+        "beckn:items": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Item",
+            "beckn:id": "IND*chargezone*cs-blr-01*IN*CZ*KOR*01*CCS2*A",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "DC Fast Charger - CCS2 (60kW)",
+              "beckn:shortDesc": "High-speed DC charging station with CCS2 connector at Koramangala hub",
+              "beckn:longDesc": "Premium DC fast charging station supporting CCS2 connector type with 60kW maximum power output. Located at ChargeZone Koramangala Hub with restaurant, restrooms, and free Wi-Fi."
+            },
+            "beckn:category": {
+              "@type": "schema:CategoryCode",
+              "schema:codeValue": "ev-charging",
+              "schema:name": "EV Charging"
+            },
+            "beckn:availabilityWindow": [
+              {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "00:00:00",
+                "schema:endTime": "23:59:59"
+              }
+            ],
+            "beckn:rateable": true,
+            "beckn:rating": {
+              "@type": "beckn:Rating",
+              "beckn:ratingValue": 4.6,
+              "beckn:ratingCount": 214
+            },
+            "beckn:isActive": true,
+            "beckn:provider": {
+              "beckn:id": "chargezone-blr",
+              "beckn:descriptor": {
+                "@type": "beckn:Descriptor",
+                "schema:name": "ChargeZone Pvt Ltd"
+              }
+            },
+            "beckn:itemAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingService/v1/context.jsonld",
+              "@type": "ChargingService",
+              "connectorType": "CCS2",
+              "maxPowerKW": 60,
+              "minPowerKW": 5,
+              "reservationSupported": true,
+              "chargingStation": {
+                "id": "IN-CZ-KOR-STATION-01",
+                "serviceLocation": {
+                  "@type": "beckn:Location",
+                  "geo": {
+                    "type": "Point",
+                    "coordinates": [77.6104, 12.9352]
+                  },
+                  "address": {
+                    "streetAddress": "ChargeZone Hub, 80 Feet Road, Koramangala 4th Block",
+                    "addressLocality": "Bengaluru",
+                    "addressRegion": "Karnataka",
+                    "postalCode": "560034",
+                    "addressCountry": "IN"
+                  }
+                }
+              },
+              "amenityFeature": [
+                "RESTAURANT",
+                "RESTROOM",
+                "WI-FI",
+                "PARKING"
+              ],
+              "evseId": "IN*CZ*KOR*01*CCS2*A",
+              "parkingType": "Mall",
+              "powerType": "DC",
+              "connectorFormat": "CABLE",
+              "chargingSpeed": "FAST",
+              "vehicleType": "4-WHEELER"
+            }
+          }
+        ],
+        "beckn:offers": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-cz-ccs2-60kw-kwh",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Per-kWh Tariff - CCS2 60kW DC Fast Charging"
+            },
+            "beckn:items": [
+              "IND*chargezone*cs-blr-01*IN*CZ*KOR*01*CCS2*A"
+            ],
+            "beckn:price": {
+              "currency": "INR",
+              "value": 18.0,
+              "applicableQuantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 1
+              }
+            },
+            "beckn:validity": {
+              "@type": "beckn:TimePeriod",
+              "schema:startDate": "2026-01-01T00:00:00Z",
+              "schema:endDate": "2026-06-30T23:59:59Z"
+            },
+            "beckn:acceptedPaymentMethod": [
+              "UPI",
+              "CREDIT_CARD",
+              "WALLET"
+            ],
+            "beckn:offerAttributes": {
+              "@context": [
+                "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingOffer/v1/context.jsonld",
+                "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld"
+              ],
+              "@type": "ChargingOffer",
+              "tariffModel": "PER_KWH",
+              "idleFeePolicy": {
+                "currency": "INR",
+                "value": 2.5,
+                "applicableQuantity": {
+                  "unitCode": "MIN",
+                  "unitText": "minutes",
+                  "unitQuantity": 10
+                }
+              },
+              "degContract": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+                "@type": "DEGContract",
+                "contractType": "EV_CHARGING",
+                "version": "1.0.0",
+                "contractState": "TEMPLATE",
+                "roles": [
+                  {
+                    "@type": "DEGRole",
+                    "roleId": "cpo",
+                    "roleType": "CPO",
+                    "party": {
+                      "partyId": "chargezone-blr",
+                      "partyType": "PROVIDER",
+                      "platformId": "chargezone-bpp.in",
+                      "attributes": {
+                        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EvChargingService/v1/context.jsonld",
+                        "@type": "ChargingService",
+                        "connectorType": "CCS2",
+                        "maxPowerKW": 60,
+                        "evseId": "IN*CZ*KOR*01*CCS2*A",
+                        "chargingStation": {
+                          "id": "IN-CZ-KOR-STATION-01"
+                        }
+                      }
+                    },
+                    "inputs": [
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "evse_id",
+                        "inputType": "DER_ID",
+                        "required": true,
+                        "description": "EVSE identifier for the charging point",
+                        "value": "IN*CZ*KOR*01*CCS2*A",
+                        "providedAt": "TEMPLATE"
+                      },
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "station_location",
+                        "inputType": "LOCATION",
+                        "required": true,
+                        "description": "Physical location of the charging station",
+                        "value": {
+                          "geo": {
+                            "type": "Point",
+                            "coordinates": [77.6104, 12.9352]
+                          },
+                          "address": {
+                            "streetAddress": "ChargeZone Hub, 80 Feet Road, Koramangala 4th Block",
+                            "addressLocality": "Bengaluru",
+                            "addressRegion": "Karnataka",
+                            "postalCode": "560034",
+                            "addressCountry": "IN"
+                          }
+                        },
+                        "providedAt": "TEMPLATE"
+                      },
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "tariff_rate",
+                        "inputType": "PARAMETER",
+                        "required": true,
+                        "description": "Per-kWh tariff rate in INR",
+                        "value": 18.0,
+                        "providedAt": "TEMPLATE"
+                      },
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "max_power_kw",
+                        "inputType": "PARAMETER",
+                        "required": true,
+                        "description": "Maximum power output of the EVSE in kW",
+                        "value": 60,
+                        "providedAt": "TEMPLATE"
+                      },
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "ocpp_endpoint",
+                        "inputType": "SIGNAL",
+                        "required": true,
+                        "description": "OCPP websocket endpoint for charge point management",
+                        "value": "wss://ocpp.chargezone.in/cs/IN-CZ-KOR-01",
+                        "providedAt": "TEMPLATE"
+                      }
+                    ],
+                    "obligations": [
+                      "delivery_obligation",
+                      "quality_obligation"
+                    ]
+                  },
+                  {
+                    "@type": "DEGRole",
+                    "roleId": "ev_driver",
+                    "roleType": "CONSUMER",
+                    "party": null,
+                    "inputs": [
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "requested_kwh",
+                        "inputType": "PARAMETER",
+                        "required": true,
+                        "description": "Requested energy in kWh",
+                        "schema": {
+                          "type": "number",
+                          "minimum": 1,
+                          "maximum": 100
+                        },
+                        "value": null,
+                        "providedAt": "NEGOTIATION"
+                      },
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "vehicle_connector",
+                        "inputType": "PARAMETER",
+                        "required": true,
+                        "description": "Vehicle connector type compatibility",
+                        "schema": {
+                          "type": "string",
+                          "enum": ["CCS2", "Type2", "CHAdeMO"]
+                        },
+                        "value": null,
+                        "providedAt": "NEGOTIATION"
+                      },
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "preferred_start_time",
+                        "inputType": "PARAMETER",
+                        "required": false,
+                        "description": "Preferred charging start time (ISO 8601)",
+                        "value": null,
+                        "providedAt": "NEGOTIATION"
+                      },
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "preferred_end_time",
+                        "inputType": "PARAMETER",
+                        "required": false,
+                        "description": "Preferred charging end time (ISO 8601)",
+                        "value": null,
+                        "providedAt": "NEGOTIATION"
+                      },
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "billing_info",
+                        "inputType": "CREDENTIAL",
+                        "required": true,
+                        "description": "Buyer billing details (name, GST, contact)",
+                        "value": null,
+                        "providedAt": "COMMITMENT"
+                      },
+                      {
+                        "@type": "RoleInput",
+                        "inputId": "meter_reading_start",
+                        "inputType": "METER_ID",
+                        "required": true,
+                        "description": "Starting meter reading at session begin",
+                        "value": null,
+                        "providedAt": "FULFILLMENT"
+                      }
+                    ],
+                    "obligations": [
+                      "payment_obligation",
+                      "cancellation_terms"
+                    ]
+                  }
+                ],
+                "terms": [
+                  {
+                    "@type": "DEGTerm",
+                    "termId": "pricing_term",
+                    "termType": "PAYMENT",
+                    "description": "Energy is charged at the per-kWh tariff rate. Total cost equals tariff rate multiplied by actual energy consumed.",
+                    "condition": {
+                      "expr": "contractState == 'ACTIVE' AND deliveredEnergy > 0"
+                    },
+                    "obligation": {
+                      "expr": "payment.amount == inputs.tariff_rate * fulfillment.deliveredEnergy"
+                    },
+                    "consequence": {
+                      "expr": "SUSPEND_SESSION AND NOTIFY_PARTIES"
+                    },
+                    "appliesTo": ["ev_driver"]
+                  },
+                  {
+                    "@type": "DEGTerm",
+                    "termId": "delivery_obligation",
+                    "termType": "DELIVERY",
+                    "description": "CPO must deliver requested energy within the agreed time window at the specified EVSE location.",
+                    "condition": {
+                      "expr": "contractState == 'ACTIVE'"
+                    },
+                    "obligation": {
+                      "expr": "fulfillment.deliveredEnergy >= inputs.requested_kwh AND fulfillment.location == inputs.station_location"
+                    },
+                    "consequence": {
+                      "expr": "REFUND_PROPORTIONAL AND LOG_SLA_BREACH"
+                    },
+                    "appliesTo": ["cpo"]
+                  },
+                  {
+                    "@type": "DEGTerm",
+                    "termId": "quality_obligation",
+                    "termType": "QUALITY",
+                    "description": "Charging power must remain within min-max range. Voltage must be within safe operating limits for CCS2.",
+                    "condition": {
+                      "expr": "contractState == 'ACTIVE' AND sessionStatus == 'ACTIVE'"
+                    },
+                    "obligation": {
+                      "rule": {
+                        "operator": "AND",
+                        "operands": [
+                          {
+                            "rule": {
+                              "operator": "GTE",
+                              "operands": [
+                                { "field": "telemetry.power" },
+                                { "value": 5 }
+                              ]
+                            }
+                          },
+                          {
+                            "rule": {
+                              "operator": "LTE",
+                              "operands": [
+                                { "field": "telemetry.power" },
+                                { "value": 60 }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "consequence": {
+                      "expr": "NOTIFY_DRIVER AND ADJUST_SESSION_RATE"
+                    },
+                    "appliesTo": ["cpo"]
+                  },
+                  {
+                    "@type": "DEGTerm",
+                    "termId": "payment_obligation",
+                    "termType": "PAYMENT",
+                    "description": "EV driver must complete payment before or at session start. Payment covers base energy cost plus applicable fees and taxes.",
+                    "condition": {
+                      "expr": "contractState == 'COMMITTED'"
+                    },
+                    "obligation": {
+                      "expr": "payment.status == 'COMPLETED' AND payment.amount >= orderValue.value"
+                    },
+                    "consequence": {
+                      "expr": "CANCEL_RESERVATION AND RELEASE_SLOT"
+                    },
+                    "appliesTo": ["ev_driver"]
+                  },
+                  {
+                    "@type": "DEGTerm",
+                    "termId": "cancellation_terms",
+                    "termType": "CANCELLATION",
+                    "description": "Free cancellation up to 15 minutes before reserved slot. Late cancellation incurs 25% fee of estimated order value.",
+                    "condition": {
+                      "expr": "contractState IN ['COMMITTED', 'ACTIVE'] AND cancellation.requested == true"
+                    },
+                    "obligation": {
+                      "rule": {
+                        "operator": "IF_THEN",
+                        "operands": [
+                          {
+                            "expr": "cancellation.time < (fulfillment.startTime - PT15M)"
+                          },
+                          {
+                            "expr": "cancellation.fee == 0"
+                          }
+                        ]
+                      }
+                    },
+                    "consequence": {
+                      "expr": "cancellation.fee == orderValue.value * 0.25"
+                    },
+                    "appliesTo": ["ev_driver"]
+                  }
+                ],
+                "energySpec": {
+                  "@type": "EnergySpecification",
+                  "energyType": "ELECTRICAL",
+                  "sourceType": "GRID",
+                  "quantity": {
+                    "unitText": "Kilowatt Hour",
+                    "unitCode": "KWH",
+                    "minQuantity": 1,
+                    "maxQuantity": 100
+                  },
+                  "qualityConstraints": {
+                    "voltageRange": {
+                      "min": 200,
+                      "max": 920
+                    },
+                    "powerFactor": 0.95
+                  }
+                },
+                "fulfillmentSpec": {
+                  "@type": "FulfillmentSpecification",
+                  "deliveryMode": "EV_CHARGING",
+                  "location": {
+                    "geo": {
+                      "type": "Point",
+                      "coordinates": [77.6104, 12.9352]
+                    }
+                  },
+                  "meterIds": ["IN*CZ*KOR*01*CCS2*A*METER"],
+                  "signals": [
+                    {
+                      "@type": "SignalSpec",
+                      "signalType": "METER_READING",
+                      "source": "wss://ocpp.chargezone.in/cs/IN-CZ-KOR-01",
+                      "protocol": "OCPP",
+                      "sampleRate": "PT30S"
+                    },
+                    {
+                      "@type": "SignalSpec",
+                      "signalType": "START_STOP",
+                      "source": "wss://ocpp.chargezone.in/cs/IN-CZ-KOR-01",
+                      "protocol": "OCPP",
+                      "sampleRate": "PT1S"
+                    }
+                  ]
+                },
+                "settlementSpec": {
+                  "@type": "SettlementSpecification",
+                  "paymentType": "PRE_ORDER",
+                  "currency": "INR",
+                  "settlementCycle": "IMMEDIATE",
+                  "escrowRequired": false,
+                  "acceptedPaymentMethods": [
+                    "UPI",
+                    "CREDIT_CARD",
+                    "WALLET"
+                  ]
+                },
+                "revenueModel": {
+                  "@type": "RevenueModel",
+                  "flows": [
+                    {
+                      "@type": "RevenueFlow",
+                      "flowId": "charging_payment",
+                      "from": "ev_driver",
+                      "to": "cpo",
+                      "flowType": "ENERGY_PAYMENT",
+                      "formula": {
+                        "expr": "inputs.tariff_rate * fulfillment.deliveredEnergy"
+                      },
+                      "currency": "INR",
+                      "triggeredBy": "pricing_term",
+                      "schedule": "ON_DELIVERY"
+                    },
+                    {
+                      "@type": "RevenueFlow",
+                      "flowId": "platform_fee",
+                      "from": "ev_driver",
+                      "to": "platform",
+                      "flowType": "PLATFORM_FEE",
+                      "formula": {
+                        "expr": "charging_payment.computedAmount * 0.025"
+                      },
+                      "currency": "INR",
+                      "triggeredBy": "payment_obligation",
+                      "schedule": "ON_DELIVERY"
+                    },
+                    {
+                      "@type": "RevenueFlow",
+                      "flowId": "gst_tax",
+                      "from": "ev_driver",
+                      "to": "tax_authority",
+                      "flowType": "TAX",
+                      "formula": {
+                        "expr": "(charging_payment.computedAmount + platform_fee.computedAmount) * 0.18"
+                      },
+                      "currency": "INR",
+                      "triggeredBy": "payment_obligation",
+                      "schedule": "ON_DELIVERY"
+                    }
+                  ],
+                  "netZeroCheck": {
+                    "expr": "sum(flows[*].computedAmount WHERE from == 'ev_driver') == sum(flows[*].computedAmount WHERE to != 'ev_driver')"
+                  }
+                }
+              }
+            },
+            "beckn:provider": "chargezone-blr"
+          }
+        ]
+      }
+    ]
+  }
+}
