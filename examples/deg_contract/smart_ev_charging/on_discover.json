@@ -566,6 +566,53 @@
                 ]
               },
               "revenueModel": {
+                "definitions": [
+                  {
+                    "term": "charging_rate",
+                    "description": "Per-kWh charging rate (time-of-day dependent)",
+                    "source": "role:cpo_aggregator.input:charging_rate",
+                    "unit": "INR/kWh"
+                  },
+                  {
+                    "term": "v2g_rate",
+                    "description": "Per-kWh rate paid to EV owner for V2G discharge",
+                    "source": "constant",
+                    "value": 12.0,
+                    "unit": "INR/kWh"
+                  },
+                  {
+                    "term": "grid_v2g_rate",
+                    "description": "Per-kWh rate paid by grid operator for V2G grid services",
+                    "source": "constant",
+                    "value": 18.0,
+                    "unit": "INR/kWh"
+                  },
+                  {
+                    "term": "charged_kwh",
+                    "description": "Total energy delivered to vehicle (charging)",
+                    "source": "delivery:energyFlow.delivered.value",
+                    "unit": "kWh"
+                  },
+                  {
+                    "term": "discharged_kwh",
+                    "description": "Total energy discharged from vehicle to grid (V2G)",
+                    "source": "delivery:energyFlow.discharged.value",
+                    "unit": "kWh"
+                  },
+                  {
+                    "term": "charging_payment_amount",
+                    "description": "Computed charging payment amount",
+                    "source": "flow:charging_payment",
+                    "unit": "INR"
+                  },
+                  {
+                    "term": "platform_fee_pct",
+                    "description": "Platform commission rate on charging",
+                    "source": "constant",
+                    "value": 0.02,
+                    "unit": "fraction"
+                  }
+                ],
                 "flows": [
                   {
                     "flowId": "charging_payment",
@@ -573,7 +620,7 @@
                     "to": "cpo_aggregator",
                     "flowType": "ENERGY_PAYMENT",
                     "formula": {
-                      "expr": "chargedKwh * chargingRatePerKwh",
+                      "expr": "charged_kwh * charging_rate",
                       "policyRef": {
                         "type": "REGO",
                         "package": "deg.contracts.ev_charging",
@@ -591,7 +638,7 @@
                     "to": "ev_owner",
                     "flowType": "INCENTIVE",
                     "formula": {
-                      "expr": "dischargedKwh * 12.0"
+                      "expr": "discharged_kwh * v2g_rate"
                     },
                     "currency": "INR",
                     "computedAmount": null,
@@ -604,7 +651,7 @@
                     "to": "cpo_aggregator",
                     "flowType": "GRID_SERVICE_FEE",
                     "formula": {
-                      "expr": "dischargedKwh * 18.0"
+                      "expr": "discharged_kwh * grid_v2g_rate"
                     },
                     "currency": "INR",
                     "computedAmount": null,
@@ -617,7 +664,7 @@
                     "to": "platform",
                     "flowType": "PLATFORM_FEE",
                     "formula": {
-                      "expr": "chargingPayment * 0.02"
+                      "expr": "charging_payment_amount * platform_fee_pct"
                     },
                     "currency": "INR",
                     "computedAmount": null,

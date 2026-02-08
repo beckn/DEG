@@ -271,6 +271,46 @@
         },
         "revenueModel": {
           "@type": "RevenueModel",
+          "definitions": [
+            {
+              "term": "tariff_rate",
+              "description": "Per-unit energy tariff rate charged by CPO",
+              "source": "role:cpo.input:tariff_rate",
+              "unit": "INR/kWh"
+            },
+            {
+              "term": "delivered_kwh",
+              "description": "Total energy metered and delivered to vehicle",
+              "source": "delivery:energyFlow.delivered.value",
+              "unit": "kWh"
+            },
+            {
+              "term": "base_charge",
+              "description": "Computed energy payment amount",
+              "source": "flow:charging_payment",
+              "unit": "INR"
+            },
+            {
+              "term": "platform_fee_pct",
+              "description": "Platform commission rate",
+              "source": "constant",
+              "value": 0.025,
+              "unit": "fraction"
+            },
+            {
+              "term": "platform_fee_amount",
+              "description": "Computed platform fee",
+              "source": "flow:platform_fee",
+              "unit": "INR"
+            },
+            {
+              "term": "gst_rate",
+              "description": "Goods and Services Tax rate",
+              "source": "constant",
+              "value": 0.18,
+              "unit": "fraction"
+            }
+          ],
           "flows": [
             {
               "@type": "RevenueFlow",
@@ -278,7 +318,7 @@
               "from": "ev_driver",
               "to": "cpo",
               "flowType": "ENERGY_PAYMENT",
-              "formula": { "expr": "18.0 * 30" },
+              "formula": { "expr": "tariff_rate * delivered_kwh" },
               "currency": "INR",
               "computedAmount": 540.0,
               "triggeredBy": "pricing_term",
@@ -290,7 +330,7 @@
               "from": "ev_driver",
               "to": "platform",
               "flowType": "PLATFORM_FEE",
-              "formula": { "expr": "540.0 * 0.025" },
+              "formula": { "expr": "base_charge * platform_fee_pct" },
               "currency": "INR",
               "computedAmount": 13.5,
               "triggeredBy": "payment_obligation",
@@ -302,7 +342,7 @@
               "from": "ev_driver",
               "to": "tax_authority",
               "flowType": "TAX",
-              "formula": { "expr": "(540.0 + 13.5) * 0.18" },
+              "formula": { "expr": "(base_charge + platform_fee_amount) * gst_rate" },
               "currency": "INR",
               "computedAmount": 99.63,
               "triggeredBy": "payment_obligation",

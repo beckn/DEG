@@ -517,13 +517,67 @@
           "acceptedPaymentMethods": ["UPI", "CREDIT_CARD", "WALLET"]
         },
         "revenueModel": {
+          "definitions": [
+            {
+              "term": "charging_rate",
+              "description": "Per-kWh charging rate (time-of-day dependent)",
+              "source": "role:cpo_aggregator.input:charging_rate",
+              "unit": "INR/kWh",
+              "resolvedValue": 8.0
+            },
+            {
+              "term": "v2g_rate",
+              "description": "Per-kWh rate paid to EV owner for V2G discharge",
+              "source": "constant",
+              "value": 12.0,
+              "unit": "INR/kWh",
+              "resolvedValue": 12.0
+            },
+            {
+              "term": "grid_v2g_rate",
+              "description": "Per-kWh rate paid by grid operator for V2G grid services",
+              "source": "constant",
+              "value": 18.0,
+              "unit": "INR/kWh",
+              "resolvedValue": 18.0
+            },
+            {
+              "term": "charged_kwh",
+              "description": "Total energy delivered to vehicle (charging)",
+              "source": "delivery:energyFlow.delivered.value",
+              "unit": "kWh",
+              "resolvedValue": 28.0
+            },
+            {
+              "term": "discharged_kwh",
+              "description": "Total energy discharged from vehicle to grid (V2G)",
+              "source": "delivery:energyFlow.discharged.value",
+              "unit": "kWh",
+              "resolvedValue": 4.5
+            },
+            {
+              "term": "charging_payment_amount",
+              "description": "Computed charging payment amount",
+              "source": "flow:charging_payment",
+              "unit": "INR",
+              "resolvedValue": 224.0
+            },
+            {
+              "term": "platform_fee_pct",
+              "description": "Platform commission rate on charging",
+              "source": "constant",
+              "value": 0.02,
+              "unit": "fraction",
+              "resolvedValue": 0.02
+            }
+          ],
           "flows": [
             {
               "flowId": "charging_payment",
               "from": "ev_owner",
               "to": "cpo_aggregator",
               "flowType": "ENERGY_PAYMENT",
-              "formula": { "expr": "chargedKwh * chargingRatePerKwh = 28.0 * 8.0" },
+              "formula": { "expr": "charged_kwh * charging_rate" },
               "currency": "INR",
               "computedAmount": 224.0,
               "triggeredBy": "charging_payment",
@@ -534,7 +588,7 @@
               "from": "cpo_aggregator",
               "to": "ev_owner",
               "flowType": "INCENTIVE",
-              "formula": { "expr": "dischargedKwh * v2gRate = 4.5 * 12.0" },
+              "formula": { "expr": "discharged_kwh * v2g_rate" },
               "currency": "INR",
               "computedAmount": 54.0,
               "triggeredBy": "v2g_payment_to_owner",
@@ -545,7 +599,7 @@
               "from": "grid_operator",
               "to": "cpo_aggregator",
               "flowType": "GRID_SERVICE_FEE",
-              "formula": { "expr": "dischargedKwh * gridV2gRate = 4.5 * 18.0" },
+              "formula": { "expr": "discharged_kwh * grid_v2g_rate" },
               "currency": "INR",
               "computedAmount": 81.0,
               "triggeredBy": "grid_v2g_payment",
@@ -556,44 +610,19 @@
               "from": "cpo_aggregator",
               "to": "platform",
               "flowType": "PLATFORM_FEE",
-              "formula": { "expr": "chargingPayment * 0.02 = 224.0 * 0.02" },
+              "formula": { "expr": "charging_payment_amount * platform_fee_pct" },
               "currency": "INR",
               "computedAmount": 4.48,
               "schedule": "ON_SETTLEMENT"
             }
           ],
-          "netZeroCheck": {
-            "valid": true,
-            "positions": {
-              "ev_owner": {
-                "outflows": 224.0,
-                "inflows": 54.0,
-                "net": -170.0,
-                "direction": "PAYS"
-              },
-              "cpo_aggregator": {
-                "outflows": 58.48,
-                "inflows": 305.0,
-                "net": 246.52,
-                "direction": "RECEIVES",
-                "breakdown": "charging(224) + grid_v2g(81) - v2g_to_owner(54) - platform(4.48)"
-              },
-              "grid_operator": {
-                "outflows": 81.0,
-                "inflows": 0,
-                "net": -81.0,
-                "direction": "PAYS"
-              },
-              "platform": {
-                "outflows": 0,
-                "inflows": 4.48,
-                "net": 4.48,
-                "direction": "RECEIVES"
-              }
-            },
-            "totalNet": 0.0,
-            "expr": "(-170.0) + 246.52 + (-81.0) + 4.48 = 0.00"
-          }
+          "netPositions": {
+            "ev_owner": { "net": -170.00, "direction": "PAYS" },
+            "cpo_aggregator": { "net": 246.52, "direction": "RECEIVES" },
+            "grid_operator": { "net": -81.00, "direction": "PAYS" },
+            "platform": { "net": 4.48, "direction": "RECEIVES" }
+          },
+          "netZeroCheck": { "sum": 0.00, "valid": true }
         }
       }
     }

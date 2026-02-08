@@ -405,6 +405,89 @@
         },
         "revenueModel": {
           "@type": "RevenueModel",
+          "definitions": [
+            {
+              "term": "tariff_rate",
+              "description": "Per-unit energy tariff rate charged by CPO",
+              "source": "role:cpo.input:tariff_rate",
+              "unit": "INR/kWh",
+              "resolvedValue": 18.0
+            },
+            {
+              "term": "delivered_kwh",
+              "description": "Total energy metered and delivered to vehicle",
+              "source": "delivery:energyFlow.delivered.value",
+              "unit": "kWh",
+              "resolvedValue": 29.4
+            },
+            {
+              "term": "base_charge",
+              "description": "Computed energy payment amount",
+              "source": "flow:charging_payment",
+              "unit": "INR",
+              "resolvedValue": 529.2
+            },
+            {
+              "term": "platform_fee_pct",
+              "description": "Platform commission rate",
+              "source": "constant",
+              "value": 0.025,
+              "unit": "fraction",
+              "resolvedValue": 0.025
+            },
+            {
+              "term": "platform_fee_amount",
+              "description": "Computed platform fee",
+              "source": "flow:platform_fee",
+              "unit": "INR",
+              "resolvedValue": 13.23
+            },
+            {
+              "term": "gst_rate",
+              "description": "Goods and Services Tax rate",
+              "source": "constant",
+              "value": 0.18,
+              "unit": "fraction",
+              "resolvedValue": 0.18
+            },
+            {
+              "term": "idle_fee_rate",
+              "description": "Idle fee per 10-minute block",
+              "source": "constant",
+              "value": 2.5,
+              "unit": "INR/block",
+              "resolvedValue": 2.5
+            },
+            {
+              "term": "idle_block_size",
+              "description": "Idle fee block size",
+              "source": "constant",
+              "value": 10,
+              "unit": "minutes",
+              "resolvedValue": 10
+            },
+            {
+              "term": "idle_minutes",
+              "description": "Minutes vehicle remained idle after charging",
+              "source": "delivery:timing.idleMinutes",
+              "unit": "minutes",
+              "resolvedValue": 48.36
+            },
+            {
+              "term": "prepaid_amount",
+              "description": "Pre-order payment amount collected",
+              "source": "payment:prepaidAmount",
+              "unit": "INR",
+              "resolvedValue": 649.35
+            },
+            {
+              "term": "actual_total",
+              "description": "Sum of all charges (base + platform + GST + idle)",
+              "source": "flow:total_charges",
+              "unit": "INR",
+              "resolvedValue": 637.16
+            }
+          ],
           "flows": [
             {
               "@type": "RevenueFlow",
@@ -412,7 +495,7 @@
               "from": "ev_driver",
               "to": "cpo",
               "flowType": "ENERGY_PAYMENT",
-              "formula": { "expr": "18.0 * 29.4" },
+              "formula": { "expr": "tariff_rate * delivered_kwh" },
               "currency": "INR",
               "computedAmount": 529.2,
               "triggeredBy": "pricing_term",
@@ -424,7 +507,7 @@
               "from": "ev_driver",
               "to": "platform",
               "flowType": "PLATFORM_FEE",
-              "formula": { "expr": "529.2 * 0.025" },
+              "formula": { "expr": "base_charge * platform_fee_pct" },
               "currency": "INR",
               "computedAmount": 13.23,
               "triggeredBy": "payment_obligation",
@@ -436,7 +519,7 @@
               "from": "ev_driver",
               "to": "tax_authority",
               "flowType": "TAX",
-              "formula": { "expr": "(529.2 + 13.23) * 0.18" },
+              "formula": { "expr": "(base_charge + platform_fee_amount) * gst_rate" },
               "currency": "INR",
               "computedAmount": 97.64,
               "triggeredBy": "payment_obligation",
@@ -448,7 +531,7 @@
               "from": "ev_driver",
               "to": "cpo",
               "flowType": "GRID_SERVICE_FEE",
-              "formula": { "expr": "ceil(idleMinutes / 10) * 2.5" },
+              "formula": { "expr": "(idle_minutes / idle_block_size) * idle_fee_rate" },
               "currency": "INR",
               "computedAmount": 12.09,
               "triggeredBy": "delivery_obligation",
@@ -460,16 +543,20 @@
               "from": "cpo",
               "to": "ev_driver",
               "flowType": "CREDIT",
-              "formula": { "expr": "prepaidAmount - actualAmount" },
+              "formula": { "expr": "prepaid_amount - actual_total" },
               "currency": "INR",
-              "computedAmount": -12.19,
+              "computedAmount": 12.19,
               "triggeredBy": "payment_obligation",
               "schedule": "ON_SETTLEMENT"
             }
           ],
-          "netZeroCheck": {
-            "expr": "529.2 + 13.23 + 97.64 + 12.09 + (-12.19) == 639.97 (total outflow from ev_driver after refund)"
-          }
+          "netPositions": {
+            "ev_driver": { "net": -639.97, "direction": "PAYS" },
+            "cpo": { "net": 529.10, "direction": "RECEIVES" },
+            "platform": { "net": 13.23, "direction": "RECEIVES" },
+            "tax_authority": { "net": 97.64, "direction": "RECEIVES" }
+          },
+          "netZeroCheck": { "sum": 0.00, "valid": true }
         }
       }
     }

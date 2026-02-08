@@ -296,6 +296,72 @@
           "deviationPercent": -2.5
         },
         "revenueModel": {
+          "definitions": [
+            {
+              "term": "price_per_kwh",
+              "description": "Per-kWh energy price set by seller",
+              "source": "role:seller.input:price_per_kwh",
+              "unit": "INR/kWh",
+              "resolvedValue": {
+                "effective": 4.24,
+                "perSlot": {
+                  "morningSlot": { "rate": 4.50, "deliveredKwh": 9.2, "amount": 41.40 },
+                  "afternoonSlot": { "rate": 4.00, "deliveredKwh": 10.3, "amount": 41.20 }
+                }
+              }
+            },
+            {
+              "term": "delivered_kwh",
+              "description": "Total energy delivered via grid injection",
+              "source": "delivery:energyFlow.delivered.value",
+              "unit": "kWh",
+              "resolvedValue": 19.5
+            },
+            {
+              "term": "source_wheeling_rate",
+              "description": "Wheeling charge rate from source DISCOM",
+              "source": "role:source_utility.input:source_wheeling_charge",
+              "unit": "INR/kWh",
+              "resolvedValue": 0.25
+            },
+            {
+              "term": "dest_wheeling_rate",
+              "description": "Wheeling charge rate from destination DISCOM",
+              "source": "role:destination_utility.input:destination_wheeling_charge",
+              "unit": "INR/kWh",
+              "resolvedValue": 0.25
+            },
+            {
+              "term": "energy_payment_amount",
+              "description": "Computed energy payment from buyer to seller",
+              "source": "flow:energy_payment",
+              "unit": "INR",
+              "resolvedValue": 82.60
+            },
+            {
+              "term": "platform_fee_pct",
+              "description": "Platform commission rate (bilateral)",
+              "source": "constant",
+              "value": 0.01,
+              "unit": "fraction",
+              "resolvedValue": 0.01
+            },
+            {
+              "term": "requested_kwh",
+              "description": "Energy quantity requested by buyer",
+              "source": "role:buyer.input:requested_kwh",
+              "unit": "kWh",
+              "resolvedValue": 20.0
+            },
+            {
+              "term": "deviation_tolerance",
+              "description": "Acceptable deviation from contracted quantity",
+              "source": "constant",
+              "value": 0.10,
+              "unit": "fraction",
+              "resolvedValue": 0.10
+            }
+          ],
           "flows": [
             {
               "flowId": "energy_payment",
@@ -303,7 +369,7 @@
               "to": "seller",
               "flowType": "ENERGY_PAYMENT",
               "formula": {
-                "expr": "deliveredKwh * pricePerKwh"
+                "expr": "delivered_kwh * price_per_kwh"
               },
               "currency": "INR",
               "computedAmount": 82.60,
@@ -327,7 +393,7 @@
               "to": "source_utility",
               "flowType": "WHEELING_CHARGE",
               "formula": {
-                "expr": "deliveredKwh * 0.25"
+                "expr": "delivered_kwh * source_wheeling_rate"
               },
               "currency": "INR",
               "computedAmount": 4.88,
@@ -339,7 +405,7 @@
               "to": "destination_utility",
               "flowType": "WHEELING_CHARGE",
               "formula": {
-                "expr": "deliveredKwh * 0.25"
+                "expr": "delivered_kwh * dest_wheeling_rate"
               },
               "currency": "INR",
               "computedAmount": 4.88,
@@ -351,7 +417,7 @@
               "to": "platform",
               "flowType": "PLATFORM_FEE",
               "formula": {
-                "expr": "energyPayment * 0.01"
+                "expr": "energy_payment_amount * platform_fee_pct"
               },
               "currency": "INR",
               "computedAmount": 0.83
@@ -362,7 +428,7 @@
               "to": "platform",
               "flowType": "PLATFORM_FEE",
               "formula": {
-                "expr": "energyPayment * 0.01"
+                "expr": "energy_payment_amount * platform_fee_pct"
               },
               "currency": "INR",
               "computedAmount": 0.83
@@ -385,6 +451,14 @@
               "triggeredBy": "delivery_obligation"
             }
           ],
+          "netPositions": {
+            "buyer": { "net": -93.19, "direction": "PAYS" },
+            "seller": { "net": 81.77, "direction": "RECEIVES" },
+            "source_utility": { "net": 4.88, "direction": "RECEIVES" },
+            "destination_utility": { "net": 4.88, "direction": "RECEIVES" },
+            "platform": { "net": 1.66, "direction": "RECEIVES" }
+          },
+          "netZeroCheck": { "sum": 0.00, "valid": true },
           "settlement": {
             "settlementCycleId": "settle-2025-06-15-001",
             "settlementTime": "2025-06-15T18:30:00+05:30",
@@ -434,13 +508,7 @@
                 "netPosition": 1.66,
                 "direction": "RECEIVES"
               }
-            ],
-            "netZeroCheck": {
-              "totalInflows": 93.19,
-              "totalOutflows": 93.19,
-              "balance": 0.00,
-              "valid": true
-            }
+            ]
           }
         }
       }
