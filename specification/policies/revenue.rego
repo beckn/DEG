@@ -101,35 +101,21 @@ net_zero_valid if {
 
 # Helper
 abs(x) := x if { x >= 0 }
-abs(x) := -x if { x < 0 }
+abs(x) := y if { x < 0; y := 0 - x }
 
 # --- Settlement summary ---
 # Returns a structured object that agents can consume
 
-settlement_summary := {
-    "flows": [flow_detail |
-        some flow in data.contract.revenueModel.flows
-        flow_detail := {
-            "flowId": flow.flowId,
-            "from": flow.from,
-            "to": flow.to,
-            "flowType": flow.flowType,
-            "amount": flow_amount[flow.flowId],
-            "currency": flow.currency,
-        }
-    ],
-    "positions": {role_id: {
-        "inflows": inflows[role_id],
-        "outflows": outflows[role_id],
-        "net": net_position[role_id],
-        "direction": direction,
-    } |
-        some role in data.contract.roles
-        role_id := role.roleId
-        direction := "RECEIVES" if { net_position[role_id] > 0 }
-        direction := "PAYS" if { net_position[role_id] < 0 }
-        direction := "NEUTRAL" if { net_position[role_id] == 0 }
-    },
-    "netZeroValid": net_zero_valid,
-    "totalNet": total_net,
-}
+# --- Settlement summary (individual fields) ---
+
+settlement_flows := [flow_detail |
+    some flow in data.contract.revenueModel.flows
+    flow_detail := {
+        "flowId": flow.flowId,
+        "from": flow.from,
+        "to": flow.to,
+        "flowType": flow.flowType,
+        "amount": flow_amount[flow.flowId],
+        "currency": flow.currency,
+    }
+]

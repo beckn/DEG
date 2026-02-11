@@ -1,0 +1,7 @@
+{
+  "vehicleConnectorType": "CCS2",
+  "requestedPowerKW": 50,
+  "deliveredKwh": 25.0,
+  "fulfillmentState": "charging-started",
+  "estimatedTotal": 300.0
+}
