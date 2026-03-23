@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **Electricity Credential** is a unified W3C Verifiable Credential (VC Data Model 2.0) that combines five equal-level profile sections into a single `credentialSubject` object. The customer's DID (`id`) is optional per the W3C VC Data Model, and the five profiles sit as equal-level sibling properties.
+The **Electricity Credential** is a unified W3C Verifiable Credential (VC Data Model 2.0) that combines five equal-level profile sections into a single `credentialSubject` object. The customer's DID (`id`) is optional per the W3C VC Data Model, and the five profiles sit as equal-level sibling properties. The same credential can be used for different purposes - to present information regarding consumption profile, generation profile or storage profile or all of it by omitting or adding relevant sections.
 
 This credential is issued per meter — each meter will have its own credential.
 
