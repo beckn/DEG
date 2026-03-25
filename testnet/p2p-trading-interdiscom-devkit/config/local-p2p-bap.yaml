@@ -48,7 +48,7 @@ modules:
           id: schemav2validator
           config:
             type: url
-            location: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/api/beckn.yaml
+            location: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/heads/draft/api/v2.0.0/beckn.yaml
             cacheTTL: "3600"
             extendedSchema_enabled: "true"
             extendedSchema_cacheTTL: "86400"
@@ -92,7 +92,7 @@ modules:
         - validateSign
         - addRoute
         - validateSchema
-        - policyenforcer
+        # - policyenforcer
         - degledgerrecorder
 
   - name: bapTxnCaller
@@ -126,7 +126,7 @@ modules:
           id: schemav2validator
           config:
             type: url
-            location: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/api/beckn.yaml
+            location: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/heads/draft/api/v2.0.0/beckn.yaml
             cacheTTL: "3600"
             extendedSchema_enabled: "true"
             extendedSchema_cacheTTL: "86400"
@@ -158,4 +158,4 @@ modules:
         - addRoute
         - sign
         - validateSchema
-        - policyenforcer
+        # - policyenforcer
