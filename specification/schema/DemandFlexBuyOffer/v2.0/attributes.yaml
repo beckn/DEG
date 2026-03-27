@@ -1,0 +1,150 @@
+$id: "https://schema.beckn.io/DemandFlexBuyOffer/v2.0"
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: DemandFlexBuyOffer
+description: >
+  Offer attributes for behavioral demand response (demand-flex) contracts.
+  Used as Offer.offerAttributes in catalog and within Commitment.offer in contracts.
+
+  Contains the commercial terms (incentive, penalties, premiums) and a rego policy
+  reference. The physical need (direction, event window, capacity) is described
+  separately in DemandFlexNeed on the Resource.
+
+  The taker field is null at publish/select time and gets populated
+  via /init or /update once participants opt in.
+x-tags:
+  - demand-flex
+  - demand-response
+  - offer
+  - energy
+type: object
+additionalProperties: false
+required: [incentivePerKwh, currency, policy]
+x-jsonld:
+  "@context": ./context.jsonld
+  "@type": DemandFlexBuyOffer
+properties:
+
+  incentivePerKwh:
+    type: number
+    minimum: 0
+    description: Base incentive rate per kWh of verified flex.
+    example: 3.50
+    x-jsonld:
+      "@id": incentivePerKwh
+
+  currency:
+    type: string
+    description: ISO 4217 currency code for all monetary values in this offer.
+    example: "INR"
+    x-jsonld:
+      "@id": currency
+
+  maxEventsPerMonth:
+    type: integer
+    minimum: 1
+    description: Maximum number of flex events that can be dispatched per calendar month.
+    example: 5
+    x-jsonld:
+      "@id": maxEventsPerMonth
+
+  baselineMethodology:
+    type: object
+    description: >
+      Methodology for computing per-meter baselines. "bestOf x outOf y" means
+      the average of the x highest-consumption days out of the last y days.
+    x-jsonld:
+      "@id": baselineMethodology
+    properties:
+      bestOf:
+        type: integer
+        minimum: 1
+        description: Number of best days to average.
+        example: 5
+      outOf:
+        type: integer
+        minimum: 1
+        description: Total lookback days.
+        example: 10
+
+  penaltyRate:
+    type: number
+    minimum: 0
+    description: Penalty per kWh deviation for guaranteed flex commitments.
+    example: 1.50
+    x-jsonld:
+      "@id": penaltyRate
+
+  premiumForGuaranteed:
+    type: number
+    minimum: 0
+    description: Premium per kWh paid for guaranteed (firm) flex commitments.
+    example: 5.00
+    x-jsonld:
+      "@id": premiumForGuaranteed
+
+  optOutDefault:
+    type: boolean
+    description: >
+      If true, participants must opt OUT of each event (default enrolled).
+      If false, participants must opt IN to each event.
+    default: false
+    example: false
+    x-jsonld:
+      "@id": optOutDefault
+
+  taker:
+    description: >
+      The consumer or aggregator accepting this flex offer. Null at publish/select time.
+      Populated at /init with identity, updated via /update with participating meters.
+    x-jsonld:
+      "@id": taker
+    oneOf:
+      - type: "null"
+      - $ref: "#/$defs/DemandFlexProvider"
+
+  policy:
+    type: object
+    required: [url, queryPath]
+    description: >
+      Reference to the OPA/Rego policy that governs this contract's revenue flows.
+      The rego defines roles, validates inputs, computes settlements,
+      and verifies invoices. Evaluated by the onix adapter at each beckn action.
+    x-jsonld:
+      "@id": policy
+    properties:
+      url:
+        type: string
+        format: uri
+        description: URL to the rego policy file.
+        example: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego"
+      queryPath:
+        type: string
+        description: OPA eval query path prefix.
+        example: "data.deg.contracts.demand_flex"
+      bundleUrl:
+        type: string
+        format: uri
+        description: Optional URL to an OPA bundle for semantically separated policy rules.
+
+$defs:
+  DemandFlexProvider:
+    type: object
+    description: >
+      A consumer or aggregator providing flex capacity. The taker of a DemandFlexBuyOffer.
+    required: [id]
+    properties:
+      id:
+        type: string
+        description: >
+          Identifier of the flex provider. Can be an aggregator ID or consumer number.
+        example: "AGG-GREENFLEX-001"
+      plannedDemandChange:
+        type: number
+        description: Planned demand change in kW (positive = reduction for REDUCE direction).
+        example: 150.0
+      participatingMeters:
+        type: array
+        description: Meters enrolled for this flex event.
+        items:
+          type: string
+        example: ["der://meter/001", "der://meter/002", "der://meter/003"]

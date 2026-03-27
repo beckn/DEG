@@ -1,0 +1,115 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_init",
+    "domain": "beckn.one:deg:demand-flex:2.0.0",
+    "bapId": "greenflex-agg.example.com",
+    "bapUri": "https://greenflex-agg.example.com/beckn",
+    "bppId": "tpddl-utility.example.com",
+    "bppUri": "https://tpddl-utility.example.com/beckn",
+    "transactionId": "txn-flex-001",
+    "messageId": "msg-on-init-001",
+    "timestamp": "2026-03-30T10:05:05Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld"
+    ]
+  },
+  "message": {
+    "contract": {
+      "@type": "beckn:Contract",
+      "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
+      "participants": [
+        {
+          "id": "tpddl-north-delhi",
+          "descriptor": { "@type": "beckn:Descriptor", "name": "TPDDL North Delhi Distribution" }
+        },
+        {
+          "id": "greenflex-agg",
+          "descriptor": { "@type": "beckn:Descriptor", "name": "GreenFlex Aggregator" }
+        }
+      ],
+      "commitments": [
+        {
+          "id": "commitment-flex-001",
+          "status": {
+            "descriptor": { "@type": "beckn:Descriptor", "code": "DRAFT" }
+          },
+          "resources": [
+            {
+              "id": "flex-need-north-delhi-apr1",
+              "descriptor": { "@type": "beckn:Descriptor", "name": "Peak Demand Flex - North Delhi" },
+              "quantity": { "unitCode": "kW", "unitQuantity": 150 },
+              "resourceAttributes": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@type": "DemandFlexNeed",
+                "direction": "REDUCE",
+                "eventWindow": {
+                  "startDate": "2026-04-01T08:30:00Z",
+                  "endDate": "2026-04-01T10:30:00Z"
+                },
+                "capacityType": "CURTAILMENT",
+                "maxCapacityKw": 500,
+                "location": {
+                  "type": "Point",
+                  "coordinates": [77.2090, 28.6139]
+                }
+              }
+            }
+          ],
+          "offer": {
+            "id": "offer-flex-001",
+            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@type": "DemandFlexBuyOffer",
+              "incentivePerKwh": 3.50,
+              "currency": "INR",
+              "maxEventsPerMonth": 5,
+              "baselineMethodology": { "bestOf": 5, "outOf": 10 },
+              "penaltyRate": 1.50,
+              "premiumForGuaranteed": 5.00,
+              "optOutDefault": false,
+              "taker": {
+                "id": "AGG-GREENFLEX-001",
+                "plannedDemandChange": 150.0,
+                "participatingMeters": [
+                  "der://meter/001",
+                  "der://meter/002"
+                ]
+              },
+              "policy": {
+                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
+                "queryPath": "data.deg.contracts.demand_flex"
+              }
+            }
+          }
+        }
+      ],
+      "consideration": [
+        {
+          "id": "consideration-flex-001",
+          "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
+          "considerationAttributes": {
+            "priceUnit": "INR",
+            "consideredValue": 1050.00,
+            "components": [
+              {
+                "lineId": "incentive-base",
+                "lineSummary": "150 kW × 2h × 3.50 INR/kWh base incentive",
+                "value": 1050.00,
+                "currency": "INR"
+              }
+            ]
+          }
+        }
+      ],
+      "contractAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "DEMAND_FLEX"
+      }
+    }
+  }
+}

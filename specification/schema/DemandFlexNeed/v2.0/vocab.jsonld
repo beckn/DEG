@@ -1,0 +1,51 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/DemandFlexNeed/v2.0/",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "deg:DemandFlexNeed",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Demand Flex Need",
+      "rdfs:comment": "Resource attributes describing a demand-flex need — direction, event window, capacity type, and location."
+    },
+    {
+      "@id": "deg:direction",
+      "@type": "rdf:Property",
+      "rdfs:label": "Direction",
+      "rdfs:comment": "Whether the utility needs demand increase or reduction.",
+      "rdfs:domain": "deg:DemandFlexNeed",
+      "schema:rangeIncludes": "deg:Direction"
+    },
+    {
+      "@id": "deg:eventWindow",
+      "@type": "rdf:Property",
+      "rdfs:label": "Event window",
+      "rdfs:comment": "Time window during which the flex event occurs.",
+      "rdfs:domain": "deg:DemandFlexNeed",
+      "schema:rangeIncludes": "beckn:TimePeriod"
+    },
+    {
+      "@id": "deg:capacityType",
+      "@type": "rdf:Property",
+      "rdfs:label": "Capacity type",
+      "rdfs:comment": "Type of flex capacity (CURTAILMENT, SHIFT, GENERATION).",
+      "rdfs:domain": "deg:DemandFlexNeed",
+      "schema:rangeIncludes": "deg:CapacityType"
+    },
+    {
+      "@id": "deg:maxCapacityKw",
+      "@type": "rdf:Property",
+      "rdfs:label": "Maximum capacity (kW)",
+      "rdfs:comment": "Maximum flex capacity needed in kW.",
+      "rdfs:domain": "deg:DemandFlexNeed",
+      "schema:rangeIncludes": "xsd:decimal"
+    }
+  ]
+}

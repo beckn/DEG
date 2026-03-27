@@ -125,6 +125,17 @@ DEVKIT_CONFIGS = {
         "examples_path": "examples/p2p-trading-interdiscom/v2",
         # "output_path": "testnet/p2p-trading-interdiscom-devkit/postman",
         "structure": "flat"  # Flat file structure (like p2p-trading)
+    },
+    "demand-flex": {
+        "domain": "beckn.one:deg:demand-flex:2.0.0",
+        "bap_id": "demand-flex-sandbox1.com",
+        "bap_uri": "http://onix-bap:8081/bap/receiver",
+        "bpp_id": "demand-flex-sandbox2.com",
+        "bpp_uri": "http://onix-bpp:8082/bpp/receiver",
+        "bap_adapter_url": "http://localhost:8081/bap/caller",
+        "bpp_adapter_url": "http://localhost:8082/bpp/caller",
+        "examples_path": "examples/demand-flex/v2",
+        "structure": "flat"
     }
 }
 
@@ -363,33 +374,26 @@ def replace_context_macros(data: Dict[str, Any]) -> Dict[str, Any]:
                 if ctx_key == "version":
                     new_context[ctx_key] = "{{version}}"
                 elif ctx_key == "domain":
-                    # Handle wildcard domains
-                    if isinstance(ctx_value, str) and "*" in ctx_value:
-                        new_context[ctx_key] = "{{domain}}"
-                    else:
-                        new_context[ctx_key] = "{{domain}}"
-                elif ctx_key == "bap_id":
+                    new_context[ctx_key] = "{{domain}}"
+                elif ctx_key in ("bap_id", "bapId"):
                     new_context[ctx_key] = "{{bap_id}}"
-                elif ctx_key == "bap_uri":
+                elif ctx_key in ("bap_uri", "bapUri"):
                     new_context[ctx_key] = "{{bap_uri}}"
-                elif ctx_key == "bpp_id":
+                elif ctx_key in ("bpp_id", "bppId"):
                     new_context[ctx_key] = "{{bpp_id}}"
-                elif ctx_key == "bpp_uri":
+                elif ctx_key in ("bpp_uri", "bppUri"):
                     new_context[ctx_key] = "{{bpp_uri}}"
-                elif ctx_key == "transaction_id":
+                elif ctx_key in ("transaction_id", "transactionId"):
                     new_context[ctx_key] = "{{transaction_id}}"
-                elif ctx_key == "message_id":
+                elif ctx_key in ("message_id", "messageId"):
                     new_context[ctx_key] = "{{$guid}}"
                 elif ctx_key == "timestamp":
                     new_context[ctx_key] = "{{iso_date}}"
                 elif ctx_key == "ttl":
-                    # Keep TTL as constant
                     new_context[ctx_key] = ctx_value
-                elif ctx_key == "schema_context":
-                    # Preserve schema_context array as-is
+                elif ctx_key in ("schema_context", "schemaContext"):
                     new_context[ctx_key] = ctx_value
                 elif ctx_key == "action":
-                    # Keep action as-is (needed for routing)
                     new_context[ctx_key] = ctx_value
                 else:
                     # Preserve other context fields (e.g., location)
@@ -684,7 +688,7 @@ def main():
     parser.add_argument(
         "--devkit",
         type=str,
-        choices=["ev-charging", "p2p-trading", "p2p-enrollment", "p2p-trading-interdiscom"],
+        choices=["ev-charging", "p2p-trading", "p2p-enrollment", "p2p-trading-interdiscom", "demand-flex"],
         required=True,
         help="Devkit type: 'ev-charging', 'p2p-trading', 'p2p-enrollment', or 'p2p-trading-interdiscom'"
     )

@@ -1,0 +1,51 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_status",
+    "domain": "beckn.one:deg:demand-flex:2.0.0",
+    "bapId": "greenflex-agg.example.com",
+    "bapUri": "https://greenflex-agg.example.com/beckn",
+    "bppId": "tpddl-utility.example.com",
+    "bppUri": "https://tpddl-utility.example.com/beckn",
+    "transactionId": "txn-flex-001",
+    "messageId": "msg-on-status-baselines-001",
+    "timestamp": "2026-04-01T08:00:00Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld"
+    ]
+  },
+  "message": {
+    "contract": {
+      "id": "contract-flex-001",
+      "status": { "@type": "beckn:Descriptor", "code": "ACTIVE" },
+      "performance": [
+        {
+          "id": "perf-evt-001-baselines",
+          "status": {
+            "@type": "beckn:Descriptor",
+            "code": "BASELINE_PUBLISHED",
+            "name": "Baselines published for upcoming event"
+          },
+          "commitmentIds": ["commitment-flex-001"],
+          "performanceAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
+            "@type": "DemandFlexPerformance",
+            "eventId": "evt-2026-04-01-001",
+            "methodology": "5of10",
+            "meters": [
+              { "meterId": "der://meter/001", "baselineKw": 45.0 },
+              { "meterId": "der://meter/002", "baselineKw": 38.0 },
+              { "meterId": "der://meter/003", "baselineKw": 52.0 }
+            ]
+          }
+        }
+      ],
+      "contractAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "DEMAND_FLEX"
+      }
+    }
+  }
+}

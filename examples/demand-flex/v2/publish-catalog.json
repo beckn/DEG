@@ -1,0 +1,96 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "catalog_publish",
+    "domain": "beckn.one:deg:demand-flex:2.0.0",
+    "bppId": "tpddl-utility.example.com",
+    "bppUri": "https://tpddl-utility.example.com/beckn",
+    "messageId": "msg-publish-001",
+    "timestamp": "2026-03-28T06:00:00Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld"
+    ]
+  },
+  "message": {
+    "catalogs": [
+      {
+        "id": "catalog-flex-tpddl-2026-04",
+        "descriptor": {
+          "@type": "beckn:Descriptor",
+          "name": "TPDDL Demand Flex - April 2026",
+          "shortDesc": "Peak demand reduction opportunities for North Delhi"
+        },
+        "provider": {
+          "id": "tpddl-north-delhi",
+          "descriptor": {
+            "@type": "beckn:Descriptor",
+            "name": "TPDDL North Delhi Distribution"
+          }
+        },
+        "resources": [
+          {
+            "id": "flex-need-north-delhi-apr1",
+            "descriptor": {
+              "@type": "beckn:Descriptor",
+              "name": "Peak Demand Flex - North Delhi",
+              "shortDesc": "500 kW curtailment needed Apr 1, 2-4pm IST"
+            },
+            "resourceAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+              "@type": "DemandFlexNeed",
+              "direction": "REDUCE",
+              "eventWindow": {
+                "startDate": "2026-04-01T08:30:00Z",
+                "endDate": "2026-04-01T10:30:00Z"
+              },
+              "capacityType": "CURTAILMENT",
+              "maxCapacityKw": 500,
+              "location": {
+                "type": "Point",
+                "coordinates": [77.2090, 28.6139]
+              }
+            }
+          }
+        ],
+        "offers": [
+          {
+            "id": "offer-flex-001",
+            "descriptor": {
+              "@type": "beckn:Descriptor",
+              "name": "Standard Flex @ 3.50 INR/kWh",
+              "shortDesc": "Demand reduction with 5.00 INR/kWh premium for guaranteed flex"
+            },
+            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "validity": {
+              "startDate": "2026-03-28T00:00:00Z",
+              "endDate": "2026-04-01T08:30:00Z"
+            },
+            "availableTo": [
+              { "type": "NETWORK", "id": "beckn.deg.india" }
+            ],
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@type": "DemandFlexBuyOffer",
+              "incentivePerKwh": 3.50,
+              "currency": "INR",
+              "maxEventsPerMonth": 5,
+              "baselineMethodology": {
+                "bestOf": 5,
+                "outOf": 10
+              },
+              "penaltyRate": 1.50,
+              "premiumForGuaranteed": 5.00,
+              "optOutDefault": false,
+              "taker": null,
+              "policy": {
+                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
+                "queryPath": "data.deg.contracts.demand_flex"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

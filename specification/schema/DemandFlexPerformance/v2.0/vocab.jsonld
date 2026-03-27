@@ -1,0 +1,33 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/DemandFlexPerformance/v2.0/",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "deg:DemandFlexPerformance",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Demand Flex Performance",
+      "rdfs:comment": "M&V (Measurement & Verification) attributes for demand-flex events."
+    },
+    {
+      "@id": "deg:baselines",
+      "@type": "rdf:Property",
+      "rdfs:label": "Baselines",
+      "rdfs:comment": "Per-meter baseline loads computed before the event.",
+      "rdfs:domain": "deg:DemandFlexPerformance"
+    },
+    {
+      "@id": "deg:actuals",
+      "@type": "rdf:Property",
+      "rdfs:label": "Actuals",
+      "rdfs:comment": "Per-meter actual loads measured during the event.",
+      "rdfs:domain": "deg:DemandFlexPerformance"
+    }
+  ]
+}

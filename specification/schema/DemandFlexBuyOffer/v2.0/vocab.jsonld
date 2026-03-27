@@ -1,0 +1,98 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/DemandFlexBuyOffer/v2.0/",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "deg:DemandFlexBuyOffer",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Demand Flex Buy Offer",
+      "rdfs:comment": "Offer/commitment attributes for behavioral demand response contracts. Used in both Offer.offerAttributes and Commitment.commitmentAttributes."
+    },
+    {
+      "@id": "deg:DemandFlexProvider",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Demand Flex Provider",
+      "rdfs:comment": "A consumer or aggregator providing flex capacity as the taker of a DemandFlexBuyOffer."
+    },
+    {
+      "@id": "deg:direction",
+      "@type": "rdf:Property",
+      "rdfs:label": "Direction",
+      "rdfs:comment": "Whether the utility is buying demand increase or reduction.",
+      "rdfs:domain": "deg:DemandFlexBuyOffer",
+      "schema:rangeIncludes": "deg:Direction"
+    },
+    {
+      "@id": "deg:Direction",
+      "@type": "schema:Enumeration",
+      "schema:name": "Direction",
+      "rdfs:comment": "Direction of demand change requested by the utility."
+    },
+    {
+      "@id": "deg:DirectionIncrease",
+      "@type": "deg:Direction",
+      "schema:name": "INCREASE",
+      "schema:identifier": "INCREASE"
+    },
+    {
+      "@id": "deg:DirectionReduce",
+      "@type": "deg:Direction",
+      "schema:name": "REDUCE",
+      "schema:identifier": "REDUCE"
+    },
+    {
+      "@id": "deg:eventWindow",
+      "@type": "rdf:Property",
+      "rdfs:label": "Event window",
+      "rdfs:comment": "Time window during which the flex event occurs.",
+      "rdfs:domain": "deg:DemandFlexBuyOffer",
+      "schema:rangeIncludes": "beckn:TimePeriod"
+    },
+    {
+      "@id": "deg:incentivePerKwh",
+      "@type": "rdf:Property",
+      "rdfs:label": "Incentive per kWh",
+      "rdfs:comment": "Base incentive rate per kWh of verified flex.",
+      "rdfs:domain": "deg:DemandFlexBuyOffer",
+      "schema:rangeIncludes": "xsd:decimal"
+    },
+    {
+      "@id": "deg:taker",
+      "@type": "rdf:Property",
+      "rdfs:label": "Taker",
+      "rdfs:comment": "Consumer or aggregator accepting this flex offer.",
+      "rdfs:domain": "deg:DemandFlexBuyOffer",
+      "schema:rangeIncludes": "deg:DemandFlexProvider"
+    },
+    {
+      "@id": "deg:plannedDemandChange",
+      "@type": "rdf:Property",
+      "rdfs:label": "Planned demand change",
+      "rdfs:comment": "Planned demand change in kW.",
+      "rdfs:domain": "deg:DemandFlexProvider",
+      "schema:rangeIncludes": "xsd:decimal"
+    },
+    {
+      "@id": "deg:participatingMeters",
+      "@type": "rdf:Property",
+      "rdfs:label": "Participating meters",
+      "rdfs:comment": "Array of meter IDs enrolled for this flex event.",
+      "rdfs:domain": "deg:DemandFlexProvider",
+      "schema:rangeIncludes": "xsd:string"
+    },
+    {
+      "@id": "deg:policy",
+      "@type": "rdf:Property",
+      "rdfs:label": "Policy",
+      "rdfs:comment": "Reference to the OPA/Rego policy governing revenue flows.",
+      "rdfs:domain": "deg:DemandFlexBuyOffer"
+    }
+  ]
+}

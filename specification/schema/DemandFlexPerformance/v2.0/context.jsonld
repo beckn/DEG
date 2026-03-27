@@ -1,0 +1,19 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/DemandFlexPerformance/v2.0/",
+    "DemandFlexPerformance": "deg:DemandFlexPerformance",
+    "eventId": "deg:eventId",
+    "methodology": "deg:methodology",
+    "meters": "deg:meters",
+    "meterId": "deg:meterId",
+    "baselineKw": "deg:baselineKw",
+    "actualKw": "deg:actualKw"
+  },
+  "@graph": []
+}
