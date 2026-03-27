@@ -18,29 +18,27 @@
   },
   "message": {
     "contract": {
-      "@type": "beckn:Contract",
-      "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
+      "status": { "code": "DRAFT" },
       "participants": [
         {
           "id": "tpddl-north-delhi",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "TPDDL North Delhi Distribution" }
+          "descriptor": { "name": "TPDDL North Delhi Distribution" }
         },
         {
           "id": "greenflex-agg",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "GreenFlex Aggregator" }
+          "descriptor": { "name": "GreenFlex Aggregator" }
         }
       ],
       "commitments": [
         {
           "id": "commitment-flex-001",
           "status": {
-            "descriptor": { "@type": "beckn:Descriptor", "code": "DRAFT" }
+            "descriptor": { "code": "DRAFT" }
           },
           "resources": [
             {
               "id": "flex-need-north-delhi-apr1",
               "descriptor": {
-                "@type": "beckn:Descriptor",
                 "name": "Peak Demand Flex - North Delhi",
                 "shortDesc": "500 kW curtailment needed Apr 1, 2-4pm IST"
               },
@@ -94,7 +92,7 @@
       "consideration": [
         {
           "id": "consideration-flex-001",
-          "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
+          "status": { "code": "DRAFT" },
           "considerationAttributes": {
             "priceUnit": "INR",
             "consideredValue": 1050.00,

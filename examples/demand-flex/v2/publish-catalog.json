@@ -17,14 +17,12 @@
       {
         "id": "catalog-flex-tpddl-2026-04",
         "descriptor": {
-          "@type": "beckn:Descriptor",
           "name": "TPDDL Demand Flex - April 2026",
           "shortDesc": "Peak demand reduction opportunities for North Delhi"
         },
         "provider": {
           "id": "tpddl-north-delhi",
           "descriptor": {
-            "@type": "beckn:Descriptor",
             "name": "TPDDL North Delhi Distribution"
           }
         },
@@ -32,7 +30,6 @@
           {
             "id": "flex-need-north-delhi-apr1",
             "descriptor": {
-              "@type": "beckn:Descriptor",
               "name": "Peak Demand Flex - North Delhi",
               "shortDesc": "500 kW curtailment needed Apr 1, 2-4pm IST"
             },
@@ -57,7 +54,6 @@
           {
             "id": "offer-flex-001",
             "descriptor": {
-              "@type": "beckn:Descriptor",
               "name": "Standard Flex @ 3.50 INR/kWh",
               "shortDesc": "Demand reduction with 5.00 INR/kWh premium for guaranteed flex"
             },

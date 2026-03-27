@@ -18,12 +18,11 @@
   "message": {
     "contract": {
       "id": "contract-flex-001",
-      "status": { "@type": "beckn:Descriptor", "code": "ACTIVE" },
+      "status": { "code": "ACTIVE" },
       "performance": [
         {
           "id": "perf-evt-001-actuals",
           "status": {
-            "@type": "beckn:Descriptor",
             "code": "DELIVERY_COMPLETE",
             "name": "Event completed, actuals measured"
           },

@@ -1,31 +1,33 @@
-$id: "https://schema.beckn.io/DEGContract/v2.0"
-$schema: "https://json-schema.org/draft/2020-12/schema"
-title: DEGContract
-description: >
-  Contract attributes for DEG energy contracts. Attached to Contract.contractAttributes
-  to identify the type of energy contract. The specific contract terms and policy
-  reference live in the commitment's offerAttributes (e.g., DemandFlexBuyOffer).
+openapi: 3.1.1
+info:
+  title: DEG — Contract Attributes (v2.0)
+  version: 2.0.0
+  description: >
+    Attribute schemas for DEG energy contracts (Contract.contractAttributes).
+    Identifies the type of energy contract. The specific contract terms and policy
+    reference live in the commitment's offerAttributes (e.g., DemandFlexBuyOffer).
 
-  DEGContract is intentionally minimal — it serves as a domain marker on the
-  beckn Contract object. Concrete contract logic is defined by the rego policy
-  referenced in the commitment's offer.
-x-tags:
-  - energy
-  - contract
-  - deg
-type: object
-additionalProperties: false
-required: [contractType]
-x-jsonld:
-  "@context": ./context.jsonld
-  "@type": DEGContract
-properties:
+components:
+  schemas:
+    DEGContract:
+      type: object
+      description: >
+        Contract attributes for DEG energy contracts. Attached to Contract.contractAttributes
+        to identify the type of energy contract. DEGContract is intentionally minimal —
+        it serves as a domain marker on the beckn Contract object. Concrete contract logic
+        is defined by the rego policy referenced in the commitment's offer.
+      additionalProperties: false
+      required: [contractType]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": DEGContract
+      properties:
 
-  contractType:
-    type: string
-    enum: [DEMAND_FLEX, P2P_TRADE, EV_CHARGING]
-    description: Machine-readable contract type identifier.
-    example: "DEMAND_FLEX"
-    x-jsonld:
-      "@id": contractType
-      "@type": "@id"
+        contractType:
+          type: string
+          enum: [DEMAND_FLEX, P2P_TRADE, EV_CHARGING]
+          description: Machine-readable contract type identifier.
+          example: "DEMAND_FLEX"
+          x-jsonld:
+            "@id": contractType
+            "@type": "@id"

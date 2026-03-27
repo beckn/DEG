@@ -18,12 +18,11 @@
   "message": {
     "contract": {
       "id": "contract-flex-001",
-      "status": { "@type": "beckn:Descriptor", "code": "ACTIVE" },
+      "status": { "code": "ACTIVE" },
       "performance": [
         {
           "id": "perf-evt-001-baselines",
           "status": {
-            "@type": "beckn:Descriptor",
             "code": "BASELINE_PUBLISHED",
             "name": "Baselines published for upcoming event"
           },

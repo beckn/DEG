@@ -55,7 +55,7 @@ modules:
             extendedSchema_cacheTTL: "86400"
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
-            extendedSchema_allowedDomains: "raw.githubusercontent.com,schemas.beckn.org"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
         checkPolicy:
           id: opapolicychecker
           config:
@@ -121,7 +121,7 @@ modules:
             extendedSchema_cacheTTL: "86400"
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
-            extendedSchema_allowedDomains: "raw.githubusercontent.com,schemas.beckn.org"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
         checkPolicy:
           id: opapolicychecker
           config:

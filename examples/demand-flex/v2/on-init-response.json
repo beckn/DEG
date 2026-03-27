@@ -18,28 +18,27 @@
   },
   "message": {
     "contract": {
-      "@type": "beckn:Contract",
-      "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
+      "status": { "code": "DRAFT" },
       "participants": [
         {
           "id": "tpddl-north-delhi",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "TPDDL North Delhi Distribution" }
+          "descriptor": { "name": "TPDDL North Delhi Distribution" }
         },
         {
           "id": "greenflex-agg",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "GreenFlex Aggregator" }
+          "descriptor": { "name": "GreenFlex Aggregator" }
         }
       ],
       "commitments": [
         {
           "id": "commitment-flex-001",
           "status": {
-            "descriptor": { "@type": "beckn:Descriptor", "code": "DRAFT" }
+            "descriptor": { "code": "DRAFT" }
           },
           "resources": [
             {
               "id": "flex-need-north-delhi-apr1",
-              "descriptor": { "@type": "beckn:Descriptor", "name": "Peak Demand Flex - North Delhi" },
+              "descriptor": { "name": "Peak Demand Flex - North Delhi" },
               "quantity": { "unitCode": "kW", "unitQuantity": 150 },
               "resourceAttributes": {
                 "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
@@ -90,7 +89,7 @@
       "consideration": [
         {
           "id": "consideration-flex-001",
-          "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
+          "status": { "code": "DRAFT" },
           "considerationAttributes": {
             "priceUnit": "INR",
             "consideredValue": 1050.00,
