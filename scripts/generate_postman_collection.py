@@ -750,7 +750,7 @@ def main():
     
     # Generate collection name if not provided
     if args.name is None:
-        collection_name = f"{args.devkit}:{args.role}-DEG"
+        collection_name = f"{args.devkit}.{args.role}-DEG"
     else:
         collection_name = args.name
     

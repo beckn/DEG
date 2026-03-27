@@ -1,7 +1,7 @@
 {
   "context": {
     "version": "2.0.0",
-    "action": "catalog_publish",
+    "action": "catalog/publish",
     "domain": "beckn.one:deg:demand-flex:2.0.0",
     "bppId": "tpddl-utility.example.com",
     "bppUri": "https://tpddl-utility.example.com/beckn",

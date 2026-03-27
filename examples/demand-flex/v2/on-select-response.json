@@ -25,9 +25,8 @@
           "descriptor": { "name": "TPDDL North Delhi Distribution" }
         },
         {
-          "id": null,
-          "descriptor": { "name": "Taker (to be provided at init)" },
-          "participantAttributes": null
+          "id": "",
+          "descriptor": { "name": "Taker (to be provided at init)" }
         }
       ],
       "commitments": [

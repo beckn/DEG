@@ -353,27 +353,99 @@ def get_schema_store():
     attribute_schemas_map = {}
     return [registry], None, attribute_schemas_map
 
+CORE_BECKN_SCHEMA_URL = "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/heads/draft/api/v2.0.0/beckn.yaml"
+
+def _load_core_beckn_schema(registry_list):
+    """
+    Load the core beckn.yaml OpenAPI schema and register it.
+    Returns the parsed schema data or None on failure.
+    """
+    url = CORE_BECKN_SCHEMA_URL
+    try:
+        resource = registry_list[0].get(url)
+        if resource is not None:
+            return resource.contents
+    except (KeyError, AttributeError):
+        pass
+
+    try:
+        schema_data = load_schema_from_url(url)
+        registry_list[0] = registry_list[0].with_resource(url, Resource.from_contents(schema_data, DRAFT202012))
+        print(f"  Loaded core beckn.yaml schema")
+        return schema_data
+    except Exception as e:
+        print(f"  Warning: Failed to load core beckn.yaml: {e}")
+        return None
+
+
+def _validate_core_structure(payload, registry_list, errors):
+    """
+    Validate message.contract (or message.order) against core beckn.yaml schemas.
+    This catches missing required fields on Contract, Commitment, Resource, etc.
+    """
+    message = payload.get("message")
+    if not isinstance(message, dict):
+        return
+
+    # Determine which top-level object to validate and its schema name
+    targets = []
+    for key, schema_name in [("contract", "Contract"), ("order", "Order")]:
+        if key in message and isinstance(message[key], dict):
+            targets.append((key, schema_name, message[key]))
+
+    if not targets:
+        return
+
+    core_schema = _load_core_beckn_schema(registry_list)
+    if not core_schema:
+        return
+
+    schemas = (core_schema.get("components") or {}).get("schemas") or {}
+
+    for key, schema_name, data in targets:
+        if schema_name not in schemas:
+            continue
+
+        print(f"  Validating message.{key} against core {schema_name} schema...")
+        try:
+            schema_to_validate = {
+                "$ref": f"{CORE_BECKN_SCHEMA_URL}#/components/schemas/{schema_name}"
+            }
+            validate(instance=data, schema=schema_to_validate, registry=registry_list[0])
+            print(f"  message.{key} core structure is VALID.")
+        except ValidationError as e:
+            print(f"  message.{key} core structure is INVALID: {e.message}")
+            print(f"  Path: {e.json_path}")
+            errors.append(f"message/{key}{e.json_path.lstrip('$')}: {e.message}")
+
+
 def validate_payload(payload, registry_list, attributes_schema, attribute_schemas_map=None, core_only=False):
     """
     Validate JSON payload against Beckn protocol schemas.
-    
+
     Recursively traverses the payload, identifies objects with @context and @type,
     loads schemas on-demand, and validates each object against its corresponding schema.
+    Also validates message.contract/order against core beckn.yaml structural schemas
+    to catch missing required fields.
     Supports both core Beckn objects (beckn:Order, etc.) and domain-specific attribute
     objects (ChargingOffer, etc.).
-    
+
     Args:
         payload: JSON payload to validate (dict or list)
         registry_list: List containing referencing Registry with all loaded schemas
         attributes_schema: Unused, kept for compatibility (None)
         attribute_schemas_map: Dict mapping @context URLs to (schema_name, schema_data, schema_url)
         core_only: If True, only validate core Beckn objects, skip domain-specific attributes
-    
+
     Returns:
         list: List of validation error messages (empty if validation passes)
     """
     errors = []
-    
+
+    # Phase 1: Core structure validation (Contract/Commitment required fields etc.)
+    if isinstance(payload, dict) and "message" in payload:
+        _validate_core_structure(payload, registry_list, errors)
+
     def find_and_validate_objects(data, path=""):
         if isinstance(data, dict):
             # Check for objects with @context and @type

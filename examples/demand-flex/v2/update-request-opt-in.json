@@ -11,7 +11,8 @@
     "messageId": "msg-update-optin-001",
     "timestamp": "2026-04-01T06:00:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -20,8 +21,33 @@
       "commitments": [
         {
           "id": "commitment-flex-001",
+          "status": {
+            "descriptor": { "code": "ACTIVE" }
+          },
+          "resources": [
+            {
+              "id": "flex-need-north-delhi-apr1",
+              "quantity": { "unitCode": "kW", "unitQuantity": 120 },
+              "resourceAttributes": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@type": "DemandFlexNeed",
+                "direction": "REDUCE",
+                "eventWindow": {
+                  "startDate": "2026-04-01T08:30:00Z",
+                  "endDate": "2026-04-01T10:30:00Z"
+                },
+                "capacityType": "CURTAILMENT",
+                "maxCapacityKw": 500,
+                "location": {
+                  "type": "Point",
+                  "coordinates": [77.2090, 28.6139]
+                }
+              }
+            }
+          ],
           "offer": {
             "id": "offer-flex-001",
+            "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
