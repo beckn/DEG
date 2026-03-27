@@ -39,7 +39,7 @@ modules:
           id: simplekeymanager
           config:
             # Reusing signing keys from p2p-trading devkit
-            networkParticipant: demand-flex-sandbox1.com
+            networkParticipant: p2p-trading-sandbox1.com
             keyId: 76EU8aUqHouww7gawT6EibH4bseMCumyDv3sgyXSKENGk8NDcdVwmQ
             signingPrivateKey: Pc6dkYo5LeP0LkwvZXVRV9pcbeh8jDdtdHWymID5cjw=
             signingPublicKey: KVYEWkQB2WwnttVMWfy7KrnqiD51ZDvi8vfCac2IwRE=
@@ -105,7 +105,7 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: demand-flex-sandbox1.com
+            networkParticipant: p2p-trading-sandbox1.com
             keyId: 76EU8aUqHouww7gawT6EibH4bseMCumyDv3sgyXSKENGk8NDcdVwmQ
             signingPrivateKey: Pc6dkYo5LeP0LkwvZXVRV9pcbeh8jDdtdHWymID5cjw=
             signingPublicKey: KVYEWkQB2WwnttVMWfy7KrnqiD51ZDvi8vfCac2IwRE=

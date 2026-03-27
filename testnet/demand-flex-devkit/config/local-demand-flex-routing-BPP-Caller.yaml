@@ -1,4 +1,18 @@
 # BPP Caller routing: on_* callbacks from BPP → BAP adapter
-routes:
-  - target: "demand-flex-sandbox1.com"
-    url: "http://onix-bap:8081/bap/receiver"
+routingRules:
+  - version: "2.0.0"
+    targetType: "bap"
+    endpoints:
+      - on_select
+      - on_init
+      - on_confirm
+      - on_status
+      - on_update
+      - on_cancel
+
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "https://34.93.141.21.sslip.io/beckn/catalog"
+    endpoints:
+      - publish

@@ -1,4 +1,11 @@
 # BAP Caller routing: outbound requests from BAP → BPP adapter
-routes:
-  - target: "demand-flex-sandbox2.com"
-    url: "http://onix-bpp:8082/bpp/receiver"
+routingRules:
+  - version: "2.0.0"
+    targetType: "bpp"
+    endpoints:
+      - select
+      - init
+      - confirm
+      - status
+      - update
+      - cancel

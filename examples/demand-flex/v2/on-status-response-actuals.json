@@ -40,42 +40,6 @@
           }
         }
       ],
-      "settlements": [
-        {
-          "id": "settlement-evt-001",
-          "considerationId": "consideration-flex-001",
-          "status": "COMMITTED",
-          "settlementAttributes": {
-            "@type": "beckn:Settlement",
-            "components": [
-              {
-                "lineId": "incentive-meter-001",
-                "lineSummary": "der://meter/001: (45.0 - 20.0) kW × 2h × 3.50 INR/kWh",
-                "value": 175.00,
-                "currency": "INR"
-              },
-              {
-                "lineId": "incentive-meter-002",
-                "lineSummary": "der://meter/002: (38.0 - 15.0) kW × 2h × 3.50 INR/kWh",
-                "value": 161.00,
-                "currency": "INR"
-              },
-              {
-                "lineId": "incentive-meter-003",
-                "lineSummary": "der://meter/003: (52.0 - 25.0) kW × 2h × 3.50 INR/kWh",
-                "value": 189.00,
-                "currency": "INR"
-              },
-              {
-                "lineId": "total-settlement",
-                "lineSummary": "Total: 75 kW verified curtailment × 2h × 3.50 INR/kWh",
-                "value": 525.00,
-                "currency": "INR"
-              }
-            ]
-          }
-        }
-      ],
       "contractAttributes": {
         "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",

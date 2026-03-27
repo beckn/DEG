@@ -128,9 +128,9 @@ DEVKIT_CONFIGS = {
     },
     "demand-flex": {
         "domain": "beckn.one:deg:demand-flex:2.0.0",
-        "bap_id": "demand-flex-sandbox1.com",
+        "bap_id": "p2p-trading-sandbox1.com",
         "bap_uri": "http://onix-bap:8081/bap/receiver",
-        "bpp_id": "demand-flex-sandbox2.com",
+        "bpp_id": "p2p-trading-sandbox2.com",
         "bpp_uri": "http://onix-bpp:8082/bpp/receiver",
         "bap_adapter_url": "http://localhost:8081/bap/caller",
         "bpp_adapter_url": "http://localhost:8082/bpp/caller",

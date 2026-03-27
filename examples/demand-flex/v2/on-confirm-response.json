@@ -87,24 +87,6 @@
           }
         }
       ],
-      "consideration": [
-        {
-          "id": "consideration-flex-001",
-          "status": { "code": "DRAFT" },
-          "considerationAttributes": {
-            "priceUnit": "INR",
-            "consideredValue": 1050.00,
-            "components": [
-              {
-                "lineId": "incentive-base",
-                "lineSummary": "150 kW × 2h × 3.50 INR/kWh base incentive",
-                "value": 1050.00,
-                "currency": "INR"
-              }
-            ]
-          }
-        }
-      ],
       "contractAttributes": {
         "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
