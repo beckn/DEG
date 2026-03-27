@@ -1,0 +1,4 @@
+# BPP Caller routing: on_* callbacks from BPP → BAP adapter
+routes:
+  - target: "demand-flex-sandbox1.com"
+    url: "http://onix-bap:8081/bap/receiver"

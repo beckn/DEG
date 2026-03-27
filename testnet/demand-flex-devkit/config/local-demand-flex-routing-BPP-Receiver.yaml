@@ -1,0 +1,4 @@
+# BPP Receiver routing: select/init/confirm/update/status from BAP → sandbox-bpp
+routes:
+  - target: "demand-flex-sandbox2.com"
+    url: "http://sandbox-bpp:3002/api/webhook"

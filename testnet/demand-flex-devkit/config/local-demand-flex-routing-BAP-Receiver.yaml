@@ -1,0 +1,4 @@
+# BAP Receiver routing: on_* callbacks from BPP → sandbox-bap
+routes:
+  - target: "demand-flex-sandbox1.com"
+    url: "http://sandbox-bap:3001/api/bap-webhook"

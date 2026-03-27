@@ -132,13 +132,18 @@ def extract_schema_info_from_url(url):
 def extract_branch_from_context_url(context_url):
     """
     Extract branch name from @context URL.
-    
+
     Example:
         .../refs/heads/draft/schema/... -> draft
         .../refs/heads/p2p_trading/schema/... -> p2p_trading
         .../refs/heads/main/schema/... -> main
+        .../refs/heads/p2p-trading-becknv2/specification/schema/... -> p2p-trading-becknv2
     """
-    match = re.search(r'/refs/heads/([^/]+)/schema/', context_url)
+    match = re.search(r'/refs/heads/([^/]+)/(?:specification/)?schema/', context_url)
+    if match:
+        return match.group(1)
+    # Also handle tags
+    match = re.search(r'/tags/([^/]+)/(?:specification/)?schema/', context_url)
     if match:
         return match.group(1)
     return None
@@ -432,7 +437,7 @@ def validate_payload(payload, registry_list, attributes_schema, attribute_schema
                             
                             if "components" in schema_data and "schemas" in schema_data["components"]:
                                 schemas = schema_data["components"]["schemas"]
-                                
+
                                 # Try exact match first
                                 if schema_type in schemas:
                                     _validate_attribute_object(data, schemas[schema_type], schema_type, schema_name, path, errors, registry_list, schema_url)
@@ -442,6 +447,9 @@ def validate_payload(payload, registry_list, attributes_schema, attribute_schema
                                         if schema_key.lower() == schema_type.lower():
                                             _validate_attribute_object(data, schema_def, schema_key, schema_name, path, errors, registry_list, schema_url)
                                             break
+                            else:
+                                # Standalone schema (e.g., DEG domain schemas without components wrapper)
+                                _validate_attribute_object(data, schema_data, schema_type, schema_name, path, errors, registry_list, schema_url)
             
             # Recursively check children
             for key, value in data.items():
