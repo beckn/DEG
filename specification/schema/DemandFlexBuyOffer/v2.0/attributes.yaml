@@ -17,7 +17,7 @@ components:
         The taker field is null at publish/select time and gets populated
         via /init or /update once participants opt in.
       additionalProperties: false
-      required: [incentivePerKwh, currency, policy]
+      required: [incentivePerKwh, currency]
       x-jsonld:
         "@context": ./context.jsonld
         "@type": DemandFlexBuyOffer
@@ -100,30 +100,6 @@ components:
           oneOf:
             - type: "null"
             - $ref: "#/components/schemas/DemandFlexProvider"
-
-        policy:
-          type: object
-          required: [url, queryPath]
-          description: >
-            Reference to the OPA/Rego policy that governs this contract's revenue flows.
-            The rego defines roles, validates inputs, computes settlements,
-            and verifies invoices. Evaluated by the onix adapter at each beckn action.
-          x-jsonld:
-            "@id": policy
-          properties:
-            url:
-              type: string
-              format: uri
-              description: URL to the rego policy file.
-              example: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego"
-            queryPath:
-              type: string
-              description: OPA eval query path prefix.
-              example: "data.deg.contracts.demand_flex"
-            bundleUrl:
-              type: string
-              format: uri
-              description: Optional URL to an OPA bundle for semantically separated policy rules.
 
     DemandFlexProvider:
       type: object

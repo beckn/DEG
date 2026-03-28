@@ -12,7 +12,9 @@
     "timestamp": "2026-04-01T06:00:00Z",
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContractPolicy/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGParticipant/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -22,12 +24,17 @@
         {
           "id": "commitment-flex-001",
           "status": {
-            "descriptor": { "code": "ACTIVE" }
+            "descriptor": {
+              "code": "ACTIVE"
+            }
           },
           "resources": [
             {
               "id": "flex-need-north-delhi-apr1",
-              "quantity": { "unitCode": "kW", "unitQuantity": 120 },
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 120
+              },
               "resourceAttributes": {
                 "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
@@ -40,23 +47,31 @@
                 "maxCapacityKw": 500,
                 "location": {
                   "type": "Point",
-                  "coordinates": [77.2090, 28.6139]
+                  "coordinates": [
+                    77.209,
+                    28.6139
+                  ]
                 }
               }
             }
           ],
           "offer": {
             "id": "offer-flex-001",
-            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
-              "incentivePerKwh": 3.50,
+              "incentivePerKwh": 3.5,
               "currency": "INR",
               "maxEventsPerMonth": 5,
-              "baselineMethodology": { "bestOf": 5, "outOf": 10 },
-              "penaltyRate": 1.50,
-              "premiumForGuaranteed": 5.00,
+              "baselineMethodology": {
+                "bestOf": 5,
+                "outOf": 10
+              },
+              "penaltyRate": 1.5,
+              "premiumForGuaranteed": 5.0,
               "optOutDefault": false,
               "taker": {
                 "id": "AGG-GREENFLEX-001",
@@ -66,15 +81,17 @@
                   "der://meter/002",
                   "der://meter/003"
                 ]
-              },
-              "policy": {
-                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
-                "queryPath": "data.deg.contracts.demand_flex"
               }
             }
           }
         }
-      ]
+      ],
+      "contractAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContractPolicy/v2.0/context.jsonld",
+        "@type": "DEGContractPolicy",
+        "policyUrl": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+        "queryPath": "data.deg.contracts.demand_flex"
+      }
     }
   }
 }

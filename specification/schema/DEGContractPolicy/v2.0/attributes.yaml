@@ -1,0 +1,49 @@
+openapi: 3.1.1
+info:
+  title: DEG — Contract Policy Attributes (v2.0)
+  version: 2.0.0
+  description: >
+    Contract-level policy attributes for DEG energy contracts.
+    References the OPA/Rego policy that governs the contract and
+    carries the computed revenue flows after settlement.
+
+components:
+  schemas:
+    DEGContractPolicy:
+      type: object
+      additionalProperties: true
+      required: [policyUrl, queryPath]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": DEGContractPolicy
+      properties:
+        policyUrl:
+          type: string
+          format: uri
+          description: URL to the OPA/Rego policy file governing this contract.
+        queryPath:
+          type: string
+          description: OPA eval query path prefix.
+        revenueFlows:
+          type: array
+          description: >
+            Computed revenue flows per role after settlement.
+            Positive value = receivable, negative value = payable.
+            Sum of all values MUST equal zero (net-zero).
+          items:
+            type: object
+            required: [role, value, currency]
+            properties:
+              role:
+                type: string
+                description: Role from participantAttributes (buyer/seller).
+              value:
+                type: number
+                description: >
+                  Signed revenue amount. Positive = receives, negative = pays.
+              currency:
+                type: string
+                description: ISO 4217 currency code.
+              description:
+                type: string
+                description: Human-readable summary of this flow.

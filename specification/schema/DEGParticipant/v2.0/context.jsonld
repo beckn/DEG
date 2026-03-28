@@ -1,0 +1,13 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/DEGParticipant/v2.0/",
+    "DEGParticipant": "deg:DEGParticipant",
+    "role": { "@id": "deg:role", "@type": "@id" },
+    "roleInputs": "deg:roleInputs",
+    "buyer": "deg:RoleBuyer",
+    "seller": "deg:RoleSeller"
+  },
+  "@graph": []
+}

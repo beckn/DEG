@@ -1,21 +1,24 @@
-# DEG Contract Policy — Demand Flex Settlement
+# DEG Contract Policy — Demand Flex Revenue Flows
 #
-# Computes per-meter incentive payouts from M&V baselines/actuals,
-# aggregates a portfolio total, and verifies net-zero revenue flows
-# between utility (BPP) and aggregator (BAP).
+# Computes per-meter incentive payouts from M&V baselines/actuals and
+# produces signed revenue flows per ROLE (buyer/seller), not per participant ID.
 #
-# Input: full beckn on_status payload with:
-#   - commitments[0].offer.offerAttributes  → incentive terms
+# buyer  (utility/DISCOM) → pays     → negative value
+# seller (aggregator)     → receives → positive value
+# Sum of all revenue_flows values MUST equal zero (net-zero).
+#
+# Input: full beckn contract payload with:
+#   - participants[].participantAttributes.role  → buyer / seller
+#   - commitments[0].offer.offerAttributes       → incentive terms
 #   - commitments[0].resources[0].resourceAttributes.eventWindow → hours
-#   - performance[0].performanceAttributes  → baselines + actuals
+#   - performance[0].performanceAttributes       → baselines + actuals
 #
 # Exported rules:
+#   revenue_flows          — [{role, value, currency, description}]
 #   settlement_components  — per-meter [{lineId, lineSummary, value, currency}]
 #   total_settlement       — sum of all meter incentives
-#   utility_outflow        — what the utility pays out
-#   aggregator_inflow      — what the aggregator receives
-#   net_zero_ok            — bool: outflow == inflow
 #   event_hours            — derived from eventWindow
+#   net_zero_ok            — bool: sum of revenue_flows == 0
 #   violations             — set of error/warning strings
 
 package deg.contracts.demand_flex
@@ -47,7 +50,15 @@ _meters := _perf_attrs.meters
 _event_window := _commitment.resources[0].resourceAttributes.eventWindow
 
 # ---------------------------------------------------------------------------
-# Event hours (from eventWindow)
+# Roles — extracted from participantAttributes
+# ---------------------------------------------------------------------------
+
+_participants := input.message.contract.participants
+
+_roles := {p.participantAttributes.role | some p in _participants; p.participantAttributes.role}
+
+# ---------------------------------------------------------------------------
+# Event hours
 # ---------------------------------------------------------------------------
 
 _start_ns := time.parse_rfc3339_ns(_event_window.startDate)
@@ -81,7 +92,7 @@ _meter_settlement[i] := result if {
 }
 
 # ---------------------------------------------------------------------------
-# Exported: settlement components (consideration-ready line items)
+# Settlement components (per-meter line items)
 # ---------------------------------------------------------------------------
 
 settlement_components := [comp |
@@ -96,23 +107,62 @@ settlement_components := [comp |
 	}
 ]
 
-# ---------------------------------------------------------------------------
-# Exported: totals & net-zero
-# ---------------------------------------------------------------------------
-
 total_settlement := sum([s.incentive | some i; s := _meter_settlement[i]])
 
-# Two-party model: utility pays out, aggregator receives.
-# When network fees or multi-party splits are added, these diverge.
-utility_outflow := total_settlement
+# ---------------------------------------------------------------------------
+# Revenue flows by role (the core output)
+#
+#   buyer pays  → negative
+#   seller receives → positive
+#   sum = 0
+# ---------------------------------------------------------------------------
 
-aggregator_inflow := total_settlement
+_total_kwh := sum([s.reductionKwh | some i; s := _meter_settlement[i]])
 
-net_zero_ok if utility_outflow == aggregator_inflow
+_buyer_desc := sprintf("Incentive payable for %v kWh verified curtailment", [_total_kwh])
+
+_seller_desc := sprintf("Incentive receivable for %v kWh verified curtailment", [_total_kwh])
+
+_flow_defs := [
+	["buyer", -1],
+	["seller", 1],
+]
+
+revenue_flows := [flow |
+	some def in _flow_defs
+	role := def[0]
+	sign := def[1]
+	desc := sprintf("Incentive %s for %g kWh verified curtailment", [_flow_label[role], _total_kwh])
+	flow := object.union(
+		object.union(
+			object.union({"role": role}, {"value": sign * total_settlement}),
+			{"currency": _currency},
+		),
+		{"description": desc},
+	)
+]
+
+_flow_label["buyer"] := "payable"
+
+_flow_label["seller"] := "receivable"
+
+_revenue_sum := sum([f.value | some f in revenue_flows])
+
+net_zero_ok if _revenue_sum == 0
 
 # ---------------------------------------------------------------------------
 # Violations
 # ---------------------------------------------------------------------------
+
+violations contains msg if {
+	not "buyer" in _roles
+	msg := "no participant with role 'buyer' found"
+}
+
+violations contains msg if {
+	not "seller" in _roles
+	msg := "no participant with role 'seller' found"
+}
 
 violations contains msg if {
 	some i
@@ -132,6 +182,5 @@ violations contains msg if {
 
 violations contains msg if {
 	not net_zero_ok
-	msg := sprintf("net-zero mismatch: utility outflow (%g) ≠ aggregator inflow (%g)",
-		[utility_outflow, aggregator_inflow])
+	msg := sprintf("net-zero failed: revenue sum = %g (expected 0)", [_revenue_sum])
 }

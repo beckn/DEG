@@ -14,7 +14,8 @@
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://schema.beckn.io/PriceSpecification/2.1/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContractPolicy/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGParticipant/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -23,6 +24,30 @@
       "status": {
         "code": "ACTIVE"
       },
+      "participants": [
+        {
+          "id": "tpddl-north-delhi",
+          "descriptor": {
+            "name": "TPDDL North Delhi Distribution"
+          },
+          "participantAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGParticipant/v2.0/context.jsonld",
+            "@type": "DEGParticipant",
+            "role": "buyer"
+          }
+        },
+        {
+          "id": "greenflex-agg",
+          "descriptor": {
+            "name": "GreenFlex Aggregator"
+          },
+          "participantAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGParticipant/v2.0/context.jsonld",
+            "@type": "DEGParticipant",
+            "role": "seller"
+          }
+        }
+      ],
       "commitments": [
         {
           "id": "commitment-flex-001",
@@ -77,10 +102,6 @@
                   "der://meter/002",
                   "der://meter/003"
                 ]
-              },
-              "policy": {
-                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
-                "queryPath": "data.deg.contracts.demand_flex"
               }
             }
           }
@@ -121,52 +142,26 @@
           }
         }
       ],
-      "consideration": [
-        {
-          "id": "tpddl-utility.example.com",
-          "status": {
-            "code": "PAYABLE"
-          },
-          "considerationAttributes": {
-            "@context": "https://schema.beckn.io/PriceSpecification/2.1/context.jsonld",
-            "@type": "PriceSpecification",
-            "value": 525,
+      "contractAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContractPolicy/v2.0/context.jsonld",
+        "@type": "DEGContractPolicy",
+        "policyUrl": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+        "queryPath": "data.deg.contracts.demand_flex",
+        "revenueFlows": [
+          {
             "currency": "INR",
-            "components": [
-              {
-                "type": "FEE",
-                "value": 175,
-                "currency": "INR",
-                "description": "der://meter/001: (45 - 20) kW × 2h × 3.5 INR/kWh"
-              },
-              {
-                "type": "FEE",
-                "value": 161,
-                "currency": "INR",
-                "description": "der://meter/002: (38 - 15) kW × 2h × 3.5 INR/kWh"
-              },
-              {
-                "type": "FEE",
-                "value": 189,
-                "currency": "INR",
-                "description": "der://meter/003: (52 - 25) kW × 2h × 3.5 INR/kWh"
-              }
-            ]
-          }
-        },
-        {
-          "id": "greenflex-agg.example.com",
-          "status": {
-            "code": "RECEIVABLE"
+            "description": "Incentive payable for %!g(int=150) kWh verified curtailment",
+            "role": "buyer",
+            "value": -525
           },
-          "considerationAttributes": {
-            "@context": "https://schema.beckn.io/PriceSpecification/2.1/context.jsonld",
-            "@type": "PriceSpecification",
-            "value": 525,
-            "currency": "INR"
+          {
+            "currency": "INR",
+            "description": "Incentive receivable for %!g(int=150) kWh verified curtailment",
+            "role": "seller",
+            "value": 525
           }
-        }
-      ]
+        ]
+      }
     }
   }
 }

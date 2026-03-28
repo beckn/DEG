@@ -27,10 +27,10 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent
-DEFAULT_POLICY = REPO_ROOT / "specification" / "policies" / "demand_flex.rego"
+DEFAULT_POLICY = REPO_ROOT / "specification" / "policies" / "demand_flex_revenue.rego"
 QUERY = "data.deg.contracts.demand_flex"
 
-PRICE_SPEC_CONTEXT = "https://schema.beckn.io/PriceSpecification/2.1/context.jsonld"
+CONTRACT_POLICY_CONTEXT = "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContractPolicy/v2.0/context.jsonld"
 
 
 def run_opa_eval(policy_path: Path, input_path: Path) -> dict:
@@ -55,84 +55,25 @@ def run_opa_eval(policy_path: Path, input_path: Path) -> dict:
         sys.exit(1)
 
 
-def build_consideration(payload: dict, rego_result: dict) -> list:
-    """Build consideration array from rego settlement result and payload participants."""
-    total = rego_result.get("total_settlement", 0)
-    components = rego_result.get("settlement_components", [])
-    currency = rego_result.get("_currency", "INR")
-
-    # Extract participant IDs from the contract
-    contract = payload["message"]["contract"]
-    participants = contract.get("participants", [])
-
-    # Try to identify BPP (utility) and BAP (aggregator) from participants
-    bpp_id = None
-    bap_id = None
-    for p in participants:
-        pid = p.get("id", "")
-        if pid:
-            # First participant is typically the BPP (utility), second is BAP (aggregator)
-            if bpp_id is None:
-                bpp_id = pid
-            elif bap_id is None:
-                bap_id = pid
-
-    # Fall back to context if participants not available
-    if not bpp_id:
-        bpp_id = payload.get("context", {}).get("bppId", "unknown-bpp")
-    if not bap_id:
-        bap_id = payload.get("context", {}).get("bapId", "unknown-bap")
-
-    # Build per-meter components for the payer's breakdown
-    price_components = []
-    for c in components:
-        price_components.append({
-            "type": "FEE",
-            "value": c["value"],
-            "currency": c["currency"],
-            "description": c["lineSummary"],
-        })
-
-    return [
-        {
-            "id": bpp_id,
-            "status": {"code": "PAYABLE"},
-            "considerationAttributes": {
-                "@context": PRICE_SPEC_CONTEXT,
-                "@type": "PriceSpecification",
-                "value": total,
-                "currency": currency,
-                "components": price_components,
-            },
-        },
-        {
-            "id": bap_id,
-            "status": {"code": "RECEIVABLE"},
-            "considerationAttributes": {
-                "@context": PRICE_SPEC_CONTEXT,
-                "@type": "PriceSpecification",
-                "value": total,
-                "currency": currency,
-            },
-        },
-    ]
+def build_revenue_flows(rego_result: dict) -> list:
+    """Extract revenue_flows from rego result."""
+    return rego_result.get("revenue_flows", [])
 
 
 def generate_settled_json(input_path: Path, output_path: Path, rego_result: dict):
-    """Read the input payload, inject consideration, write settled JSON."""
+    """Read input payload, inject revenueFlows into contractAttributes, write settled JSON."""
     with open(input_path) as f:
         payload = json.load(f)
 
     contract = payload["message"]["contract"]
 
-    # Inject consideration
-    contract["consideration"] = build_consideration(payload, rego_result)
+    # Inject revenueFlows into contractAttributes
+    ca = contract.get("contractAttributes", {})
+    ca["revenueFlows"] = build_revenue_flows(rego_result)
+    contract["contractAttributes"] = ca
 
-    # Add PriceSpecification context to schemaContext if not present
-    schema_ctx = payload.get("context", {}).get("schemaContext", [])
-    if PRICE_SPEC_CONTEXT not in schema_ctx:
-        schema_ctx.append(PRICE_SPEC_CONTEXT)
-        payload["context"]["schemaContext"] = schema_ctx
+    # Remove consideration if present (replaced by revenueFlows)
+    contract.pop("consideration", None)
 
     # Update performance status to SETTLED
     for perf in contract.get("performance", []):
@@ -155,8 +96,7 @@ def print_report(data: dict):
     total = data.get("total_settlement", 0)
     net_zero = data.get("net_zero_ok", False)
     violations = data.get("violations", [])
-    utility_out = data.get("utility_outflow", 0)
-    aggregator_in = data.get("aggregator_inflow", 0)
+    flows = data.get("revenue_flows", [])
 
     print()
     print("=" * 60)
@@ -175,8 +115,13 @@ def print_report(data: dict):
         print("  No settlement components computed.")
 
     print()
-    print(f"  Utility outflow   : {utility_out:,.2f}")
-    print(f"  Aggregator inflow : {aggregator_in:,.2f}")
+    print("  Revenue flows:")
+    flow_sum = 0
+    for f in flows:
+        sign = "+" if f["value"] >= 0 else ""
+        print(f"    {f['role']:<10} {sign}{f['value']:>10.2f} {f['currency']}")
+        flow_sum += f["value"]
+    print(f"    {'SUM':<10} {'':>10}{flow_sum:+.2f}")
     print(f"  Net-zero verified : {'YES' if net_zero else 'NO'}")
 
     if violations:
