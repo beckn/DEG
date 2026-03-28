@@ -8,8 +8,8 @@
 # Sum of all revenue_flows values MUST equal zero (net-zero).
 #
 # Input: full beckn contract payload with:
-#   - participants[].participantAttributes.role  → buyer / seller
-#   - commitments[0].offer.offerAttributes       → incentive terms
+#   - contractAttributes.roles[].role            → buyer / seller
+#   - commitments[0].offer.offerAttributes.terms → incentive terms (role-tagged)
 #   - commitments[0].resources[0].resourceAttributes.eventWindow → hours
 #   - performance[0].performanceAttributes       → baselines + actuals
 #
@@ -39,9 +39,13 @@ _commitment := input.message.contract.commitments[0]
 
 _offer_attrs := _commitment.offer.offerAttributes
 
-_incentive_per_kwh := _offer_attrs.incentivePerKwh
+_inputs := _offer_attrs.inputs
 
-_currency := _offer_attrs.currency
+_buyer_inputs := [i.inputs | some i in _inputs; i.role == "buyer"][0]
+
+_incentive_per_kwh := _buyer_inputs.incentivePerKwh
+
+_currency := _buyer_inputs.currency
 
 _perf_attrs := input.message.contract.performance[0].performanceAttributes
 
@@ -50,12 +54,12 @@ _meters := _perf_attrs.meters
 _event_window := _commitment.resources[0].resourceAttributes.eventWindow
 
 # ---------------------------------------------------------------------------
-# Roles — extracted from participantAttributes
+# Roles — extracted from contractAttributes (DEGContract)
 # ---------------------------------------------------------------------------
 
-_participants := input.message.contract.participants
+_contract_attrs := input.message.contract.contractAttributes
 
-_roles := {p.participantAttributes.role | some p in _participants; p.participantAttributes.role}
+_roles := {r.role | some r in _contract_attrs.roles}
 
 # ---------------------------------------------------------------------------
 # Event hours
@@ -132,7 +136,7 @@ revenue_flows := [flow |
 	some def in _flow_defs
 	role := def[0]
 	sign := def[1]
-	desc := sprintf("Incentive %s for %g kWh verified curtailment", [_flow_label[role], _total_kwh])
+	desc := sprintf("Incentive %s for %v kWh verified curtailment", [_flow_label[role], _total_kwh])
 	flow := object.union(
 		object.union(
 			object.union({"role": role}, {"value": sign * total_settlement}),

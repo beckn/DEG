@@ -1,20 +1,20 @@
 {
   "@context": {
     "@version": 1.1,
-    "schema": "https://schema.org/",
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
     "beckn": "https://schema.beckn.io/core/v2.0/",
     "deg": "https://schema.beckn.io/deg/DEGContract/v2.0/",
     "DEGContract": "deg:DEGContract",
-    "contractType": {
-      "@id": "deg:contractType",
-      "@type": "@id"
-    },
-    "DEMAND_FLEX": "deg:ContractTypeDemandFlex",
-    "P2P_TRADE": "deg:ContractTypeP2PTrade",
-    "EV_CHARGING": "deg:ContractTypeEvCharging"
+    "roles": "deg:roles",
+    "role": { "@id": "deg:role", "@type": "@id" },
+    "participantId": "deg:participantId",
+    "policy": "deg:policy",
+    "url": "deg:url",
+    "queryPath": "deg:queryPath",
+    "revenueFlows": "deg:revenueFlows",
+    "value": "deg:value",
+    "currency": "deg:currency",
+    "buyer": "deg:RoleBuyer",
+    "seller": "deg:RoleSeller"
   },
   "@graph": []
 }

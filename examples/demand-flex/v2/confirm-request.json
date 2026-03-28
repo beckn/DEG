@@ -13,8 +13,8 @@
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContractPolicy/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGParticipant/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
   "message": {
@@ -22,30 +22,6 @@
       "status": {
         "code": "DRAFT"
       },
-      "participants": [
-        {
-          "id": "tpddl-north-delhi",
-          "descriptor": {
-            "name": "TPDDL North Delhi Distribution"
-          },
-          "participantAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGParticipant/v2.0/context.jsonld",
-            "@type": "DEGParticipant",
-            "role": "buyer"
-          }
-        },
-        {
-          "id": "greenflex-agg",
-          "descriptor": {
-            "name": "GreenFlex Aggregator"
-          },
-          "participantAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGParticipant/v2.0/context.jsonld",
-            "@type": "DEGParticipant",
-            "role": "seller"
-          }
-        }
-      ],
       "commitments": [
         {
           "id": "commitment-flex-001",
@@ -63,7 +39,8 @@
               },
               "quantity": {
                 "unitCode": "kW",
-                "unitQuantity": 150
+                "unitQuantity": 150,
+                "@type": "Quantity"
               },
               "resourceAttributes": {
                 "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
@@ -93,33 +70,59 @@
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
-              "incentivePerKwh": 3.5,
-              "currency": "INR",
-              "maxEventsPerMonth": 5,
-              "baselineMethodology": {
-                "bestOf": 5,
-                "outOf": 10
-              },
-              "penaltyRate": 1.5,
-              "premiumForGuaranteed": 5.0,
-              "optOutDefault": false,
-              "taker": {
-                "id": "AGG-GREENFLEX-001",
-                "plannedDemandChange": 150.0,
-                "participatingMeters": [
-                  "der://meter/001",
-                  "der://meter/002"
-                ]
-              }
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": "greenflex-agg",
+                  "inputs": {
+                    "plannedDemandChange": {
+                      "unitCode": "KWH",
+                      "unitQuantity": 150.0,
+                      "@type": "Quantity"
+                    },
+                    "participatingMeters": [
+                      "der://meter/001",
+                      "der://meter/002"
+                    ]
+                  }
+                }
+              ]
             }
           }
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContractPolicy/v2.0/context.jsonld",
-        "@type": "DEGContractPolicy",
-        "policyUrl": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
-        "queryPath": "data.deg.contracts.demand_flex"
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@type": "DEGContract",
+        "roles": [
+          {
+            "role": "buyer",
+            "participantId": "tpddl-north-delhi"
+          },
+          {
+            "role": "seller",
+            "participantId": "greenflex-agg"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
       }
     }
   }

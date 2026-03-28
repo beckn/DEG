@@ -7,30 +7,42 @@ package deg.contracts.demand_flex
 import rego.v1
 
 # ---------------------------------------------------------------------------
-# Helper: build a mock contract payload with roles
+# Helper: build a mock contract payload
 # ---------------------------------------------------------------------------
 
-_mock_input(offer_attrs, meters, event_window) := {
+_deg_contract := {
+	"@context": "test", "@type": "DEGContract",
+	"roles": [{"role": "buyer"}, {"role": "seller"}],
+	"policy": {"url": "test", "queryPath": "test"},
+}
+
+_default_inputs := [
+	{"role": "buyer", "participantId": "utility-test", "inputs": {
+		"incentivePerKwh": 3.50,
+		"currency": "INR",
+		"penaltyRate": 1.50,
+		"premiumForGuaranteed": 5.00,
+		"maxEventsPerMonth": 5,
+		"baselineMethodology": {"bestOf": 5, "outOf": 10},
+		"optOutDefault": false,
+	}},
+	{"role": "seller", "participantId": "agg-test", "inputs": {
+		"plannedDemandChange": 150.0,
+		"participatingMeters": ["m1", "m2", "m3"],
+	}},
+]
+
+_default_window := {"startDate": "2026-04-01T08:30:00Z", "endDate": "2026-04-01T10:30:00Z"}
+
+_mock_input(role_inputs, meters, event_window, contract_attrs) := {
 	"message": {"contract": {
-		"id": "contract-flex-test",
+		"id": "test",
 		"status": {"code": "ACTIVE"},
-		"participants": [
-			{
-				"id": "utility-test",
-				"descriptor": {"name": "Test Utility"},
-				"participantAttributes": {"@context": "test", "@type": "DEGParticipant", "role": "buyer"},
-			},
-			{
-				"id": "aggregator-test",
-				"descriptor": {"name": "Test Aggregator"},
-				"participantAttributes": {"@context": "test", "@type": "DEGParticipant", "role": "seller"},
-			},
-		],
 		"commitments": [{
-			"id": "commitment-001",
+			"id": "c1",
 			"status": {"descriptor": {"code": "ACTIVE"}},
 			"resources": [{
-				"id": "flex-need-test",
+				"id": "r1",
 				"quantity": {"unitCode": "kW", "unitQuantity": 150},
 				"resourceAttributes": {
 					"@context": "test", "@type": "DemandFlexNeed",
@@ -39,71 +51,50 @@ _mock_input(offer_attrs, meters, event_window) := {
 				},
 			}],
 			"offer": {
-				"id": "offer-001",
-				"resourceIds": ["flex-need-test"],
-				"offerAttributes": offer_attrs,
+				"id": "o1", "resourceIds": ["r1"],
+				"offerAttributes": {
+					"@context": "test", "@type": "DemandFlexBuyOffer",
+					"inputs": role_inputs,
+				},
 			},
 		}],
-		"performance": [{"id": "perf-001", "status": {"code": "DELIVERY_COMPLETE"}, "commitmentIds": ["commitment-001"], "performanceAttributes": {
+		"performance": [{"id": "p1", "status": {"code": "DELIVERY_COMPLETE"}, "commitmentIds": ["c1"], "performanceAttributes": {
 			"@context": "test", "@type": "DemandFlexPerformance",
 			"eventId": "evt-test", "methodology": "5of10", "meters": meters,
 		}}],
-		"contractAttributes": {
-			"@context": "test", "@type": "DEGContractPolicy",
-			"policyUrl": "test", "queryPath": "test",
-		},
+		"contractAttributes": contract_attrs,
 	}},
 }
 
-_default_offer := {
-	"@context": "test", "@type": "DemandFlexBuyOffer",
-	"incentivePerKwh": 3.50, "currency": "INR",
-	"penaltyRate": 1.50, "premiumForGuaranteed": 5.00, "optOutDefault": false,
-}
-
-_default_window := {"startDate": "2026-04-01T08:30:00Z", "endDate": "2026-04-01T10:30:00Z"}
+_std_input(meters) := _mock_input(_default_inputs, meters, _default_window, _deg_contract)
 
 # ---------------------------------------------------------------------------
 # Test: happy path — revenue flows sum to zero
-#
-#   3 meters, 2h, 3.50 INR/kWh → total = 525
-#   buyer: -525, seller: +525, sum = 0
 # ---------------------------------------------------------------------------
 
 test_revenue_flows_net_zero if {
-	inp := _mock_input(_default_offer, [
-		{"meterId": "der://meter/001", "baselineKw": 45.0, "actualKw": 20.0},
-		{"meterId": "der://meter/002", "baselineKw": 38.0, "actualKw": 15.0},
-		{"meterId": "der://meter/003", "baselineKw": 52.0, "actualKw": 25.0},
-	], _default_window)
+	inp := _std_input([
+		{"meterId": "m1", "baselineKw": 45.0, "actualKw": 20.0},
+		{"meterId": "m2", "baselineKw": 38.0, "actualKw": 15.0},
+		{"meterId": "m3", "baselineKw": 52.0, "actualKw": 25.0},
+	])
 
 	flows := revenue_flows with input as inp
 	count(flows) == 2
 
-	# buyer pays
-	some bf in flows
-	bf.role == "buyer"
-	bf.value == -525
+	some bf in flows; bf.role == "buyer"; bf.value == -525
+	some sf in flows; sf.role == "seller"; sf.value == 525
 
-	# seller receives
-	some sf in flows
-	sf.role == "seller"
-	sf.value == 525
-
-	# net-zero
 	net_zero_ok with input as inp
 	count(violations) == 0 with input as inp
 }
 
 # ---------------------------------------------------------------------------
-# Test: roles extracted from participantAttributes
+# Test: roles extracted from contractAttributes
 # ---------------------------------------------------------------------------
 
 test_roles_detected if {
-	inp := _mock_input(_default_offer, [
-		{"meterId": "der://meter/001", "baselineKw": 45.0, "actualKw": 20.0},
-	], _default_window)
-
+	inp := _std_input([{"meterId": "m1", "baselineKw": 45.0, "actualKw": 20.0}])
 	roles := _roles with input as inp
 	"buyer" in roles
 	"seller" in roles
@@ -114,72 +105,48 @@ test_roles_detected if {
 # ---------------------------------------------------------------------------
 
 test_missing_seller_violation if {
-	inp := {"message": {"contract": {
-		"id": "test",
-		"status": {"code": "ACTIVE"},
-		"participants": [
-			{"id": "u", "participantAttributes": {"@context": "t", "@type": "DEGParticipant", "role": "buyer"}},
-		],
-		"commitments": [_mock_input(_default_offer, [
-			{"meterId": "der://meter/001", "baselineKw": 45.0, "actualKw": 20.0},
-		], _default_window).message.contract.commitments[0]],
-		"performance": [_mock_input(_default_offer, [
-			{"meterId": "der://meter/001", "baselineKw": 45.0, "actualKw": 20.0},
-		], _default_window).message.contract.performance[0]],
-	}}}
-
+	no_seller := {"@context": "test", "@type": "DEGContract", "roles": [{"role": "buyer"}], "policy": {"url": "t", "queryPath": "t"}}
+	inp := _mock_input(_default_inputs, [{"meterId": "m1", "baselineKw": 45.0, "actualKw": 20.0}], _default_window, no_seller)
 	vs := violations with input as inp
 	some v in vs
 	contains(v, "seller")
 }
 
 # ---------------------------------------------------------------------------
-# Test: settlement components correct
+# Test: settlement total
 # ---------------------------------------------------------------------------
 
 test_settlement_total if {
-	inp := _mock_input(_default_offer, [
-		{"meterId": "der://meter/001", "baselineKw": 45.0, "actualKw": 20.0},
-		{"meterId": "der://meter/002", "baselineKw": 38.0, "actualKw": 15.0},
-		{"meterId": "der://meter/003", "baselineKw": 52.0, "actualKw": 25.0},
-	], _default_window)
-
+	inp := _std_input([
+		{"meterId": "m1", "baselineKw": 45.0, "actualKw": 20.0},
+		{"meterId": "m2", "baselineKw": 38.0, "actualKw": 15.0},
+		{"meterId": "m3", "baselineKw": 52.0, "actualKw": 25.0},
+	])
 	total_settlement == 525 with input as inp
 	count(settlement_components) == 3 with input as inp
 }
 
 # ---------------------------------------------------------------------------
-# Test: negative reduction clamped, no impact on revenue flows
+# Test: negative reduction clamped
 # ---------------------------------------------------------------------------
 
 test_clamped_meter_excluded if {
-	inp := _mock_input(_default_offer, [
-		{"meterId": "der://meter/001", "baselineKw": 30.0, "actualKw": 40.0},
-		{"meterId": "der://meter/002", "baselineKw": 50.0, "actualKw": 20.0},
-	], _default_window)
-
-	# meter/001 clamped to 0; meter/002: (50-20)*2*3.5 = 210
+	inp := _std_input([
+		{"meterId": "m1", "baselineKw": 30.0, "actualKw": 40.0},
+		{"meterId": "m2", "baselineKw": 50.0, "actualKw": 20.0},
+	])
 	total_settlement == 210 with input as inp
-
 	flows := revenue_flows with input as inp
-	some bf in flows
-	bf.role == "buyer"
-	bf.value == -210
+	some bf in flows; bf.role == "buyer"; bf.value == -210
 }
 
 # ---------------------------------------------------------------------------
-# Test: 3-hour event scales revenue flows
+# Test: 3-hour event scales
 # ---------------------------------------------------------------------------
 
 test_3h_event if {
-	window_3h := {"startDate": "2026-04-01T08:00:00Z", "endDate": "2026-04-01T11:00:00Z"}
-	inp := _mock_input(_default_offer, [
-		{"meterId": "der://meter/001", "baselineKw": 40.0, "actualKw": 20.0},
-	], window_3h)
-
-	# (40-20)*3*3.5 = 210
+	w3h := {"startDate": "2026-04-01T08:00:00Z", "endDate": "2026-04-01T11:00:00Z"}
+	inp := _mock_input(_default_inputs, [{"meterId": "m1", "baselineKw": 40.0, "actualKw": 20.0}], w3h, _deg_contract)
 	flows := revenue_flows with input as inp
-	some sf in flows
-	sf.role == "seller"
-	sf.value == 210
+	some sf in flows; sf.role == "seller"; sf.value == 210
 }
