@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "a0a23780-53fc-4f5e-a075-0d281eb4d748",
+    "_postman_id": "73d6a5cb-b5d9-4ce9-a88f-52bc3b680c1b",
     "name": "demand-flex.BAP-DEG",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Postman collection for Buyer Application Platform implementing demand-flex APIs based on Beckn Protocol v2"
@@ -33,6 +33,38 @@
               ]
             },
             "description": "Confirm request: confirm-request"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "item": [
+        {
+          "name": "discover-request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"discover\",\n    \"domain\": \"{{domain}}\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_uri}}\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"descriptor\": {\n        \"name\": \"demand-flex\"\n      },\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CURTAILMENT\"\n        }\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/discover",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "discover"
+              ]
+            },
+            "description": "Discover request: discover-request"
           },
           "response": []
         }

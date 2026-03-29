@@ -1,6 +1,6 @@
 # Demand Flexibility Implementation Guide <!-- omit from toc -->
 
-Version 0.1 (Draft / Non-Normative)
+Version 0.2 (Draft / Non-Normative)
 
 ## Table of Contents <!-- omit from toc -->
 
@@ -12,15 +12,18 @@ Version 0.1 (Draft / Non-Normative)
   - [4.2. Beckn v2 Contract Mapping](#42-beckn-v2-contract-mapping)
 - [5. Message Flow](#5-message-flow)
   - [5.1. Catalog Publish](#51-catalog-publish)
-  - [5.2. Select](#52-select)
-  - [5.3. On Select](#53-on-select)
-  - [5.4. Init](#54-init)
-  - [5.5. On Init](#55-on-init)
-  - [5.6. Confirm](#56-confirm)
-  - [5.7. On Confirm](#57-on-confirm)
-  - [5.8. Update (Opt-In with Meters)](#58-update-opt-in-with-meters)
-  - [5.9. On Status (Baselines)](#59-on-status-baselines)
-  - [5.10. On Status (Actuals and Settlement)](#510-on-status-actuals-and-settlement)
+  - [5.2. Discover](#52-discover)
+  - [5.3. On Discover](#53-on-discover)
+  - [5.4. Select](#54-select)
+  - [5.5. On Select](#55-on-select)
+  - [5.6. Init](#56-init)
+  - [5.7. On Init](#57-on-init)
+  - [5.8. Confirm](#58-confirm)
+  - [5.9. On Confirm](#59-on-confirm)
+  - [5.10. Update (Opt-In with Meters)](#510-update-opt-in-with-meters)
+  - [5.11. On Status (Baselines)](#511-on-status-baselines)
+  - [5.12. On Status (Actuals)](#512-on-status-actuals)
+  - [5.13. On Status (Settled)](#513-on-status-settled)
 - [6. Schema Reference](#6-schema-reference)
   - [6.1. DemandFlexNeed](#61-demandflexneed)
   - [6.2. DemandFlexBuyOffer](#62-demandflexbuyoffer)
@@ -38,15 +41,15 @@ Version 0.1 (Draft / Non-Normative)
 
 Behavioral Demand Response (also called demand-flex) allows utilities to procure load flexibility from consumers and aggregators during peak demand periods. Instead of building more generation or grid capacity, utilities publish flex needs on the network and incentivize participants to reduce (or shift) their consumption during specific event windows.
 
-This guide describes how demand-flex contracts are modeled on the Beckn protocol using the new v2.0.0 **Contract** object, with domain-specific schemas for the energy vertical (DEG).
+This guide describes how demand-flex contracts are modeled on the Beckn protocol using the v2.0.0 **Contract** object, with domain-specific schemas for the energy vertical (DEG).
 
 ### Key Concepts
 
 - **Flex Need**: A utility's requirement for demand change (increase or reduction) during a specific event window
-- **Buy Offer**: The commercial terms under which the utility will compensate flex providers
-- **Taker**: The consumer or aggregator providing flex capacity — identified by meters
+- **Buy Offer**: The commercial terms under which the utility will compensate flex providers, with role-tagged inputs
+- **DEGContract**: A portable contract template carried in the offer, defining roles, policy, and (post-settlement) revenue flows
 - **M&V (Measurement & Verification)**: Baselines and actuals used to compute verified flex
-- **Rego Policy**: An OPA policy that defines revenue flows and validates invoices
+- **Rego Policy**: An OPA policy that computes revenue flows per role and verifies net-zero
 
 ## 2. Terminology
 
@@ -60,22 +63,23 @@ This guide describes how demand-flex contracts are modeled on the Beckn protocol
 | **Curtailment** | Reduction in consumption below baseline |
 | **Guaranteed Flex** | Firm commitment subject to penalty for under-delivery and premium for commitment |
 | **Opt-In/Opt-Out** | Per-event participation control; default set in contract terms |
+| **Revenue Flow** | Signed monetary value per role: negative = pays, positive = receives. Sum = 0 (net-zero) |
 
 ## 3. User Journey
 
 ```mermaid
 sequenceDiagram
     participant U as Utility (BPP)
-    participant N as Network
-    participant A as Aggregator/Consumer (BAP)
+    participant N as Network / CDS
+    participant A as Aggregator (BAP)
 
-    U->>N: catalog_publish (flex need + buy offer)
+    U->>N: catalog/publish (flex need + buy offer with contractTerms)
     A->>N: discover (search for flex opportunities)
-    N-->>A: on_discover (matching catalogs)
+    N-->>A: on_discover (matching catalogs with offers)
     A->>U: select (choose offer, quantity)
-    U-->>A: on_select (DRAFT contract, consideration)
-    A->>U: init (taker identity, planned demand change)
-    U-->>A: on_init (contract with meters populated)
+    U-->>A: on_select (DRAFT contract, contractTerms → contractAttributes)
+    A->>U: init (seller role filled: identity + planned demand)
+    U-->>A: on_init (seller meters populated)
     A->>U: confirm
     U-->>A: on_confirm (ACTIVE contract)
 
@@ -86,12 +90,30 @@ sequenceDiagram
 
     Note over A,U: Flex event window (2 hours)
 
-    U-->>A: on_status (actuals + settlement)
+    U-->>A: on_status (actuals per meter)
+    U-->>A: on_status (settled: revenueFlows computed by rego)
 ```
 
-### Long-Term Contracts
+### Offer → Contract Lifecycle
 
-For recurring flex programs, a single `confirm` creates the long-term contract. Each event is handled via `update` (opt-in/out, meter list changes) and `on_status` (baselines, actuals, settlement). The participating meters list can change before each event.
+The `DemandFlexBuyOffer` carries two key structures:
+
+1. **`contractTerms`** (type: `DEGContract`) — roles, policy reference, and (post-settlement) revenue flows. Present in the catalog. Promoted to `Contract.contractAttributes` at select/init.
+
+2. **`inputs`** (array of `DemandFlexRoleInput`) — one entry per role. Buyer has `participantId` + commercial terms at catalog time. Seller is `null` until init, then filled with identity and meters.
+
+```
+Catalog / Discover:
+  offer.offerAttributes.contractTerms → DEGContract {roles (unbound), policy}
+  offer.offerAttributes.inputs → [{role:"buyer", participantId:"tpddl-...", inputs:{...}}, {role:"seller", participantId:null}]
+
+Select → Init:
+  contractAttributes → DEGContract {roles (bound to participantIds), policy}
+  offer.offerAttributes.inputs → [{role:"buyer", ...}, {role:"seller", participantId:"greenflex-...", inputs:{...}}]
+
+Post-Settlement:
+  contractAttributes → DEGContract {roles, policy, revenueFlows: [{role:"buyer", value:-525}, {role:"seller", value:525}]}
+```
 
 ## 4. Architecture
 
@@ -102,31 +124,27 @@ Four domain schemas are used, each mapping to a specific attribute slot on the B
 | Schema | Beckn Slot | Purpose |
 |:-------|:-----------|:--------|
 | **DemandFlexNeed** | `Resource.resourceAttributes` | What the utility needs: direction, event window, capacity, location |
-| **DemandFlexBuyOffer** | `Offer.offerAttributes` | Commercial terms: incentive, penalties, premiums, taker, policy |
-| **DEGContract** | `Contract.contractAttributes` | Domain marker: contract type (DEMAND_FLEX) |
+| **DemandFlexBuyOffer** | `Offer.offerAttributes` | Role-tagged inputs + portable DEGContract template |
+| **DEGContract** | `Contract.contractAttributes` | Roles, policy reference, computed revenue flows |
 | **DemandFlexPerformance** | `Performance.performanceAttributes` | M&V data: methodology, per-meter baselines and actuals |
 
 ### 4.2. Beckn v2 Contract Mapping
 
-The demand-flex flow uses the new Beckn v2.0.0 `Contract` object (replacing the legacy `Order`):
-
 ```
 Contract
 ├── status: DRAFT → ACTIVE → COMPLETE
-├── participants[]: utility, consumer/aggregator
 ├── commitments[]
 │   ├── resources[]: DemandFlexNeed (what's needed)
-│   └── offer: DemandFlexBuyOffer (commercial terms + taker)
-├── consideration[]: computed incentive amounts
+│   └── offer
+│       └── offerAttributes: DemandFlexBuyOffer
+│           ├── inputs[]: [{role, participantId, inputs}] per role
+│           └── contractTerms: DEGContract (catalog only, promoted at select)
 ├── performance[]: M&V baselines and actuals (on_status)
-├── settlements[]: revenue flows computed by rego (post-event)
-└── contractAttributes: DEGContract (domain marker)
+└── contractAttributes: DEGContract
+    ├── roles[]: [{role, participantId}]
+    ├── policy: {url, queryPath}
+    └── revenueFlows[]: [{role, value, currency}] (post-settlement)
 ```
-
-The `DemandFlexBuyOffer.taker` field is progressively filled:
-1. **Catalog / Select**: `taker: null`
-2. **Init**: `taker: { id, plannedDemandChange, participatingMeters: [] }`
-3. **On Init / Update**: `taker: { id, plannedDemandChange, participatingMeters: [meter1, meter2, ...] }`
 
 ## 5. Message Flow
 
@@ -136,8 +154,7 @@ All examples use Beckn v2.0.0 with camelCase context fields (`bapId`, `bppId`, `
 
 The utility publishes a flex catalog containing:
 - A **Resource** with `DemandFlexNeed` attributes (direction, event window, capacity)
-- An **Offer** with `DemandFlexBuyOffer` attributes (incentive, penalties, policy reference)
-- `availableTo` restricting visibility to `beckn.deg.india` network
+- An **Offer** with `DemandFlexBuyOffer` attributes containing `contractTerms` (the portable DEGContract template) and `inputs` (buyer terms filled, seller slot null)
 
 <details><summary><a href="../../../../examples/demand-flex/v2/publish-catalog.json">publish-catalog.json</a></summary>
 
@@ -145,7 +162,7 @@ The utility publishes a flex catalog containing:
 {
   "context": {
     "version": "2.0.0",
-    "action": "catalog_publish",
+    "action": "catalog/publish",
     "domain": "beckn.one:deg:demand-flex:2.0.0",
     "bppId": "tpddl-utility.example.com",
     "bppUri": "https://tpddl-utility.example.com/beckn",
@@ -153,7 +170,8 @@ The utility publishes a flex catalog containing:
     "timestamp": "2026-03-28T06:00:00Z",
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
   "message": {
@@ -161,14 +179,12 @@ The utility publishes a flex catalog containing:
       {
         "id": "catalog-flex-tpddl-2026-04",
         "descriptor": {
-          "@type": "beckn:Descriptor",
           "name": "TPDDL Demand Flex - April 2026",
           "shortDesc": "Peak demand reduction opportunities for North Delhi"
         },
         "provider": {
           "id": "tpddl-north-delhi",
           "descriptor": {
-            "@type": "beckn:Descriptor",
             "name": "TPDDL North Delhi Distribution"
           }
         },
@@ -176,7 +192,6 @@ The utility publishes a flex catalog containing:
           {
             "id": "flex-need-north-delhi-apr1",
             "descriptor": {
-              "@type": "beckn:Descriptor",
               "name": "Peak Demand Flex - North Delhi",
               "shortDesc": "500 kW curtailment needed Apr 1, 2-4pm IST"
             },
@@ -192,7 +207,10 @@ The utility publishes a flex catalog containing:
               "maxCapacityKw": 500,
               "location": {
                 "type": "Point",
-                "coordinates": [77.2090, 28.6139]
+                "coordinates": [
+                  77.209,
+                  28.6139
+                ]
               }
             }
           }
@@ -201,36 +219,62 @@ The utility publishes a flex catalog containing:
           {
             "id": "offer-flex-001",
             "descriptor": {
-              "@type": "beckn:Descriptor",
               "name": "Standard Flex @ 3.50 INR/kWh",
               "shortDesc": "Demand reduction with 5.00 INR/kWh premium for guaranteed flex"
             },
-            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
             "validity": {
               "startDate": "2026-03-28T00:00:00Z",
               "endDate": "2026-04-01T08:30:00Z"
             },
             "availableTo": [
-              { "type": "NETWORK", "id": "beckn.deg.india" }
+              {
+                "type": "NETWORK",
+                "id": "beckn.deg.india"
+              }
             ],
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
-              "incentivePerKwh": 3.50,
-              "currency": "INR",
-              "maxEventsPerMonth": 5,
-              "baselineMethodology": {
-                "bestOf": 5,
-                "outOf": 10
+              "contractTerms": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+                "@type": "DEGContract",
+                "roles": [
+                  {
+                    "role": "buyer"
+                  },
+                  {
+                    "role": "seller"
+                  }
+                ],
+                "policy": {
+                  "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+                  "queryPath": "data.deg.contracts.demand_flex"
+                }
               },
-              "penaltyRate": 1.50,
-              "premiumForGuaranteed": 5.00,
-              "optOutDefault": false,
-              "taker": null,
-              "policy": {
-                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
-                "queryPath": "data.deg.contracts.demand_flex"
-              }
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": null
+                }
+              ]
             }
           }
         ]
@@ -242,9 +286,160 @@ The utility publishes a flex catalog containing:
 ```
 </details>
 
-### 5.2. Select
+### 5.2. Discover
 
-The consumer selects an offer with a desired quantity. The contract carries the full resource and offer from the catalog. Taker is `null` at this stage — no consumer identity provided yet.
+The aggregator (BAP) searches the CDS for available flex opportunities matching their criteria.
+
+<details><summary><a href="../../../../examples/demand-flex/v2/discover-request.json">discover-request.json</a></summary>
+
+```json
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "discover",
+    "domain": "beckn.one:deg:demand-flex:2.0.0",
+    "bapId": "greenflex-agg.example.com",
+    "bapUri": "https://greenflex-agg.example.com/beckn",
+    "transactionId": "txn-flex-001",
+    "messageId": "msg-discover-001",
+    "timestamp": "2026-03-30T09:55:00Z"
+  },
+  "message": {
+    "intent": {
+      "descriptor": {
+        "name": "demand-flex"
+      },
+      "category": {
+        "descriptor": {
+          "code": "CURTAILMENT"
+        }
+      }
+    }
+  }
+}
+
+```
+</details>
+
+### 5.3. On Discover
+
+The CDS returns matching catalogs. The offer carries the full `contractTerms` and buyer `inputs` from the catalog. The seller slot remains `null` — no aggregator has committed yet.
+
+<details><summary><a href="../../../../examples/demand-flex/v2/on-discover-response.json">on-discover-response.json</a></summary>
+
+```json
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_discover",
+    "domain": "beckn.one:deg:demand-flex:2.0.0",
+    "bapId": "greenflex-agg.example.com",
+    "bapUri": "https://greenflex-agg.example.com/beckn",
+    "bppId": "tpddl-utility.example.com",
+    "bppUri": "https://tpddl-utility.example.com/beckn",
+    "transactionId": "txn-flex-001",
+    "messageId": "msg-on-discover-001",
+    "timestamp": "2026-03-30T09:55:05Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
+    ]
+  },
+  "message": {
+    "catalogs": [
+      {
+        "id": "catalog-flex-tpddl-2026-04",
+        "descriptor": {
+          "name": "TPDDL Demand Flex - April 2026",
+          "shortDesc": "Peak demand reduction opportunities for North Delhi"
+        },
+        "provider": {
+          "id": "tpddl-north-delhi",
+          "descriptor": {
+            "name": "TPDDL North Delhi Distribution"
+          }
+        },
+        "resources": [
+          {
+            "id": "flex-need-north-delhi-apr1",
+            "descriptor": {
+              "name": "Peak Demand Flex - North Delhi",
+              "shortDesc": "500 kW curtailment needed Apr 1, 2-4pm IST"
+            },
+            "resourceAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+              "@type": "DemandFlexNeed",
+              "direction": "REDUCE",
+              "eventWindow": {
+                "startDate": "2026-04-01T08:30:00Z",
+                "endDate": "2026-04-01T10:30:00Z"
+              },
+              "capacityType": "CURTAILMENT",
+              "maxCapacityKw": 500,
+              "location": {
+                "type": "Point",
+                "coordinates": [77.209, 28.6139]
+              }
+            }
+          }
+        ],
+        "offers": [
+          {
+            "id": "offer-flex-001",
+            "descriptor": {
+              "name": "Standard Flex @ 3.50 INR/kWh",
+              "shortDesc": "Demand reduction with 5.00 INR/kWh premium for guaranteed flex"
+            },
+            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "validity": {
+              "startDate": "2026-03-28T00:00:00Z",
+              "endDate": "2026-04-01T08:30:00Z"
+            },
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@type": "DemandFlexBuyOffer",
+              "contractTerms": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+                "@type": "DEGContract",
+                "roles": [{"role": "buyer"}, {"role": "seller"}],
+                "policy": {
+                  "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+                  "queryPath": "data.deg.contracts.demand_flex"
+                }
+              },
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {"bestOf": 5, "outOf": 10},
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": null
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+
+```
+</details>
+
+### 5.4. Select
+
+The aggregator selects an offer with a desired quantity. The `contractTerms` from the offer is now promoted to `contractAttributes` on the contract. Seller `inputs` remain `null` at this stage.
 
 <details><summary><a href="../../../../examples/demand-flex/v2/select-request.json">select-request.json</a></summary>
 
@@ -264,38 +459,34 @@ The consumer selects an offer with a desired quantity. The contract carries the 
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
   "message": {
     "contract": {
-      "@type": "beckn:Contract",
-      "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
-      "participants": [
-        {
-          "id": "tpddl-north-delhi",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "TPDDL North Delhi Distribution" }
-        },
-        {
-          "id": null,
-          "descriptor": { "@type": "beckn:Descriptor", "name": "Taker (to be provided at init)" },
-          "participantAttributes": null
-        }
-      ],
+      "status": {
+        "code": "DRAFT"
+      },
       "commitments": [
         {
           "status": {
-            "descriptor": { "@type": "beckn:Descriptor", "code": "DRAFT" }
+            "descriptor": {
+              "code": "DRAFT"
+            }
           },
           "resources": [
             {
               "id": "flex-need-north-delhi-apr1",
               "descriptor": {
-                "@type": "beckn:Descriptor",
                 "name": "Peak Demand Flex - North Delhi",
                 "shortDesc": "500 kW curtailment needed Apr 1, 2-4pm IST"
               },
-              "quantity": { "unitCode": "kW", "unitQuantity": 150 },
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 150,
+                "@type": "Quantity"
+              },
               "resourceAttributes": {
                 "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
@@ -308,29 +499,43 @@ The consumer selects an offer with a desired quantity. The contract carries the 
                 "maxCapacityKw": 500,
                 "location": {
                   "type": "Point",
-                  "coordinates": [77.2090, 28.6139]
+                  "coordinates": [
+                    77.209,
+                    28.6139
+                  ]
                 }
               }
             }
           ],
           "offer": {
             "id": "offer-flex-001",
-            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
-              "incentivePerKwh": 3.50,
-              "currency": "INR",
-              "maxEventsPerMonth": 5,
-              "baselineMethodology": { "bestOf": 5, "outOf": 10 },
-              "penaltyRate": 1.50,
-              "premiumForGuaranteed": 5.00,
-              "optOutDefault": false,
-              "taker": null,
-              "policy": {
-                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
-                "queryPath": "data.deg.contracts.demand_flex"
-              }
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": null
+                }
+              ]
             }
           }
         }
@@ -338,7 +543,18 @@ The consumer selects an offer with a desired quantity. The contract carries the 
       "contractAttributes": {
         "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
-        "contractType": "DEMAND_FLEX"
+        "roles": [
+          {
+            "role": "buyer"
+          },
+          {
+            "role": "seller"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
       }
     }
   }
@@ -347,12 +563,9 @@ The consumer selects an offer with a desired quantity. The contract carries the 
 ```
 </details>
 
-### 5.3. On Select
+### 5.5. On Select
 
-The BPP returns a DRAFT contract with:
-- Utility participant filled in
-- Consumer participant slot blank (`null`)
-- Consideration computed (base incentive amount)
+The BPP returns a DRAFT contract. The `contractAttributes` carries the `DEGContract` with roles (buyer bound, seller unbound). No `contractTerms` in the offer — it has been promoted.
 
 <details><summary><a href="../../../../examples/demand-flex/v2/on-select-response.json">on-select-response.json</a></summary>
 
@@ -372,38 +585,34 @@ The BPP returns a DRAFT contract with:
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
   "message": {
     "contract": {
-      "@type": "beckn:Contract",
-      "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
-      "participants": [
-        {
-          "id": "tpddl-north-delhi",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "TPDDL North Delhi Distribution" }
-        },
-        {
-          "id": null,
-          "descriptor": { "@type": "beckn:Descriptor", "name": "Taker (to be provided at init)" },
-          "participantAttributes": null
-        }
-      ],
+      "status": {
+        "code": "DRAFT"
+      },
       "commitments": [
         {
           "id": "commitment-flex-001",
           "status": {
-            "descriptor": { "@type": "beckn:Descriptor", "code": "DRAFT" }
+            "descriptor": {
+              "code": "DRAFT"
+            }
           },
           "resources": [
             {
               "id": "flex-need-north-delhi-apr1",
               "descriptor": {
-                "@type": "beckn:Descriptor",
                 "name": "Peak Demand Flex - North Delhi"
               },
-              "quantity": { "unitCode": "kW", "unitQuantity": 150 },
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 150,
+                "@type": "Quantity"
+              },
               "resourceAttributes": {
                 "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
@@ -416,55 +625,62 @@ The BPP returns a DRAFT contract with:
                 "maxCapacityKw": 500,
                 "location": {
                   "type": "Point",
-                  "coordinates": [77.2090, 28.6139]
+                  "coordinates": [
+                    77.209,
+                    28.6139
+                  ]
                 }
               }
             }
           ],
           "offer": {
             "id": "offer-flex-001",
-            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
-              "incentivePerKwh": 3.50,
-              "currency": "INR",
-              "maxEventsPerMonth": 5,
-              "baselineMethodology": { "bestOf": 5, "outOf": 10 },
-              "penaltyRate": 1.50,
-              "premiumForGuaranteed": 5.00,
-              "optOutDefault": false,
-              "taker": null,
-              "policy": {
-                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
-                "queryPath": "data.deg.contracts.demand_flex"
-              }
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": null
+                }
+              ]
             }
-          }
-        }
-      ],
-      "consideration": [
-        {
-          "id": "consideration-flex-001",
-          "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
-          "considerationAttributes": {
-            "priceUnit": "INR",
-            "consideredValue": 1050.00,
-            "components": [
-              {
-                "lineId": "incentive-base",
-                "lineSummary": "150 kW × 2h × 3.50 INR/kWh base incentive",
-                "value": 1050.00,
-                "currency": "INR"
-              }
-            ]
           }
         }
       ],
       "contractAttributes": {
         "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
-        "contractType": "DEMAND_FLEX"
+        "roles": [
+          {
+            "role": "buyer"
+          },
+          {
+            "role": "seller"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
       }
     }
   }
@@ -473,9 +689,9 @@ The BPP returns a DRAFT contract with:
 ```
 </details>
 
-### 5.4. Init
+### 5.6. Init
 
-The consumer provides their identity and taker details. The `taker` field is now populated with `id` and `plannedDemandChange`, but `participatingMeters` is still empty (meters enrolled later via update or on_init).
+The aggregator provides their identity. The seller role in `inputs` is now filled with `participantId` and `inputs` (planned demand change, participating meters). The seller role in `contractAttributes.roles` is also bound.
 
 <details><summary><a href="../../../../examples/demand-flex/v2/init-request.json">init-request.json</a></summary>
 
@@ -495,42 +711,35 @@ The consumer provides their identity and taker details. The `taker` field is now
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
   "message": {
     "contract": {
-      "@type": "beckn:Contract",
-      "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
-      "participants": [
-        {
-          "id": "tpddl-north-delhi",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "TPDDL North Delhi Distribution" }
-        },
-        {
-          "id": "greenflex-agg",
-          "descriptor": {
-            "@type": "beckn:Descriptor",
-            "name": "GreenFlex Aggregator",
-            "shortDesc": "Demand response aggregator serving North Delhi residential"
-          }
-        }
-      ],
+      "status": {
+        "code": "DRAFT"
+      },
       "commitments": [
         {
           "id": "commitment-flex-001",
           "status": {
-            "descriptor": { "@type": "beckn:Descriptor", "code": "DRAFT" }
+            "descriptor": {
+              "code": "DRAFT"
+            }
           },
           "resources": [
             {
               "id": "flex-need-north-delhi-apr1",
               "descriptor": {
-                "@type": "beckn:Descriptor",
                 "name": "Peak Demand Flex - North Delhi",
                 "shortDesc": "500 kW curtailment needed Apr 1, 2-4pm IST"
               },
-              "quantity": { "unitCode": "kW", "unitQuantity": 150 },
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 150,
+                "@type": "Quantity"
+              },
               "resourceAttributes": {
                 "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
@@ -543,59 +752,75 @@ The consumer provides their identity and taker details. The `taker` field is now
                 "maxCapacityKw": 500,
                 "location": {
                   "type": "Point",
-                  "coordinates": [77.2090, 28.6139]
+                  "coordinates": [
+                    77.209,
+                    28.6139
+                  ]
                 }
               }
             }
           ],
           "offer": {
             "id": "offer-flex-001",
-            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
-              "incentivePerKwh": 3.50,
-              "currency": "INR",
-              "maxEventsPerMonth": 5,
-              "baselineMethodology": { "bestOf": 5, "outOf": 10 },
-              "penaltyRate": 1.50,
-              "premiumForGuaranteed": 5.00,
-              "optOutDefault": false,
-              "taker": {
-                "id": "AGG-GREENFLEX-001",
-                "plannedDemandChange": 150.0,
-                "participatingMeters": []
-              },
-              "policy": {
-                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
-                "queryPath": "data.deg.contracts.demand_flex"
-              }
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": "greenflex-agg",
+                  "inputs": {
+                    "plannedDemandChange": {
+                      "unitCode": "KWH",
+                      "unitQuantity": 150.0,
+                      "@type": "Quantity"
+                    },
+                    "participatingMeters": [
+                      "der://meter/001",
+                      "der://meter/002"
+                    ]
+                  }
+                }
+              ]
             }
-          }
-        }
-      ],
-      "consideration": [
-        {
-          "id": "consideration-flex-001",
-          "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
-          "considerationAttributes": {
-            "priceUnit": "INR",
-            "consideredValue": 1050.00,
-            "components": [
-              {
-                "lineId": "incentive-base",
-                "lineSummary": "150 kW × 2h × 3.50 INR/kWh base incentive",
-                "value": 1050.00,
-                "currency": "INR"
-              }
-            ]
           }
         }
       ],
       "contractAttributes": {
         "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
-        "contractType": "DEMAND_FLEX"
+        "roles": [
+          {
+            "role": "buyer",
+            "participantId": "tpddl-north-delhi"
+          },
+          {
+            "role": "seller",
+            "participantId": "greenflex-agg"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
       }
     }
   }
@@ -604,9 +829,9 @@ The consumer provides their identity and taker details. The `taker` field is now
 ```
 </details>
 
-### 5.5. On Init
+### 5.7. On Init
 
-The BPP acknowledges the taker and populates the initial set of participating meters.
+The BPP acknowledges the seller and populates the initial set of participating meters.
 
 <details><summary><a href="../../../../examples/demand-flex/v2/on-init-response.json">on-init-response.json</a></summary>
 
@@ -626,34 +851,34 @@ The BPP acknowledges the taker and populates the initial set of participating me
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
   "message": {
     "contract": {
-      "@type": "beckn:Contract",
-      "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
-      "participants": [
-        {
-          "id": "tpddl-north-delhi",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "TPDDL North Delhi Distribution" }
-        },
-        {
-          "id": "greenflex-agg",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "GreenFlex Aggregator" }
-        }
-      ],
+      "status": {
+        "code": "DRAFT"
+      },
       "commitments": [
         {
           "id": "commitment-flex-001",
           "status": {
-            "descriptor": { "@type": "beckn:Descriptor", "code": "DRAFT" }
+            "descriptor": {
+              "code": "DRAFT"
+            }
           },
           "resources": [
             {
               "id": "flex-need-north-delhi-apr1",
-              "descriptor": { "@type": "beckn:Descriptor", "name": "Peak Demand Flex - North Delhi" },
-              "quantity": { "unitCode": "kW", "unitQuantity": 150 },
+              "descriptor": {
+                "name": "Peak Demand Flex - North Delhi"
+              },
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 150,
+                "@type": "Quantity"
+              },
               "resourceAttributes": {
                 "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
@@ -666,62 +891,75 @@ The BPP acknowledges the taker and populates the initial set of participating me
                 "maxCapacityKw": 500,
                 "location": {
                   "type": "Point",
-                  "coordinates": [77.2090, 28.6139]
+                  "coordinates": [
+                    77.209,
+                    28.6139
+                  ]
                 }
               }
             }
           ],
           "offer": {
             "id": "offer-flex-001",
-            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
-              "incentivePerKwh": 3.50,
-              "currency": "INR",
-              "maxEventsPerMonth": 5,
-              "baselineMethodology": { "bestOf": 5, "outOf": 10 },
-              "penaltyRate": 1.50,
-              "premiumForGuaranteed": 5.00,
-              "optOutDefault": false,
-              "taker": {
-                "id": "AGG-GREENFLEX-001",
-                "plannedDemandChange": 150.0,
-                "participatingMeters": [
-                  "der://meter/001",
-                  "der://meter/002"
-                ]
-              },
-              "policy": {
-                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
-                "queryPath": "data.deg.contracts.demand_flex"
-              }
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": "greenflex-agg",
+                  "inputs": {
+                    "plannedDemandChange": {
+                      "unitCode": "KWH",
+                      "unitQuantity": 150.0,
+                      "@type": "Quantity"
+                    },
+                    "participatingMeters": [
+                      "der://meter/001",
+                      "der://meter/002"
+                    ]
+                  }
+                }
+              ]
             }
-          }
-        }
-      ],
-      "consideration": [
-        {
-          "id": "consideration-flex-001",
-          "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
-          "considerationAttributes": {
-            "priceUnit": "INR",
-            "consideredValue": 1050.00,
-            "components": [
-              {
-                "lineId": "incentive-base",
-                "lineSummary": "150 kW × 2h × 3.50 INR/kWh base incentive",
-                "value": 1050.00,
-                "currency": "INR"
-              }
-            ]
           }
         }
       ],
       "contractAttributes": {
         "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
-        "contractType": "DEMAND_FLEX"
+        "roles": [
+          {
+            "role": "buyer",
+            "participantId": "tpddl-north-delhi"
+          },
+          {
+            "role": "seller",
+            "participantId": "greenflex-agg"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
       }
     }
   }
@@ -730,9 +968,9 @@ The BPP acknowledges the taker and populates the initial set of participating me
 ```
 </details>
 
-### 5.6. Confirm
+### 5.8. Confirm
 
-The consumer confirms the contract. Carries the full contract state from on_init.
+The aggregator confirms the contract. Same structure as init.
 
 <details><summary><a href="../../../../examples/demand-flex/v2/confirm-request.json">confirm-request.json</a></summary>
 
@@ -752,38 +990,35 @@ The consumer confirms the contract. Carries the full contract state from on_init
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
   "message": {
     "contract": {
-      "@type": "beckn:Contract",
-      "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
-      "participants": [
-        {
-          "id": "tpddl-north-delhi",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "TPDDL North Delhi Distribution" }
-        },
-        {
-          "id": "greenflex-agg",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "GreenFlex Aggregator" }
-        }
-      ],
+      "status": {
+        "code": "DRAFT"
+      },
       "commitments": [
         {
           "id": "commitment-flex-001",
           "status": {
-            "descriptor": { "@type": "beckn:Descriptor", "code": "DRAFT" }
+            "descriptor": {
+              "code": "DRAFT"
+            }
           },
           "resources": [
             {
               "id": "flex-need-north-delhi-apr1",
               "descriptor": {
-                "@type": "beckn:Descriptor",
                 "name": "Peak Demand Flex - North Delhi",
                 "shortDesc": "500 kW curtailment needed Apr 1, 2-4pm IST"
               },
-              "quantity": { "unitCode": "kW", "unitQuantity": 150 },
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 150,
+                "@type": "Quantity"
+              },
               "resourceAttributes": {
                 "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
@@ -796,62 +1031,75 @@ The consumer confirms the contract. Carries the full contract state from on_init
                 "maxCapacityKw": 500,
                 "location": {
                   "type": "Point",
-                  "coordinates": [77.2090, 28.6139]
+                  "coordinates": [
+                    77.209,
+                    28.6139
+                  ]
                 }
               }
             }
           ],
           "offer": {
             "id": "offer-flex-001",
-            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
-              "incentivePerKwh": 3.50,
-              "currency": "INR",
-              "maxEventsPerMonth": 5,
-              "baselineMethodology": { "bestOf": 5, "outOf": 10 },
-              "penaltyRate": 1.50,
-              "premiumForGuaranteed": 5.00,
-              "optOutDefault": false,
-              "taker": {
-                "id": "AGG-GREENFLEX-001",
-                "plannedDemandChange": 150.0,
-                "participatingMeters": [
-                  "der://meter/001",
-                  "der://meter/002"
-                ]
-              },
-              "policy": {
-                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
-                "queryPath": "data.deg.contracts.demand_flex"
-              }
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": "greenflex-agg",
+                  "inputs": {
+                    "plannedDemandChange": {
+                      "unitCode": "KWH",
+                      "unitQuantity": 150.0,
+                      "@type": "Quantity"
+                    },
+                    "participatingMeters": [
+                      "der://meter/001",
+                      "der://meter/002"
+                    ]
+                  }
+                }
+              ]
             }
-          }
-        }
-      ],
-      "consideration": [
-        {
-          "id": "consideration-flex-001",
-          "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
-          "considerationAttributes": {
-            "priceUnit": "INR",
-            "consideredValue": 1050.00,
-            "components": [
-              {
-                "lineId": "incentive-base",
-                "lineSummary": "150 kW × 2h × 3.50 INR/kWh base incentive",
-                "value": 1050.00,
-                "currency": "INR"
-              }
-            ]
           }
         }
       ],
       "contractAttributes": {
         "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
-        "contractType": "DEMAND_FLEX"
+        "roles": [
+          {
+            "role": "buyer",
+            "participantId": "tpddl-north-delhi"
+          },
+          {
+            "role": "seller",
+            "participantId": "greenflex-agg"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
       }
     }
   }
@@ -860,9 +1108,9 @@ The consumer confirms the contract. Carries the full contract state from on_init
 ```
 </details>
 
-### 5.7. On Confirm
+### 5.9. On Confirm
 
-The BPP activates the contract. Status changes from `DRAFT` to `ACTIVE`. A contract `id` is assigned.
+The BPP activates the contract. Status changes to `ACTIVE`. The contract is now firm.
 
 <details><summary><a href="../../../../examples/demand-flex/v2/on-confirm-response.json">on-confirm-response.json</a></summary>
 
@@ -882,35 +1130,35 @@ The BPP activates the contract. Status changes from `DRAFT` to `ACTIVE`. A contr
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
   "message": {
     "contract": {
-      "@type": "beckn:Contract",
       "id": "contract-flex-001",
-      "status": { "@type": "beckn:Descriptor", "code": "ACTIVE" },
-      "participants": [
-        {
-          "id": "tpddl-north-delhi",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "TPDDL North Delhi Distribution" }
-        },
-        {
-          "id": "greenflex-agg",
-          "descriptor": { "@type": "beckn:Descriptor", "name": "GreenFlex Aggregator" }
-        }
-      ],
+      "status": {
+        "code": "ACTIVE"
+      },
       "commitments": [
         {
           "id": "commitment-flex-001",
           "status": {
-            "descriptor": { "@type": "beckn:Descriptor", "code": "ACTIVE" }
+            "descriptor": {
+              "code": "ACTIVE"
+            }
           },
           "resources": [
             {
               "id": "flex-need-north-delhi-apr1",
-              "descriptor": { "@type": "beckn:Descriptor", "name": "Peak Demand Flex - North Delhi" },
-              "quantity": { "unitCode": "kW", "unitQuantity": 150 },
+              "descriptor": {
+                "name": "Peak Demand Flex - North Delhi"
+              },
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 150,
+                "@type": "Quantity"
+              },
               "resourceAttributes": {
                 "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
@@ -923,62 +1171,75 @@ The BPP activates the contract. Status changes from `DRAFT` to `ACTIVE`. A contr
                 "maxCapacityKw": 500,
                 "location": {
                   "type": "Point",
-                  "coordinates": [77.2090, 28.6139]
+                  "coordinates": [
+                    77.209,
+                    28.6139
+                  ]
                 }
               }
             }
           ],
           "offer": {
             "id": "offer-flex-001",
-            "resourceIds": ["flex-need-north-delhi-apr1"],
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
-              "incentivePerKwh": 3.50,
-              "currency": "INR",
-              "maxEventsPerMonth": 5,
-              "baselineMethodology": { "bestOf": 5, "outOf": 10 },
-              "penaltyRate": 1.50,
-              "premiumForGuaranteed": 5.00,
-              "optOutDefault": false,
-              "taker": {
-                "id": "AGG-GREENFLEX-001",
-                "plannedDemandChange": 150.0,
-                "participatingMeters": [
-                  "der://meter/001",
-                  "der://meter/002"
-                ]
-              },
-              "policy": {
-                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
-                "queryPath": "data.deg.contracts.demand_flex"
-              }
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": "greenflex-agg",
+                  "inputs": {
+                    "plannedDemandChange": {
+                      "unitCode": "KWH",
+                      "unitQuantity": 150.0,
+                      "@type": "Quantity"
+                    },
+                    "participatingMeters": [
+                      "der://meter/001",
+                      "der://meter/002"
+                    ]
+                  }
+                }
+              ]
             }
-          }
-        }
-      ],
-      "consideration": [
-        {
-          "id": "consideration-flex-001",
-          "status": { "@type": "beckn:Descriptor", "code": "DRAFT" },
-          "considerationAttributes": {
-            "priceUnit": "INR",
-            "consideredValue": 1050.00,
-            "components": [
-              {
-                "lineId": "incentive-base",
-                "lineSummary": "150 kW × 2h × 3.50 INR/kWh base incentive",
-                "value": 1050.00,
-                "currency": "INR"
-              }
-            ]
           }
         }
       ],
       "contractAttributes": {
         "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
-        "contractType": "DEMAND_FLEX"
+        "roles": [
+          {
+            "role": "buyer",
+            "participantId": "tpddl-north-delhi"
+          },
+          {
+            "role": "seller",
+            "participantId": "greenflex-agg"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
       }
     }
   }
@@ -987,9 +1248,9 @@ The BPP activates the contract. Status changes from `DRAFT` to `ACTIVE`. A contr
 ```
 </details>
 
-### 5.8. Update (Opt-In with Meters)
+### 5.10. Update (Opt-In with Meters)
 
-As the event approaches, the aggregator sends an updated meter list. New consumers may opt in, or existing ones may opt out, before the event. The `plannedDemandChange` may also be adjusted.
+The aggregator updates the participating meters list before an event. The seller `inputs` in `offerAttributes` are updated with the new meter list and planned demand change.
 
 <details><summary><a href="../../../../examples/demand-flex/v2/update-request-opt-in.json">update-request-opt-in.json</a></summary>
 
@@ -1007,7 +1268,10 @@ As the event approaches, the aggregator sends an updated meter list. New consume
     "messageId": "msg-update-optin-001",
     "timestamp": "2026-04-01T06:00:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
   "message": {
@@ -1016,35 +1280,102 @@ As the event approaches, the aggregator sends an updated meter list. New consume
       "commitments": [
         {
           "id": "commitment-flex-001",
+          "status": {
+            "descriptor": {
+              "code": "ACTIVE"
+            }
+          },
+          "resources": [
+            {
+              "id": "flex-need-north-delhi-apr1",
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 120,
+                "@type": "Quantity"
+              },
+              "resourceAttributes": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@type": "DemandFlexNeed",
+                "direction": "REDUCE",
+                "eventWindow": {
+                  "startDate": "2026-04-01T08:30:00Z",
+                  "endDate": "2026-04-01T10:30:00Z"
+                },
+                "capacityType": "CURTAILMENT",
+                "maxCapacityKw": 500,
+                "location": {
+                  "type": "Point",
+                  "coordinates": [
+                    77.209,
+                    28.6139
+                  ]
+                }
+              }
+            }
+          ],
           "offer": {
             "id": "offer-flex-001",
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
             "offerAttributes": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
-              "incentivePerKwh": 3.50,
-              "currency": "INR",
-              "maxEventsPerMonth": 5,
-              "baselineMethodology": { "bestOf": 5, "outOf": 10 },
-              "penaltyRate": 1.50,
-              "premiumForGuaranteed": 5.00,
-              "optOutDefault": false,
-              "taker": {
-                "id": "AGG-GREENFLEX-001",
-                "plannedDemandChange": 120.0,
-                "participatingMeters": [
-                  "der://meter/001",
-                  "der://meter/002",
-                  "der://meter/003"
-                ]
-              },
-              "policy": {
-                "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex.rego",
-                "queryPath": "data.deg.contracts.demand_flex"
-              }
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": "greenflex-agg",
+                  "inputs": {
+                    "plannedDemandChange": {
+                      "unitCode": "KWH",
+                      "unitQuantity": 120.0,
+                      "@type": "Quantity"
+                    },
+                    "participatingMeters": [
+                      "der://meter/001",
+                      "der://meter/002",
+                      "der://meter/003"
+                    ]
+                  }
+                }
+              ]
             }
           }
         }
-      ]
+      ],
+      "contractAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@type": "DEGContract",
+        "roles": [
+          {
+            "role": "buyer",
+            "participantId": "tpddl-utility.example.com"
+          },
+          {
+            "role": "seller",
+            "participantId": "greenflex-agg.example.com"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
+      }
     }
   }
 }
@@ -1052,9 +1383,9 @@ As the event approaches, the aggregator sends an updated meter list. New consume
 ```
 </details>
 
-### 5.9. On Status (Baselines)
+### 5.11. On Status (Baselines)
 
-Just before the event, the utility sends per-meter baselines via `on_status`. The `methodology` field indicates how baselines were computed (e.g., "5of10" = average of 5 highest days out of last 10).
+Before the event, the utility publishes baseline load per meter. The `DemandFlexPerformance` attributes contain per-meter `baselineKw` values (no `actualKw` yet).
 
 <details><summary><a href="../../../../examples/demand-flex/v2/on-status-response-baselines.json">on-status-response-baselines.json</a></summary>
 
@@ -1073,31 +1404,120 @@ Just before the event, the utility sends per-meter baselines via `on_status`. Th
     "timestamp": "2026-04-01T08:00:00Z",
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld"
     ]
   },
   "message": {
     "contract": {
       "id": "contract-flex-001",
-      "status": { "@type": "beckn:Descriptor", "code": "ACTIVE" },
+      "status": {
+        "code": "ACTIVE"
+      },
+      "commitments": [
+        {
+          "id": "commitment-flex-001",
+          "status": {
+            "descriptor": {
+              "code": "ACTIVE"
+            }
+          },
+          "resources": [
+            {
+              "id": "flex-need-north-delhi-apr1",
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 150,
+                "@type": "Quantity"
+              },
+              "resourceAttributes": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@type": "DemandFlexNeed",
+                "direction": "REDUCE",
+                "eventWindow": {
+                  "startDate": "2026-04-01T08:30:00Z",
+                  "endDate": "2026-04-01T10:30:00Z"
+                },
+                "capacityType": "CURTAILMENT",
+                "maxCapacityKw": 500
+              }
+            }
+          ],
+          "offer": {
+            "id": "offer-flex-001",
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@type": "DemandFlexBuyOffer",
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": "greenflex-agg",
+                  "inputs": {
+                    "plannedDemandChange": {
+                      "@type": "Quantity",
+                      "unitCode": "KWH",
+                      "unitQuantity": 150.0
+                    },
+                    "participatingMeters": [
+                      "der://meter/001",
+                      "der://meter/002",
+                      "der://meter/003"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "performance": [
         {
           "id": "perf-evt-001-baselines",
           "status": {
-            "@type": "beckn:Descriptor",
             "code": "BASELINE_PUBLISHED",
             "name": "Baselines published for upcoming event"
           },
-          "commitmentIds": ["commitment-flex-001"],
+          "commitmentIds": [
+            "commitment-flex-001"
+          ],
           "performanceAttributes": {
             "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
             "@type": "DemandFlexPerformance",
             "eventId": "evt-2026-04-01-001",
             "methodology": "5of10",
             "meters": [
-              { "meterId": "der://meter/001", "baselineKw": 45.0 },
-              { "meterId": "der://meter/002", "baselineKw": 38.0 },
-              { "meterId": "der://meter/003", "baselineKw": 52.0 }
+              {
+                "meterId": "der://meter/001",
+                "baselineKw": 45.0
+              },
+              {
+                "meterId": "der://meter/002",
+                "baselineKw": 38.0
+              },
+              {
+                "meterId": "der://meter/003",
+                "baselineKw": 52.0
+              }
             ]
           }
         }
@@ -1105,7 +1525,20 @@ Just before the event, the utility sends per-meter baselines via `on_status`. Th
       "contractAttributes": {
         "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
-        "contractType": "DEMAND_FLEX"
+        "roles": [
+          {
+            "role": "buyer",
+            "participantId": "tpddl-north-delhi"
+          },
+          {
+            "role": "seller",
+            "participantId": "greenflex-agg"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
       }
     }
   }
@@ -1114,9 +1547,9 @@ Just before the event, the utility sends per-meter baselines via `on_status`. Th
 ```
 </details>
 
-### 5.10. On Status (Actuals and Settlement)
+### 5.12. On Status (Actuals)
 
-After the event, the utility sends actuals alongside baselines. The `settlements` array contains per-meter revenue flows computed by the rego policy.
+After the event, the utility publishes actual load per meter alongside baselines. The `DemandFlexPerformance` attributes now contain both `baselineKw` and `actualKw` per meter.
 
 <details><summary><a href="../../../../examples/demand-flex/v2/on-status-response-actuals.json">on-status-response-actuals.json</a></summary>
 
@@ -1135,66 +1568,122 @@ After the event, the utility sends actuals alongside baselines. The `settlements
     "timestamp": "2026-04-01T10:35:00Z",
     "schemaContext": [
       "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld"
     ]
   },
   "message": {
     "contract": {
       "id": "contract-flex-001",
-      "status": { "@type": "beckn:Descriptor", "code": "ACTIVE" },
+      "status": {
+        "code": "ACTIVE"
+      },
+      "commitments": [
+        {
+          "id": "commitment-flex-001",
+          "status": {
+            "descriptor": {
+              "code": "ACTIVE"
+            }
+          },
+          "resources": [
+            {
+              "id": "flex-need-north-delhi-apr1",
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 150,
+                "@type": "Quantity"
+              },
+              "resourceAttributes": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@type": "DemandFlexNeed",
+                "direction": "REDUCE",
+                "eventWindow": {
+                  "startDate": "2026-04-01T08:30:00Z",
+                  "endDate": "2026-04-01T10:30:00Z"
+                },
+                "capacityType": "CURTAILMENT",
+                "maxCapacityKw": 500
+              }
+            }
+          ],
+          "offer": {
+            "id": "offer-flex-001",
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@type": "DemandFlexBuyOffer",
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": "greenflex-agg",
+                  "inputs": {
+                    "plannedDemandChange": {
+                      "@type": "Quantity",
+                      "unitCode": "KWH",
+                      "unitQuantity": 150.0
+                    },
+                    "participatingMeters": [
+                      "der://meter/001",
+                      "der://meter/002",
+                      "der://meter/003"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
       "performance": [
         {
           "id": "perf-evt-001-actuals",
           "status": {
-            "@type": "beckn:Descriptor",
             "code": "DELIVERY_COMPLETE",
             "name": "Event completed, actuals measured"
           },
-          "commitmentIds": ["commitment-flex-001"],
+          "commitmentIds": [
+            "commitment-flex-001"
+          ],
           "performanceAttributes": {
             "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
             "@type": "DemandFlexPerformance",
             "eventId": "evt-2026-04-01-001",
             "methodology": "5of10",
             "meters": [
-              { "meterId": "der://meter/001", "baselineKw": 45.0, "actualKw": 20.0 },
-              { "meterId": "der://meter/002", "baselineKw": 38.0, "actualKw": 15.0 },
-              { "meterId": "der://meter/003", "baselineKw": 52.0, "actualKw": 25.0 }
-            ]
-          }
-        }
-      ],
-      "settlements": [
-        {
-          "id": "settlement-evt-001",
-          "considerationId": "consideration-flex-001",
-          "status": "COMMITTED",
-          "settlementAttributes": {
-            "@type": "beckn:Settlement",
-            "components": [
               {
-                "lineId": "incentive-meter-001",
-                "lineSummary": "der://meter/001: (45.0 - 20.0) kW × 2h × 3.50 INR/kWh",
-                "value": 175.00,
-                "currency": "INR"
+                "meterId": "der://meter/001",
+                "baselineKw": 45.0,
+                "actualKw": 20.0
               },
               {
-                "lineId": "incentive-meter-002",
-                "lineSummary": "der://meter/002: (38.0 - 15.0) kW × 2h × 3.50 INR/kWh",
-                "value": 161.00,
-                "currency": "INR"
+                "meterId": "der://meter/002",
+                "baselineKw": 38.0,
+                "actualKw": 15.0
               },
               {
-                "lineId": "incentive-meter-003",
-                "lineSummary": "der://meter/003: (52.0 - 25.0) kW × 2h × 3.50 INR/kWh",
-                "value": 189.00,
-                "currency": "INR"
-              },
-              {
-                "lineId": "total-settlement",
-                "lineSummary": "Total: 75 kW verified curtailment × 2h × 3.50 INR/kWh",
-                "value": 525.00,
-                "currency": "INR"
+                "meterId": "der://meter/003",
+                "baselineKw": 52.0,
+                "actualKw": 25.0
               }
             ]
           }
@@ -1203,7 +1692,201 @@ After the event, the utility sends actuals alongside baselines. The `settlements
       "contractAttributes": {
         "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
-        "contractType": "DEMAND_FLEX"
+        "roles": [
+          {
+            "role": "buyer",
+            "participantId": "tpddl-north-delhi"
+          },
+          {
+            "role": "seller",
+            "participantId": "greenflex-agg"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
+      }
+    }
+  }
+}
+
+```
+</details>
+
+### 5.13. On Status (Settled)
+
+The rego policy is evaluated against the actuals payload. Revenue flows are computed per role and injected into `contractAttributes.revenueFlows`. The sum of all flows equals zero (net-zero verified).
+
+<details><summary><a href="../../../../examples/demand-flex/v2/on-status-response-settled.json">on-status-response-settled.json</a></summary>
+
+```json
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_status",
+    "domain": "beckn.one:deg:demand-flex:2.0.0",
+    "bapId": "greenflex-agg.example.com",
+    "bapUri": "https://greenflex-agg.example.com/beckn",
+    "bppId": "tpddl-utility.example.com",
+    "bppUri": "https://tpddl-utility.example.com/beckn",
+    "transactionId": "txn-flex-001",
+    "messageId": "msg-on-status-settled-001",
+    "timestamp": "2026-04-01T11:00:00Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
+    ]
+  },
+  "message": {
+    "contract": {
+      "id": "contract-flex-001",
+      "status": {
+        "code": "ACTIVE"
+      },
+      "commitments": [
+        {
+          "id": "commitment-flex-001",
+          "status": {
+            "descriptor": {
+              "code": "ACTIVE"
+            }
+          },
+          "resources": [
+            {
+              "id": "flex-need-north-delhi-apr1",
+              "quantity": {
+                "unitCode": "kW",
+                "unitQuantity": 150,
+                "@type": "Quantity"
+              },
+              "resourceAttributes": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@type": "DemandFlexNeed",
+                "direction": "REDUCE",
+                "eventWindow": {
+                  "startDate": "2026-04-01T08:30:00Z",
+                  "endDate": "2026-04-01T10:30:00Z"
+                },
+                "capacityType": "CURTAILMENT",
+                "maxCapacityKw": 500
+              }
+            }
+          ],
+          "offer": {
+            "id": "offer-flex-001",
+            "resourceIds": [
+              "flex-need-north-delhi-apr1"
+            ],
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@type": "DemandFlexBuyOffer",
+              "inputs": [
+                {
+                  "role": "buyer",
+                  "participantId": "tpddl-north-delhi",
+                  "inputs": {
+                    "incentivePerKwh": 3.5,
+                    "currency": "INR",
+                    "baselineMethodology": {
+                      "bestOf": 5,
+                      "outOf": 10
+                    },
+                    "penaltyRate": 1.5,
+                    "premiumForGuaranteed": 5.0,
+                    "optOutDefault": false
+                  }
+                },
+                {
+                  "role": "seller",
+                  "participantId": "greenflex-agg",
+                  "inputs": {
+                    "plannedDemandChange": {
+                      "unitCode": "KWH",
+                      "unitQuantity": 120.0,
+                      "@type": "Quantity"
+                    },
+                    "participatingMeters": [
+                      "der://meter/001",
+                      "der://meter/002",
+                      "der://meter/003"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "performance": [
+        {
+          "id": "perf-evt-001-actuals",
+          "status": {
+            "code": "SETTLED",
+            "name": "Settlement computed from policy evaluation"
+          },
+          "commitmentIds": [
+            "commitment-flex-001"
+          ],
+          "performanceAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
+            "@type": "DemandFlexPerformance",
+            "eventId": "evt-2026-04-01-001",
+            "methodology": "5of10",
+            "meters": [
+              {
+                "meterId": "der://meter/001",
+                "baselineKw": 45.0,
+                "actualKw": 20.0
+              },
+              {
+                "meterId": "der://meter/002",
+                "baselineKw": 38.0,
+                "actualKw": 15.0
+              },
+              {
+                "meterId": "der://meter/003",
+                "baselineKw": 52.0,
+                "actualKw": 25.0
+              }
+            ]
+          }
+        }
+      ],
+      "contractAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@type": "DEGContract",
+        "roles": [
+          {
+            "role": "buyer",
+            "participantId": "tpddl-north-delhi"
+          },
+          {
+            "role": "seller",
+            "participantId": "greenflex-agg"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        },
+        "revenueFlows": [
+          {
+            "currency": "INR",
+            "description": "Incentive payable for 150 kWh verified curtailment",
+            "role": "buyer",
+            "value": -525
+          },
+          {
+            "currency": "INR",
+            "description": "Incentive receivable for 150 kWh verified curtailment",
+            "role": "seller",
+            "value": 525
+          }
+        ]
       }
     }
   }
@@ -1214,125 +1897,132 @@ After the event, the utility sends actuals alongside baselines. The `settlements
 
 ## 6. Schema Reference
 
-All schemas use JSON Schema Draft 2020-12 with JSON-LD support. Context URLs point to the `p2p-trading-becknv2` branch.
-
 ### 6.1. DemandFlexNeed
 
-**Slot:** `Resource.resourceAttributes`
-
-Describes what the utility needs from the network.
+Attached to `Resource.resourceAttributes`. Describes the utility's flex requirement.
 
 | Field | Type | Required | Description |
 |:------|:-----|:---------|:------------|
-| `direction` | enum: INCREASE, REDUCE | Yes | Whether utility needs demand increase or reduction |
-| `eventWindow` | object | Yes | `{ startDate, endDate }` — when flex is needed (UTC) |
-| `capacityType` | enum: CURTAILMENT, SHIFT, GENERATION | No | Type of flex capacity |
-| `maxCapacityKw` | number | Yes | Maximum capacity needed in kW |
-| `location` | GeoJSON object | No | Geographic area where flex is needed |
+| `direction` | string | Yes | `INCREASE` or `REDUCE` |
+| `eventWindow` | object | Yes | `{startDate, endDate}` in UTC ISO 8601 |
+| `maxCapacityKw` | number | Yes | Maximum flex capacity in kW |
+| `capacityType` | string | No | `CURTAILMENT`, `SHIFT`, or `GENERATION` |
+| `location` | object | No | GeoJSON Point or Polygon |
 
 ### 6.2. DemandFlexBuyOffer
 
-**Slot:** `Offer.offerAttributes`
-
-Commercial terms for the flex contract.
+Attached to `Offer.offerAttributes`. Contains the contract template and role-tagged inputs.
 
 | Field | Type | Required | Description |
 |:------|:-----|:---------|:------------|
-| `incentivePerKwh` | number | Yes | Base incentive rate per kWh |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `maxEventsPerMonth` | integer | No | Monthly event cap |
-| `baselineMethodology` | object | No | `{ bestOf, outOf }` — baseline computation method |
-| `penaltyRate` | number | No | Penalty per kWh for under-delivery (guaranteed flex) |
-| `premiumForGuaranteed` | number | No | Premium per kWh for firm commitments |
-| `optOutDefault` | boolean | No | If true, participants must opt out (default enrolled) |
-| `taker` | DemandFlexProvider or null | No | Consumer/aggregator accepting the offer |
-| `policy` | object | Yes | `{ url, queryPath, bundleUrl? }` — rego policy reference |
+| `contractTerms` | DEGContract | Catalog only | Portable contract template — promoted to `contractAttributes` at select |
+| `inputs` | array | Yes | One `DemandFlexRoleInput` per role |
 
-**DemandFlexProvider** (taker sub-object):
+**DemandFlexRoleInput:**
 
 | Field | Type | Required | Description |
 |:------|:-----|:---------|:------------|
-| `id` | string | Yes | Aggregator ID or consumer number |
-| `plannedDemandChange` | number | No | Planned demand change in kW |
-| `participatingMeters` | string[] | No | Enrolled meter IDs |
+| `role` | string | Yes | `buyer` or `seller` |
+| `participantId` | string/null | Yes | Null until role is bound |
+| `inputs` | object | When bound | Role-specific commercial terms |
+
+**Buyer inputs:** `incentivePerKwh`, `currency`, `baselineMethodology`, `penaltyRate`, `premiumForGuaranteed`, `optOutDefault`
+
+**Seller inputs:** `plannedDemandChange` (beckn:Quantity), `participatingMeters` (string array)
 
 ### 6.3. DEGContract
 
-**Slot:** `Contract.contractAttributes`
-
-Minimal domain marker identifying the contract type.
+Carried in `offerAttributes.contractTerms` (catalog) and promoted to `Contract.contractAttributes` (contract stages).
 
 | Field | Type | Required | Description |
 |:------|:-----|:---------|:------------|
-| `contractType` | enum: DEMAND_FLEX, P2P_TRADE, EV_CHARGING | Yes | Contract type identifier |
+| `roles` | array | Yes | `[{role, participantId?}]` — bound at init/confirm |
+| `policy` | object | Yes | `{url, queryPath}` — OPA/Rego policy reference |
+| `revenueFlows` | array | Post-settlement | `[{role, value, currency}]` — computed by rego |
 
 ### 6.4. DemandFlexPerformance
 
-**Slot:** `Performance.performanceAttributes`
-
-M&V data sent via `on_status` before and after events.
+Attached to `Performance.performanceAttributes` in `on_status` callbacks.
 
 | Field | Type | Required | Description |
 |:------|:-----|:---------|:------------|
-| `eventId` | string | No | Flex event identifier |
-| `methodology` | string | No | Baseline methodology (e.g., "5of10") |
-| `meters` | array | No | Per-meter M&V data |
-| `meters[].meterId` | string | Yes | Meter identifier |
-| `meters[].baselineKw` | number | Yes | Baseline load in kW |
-| `meters[].actualKw` | number | No | Actual load in kW (absent before event) |
+| `eventId` | string | No | Identifier of the flex event |
+| `methodology` | string | No | Baseline methodology (e.g., `5of10`) |
+| `meters` | array | No | Per-meter M&V: `{meterId, baselineKw, actualKw?}` |
 
 ## 7. Policy and Settlement
 
-Each `DemandFlexBuyOffer` references a **rego policy** via the `policy` field:
+The demand-flex rego policy ([demand_flex_revenue.rego](../../../../specification/policies/demand_flex_revenue.rego)) is a pure function:
 
-```yaml
-policy:
-  url: "https://raw.githubusercontent.com/.../demand_flex.rego"
-  queryPath: "data.deg.contracts.demand_flex"
+**Inputs** (from the contract payload):
+- `contractAttributes.roles[]` — buyer / seller
+- `commitments[0].offer.offerAttributes.inputs[]` — buyer's incentive rate
+- `commitments[0].resources[0].resourceAttributes.eventWindow` — event duration
+- `performance[0].performanceAttributes.meters[]` — baselines + actuals
+
+**Outputs:**
+- `revenue_flows` — `[{role:"buyer", value:-525, currency:"INR"}, {role:"seller", value:525, currency:"INR"}]`
+- `settlement_components` — per-meter breakdown
+- `net_zero_ok` — boolean (sum of all flows == 0)
+- `violations` — warnings (missing actuals, negative reductions clamped, etc.)
+
+**Net-zero invariant:** The buyer pays exactly what the seller receives. Sum of all `revenue_flows[].value` = 0.
+
+### Running locally
+
+```bash
+# Run OPA tests
+cd specification/policies && opa test demand_flex_revenue.rego demand_flex_revenue_test.rego -v
+
+# Evaluate against an example
+python3 scripts/evaluate_demand_flex_settlement.py examples/demand-flex/v2/on-status-response-settled.json
+
+# Generate settled JSON with revenueFlows injected
+python3 scripts/evaluate_demand_flex_settlement.py \
+  examples/demand-flex/v2/on-status-response-actuals.json \
+  --generate examples/demand-flex/v2/on-status-response-settled.json
 ```
 
-The rego policy is evaluated by the ONIX adapter at each beckn action (`checkPolicy` step). It:
+### In the onix pipeline
 
-1. **Validates inputs** — checks that required fields are present and within bounds
-2. **Computes settlements** — given baselines and actuals, calculates per-meter incentive amounts
-3. **Verifies invoices** — confirms that claimed payments match the rego computation
-4. **Enforces net-zero** — total revenue flows between roles must sum to zero
-
-### Settlement Example
-
-For a meter with baseline 45 kW and actual 20 kW during a 2-hour event at 3.50 INR/kWh:
-
-```
-Curtailment = 45.0 - 20.0 = 25.0 kW
-Incentive   = 25.0 kW × 2h × 3.50 INR/kWh = 175.00 INR
-```
-
-The settlement in `on_status` carries these per-meter line items, computed by the rego.
+The `revenueflows` middleware plugin runs on BPP Caller `on_status` messages. It reads the policy URL from `contractAttributes.policy`, fetches and caches the rego at runtime, evaluates it, and injects `revenueFlows` into the message body before signing.
 
 ## 8. Implementation Notes
 
 ### 8.1. For BAPs (Consumer / Aggregator)
 
-1. **Discovery**: Filter catalogs by `DemandFlexNeed.direction` and `eventWindow` to find relevant flex opportunities
-2. **Selection**: Include the desired `quantity` on the resource — this is how much flex you're committing
-3. **Init**: Provide the `taker` with your aggregator/consumer `id` and `plannedDemandChange`
-4. **Meter Management**: Update `participatingMeters` via `/update` as consumers opt in/out before each event
-5. **Settlement Verification**: After receiving actuals in `on_status`, verify settlement amounts against the rego policy locally
+- Send `/discover` to the CDS to find flex opportunities matching your criteria
+- The offer's `contractTerms` contains the DEGContract template with roles and policy
+- At `/init`, fill the seller role in `inputs` with your `participantId` and `plannedDemandChange`
+- Use `/update` before each event to update `participatingMeters` and `plannedDemandChange`
+- Revenue flows in `on_status` (settled) show what you receive — verify against the rego policy
 
 ### 8.2. For BPPs (Utility)
 
-1. **Catalog Design**: Publish one `Resource` (DemandFlexNeed) per flex event, with one or more `Offer` (DemandFlexBuyOffer) variants (different incentive tiers)
-2. **Baseline Computation**: Send baselines via `on_status` before the event window opens. Use the methodology specified in `baselineMethodology`
-3. **Actuals Collection**: After the event, collect meter data and send actuals alongside baselines in `on_status`
-4. **Settlement**: Include `settlements` array in the post-event `on_status` with per-meter line items computed by the rego
-5. **Policy Hosting**: Host the rego policy at a stable URL referenced in `DemandFlexBuyOffer.policy.url`
+- Publish catalog with `contractTerms` in the offer — defines roles, policy, and buyer terms
+- At `/on_select`, promote `contractTerms` to `contractAttributes` and bind buyer role
+- At `/on_init`, bind seller role in `contractAttributes.roles`
+- Send baselines via `on_status` before the event, actuals after
+- The `revenueflows` middleware computes and injects revenue flows automatically on `on_status`
+- All quantity fields use `beckn:Quantity` with `@type: "Quantity"` and `unitCode`/`unitQuantity`
 
 ## 9. Devkit
 
-A complete devkit for testing demand-flex flows locally is available at [`testnet/demand-flex-devkit/`](../../../testnet/demand-flex-devkit/). See the [devkit README](../../../testnet/demand-flex-devkit/README.md) for setup instructions.
+The demand-flex devkit provides a complete local testnet:
 
 ```bash
-# Quick start
-cd testnet/demand-flex-devkit/install
-docker compose -f docker-compose-demand-flex.yml up -d
+# Start the devkit
+docker compose -f testnet/demand-flex-devkit/install/docker-compose-demand-flex.yml up -d
+
+# Import Postman collections
+# BAP: testnet/demand-flex-devkit/postman/demand-flex.BAP-DEG.postman_collection.json
+# BPP: testnet/demand-flex-devkit/postman/demand-flex.BPP-DEG.postman_collection.json
 ```
+
+| Component | Port | Description |
+|:----------|:-----|:------------|
+| onix-bap | 8081 | BAP adapter (Aggregator) |
+| onix-bpp | 8082 | BPP adapter (Utility) with revenueflows middleware |
+| sandbox-bap | 3001 | BAP sandbox |
+| sandbox-bpp | 3002 | BPP sandbox |
+| redis | 6379 | Cache |
