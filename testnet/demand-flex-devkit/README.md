@@ -71,8 +71,8 @@ docker compose -f docker-compose-demand-flex.yml ps
 ### 2. Import Postman collections
 
 Import the following collections into Postman from `postman/`:
-- `demand-flex:BAP-DEG.postman_collection.json` (consumer/aggregator flows)
-- `demand-flex:BPP-DEG.postman_collection.json` (utility flows)
+- `demand-flex.BAP-DEG.postman_collection.json` (consumer/aggregator flows)
+- `demand-flex.BPP-DEG.postman_collection.json` (utility flows)
 
 ### 3. Test the flow
 
@@ -158,13 +158,13 @@ Domain schemas are hosted on the `p2p-trading-becknv2` branch:
 python3 scripts/generate_postman_collection.py \
   --devkit demand-flex --role BAP \
   --output-dir testnet/demand-flex-devkit/postman \
-  --name "demand-flex:BAP-DEG" \
+  --name "demand-flex.BAP-DEG" \
   --validate
 
 python3 scripts/generate_postman_collection.py \
   --devkit demand-flex --role BPP \
   --output-dir testnet/demand-flex-devkit/postman \
-  --name "demand-flex:BPP-DEG" \
+  --name "demand-flex.BPP-DEG" \
   --validate
 ```
 

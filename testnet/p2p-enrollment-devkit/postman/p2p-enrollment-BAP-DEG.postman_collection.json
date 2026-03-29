@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "117bba7b-4d45-4ef6-ace8-0254f4e7406e",
-    "name": "p2p-enrollment:BAP-DEG",
+    "name": "p2p-enrollment-BAP-DEG",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Postman collection for Buyer Application Platform implementing p2p-enrollment APIs based on Beckn Protocol v2"
   },

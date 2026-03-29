@@ -43,7 +43,7 @@ Verify the following containers are running:
 
 ### BAP Collection (Utility Portal initiating enrollment)
 
-Use the `p2p-enrollment:BAP-DEG` collection:
+Use the `p2p-enrollment-BAP-DEG` collection:
 
 1. **init** - Initiate enrollment with user authentication
    - `init-request-otp` - Start OTP-based enrollment (sends mobile number)
@@ -62,7 +62,7 @@ Use the `p2p-enrollment:BAP-DEG` collection:
 
 ### BPP Collection (Program Owner responding)
 
-Use the `p2p-enrollment:BPP-DEG` collection:
+Use the `p2p-enrollment-BPP-DEG` collection:
 
 1. **on_init** - Respond to init requests
    - `on-init-response-otp` - Return NGUID for OTP verification
