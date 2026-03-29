@@ -48,7 +48,7 @@ modules:
           id: schemav2validator
           config:
             type: url
-            location: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/heads/draft/api/v2.0.0/beckn.yaml
+            location: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/api/beckn.yaml
             cacheTTL: "3600"
             extendedSchema_enabled: "true"
             extendedSchema_cacheTTL: "86400"
@@ -70,12 +70,12 @@ modules:
         steps:
           - id: policyenforcer
             config:
-              policyUrls: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading/specification/policies/p2p-trading-interdiscom.rego"
+              policyUrls: "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/policies/p2p-trading-interdiscom.rego"
       steps:
         - validateSign
         - addRoute
         - validateSchema
-        # - policyenforcer
+        - policyenforcer
 
   - name: bppTxnCaller
     path: /bpp/caller/
@@ -108,7 +108,7 @@ modules:
           id: schemav2validator
           config:
             type: url
-            location: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/heads/draft/api/v2.0.0/beckn.yaml
+            location: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/api/beckn.yaml
             cacheTTL: "3600"
             extendedSchema_enabled: "true"
             extendedSchema_cacheTTL: "86400"
@@ -147,11 +147,11 @@ modules:
               keyId: 76EU7Mvhh7jaEf7Lcac5R1PPeFL4ddr1ALs2QYzpyTRE8g15Yr1p7C
           - id: policyenforcer
             config:
-              policyUrls: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading/specification/policies/p2p-trading-interdiscom.rego"
+              policyUrls: "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/policies/p2p-trading-interdiscom.rego"
       steps:
         - addRoute
         - sign
         - validateSchema
         - degledgerrecorder
-        # - policyenforcer
+        - policyenforcer
   
