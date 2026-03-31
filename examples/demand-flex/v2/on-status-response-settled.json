@@ -103,7 +103,7 @@
           "id": "perf-evt-001-actuals",
           "status": {
             "code": "SETTLED",
-            "name": "Event completed, M&V verified, settlement computed"
+            "name": "Settlement computed from policy evaluation"
           },
           "commitmentIds": [
             "commitment-flex-001"

@@ -22,7 +22,7 @@ services:
   # ============================================
 
   onix-bap:
-    image: fidedocker/onix-adapter:1.5.0
+    image: onix-adapter-deg:p2p-multiarch-v5
     container_name: onix-bap
     networks:
       - beckn_network
@@ -43,7 +43,7 @@ services:
     command: ["./server", "--config=/app/config/local-demand-flex-bap.yaml"]
 
   onix-bpp:
-    image: fidedocker/onix-adapter:1.5.0
+    image: onix-adapter-deg:p2p-multiarch-v5
     container_name: onix-bpp
     networks:
       - beckn_network

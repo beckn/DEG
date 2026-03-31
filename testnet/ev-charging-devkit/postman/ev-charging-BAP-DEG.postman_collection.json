@@ -324,7 +324,7 @@
       ]
     },
     {
-      "name": "rate",
+      "name": "rating",
       "item": [
         {
           "name": "ev-charging-session-rating",
@@ -333,7 +333,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"rate\",\n    \"domain\": \"{{domain}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"ttl\": \"PT30S\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\"\n  },\n  \"message\": {\n    \"ratings\": [\n      {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:RatingInput\",\n        \"id\": \"fulfillment-001\",\n        \"ratingValue\": 4,\n        \"bestRating\": 5,\n        \"worstRating\": 1,\n        \"category\": \"FULFILLMENT\",\n        \"feedback\": {\n          \"comments\": \"Excellent charging experience! The station was clean, easy to find, and the charging was fast and reliable. The staff was helpful and the payment process was smooth.\",\n          \"tags\": [\n            \"fast-charging\",\n            \"easy-to-use\",\n            \"clean-station\",\n            \"helpful-staff\",\n            \"smooth-payment\"\n          ]\n        }\n      }\n    ]\n  }\n}",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"rating\",\n    \"domain\": \"{{domain}}\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"ttl\": \"PT30S\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\"\n  },\n  \"message\": {\n    \"ratings\": [\n      {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld\",\n        \"@type\": \"beckn:RatingInput\",\n        \"id\": \"fulfillment-001\",\n        \"ratingValue\": 4,\n        \"bestRating\": 5,\n        \"worstRating\": 1,\n        \"category\": \"FULFILLMENT\",\n        \"feedback\": {\n          \"comments\": \"Excellent charging experience! The station was clean, easy to find, and the charging was fast and reliable. The staff was helpful and the payment process was smooth.\",\n          \"tags\": [\n            \"fast-charging\",\n            \"easy-to-use\",\n            \"clean-station\",\n            \"helpful-staff\",\n            \"smooth-payment\"\n          ]\n        }\n      }\n    ]\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"

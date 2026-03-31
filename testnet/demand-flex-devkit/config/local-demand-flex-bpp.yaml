@@ -144,6 +144,11 @@ modules:
             config:
               uuidKeys: transaction_id,message_id
               role: bpp
+          - id: revenueflows
+            config:
+              actions: "on_status"
+              debugLogging: "true"
+              allowedDomains: "raw.githubusercontent.com"
       steps:
         - validateSchema
         - checkPolicy

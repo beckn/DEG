@@ -189,7 +189,7 @@
       ]
     },
     {
-      "name": "on_rate",
+      "name": "on_rating",
       "item": [
         {
           "name": "ev-charging-session-on-rating",
@@ -198,7 +198,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"on_rate\",\n    \"domain\": \"{{domain}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"ttl\": \"PT30S\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\"\n  },\n  \"message\": {\n    \"received\": true,\n    \"feedbackForm\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Form\",\n      \"url\": \"https://example-bpp.com/feedback/portal\",\n      \"mime_type\": \"application/xml\",\n      \"submission_id\": \"feedback-123e4567-e89b-12d3-a456-426614174000\"\n    }\n  }\n}",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"on_rating\",\n    \"domain\": \"{{domain}}\",\n    \"bap_id\": \"{{bap_id}}\",\n    \"bap_uri\": \"{{bap_uri}}\",\n    \"transaction_id\": \"{{transaction_id}}\",\n    \"message_id\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"ttl\": \"PT30S\",\n    \"bpp_id\": \"{{bpp_id}}\",\n    \"bpp_uri\": \"{{bpp_uri}}\"\n  },\n  \"message\": {\n    \"received\": true,\n    \"feedbackForm\": {\n      \"@context\": \"https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld\",\n      \"@type\": \"beckn:Form\",\n      \"url\": \"https://example-bpp.com/feedback/portal\",\n      \"mime_type\": \"application/xml\",\n      \"submission_id\": \"feedback-123e4567-e89b-12d3-a456-426614174000\"\n    }\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
