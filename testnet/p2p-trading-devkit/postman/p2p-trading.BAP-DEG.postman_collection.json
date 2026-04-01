@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "1d173b57-15be-4f4d-8929-ff05bc3e3b5d",
-    "name": "p2p-trading:BAP-DEG",
+    "name": "p2p-trading.BAP-DEG",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Postman collection for Buyer Application Platform implementing p2p-trading APIs based on Beckn Protocol v2"
   },

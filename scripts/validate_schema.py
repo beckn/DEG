@@ -49,7 +49,7 @@ python3 scripts/validate_schema.py examples/ev-charging/v2/**/*.json
 python3 scripts/validate_schema.py --core-only examples/ev-charging/v2/03_select/time-based-ev-charging-slot-select.json
 
 # Validate Postman collection:
-python3 scripts/validate_schema.py testnet/ev-charging-devkit/postman/ev-charging:BAP-DEG.postman_collection.json
+python3 scripts/validate_schema.py testnet/ev-charging-devkit/postman/ev-charging.BAP-DEG.postman_collection.json
 
 EXAMPLE JSON STRUCTURE:
 ----------------------

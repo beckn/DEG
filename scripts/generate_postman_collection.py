@@ -29,7 +29,7 @@ python3 scripts/generate_postman_collection.py \\
   --role BAP \\
   --output-dir testnet/ev-charging-devkit/postman \\
   --examples examples/ev-charging/v2 \\
-  --name ev-charging:BAP-DEG \\
+  --name ev-charging.BAP-DEG \\
   --description \"EV Charging BAP flows\" \\
   --validate
 
@@ -754,8 +754,9 @@ def main():
     else:
         collection_name = args.name
     
-    # Construct output filename from collection name
-    filename = f"{collection_name}.postman_collection.json"
+    # Construct output filename from collection name (':' is invalid on Windows; use '.')
+    safe_name = collection_name.replace(":", ".")
+    filename = f"{safe_name}.postman_collection.json"
     output_path = repo_root_dir / args.output_dir / filename
     
     print("=" * 60)

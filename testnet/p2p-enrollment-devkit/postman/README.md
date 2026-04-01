@@ -13,8 +13,8 @@ python3 scripts/generate_postman_collection.py --devkit p2p-enrollment --output-
 
 | Collection | Description | Requests |
 |------------|-------------|----------|
-| `p2p-enrollment:BAP-DEG` | Utility Portal (BAP) initiating enrollment | 9 |
-| `p2p-enrollment:BPP-DEG` | Program Owner (BPP) responding to enrollment | 11 |
+| `p2p-enrollment.BAP-DEG` | Utility Portal (BAP) initiating enrollment | 9 |
+| `p2p-enrollment.BPP-DEG` | Program Owner (BPP) responding to enrollment | 11 |
 
 ## Available Actions
 

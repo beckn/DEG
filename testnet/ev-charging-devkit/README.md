@@ -46,7 +46,7 @@ Verify the following containers are running:
 
 ### BAP Collection (EV Driver App initiating charging)
 
-Use the `ev-charging:BAP-DEG` collection:
+Use the `ev-charging.BAP-DEG` collection:
 
 1. **discover** - Discover available charging stations
    - `time-based-ev-charging-slot-discover` - Discover stations with spatial and filter criteria
@@ -77,7 +77,7 @@ Use the `ev-charging:BAP-DEG` collection:
 
 ### BPP Collection (Charging Station Operator responding)
 
-Use the `ev-charging:BPP-DEG` collection:
+Use the `ev-charging.BPP-DEG` collection:
 
 1. **on_discover** - Respond to discovery requests
    - `time-based-ev-charging-slot-catalog` - Return catalog of available charging stations
