@@ -35,13 +35,13 @@ cd DEG/testnet/p2p-trading-interdiscom-devkit/install
 
 2. Open postman and import the folder `DEG/testnet/p2p-energy-trading-devkit/postman` to import all the collections and environment variables.
 
-3. Start by publishing a mock catalog to the catalog discovery service using the collection `P2P-Trading:CDSupload-DEG`.
+3. Start by publishing a mock catalog to the catalog discovery service using the collection `p2p-trading-interdiscom.CDSupload-DEG`.
 
-4. Check if you can see this catalog via a BAP by using the collection `P2P-Trading:BAP-DEG/discover`. Note that this can be flaky and may timeout sometimes due to CDS unavailability. In that case try again.
+4. Check if you can see this catalog via a BAP by using the collection `p2p-trading-interdiscom.BAP-DEG/discover`. Note that this can be flaky and may timeout sometimes due to CDS unavailability. In that case try again.
 
-5. Use the collection `P2P-Trading:BAP-DEG` (select, init, confirm, status queries) to test the round trip Beckn v2.0 mock messages between BAP and BPP. The query reponse will show an "Ack" message, and detailed `on_select`, `on_init`, `on_confirm`, `on_status` messages from BPP should be visible in the BAP logs.
+5. Use the collection `p2p-trading-interdiscom.BAP-DEG` (select, init, confirm, status queries) to test the round trip Beckn v2.0 mock messages between BAP and BPP. The query reponse will show an "Ack" message, and detailed `on_select`, `on_init`, `on_confirm`, `on_status` messages from BPP should be visible in the BAP logs.
 
-6. Use the collection `P2P-Trading:BPP-DEG` (on_select, on_init, on_confirm, on_status) to test only the BPP to BAP trip Beckn v2.0 mock messages between BPP to BAP.
+6. Use the collection `p2p-trading-interdiscom.BPP-DEG` (on_select, on_init, on_confirm, on_status) to test only the BPP to BAP trip Beckn v2.0 mock messages between BPP to BAP.
 
 7. Stop the containers using docker compose
     ```

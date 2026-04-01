@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "1ce6f9b5-7b17-4c01-9b5e-68f746a07d49",
-    "name": "ev-charging-BAP-DEG",
+    "name": "ev-charging.BAP-DEG",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "EV Charging BAP flows"
   },
