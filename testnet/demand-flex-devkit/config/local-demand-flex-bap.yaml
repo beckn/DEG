@@ -56,13 +56,6 @@ modules:
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
             extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
-        checkPolicy:
-          id: opapolicychecker
-          config:
-            type: url
-            location: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
-            query: "data.deg.policy.demand_flex_network.violations"
-            refreshIntervalSeconds: "300"
         cache:
           id: cache
           config:
@@ -78,17 +71,22 @@ modules:
             config:
               uuidKeys: transaction_id,message_id
               role: bap
+        steps:
+          - id: policyenforcer
+            config:
+              policyUrls: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
       steps:
         - validateSign
-        - checkPolicy
         - addRoute
         - validateSchema
+        - policyenforcer
 
   - name: bapTxnCaller
     path: /bap/caller/
     handler:
       type: std
       role: bap
+      subscriberId: p2p-trading-sandbox1.com
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200
@@ -122,13 +120,6 @@ modules:
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
             extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
-        checkPolicy:
-          id: opapolicychecker
-          config:
-            type: url
-            location: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
-            query: "data.deg.policy.demand_flex_network.violations"
-            refreshIntervalSeconds: "300"
         cache:
           id: cache
           config:
@@ -144,8 +135,12 @@ modules:
             config:
               uuidKeys: transaction_id,message_id
               role: bap
+        steps:
+          - id: policyenforcer
+            config:
+              policyUrls: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
       steps:
-        - validateSchema
-        - checkPolicy
         - addRoute
         - sign
+        - validateSchema
+        - policyenforcer

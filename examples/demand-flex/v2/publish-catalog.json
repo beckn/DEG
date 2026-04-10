@@ -3,8 +3,10 @@
     "version": "2.0.0",
     "action": "catalog/publish",
     "domain": "beckn.one:deg:demand-flex:2.0.0",
-    "bppId": "tpddl-utility.example.com",
-    "bppUri": "https://tpddl-utility.example.com/beckn",
+    "bppId": "p2p-trading-sandbox2.com",
+    "bppUri": "http://onix-bpp:8082/bpp/receiver",
+    "subscriber_id": "p2p-trading-sandbox2.com",
+    "transactionId": "txn-publish-001",
     "messageId": "msg-publish-001",
     "timestamp": "2026-03-28T06:00:00Z",
     "schemaContext": [

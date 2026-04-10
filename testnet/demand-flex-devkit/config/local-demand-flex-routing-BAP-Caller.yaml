@@ -2,6 +2,9 @@
 routingRules:
   - version: "2.0.0"
     targetType: "bpp"
+    # Fallback when context has no bppUri (local dev). Override via bppUri/bppId in requests for multi-BPP.
+    target:
+      url: "http://onix-bpp:8082/bpp/receiver"
     endpoints:
       - select
       - init

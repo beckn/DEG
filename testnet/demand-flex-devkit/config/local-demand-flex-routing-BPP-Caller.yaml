@@ -2,6 +2,9 @@
 routingRules:
   - version: "2.0.0"
     targetType: "bap"
+    # Fallback when context has no bap_uri (snake_case). Sandbox/JSON often only has bapUri (camelCase).
+    target:
+      url: "http://onix-bap:8081/bap/receiver"
     endpoints:
       - on_select
       - on_init

@@ -56,13 +56,6 @@ modules:
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
             extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
-        checkPolicy:
-          id: opapolicychecker
-          config:
-            type: url
-            location: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
-            query: "data.deg.policy.demand_flex_network.violations"
-            refreshIntervalSeconds: "300"
         cache:
           id: cache
           config:
@@ -78,17 +71,23 @@ modules:
             config:
               uuidKeys: transaction_id,message_id
               role: bpp
+        steps:
+          - id: policyenforcer
+            config:
+              policyUrls: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
       steps:
         - validateSign
-        - checkPolicy
         - addRoute
         - validateSchema
+        - policyenforcer
 
   - name: bppTxnCaller
     path: /bpp/caller/
     handler:
       type: std
       role: bpp
+      # Default subscriber for signing / preprocessing (must match simplekeymanager networkParticipant)
+      subscriberId: p2p-trading-sandbox2.com
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200
@@ -122,13 +121,6 @@ modules:
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
             extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
-        checkPolicy:
-          id: opapolicychecker
-          config:
-            type: url
-            location: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
-            query: "data.deg.policy.demand_flex_network.violations"
-            refreshIntervalSeconds: "300"
         cache:
           id: cache
           config:
@@ -144,13 +136,14 @@ modules:
             config:
               uuidKeys: transaction_id,message_id
               role: bpp
-          - id: revenueflows
+        # revenueflows middleware requires a DEG adapter build that bundles that plugin;
+        # fidedocker/onix-adapter-deg:p2p-multiarch-v6 does not include it.
+        steps:
+          - id: policyenforcer
             config:
-              actions: "on_status"
-              debugLogging: "true"
-              allowedDomains: "raw.githubusercontent.com"
+              policyUrls: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
       steps:
-        - validateSchema
-        - checkPolicy
         - addRoute
         - sign
+        - validateSchema
+        - policyenforcer

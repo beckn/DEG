@@ -68,6 +68,8 @@ Verify all containers are running:
 docker compose -f docker-compose-demand-flex.yml ps
 ```
 
+**Sandbox BPP and `on_*` callbacks:** `sandbox-bpp` merges static JSON from [`sandbox/webhook/jsons/`](sandbox/webhook/jsons/) (mounted at `/app/dist/webhook/jsons` in the container). For domain `beckn.one:deg:demand-flex` it expects files such as `response/on_select.json`, `response/on_update.json`, etc. Those files must include a **`message`** body; otherwise the sandbox forwards **context-only** payloads to `onix-bpp` and you get **400** / `property "message" is missing` from schema validation. The checked-in templates are copied from [`examples/demand-flex/v2/`](../../examples/demand-flex/v2/) with BAP/BPP IDs aligned to this devkit. If bind-mounting fails on Windows (path contains `:`), keep the repo on the WSL filesystem.
+
 ### 2. Import Postman collections
 
 Import the following collections into Postman from `postman/`:
@@ -107,6 +109,10 @@ docker compose -f docker-compose-demand-flex.yml down -v
 | `bap_uri` | `http://onix-bap:8081/bap/receiver` | BAP callback URL |
 | `bpp_uri` | `http://onix-bpp:8082/bpp/receiver` | BPP request URL |
 
+**BPP caller (`/bpp/caller/publish`, `on_select`, …):** Put **`subscriber_id`** (snake_case) in `context`, with the **same value as `bppId`** for BPP-originated traffic. For **`on_*`** callbacks to the BAP, [`local-demand-flex-routing-BPP-Caller.yaml`](config/local-demand-flex-routing-BPP-Caller.yaml) sets **`target.url`** under **`targetType: bap`** to `http://onix-bap:8081/bap/receiver` because the sandbox often emits **`bapUri`** (camelCase) only, while the router looks for **`bap_uri`** or a fallback.
+
+**BAP caller (`select`, `init`, …):** Put **`subscriber_id`** (snake_case) in `context`, same value as **`bapId`** (`p2p-trading-sandbox1.com` in this devkit). ONIX does not use **`subscriberId`** (camelCase) for this. The **`bapTxnCaller`** handler in [`local-demand-flex-bap.yaml`](config/local-demand-flex-bap.yaml) also sets **`subscriberId`** in YAML as a default for signing. Routing: [`local-demand-flex-routing-BAP-Caller.yaml`](config/local-demand-flex-routing-BAP-Caller.yaml) **`target.url`** fallback under **`targetType: bpp`** when **`bppUri`** is omitted.
+
 ### Config Files
 
 | File | Purpose |
@@ -117,19 +123,25 @@ docker compose -f docker-compose-demand-flex.yml down -v
 
 ### Policy Enforcement
 
-This devkit uses the `opapolicychecker` plugin (new in onix-adapter 1.5.0) with the `checkPolicy` step:
+`fidedocker/onix-adapter-deg` ships the **`policyenforcer`** step (same pattern as the P2P inter-discom devkit), not `checkPolicy` / `opapolicychecker`. Configure it under `plugins.steps` and list `policyenforcer` in the handler `steps` order:
 
 ```yaml
-checkPolicy:
-  id: opapolicychecker
-  config:
-    type: url
-    location: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
-    query: "data.deg.policy.demand_flex_network.violations"
-    refreshIntervalSeconds: "300"
+        steps:
+          - id: policyenforcer
+            config:
+              policyUrls: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
+      steps:
+        - validateSign
+        - addRoute
+        - validateSchema
+        - policyenforcer
 ```
 
-The current policy is a **noop** (no violations). Replace the `location` URL with a real policy as network rules mature.
+The bundled Rego is a **noop** (no violations). Point `policyUrls` at stricter rules as the network matures.
+
+The `policyenforcer` plugin loads Rego from `policyUrls` and evaluates **`data.deg.policy.violations`** (same as P2P inter-discom). Network rules must live under `package deg.policy` with a `violations` rule set.
+
+**Revenue flows:** The BPP caller config used to enable a `revenueflows` middleware; **`fidedocker/onix-adapter-deg:p2p-multiarch-v6` does not ship that plugin**, so it is commented out in [`local-demand-flex-bpp.yaml`](config/local-demand-flex-bpp.yaml). Re-enable it only with an adapter image that includes `revenueflows`.
 
 ### Signing Keys
 
