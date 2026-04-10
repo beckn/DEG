@@ -1,0 +1,38 @@
+{
+  "message": {
+    "contract": {
+      "id": "contract-flex-001",
+      "status": {
+        "code": "CANCELLED"
+      },
+      "commitments": [
+        {
+          "id": "commitment-flex-001",
+          "status": {
+            "descriptor": {
+              "code": "CANCELLED"
+            }
+          }
+        }
+      ],
+      "contractAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@type": "DEGContract",
+        "roles": [
+          {
+            "role": "buyer",
+            "participantId": "tpddl-north-delhi"
+          },
+          {
+            "role": "seller",
+            "participantId": "greenflex-agg"
+          }
+        ],
+        "policy": {
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
+          "queryPath": "data.deg.contracts.demand_flex"
+        }
+      }
+    }
+  }
+}

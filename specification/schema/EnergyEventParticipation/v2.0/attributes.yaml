@@ -1,0 +1,84 @@
+openapi: 3.1.1
+info:
+  title: Energy Event Participation — BDR opt-in / opt-out (v2.0)
+  version: 2.0.0
+  description: >
+    Per-participant (typically seller / aggregator) participation state for one EnergyEvent.
+    Models explicit opt-in and opt-out plus program-default states derived from DemandFlexBuyOffer
+    buyer inputs (optOutDefault).
+
+components:
+  schemas:
+    EnergyEventParticipation:
+      type: object
+      description: >
+        One row per (eventId, participantId) pair. Updated on /update from BAP or reconciled by BPP.
+      additionalProperties: false
+      required: [eventId, participantId, participationStatus]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": EnergyEventParticipation
+      properties:
+        eventId:
+          type: string
+          description: References EnergyEvent.id.
+          example: "evt-2026-04-01-peak-001"
+          x-jsonld:
+            "@id": eventId
+
+        participantId:
+          type: string
+          description: >
+            Network participant id for the seller role (aggregator / flex provider), aligned with DEGContract.roles[].participantId.
+          example: "greenflex-agg.example.com"
+          x-jsonld:
+            "@id": participantId
+
+        participationStatus:
+          type: string
+          description: >
+            PENDING — no decision recorded for this event yet.
+            OPTED_IN — explicitly participating (meters may be listed in meterIds).
+            OPTED_OUT — explicitly not participating for this event.
+            DEFAULT_IN — treated as participating by program rules when buyer optOutDefault is false until an explicit OPTED_OUT.
+            DEFAULT_OUT — treated as not participating when buyer optOutDefault is true until an explicit OPTED_IN.
+          enum:
+            - PENDING
+            - OPTED_IN
+            - OPTED_OUT
+            - DEFAULT_IN
+            - DEFAULT_OUT
+          example: "OPTED_IN"
+          x-jsonld:
+            "@id": participationStatus
+            "@type": "@id"
+
+        meterIds:
+          type: array
+          description: >
+            Meters committed for this event when participating (subset of seller participatingMeters in the contract).
+          items:
+            type: string
+          x-jsonld:
+            "@id": meterIds
+
+        decidedAt:
+          type: string
+          format: date-time
+          pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$'
+          description: UTC timestamp when OPTED_IN / OPTED_OUT was recorded.
+          x-jsonld:
+            "@id": decidedAt
+
+        reason:
+          type: string
+          description: Optional free-text or coded reason (e.g. audit) when opting out.
+          maxLength: 2048
+          x-jsonld:
+            "@id": reason
+
+        contractId:
+          type: string
+          description: Optional Beckn Contract id for denormalized queries.
+          x-jsonld:
+            "@id": contractId

@@ -1,0 +1,33 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/EnergyEvent/v2.0/",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "deg:EnergyEvent",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Energy event",
+      "rdfs:comment": "A scheduled behavioral demand-response event instance linked to a flex contract and need."
+    },
+    {
+      "@id": "deg:status",
+      "@type": "rdf:Property",
+      "rdfs:label": "Event status",
+      "rdfs:domain": "deg:EnergyEvent",
+      "schema:rangeIncludes": "deg:EventStatus"
+    },
+    {
+      "@id": "deg:eventWindow",
+      "@type": "rdf:Property",
+      "rdfs:label": "Event window",
+      "rdfs:domain": "deg:EnergyEvent",
+      "schema:rangeIncludes": "beckn:TimePeriod"
+    }
+  ]
+}

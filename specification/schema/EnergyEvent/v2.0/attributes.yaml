@@ -1,0 +1,102 @@
+openapi: 3.1.1
+info:
+  title: Energy Event — BDR instance (v2.0)
+  version: 2.0.0
+  description: >
+    Identifies a single behavioral demand-response (flex) event instance: scheduling,
+    lifecycle status, and links to the underlying Beckn contract / flex need.
+    Carried on Contract (BDR extension) and referenced from DemandFlexPerformance.eventId
+    and EnergyEventParticipation.eventId.
+
+components:
+  schemas:
+    EnergyEvent:
+      type: object
+      description: >
+        One dispatchable flex event. Created/updated by the utility (BPP); tracked by
+        both parties. Use alongside EnergyEventParticipation for per-aggregator opt-in/opt-out.
+      additionalProperties: false
+      required: [id, status, eventWindow]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": EnergyEvent
+      properties:
+        id:
+          type: string
+          description: >
+            Stable identifier for this event within the contract (matches DemandFlexPerformance.eventId when used).
+          example: "evt-2026-04-01-peak-001"
+          x-jsonld:
+            "@id": id
+
+        status:
+          type: string
+          description: Lifecycle state of the event.
+          enum:
+            - DRAFT
+            - SCHEDULED
+            - ANNOUNCED
+            - ACTIVE
+            - COMPLETED
+            - CANCELLED
+          example: "SCHEDULED"
+          x-jsonld:
+            "@id": status
+            "@type": "@id"
+
+        eventWindow:
+          description: >
+            UTC window for the flex event (may match or refine DemandFlexNeed.eventWindow for this occurrence).
+          type: object
+          additionalProperties: false
+          required: [startDate, endDate]
+          properties:
+            startDate:
+              type: string
+              format: date-time
+              pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$'
+              description: Event start in UTC.
+            endDate:
+              type: string
+              format: date-time
+              pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$'
+              description: Event end in UTC.
+          x-jsonld:
+            "@id": eventWindow
+
+        contractId:
+          type: string
+          description: Beckn Contract id when known.
+          x-jsonld:
+            "@id": contractId
+
+        commitmentId:
+          type: string
+          description: Contract commitment id for this flex offer/need pairing.
+          x-jsonld:
+            "@id": commitmentId
+
+        flexNeedResourceId:
+          type: string
+          description: Catalog resource id of the DemandFlexNeed this event fulfills.
+          example: "flex-need-north-delhi-apr1"
+          x-jsonld:
+            "@id": flexNeedResourceId
+
+        transactionId:
+          type: string
+          description: Optional Beckn transactionId for traceability.
+          x-jsonld:
+            "@id": transactionId
+
+        descriptor:
+          type: object
+          description: Optional human-readable label for operators.
+          additionalProperties: true
+          properties:
+            name:
+              type: string
+            shortDesc:
+              type: string
+          x-jsonld:
+            "@id": descriptor

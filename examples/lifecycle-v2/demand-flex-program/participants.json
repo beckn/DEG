@@ -1,0 +1,32 @@
+{
+  "$comment": "Stable identifiers shared across enrollment (p2p-enrollment domain) and demand-flex (demand-flex domain) in this lifecycle narrative.",
+  "narrative": "North Delhi peak flex — utility TPDDL, aggregator GreenFlex, enrolled consumer with DER meters.",
+  "program": {
+    "programId": "program-flex-demand-response-001",
+    "programName": "North Delhi Peak Demand Flex",
+    "catalogId": "catalog-flex-tpddl-2026-04",
+    "orderedItemId": "program-flex-demand-response-001"
+  },
+  "utility": {
+    "bppId": "tpddl-utility.example.com",
+    "bppUri": "https://tpddl-utility.example.com/beckn",
+    "providerId": "tpddl-north-delhi",
+    "buyerRoleParticipantId": "tpddl-north-delhi"
+  },
+  "aggregator": {
+    "bapId": "greenflex-agg.example.com",
+    "bapUri": "https://greenflex-agg.example.com/beckn",
+    "sellerRoleParticipantId": "greenflex-agg"
+  },
+  "consumer": {
+    "buyerDid": "did:example:consumer-north-delhi-001",
+    "enrollmentOrderId": "order-onboard-consumer-001"
+  },
+  "flexContract": {
+    "contractId": "contract-flex-001",
+    "commitmentId": "commitment-flex-001",
+    "offerId": "offer-flex-001",
+    "flexNeedResourceId": "flex-need-north-delhi-apr1",
+    "energyEventId": "evt-2026-04-01-001"
+  }
+}

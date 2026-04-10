@@ -1,0 +1,34 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "deg": "https://schema.beckn.io/deg/EnergySettlement/v2.0/",
+    "EnergySettlement": "deg:EnergySettlement",
+    "settlementId": "deg:settlementId",
+    "contractId": "deg:contractId",
+    "eventId": "deg:eventId",
+    "transactionId": "deg:transactionId",
+    "status": {
+      "@id": "deg:status",
+      "@type": "@id"
+    },
+    "computedAt": "deg:computedAt",
+    "policy": "deg:policy",
+    "url": "deg:url",
+    "queryPath": "deg:queryPath",
+    "policyRevision": "deg:policyRevision",
+    "netZeroVerified": "deg:netZeroVerified",
+    "revenueFlows": "deg:revenueFlows",
+    "lineItems": "deg:lineItems",
+    "violations": "deg:violations",
+    "DRAFT": "deg:SettlementDraft",
+    "COMPUTED": "deg:SettlementComputed",
+    "FINAL": "deg:SettlementFinal",
+    "DISPUTED": "deg:SettlementDisputed",
+    "VOID": "deg:SettlementVoid"
+  },
+  "@graph": []
+}

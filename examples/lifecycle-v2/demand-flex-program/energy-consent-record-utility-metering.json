@@ -1,0 +1,20 @@
+{
+  "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergyConsentRecord/v2.0/context.jsonld",
+  "@type": "EnergyConsentRecord",
+  "consentId": "urn:deg:consent:tpddl-meter-readings-consumer-001",
+  "consumerId": "did:example:consumer-north-delhi-001",
+  "dataType": "meter_readings",
+  "purpose": "demand_response_program_settlement",
+  "grantedTo": "https://tpddl-utility.example.com/.well-known/did.json",
+  "validity": {
+    "start": "2026-04-01T00:00:00Z",
+    "end": "2027-03-31T23:59:59Z"
+  },
+  "audit": [
+    {
+      "timestamp": "2026-03-15T10:00:00Z",
+      "action": "GRANTED",
+      "actor": "did:example:consumer-north-delhi-001"
+    }
+  ]
+}

@@ -9,3 +9,14 @@ routingRules:
       - status
       - update
       - cancel
+
+  # Discover goes to the catalog discovery service (CDS), not the peer BPP adapter.
+  # ONIX appends /discover to this URL (e.g. …/beckn/discover). Use a CDS that exposes that route.
+  # fabric.nfh.global often returns Kong {"message":"no Route matched with those values"} for discover
+  # if that path is not configured there; catalog publish may still work via /beckn/catalog only.
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "https://34.14.221.66.sslip.io/beckn"
+    endpoints:
+      - discover

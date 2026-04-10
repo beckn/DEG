@@ -137,7 +137,7 @@ def extract_branch_from_context_url(context_url):
         .../refs/heads/draft/schema/... -> draft
         .../refs/heads/p2p_trading/schema/... -> p2p_trading
         .../refs/heads/main/schema/... -> main
-        .../refs/heads/p2p-trading-becknv2/specification/schema/... -> p2p-trading-becknv2
+        .../refs/heads/deg-prime-mvp/specification/schema/... -> deg-prime-mvp
     """
     match = re.search(r'/refs/heads/([^/]+)/(?:specification/)?schema/', context_url)
     if match:

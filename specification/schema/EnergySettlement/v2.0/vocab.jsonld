@@ -1,0 +1,25 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "deg": "https://schema.beckn.io/deg/EnergySettlement/v2.0/",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "deg:EnergySettlement",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Energy settlement",
+      "rdfs:comment": "Settlement calculation snapshot for a demand-flex or energy contract, optionally scoped to one event."
+    },
+    {
+      "@id": "deg:revenueFlows",
+      "@type": "rdf:Property",
+      "rdfs:label": "Revenue flows",
+      "rdfs:domain": "deg:EnergySettlement",
+      "rdfs:comment": "Per-role net monetary flows; sum SHOULD be zero when net-zero settlement holds."
+    }
+  ]
+}

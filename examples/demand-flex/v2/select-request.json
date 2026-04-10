@@ -11,9 +11,13 @@
     "messageId": "msg-select-001",
     "timestamp": "2026-03-30T10:00:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergyEvent/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergyEventParticipation/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergyEventMeasurement/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergySettlement/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -42,7 +46,7 @@
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -67,7 +71,7 @@
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -95,7 +99,7 @@
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -106,7 +110,7 @@
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         }
       }

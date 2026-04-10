@@ -1,0 +1,72 @@
+$id: "https://schema.beckn.io/EnergyActor/v2.0"
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: EnergyActor
+description: >
+  Identifies a participant on the energy network: person, organization, or agent.
+  Holds roles and references to verifiable credentials — not raw PII on the wire.
+  Embed in Buyer buyerAttributes, provider metadata, or extension payloads per DEG reference.
+x-tags:
+  - energy
+  - identity
+  - actor
+type: object
+additionalProperties: false
+required: ["actorId", "actorType"]
+x-jsonld:
+  "@context": ./context.jsonld
+  "@type": EnergyActor
+properties:
+
+  actorId:
+    type: string
+    format: uri
+    description: >
+      Globally unique identifier (DID, Beckn subscriber URI, or energy resource URI).
+    example: "did:web:aggregator.example.com"
+    x-jsonld:
+      "@id": actorId
+
+  actorType:
+    type: string
+    enum: [person, organization, agent]
+    description: Kind of participant.
+    x-jsonld:
+      "@id": actorType
+
+  roles:
+    type: array
+    description: >
+      Functional roles (network-profiled). Examples: consumer, aggregator, utility, prosumer,
+      vpp_operator, dr_provider.
+    items:
+      type: string
+    x-jsonld:
+      "@id": roles
+
+  credentials:
+    type: object
+    description: References to VCs (ids or embedded proofs), not raw PII.
+    additionalProperties: true
+    x-jsonld:
+      "@id": credentials
+
+  reputation:
+    type: object
+    description: Optional reputation scores — network-specific schema.
+    additionalProperties: true
+    x-jsonld:
+      "@id": reputation
+
+  jurisdiction:
+    type: object
+    description: Optional EnergyJurisdiction for licensee / region scoping (see DEG §18).
+    additionalProperties: true
+    x-jsonld:
+      "@id": jurisdiction
+
+  networkCertification:
+    type: object
+    description: Optional EnergyNetworkCertification for programme-approved participants (see DEG §18).
+    additionalProperties: true
+    x-jsonld:
+      "@id": networkCertification

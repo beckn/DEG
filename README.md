@@ -32,6 +32,17 @@ Just like physical goods can be consumed or stored, energy can _also_ be _consum
 
 To understanding how to implement use cases on DEGs, click [here](./docs/implementation-guides/v2)
 
+### Platform profile (BAP / BPP / catalog / discovery / ledger + beckn-onix)
+
+For a **normative extension** that ties together **Beckn ONIX**, **catalog**, **discovery**, **ledger**, and the **DEG schema bundle** for full-stack platforms (utility + aggregator), see:
+
+- **[specification/deg-platform-profile/README.md](./specification/deg-platform-profile/README.md)** — index  
+- **[specification/deg-platform-profile/DEG-Platform-Profile-Specification.md](./specification/deg-platform-profile/DEG-Platform-Profile-Specification.md)** — specification  
+- **[specification/deg-platform-profile/schema/](./specification/deg-platform-profile/schema/)** — schema bundle manifest (draft; **Beckn v2** refs)  
+- **[specification/schema/BECKN_V2_ALIGNMENT.md](./specification/schema/BECKN_V2_ALIGNMENT.md)** — DEG schemas vs **protocol-specifications-v2**  
+- **[testnet/deg-platform-devkit/](./testnet/deg-platform-devkit/)** — **developer kit + examples** (Postman, ONIX via demand-flex compose, JSON samples)  
+- **[specification/deg-platform-profile/developer-kit/](./specification/deg-platform-profile/developer-kit/)** — pointer to `testnet/deg-platform-devkit/`
+
 ## Acknowledgements
 
 The author(s) of this specification would like to thank the following volunteers for their contribution to the development of this specification

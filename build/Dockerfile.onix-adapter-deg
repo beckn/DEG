@@ -35,9 +35,10 @@ WORKDIR /workspace/beckn-onix
 RUN go mod download
 RUN go build -o server cmd/adapter/main.go
 
-# Build standard beckn-onix plugins
+# Build standard beckn-onix plugins (explicit bash: script uses arrays; sed strips CRLF from Windows checkouts)
 RUN mkdir -p plugins
-RUN ./install/build-plugins.sh
+RUN sed -i 's/\r$//' install/build-plugins.sh && chmod +x install/build-plugins.sh \
+    && bash install/build-plugins.sh
 
 # Build DEG plugins
 WORKDIR /workspace/deg-plugins

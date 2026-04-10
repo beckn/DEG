@@ -1,0 +1,25 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "deg": "https://schema.beckn.io/deg/EnergyEventParticipation/v2.0/",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "deg:EnergyEventParticipation",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Energy event participation",
+      "rdfs:comment": "Per-participant participation and opt-out state for a single flex event."
+    },
+    {
+      "@id": "deg:participationStatus",
+      "@type": "rdf:Property",
+      "rdfs:label": "Participation status",
+      "rdfs:domain": "deg:EnergyEventParticipation",
+      "schema:rangeIncludes": "deg:ParticipationStatus"
+    }
+  ]
+}

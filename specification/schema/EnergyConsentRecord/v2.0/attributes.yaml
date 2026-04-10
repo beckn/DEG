@@ -1,0 +1,87 @@
+$id: "https://schema.beckn.io/EnergyConsentRecord/v2.0"
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: EnergyConsentRecord
+description: >
+  Verifiable consent record for energy data sharing — who, what, why, and when.
+  Used for telemetry, settlement, and programme participation (GDPR / DPDP alignment).
+x-tags:
+  - energy
+  - consent
+  - privacy
+type: object
+additionalProperties: false
+required: ["consentId", "consumerId", "dataType", "purpose", "grantedTo", "validity"]
+x-jsonld:
+  "@context": ./context.jsonld
+  "@type": EnergyConsentRecord
+properties:
+
+  consentId:
+    type: string
+    format: uri
+    description: Unique consent record identifier.
+    example: "urn:deg:consent:abc123"
+    x-jsonld:
+      "@id": consentId
+
+  consumerId:
+    type: string
+    format: uri
+    description: Consumer (participant) identifier.
+    x-jsonld:
+      "@id": consumerId
+
+  dataType:
+    type: string
+    description: >
+      Category of data covered (e.g. meter_readings, telemetry, settlement, profile).
+    example: "meter_readings"
+    x-jsonld:
+      "@id": dataType
+
+  purpose:
+    type: string
+    description: Stated purpose for processing.
+    example: "demand_response_program"
+    x-jsonld:
+      "@id": purpose
+
+  grantedTo:
+    type: string
+    format: uri
+    description: Recipient (aggregator, utility, programme operator).
+    example: "did:web:aggregator.example.com"
+    x-jsonld:
+      "@id": grantedTo
+
+  validity:
+    type: object
+    description: Time window for consent.
+    additionalProperties: false
+    required: ["start", "end"]
+    properties:
+      start:
+        type: string
+        format: date-time
+      end:
+        type: string
+        format: date-time
+    x-jsonld:
+      "@id": validity
+
+  audit:
+    type: array
+    description: Append-only audit trail entries.
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        action:
+          type: string
+        actor:
+          type: string
+    x-jsonld:
+      "@id": audit

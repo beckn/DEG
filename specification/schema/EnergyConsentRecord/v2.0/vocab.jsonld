@@ -1,0 +1,31 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/EnergyConsentRecord/v2.0/",
+    "schema": "https://schema.org/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "deg:EnergyConsentRecord",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Energy Consent Record",
+      "rdfs:comment": "Verifiable consent for energy data sharing with validity and optional audit trail."
+    },
+    {
+      "@id": "deg:consentId",
+      "@type": "rdf:Property",
+      "rdfs:label": "Consent ID",
+      "rdfs:domain": "deg:EnergyConsentRecord"
+    },
+    {
+      "@id": "deg:consumerId",
+      "@type": "rdf:Property",
+      "rdfs:label": "Consumer ID",
+      "rdfs:domain": "deg:EnergyConsentRecord"
+    }
+  ]
+}

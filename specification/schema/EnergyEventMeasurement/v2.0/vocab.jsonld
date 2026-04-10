@@ -1,0 +1,25 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "deg": "https://schema.beckn.io/deg/EnergyEventMeasurement/v2.0/",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "deg:EnergyEventMeasurement",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Energy event measurement",
+      "rdfs:comment": "M&V measurement for one EnergyResource (e.g. smart meter) linked to an EnergyEvent."
+    },
+    {
+      "@id": "deg:resourceId",
+      "@type": "rdf:Property",
+      "rdfs:label": "Resource identifier",
+      "rdfs:domain": "deg:EnergyEventMeasurement",
+      "schema:rangeIncludes": "xsd:string"
+    }
+  ]
+}

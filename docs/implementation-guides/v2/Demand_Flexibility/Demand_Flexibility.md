@@ -1,6 +1,6 @@
 # Demand Flexibility Implementation Guide <!-- omit from toc -->
 
-Version 0.2 (Draft / Non-Normative)
+Version 0.4 (Draft / Non-Normative)
 
 ## Table of Contents <!-- omit from toc -->
 
@@ -29,6 +29,10 @@ Version 0.2 (Draft / Non-Normative)
   - [6.2. DemandFlexBuyOffer](#62-demandflexbuyoffer)
   - [6.3. DEGContract](#63-degcontract)
   - [6.4. DemandFlexPerformance](#64-demandflexperformance)
+  - [6.5. EnergyEvent](#65-energyevent)
+  - [6.6. EnergyEventParticipation](#66-energyeventparticipation)
+  - [6.7. EnergyEventMeasurement](#67-energyeventmeasurement)
+  - [6.8. EnergySettlement](#68-energysettlement)
 - [7. Policy and Settlement](#7-policy-and-settlement)
 - [8. Implementation Notes](#8-implementation-notes)
   - [8.1. For BAPs (Consumer / Aggregator)](#81-for-baps-consumer--aggregator)
@@ -119,14 +123,18 @@ Post-Settlement:
 
 ### 4.1. Schemas
 
-Four domain schemas are used, each mapping to a specific attribute slot on the Beckn v2 Contract:
+Eight domain schema families support end-to-end BDR: core catalog/contract/performance slots, plus **event**, **participation**, **per-resource M&V**, and **settlement** extensions on the contract payload (where noted).
 
 | Schema | Beckn Slot | Purpose |
 |:-------|:-----------|:--------|
 | **DemandFlexNeed** | `Resource.resourceAttributes` | What the utility needs: direction, event window, capacity, location |
 | **DemandFlexBuyOffer** | `Offer.offerAttributes` | Role-tagged inputs + portable DEGContract template |
 | **DEGContract** | `Contract.contractAttributes` | Roles, policy reference, computed revenue flows |
-| **DemandFlexPerformance** | `Performance.performanceAttributes` | M&V data: methodology, per-meter baselines and actuals |
+| **DemandFlexPerformance** | `Performance.performanceAttributes` | M&V aggregate: methodology, per-meter baselines and actuals |
+| **EnergyEvent** | `Contract` extension: `energyEvents[]` | One flex **event instance**: id, lifecycle `status`, `eventWindow`, links to contract/commitment/flex need |
+| **EnergyEventParticipation** | `Contract` extension: `energyEventParticipations[]` | Per-seller **opt-in / opt-out** (and program defaults) for each `EnergyEvent.id` |
+| **EnergyEventMeasurement** | `Contract` extension: `energyEventMeasurements[]` | Per **EnergyResource** / meter M&V row linked to `EnergyEvent.id` |
+| **EnergySettlement** | `Contract` extension: `energySettlements[]` | **Settlement** snapshot: policy metadata, `revenueFlows`, optional `lineItems`, status |
 
 ### 4.2. Beckn v2 Contract Mapping
 
@@ -139,12 +147,22 @@ Contract
 │       └── offerAttributes: DemandFlexBuyOffer
 │           ├── inputs[]: [{role, participantId, inputs}] per role
 │           └── contractTerms: DEGContract (catalog only, promoted at select)
-├── performance[]: M&V baselines and actuals (on_status)
+├── performance[]: M&V baselines and actuals (on_status) — DemandFlexPerformance
+├── energyEvents[]: EnergyEvent (BDR extension — event lifecycle)
+├── energyEventParticipations[]: EnergyEventParticipation (BDR extension — opt-in/opt-out per event)
+├── energyEventMeasurements[]: EnergyEventMeasurement (BDR extension — per-meter M&V linked to event)
+├── energySettlements[]: EnergySettlement (BDR extension — settlement calculation snapshot)
 └── contractAttributes: DEGContract
     ├── roles[]: [{role, participantId}]
     ├── policy: {url, queryPath}
     └── revenueFlows[]: [{role, value, currency}] (post-settlement)
 ```
+
+Include `EnergyEvent`, `EnergyEventParticipation`, `EnergyEventMeasurement`, and `EnergySettlement` `context.jsonld` URLs in `schemaContext` whenever those arrays are present. `DemandFlexPerformance.eventId` SHOULD match `EnergyEvent.id` for the same occurrence. `EnergyEventMeasurement.resourceId` SHOULD align with `DemandFlexPerformance.meters[].meterId` where both are used.
+
+**End-to-end BDR transaction** (same contract and event id across steps): see [`examples/demand-flex/v2/bdr-e2e/`](../../../../examples/demand-flex/v2/bdr-e2e/README.md) — `01` update (event + participation) → `02` baselines → `03` actuals → `04` settlement.
+
+**Full vertical lifecycle** (program enrollment, consent records, flex offer, select as bid, confirm, BDR, opt-out, settlement): see [`examples/lifecycle-v2/demand-flex-program/README.md`](../../../../examples/lifecycle-v2/demand-flex-program/README.md).
 
 ## 5. Message Flow
 
@@ -169,8 +187,8 @@ The utility publishes a flex catalog containing:
     "messageId": "msg-publish-001",
     "timestamp": "2026-03-28T06:00:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -196,7 +214,7 @@ The utility publishes a flex catalog containing:
               "shortDesc": "500 kW curtailment needed Apr 1, 2-4pm IST"
             },
             "resourceAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
               "@type": "DemandFlexNeed",
               "direction": "REDUCE",
               "eventWindow": {
@@ -236,10 +254,10 @@ The utility publishes a flex catalog containing:
               }
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "contractTerms": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
                 "@type": "DEGContract",
                 "roles": [
                   {
@@ -250,7 +268,7 @@ The utility publishes a flex catalog containing:
                   }
                 ],
                 "policy": {
-                  "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+                  "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
                   "queryPath": "data.deg.contracts.demand_flex"
                 }
               },
@@ -341,8 +359,8 @@ The CDS returns matching catalogs. The offer carries the full `contractTerms` an
     "messageId": "msg-on-discover-001",
     "timestamp": "2026-03-30T09:55:05Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -368,7 +386,7 @@ The CDS returns matching catalogs. The offer carries the full `contractTerms` an
               "shortDesc": "500 kW curtailment needed Apr 1, 2-4pm IST"
             },
             "resourceAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
               "@type": "DemandFlexNeed",
               "direction": "REDUCE",
               "eventWindow": {
@@ -397,14 +415,14 @@ The CDS returns matching catalogs. The offer carries the full `contractTerms` an
               "endDate": "2026-04-01T08:30:00Z"
             },
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "contractTerms": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
                 "@type": "DEGContract",
                 "roles": [{"role": "buyer"}, {"role": "seller"}],
                 "policy": {
-                  "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+                  "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
                   "queryPath": "data.deg.contracts.demand_flex"
                 }
               },
@@ -457,9 +475,9 @@ The aggregator selects an offer with a desired quantity. The `contractTerms` fro
     "messageId": "msg-select-001",
     "timestamp": "2026-03-30T10:00:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -488,7 +506,7 @@ The aggregator selects an offer with a desired quantity. The `contractTerms` fro
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -513,7 +531,7 @@ The aggregator selects an offer with a desired quantity. The `contractTerms` fro
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -541,7 +559,7 @@ The aggregator selects an offer with a desired quantity. The `contractTerms` fro
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -552,7 +570,7 @@ The aggregator selects an offer with a desired quantity. The `contractTerms` fro
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         }
       }
@@ -583,9 +601,9 @@ The BPP returns a DRAFT contract. The `contractAttributes` carries the `DEGContr
     "messageId": "msg-on-select-001",
     "timestamp": "2026-03-30T10:00:05Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -614,7 +632,7 @@ The BPP returns a DRAFT contract. The `contractAttributes` carries the `DEGContr
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -639,7 +657,7 @@ The BPP returns a DRAFT contract. The `contractAttributes` carries the `DEGContr
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -667,7 +685,7 @@ The BPP returns a DRAFT contract. The `contractAttributes` carries the `DEGContr
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -678,7 +696,7 @@ The BPP returns a DRAFT contract. The `contractAttributes` carries the `DEGContr
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         }
       }
@@ -709,9 +727,9 @@ The aggregator provides their identity. The seller role in `inputs` is now fille
     "messageId": "msg-init-001",
     "timestamp": "2026-03-30T10:05:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -741,7 +759,7 @@ The aggregator provides their identity. The seller role in `inputs` is now fille
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -766,7 +784,7 @@ The aggregator provides their identity. The seller role in `inputs` is now fille
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -805,7 +823,7 @@ The aggregator provides their identity. The seller role in `inputs` is now fille
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -818,7 +836,7 @@ The aggregator provides their identity. The seller role in `inputs` is now fille
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         }
       }
@@ -849,9 +867,9 @@ The BPP acknowledges the seller and populates the initial set of participating m
     "messageId": "msg-on-init-001",
     "timestamp": "2026-03-30T10:05:05Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -880,7 +898,7 @@ The BPP acknowledges the seller and populates the initial set of participating m
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -905,7 +923,7 @@ The BPP acknowledges the seller and populates the initial set of participating m
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -944,7 +962,7 @@ The BPP acknowledges the seller and populates the initial set of participating m
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -957,7 +975,7 @@ The BPP acknowledges the seller and populates the initial set of participating m
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         }
       }
@@ -988,9 +1006,9 @@ The aggregator confirms the contract. Same structure as init.
     "messageId": "msg-confirm-001",
     "timestamp": "2026-03-30T10:10:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -1020,7 +1038,7 @@ The aggregator confirms the contract. Same structure as init.
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -1045,7 +1063,7 @@ The aggregator confirms the contract. Same structure as init.
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1084,7 +1102,7 @@ The aggregator confirms the contract. Same structure as init.
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -1097,7 +1115,7 @@ The aggregator confirms the contract. Same structure as init.
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         }
       }
@@ -1128,9 +1146,9 @@ The BPP activates the contract. Status changes to `ACTIVE`. The contract is now 
     "messageId": "msg-on-confirm-001",
     "timestamp": "2026-03-30T10:10:05Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -1160,7 +1178,7 @@ The BPP activates the contract. Status changes to `ACTIVE`. The contract is now 
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -1185,7 +1203,7 @@ The BPP activates the contract. Status changes to `ACTIVE`. The contract is now 
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1224,7 +1242,7 @@ The BPP activates the contract. Status changes to `ACTIVE`. The contract is now 
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -1237,7 +1255,7 @@ The BPP activates the contract. Status changes to `ACTIVE`. The contract is now 
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         }
       }
@@ -1268,9 +1286,9 @@ The aggregator updates the participating meters list before an event. The seller
     "messageId": "msg-update-optin-001",
     "timestamp": "2026-04-01T06:00:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -1294,7 +1312,7 @@ The aggregator updates the participating meters list before an event. The seller
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -1319,7 +1337,7 @@ The aggregator updates the participating meters list before an event. The seller
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1359,7 +1377,7 @@ The aggregator updates the participating meters list before an event. The seller
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -1372,7 +1390,7 @@ The aggregator updates the participating meters list before an event. The seller
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         }
       }
@@ -1403,11 +1421,11 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
     "messageId": "msg-on-status-baselines-001",
     "timestamp": "2026-04-01T08:00:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -1433,7 +1451,7 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -1451,7 +1469,7 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1501,7 +1519,7 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
             "commitment-flex-001"
           ],
           "performanceAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
             "@type": "DemandFlexPerformance",
             "eventId": "evt-2026-04-01-001",
             "methodology": "5of10",
@@ -1523,7 +1541,7 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -1536,7 +1554,7 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         }
       }
@@ -1567,11 +1585,11 @@ After the event, the utility publishes actual load per meter alongside baselines
     "messageId": "msg-on-status-actuals-001",
     "timestamp": "2026-04-01T10:35:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -1597,7 +1615,7 @@ After the event, the utility publishes actual load per meter alongside baselines
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -1615,7 +1633,7 @@ After the event, the utility publishes actual load per meter alongside baselines
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1665,7 +1683,7 @@ After the event, the utility publishes actual load per meter alongside baselines
             "commitment-flex-001"
           ],
           "performanceAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
             "@type": "DemandFlexPerformance",
             "eventId": "evt-2026-04-01-001",
             "methodology": "5of10",
@@ -1690,7 +1708,7 @@ After the event, the utility publishes actual load per meter alongside baselines
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -1703,7 +1721,7 @@ After the event, the utility publishes actual load per meter alongside baselines
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         }
       }
@@ -1734,10 +1752,10 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
     "messageId": "msg-on-status-settled-001",
     "timestamp": "2026-04-01T11:00:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
       "https://schema.beckn.io/Quantity/context.jsonld"
     ]
   },
@@ -1764,7 +1782,7 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -1782,7 +1800,7 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1832,7 +1850,7 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
             "commitment-flex-001"
           ],
           "performanceAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DemandFlexPerformance/v2.0/context.jsonld",
             "@type": "DemandFlexPerformance",
             "eventId": "evt-2026-04-01-001",
             "methodology": "5of10",
@@ -1857,7 +1875,7 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {
@@ -1870,7 +1888,7 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
           }
         ],
         "policy": {
-          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego",
+          "url": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_revenue.rego",
           "queryPath": "data.deg.contracts.demand_flex"
         },
         "revenueFlows": [
@@ -1950,6 +1968,90 @@ Attached to `Performance.performanceAttributes` in `on_status` callbacks.
 | `methodology` | string | No | Baseline methodology (e.g., `5of10`) |
 | `meters` | array | No | Per-meter M&V: `{meterId, baselineKw, actualKw?}` |
 
+### 6.5. EnergyEvent
+
+Attached as **`energyEvents[]`** on the Beckn v2 **Contract** message body (BDR profile extension — not in core `beckn.yaml`; validators that allow extended contract fields should accept these arrays).
+
+| Field | Type | Required | Description |
+|:------|:-----|:---------|:------------|
+| `id` | string | Yes | Stable event id; align with `DemandFlexPerformance.eventId` |
+| `status` | string | Yes | `DRAFT`, `SCHEDULED`, `ANNOUNCED`, `ACTIVE`, `COMPLETED`, `CANCELLED` |
+| `eventWindow` | object | Yes | `{startDate, endDate}` UTC |
+| `contractId` | string | No | Beckn contract id |
+| `commitmentId` | string | No | Commitment id |
+| `flexNeedResourceId` | string | No | Catalog resource id of the `DemandFlexNeed` |
+| `transactionId` | string | No | Traceability |
+| `descriptor` | object | No | Operator-facing name / shortDesc |
+
+Specification: [`specification/schema/EnergyEvent/v2.0/`](../../../../specification/schema/EnergyEvent/v2.0/README.md).
+
+### 6.6. EnergyEventParticipation
+
+Attached as **`energyEventParticipations[]`** on the same **Contract** (parallel to `energyEvents[]`). One row per (`eventId`, `participantId`).
+
+| Field | Type | Required | Description |
+|:------|:-----|:---------|:------------|
+| `eventId` | string | Yes | References `EnergyEvent.id` |
+| `participantId` | string | Yes | Seller / aggregator id (matches bound seller role) |
+| `participationStatus` | string | Yes | See table below |
+| `meterIds` | string[] | No | Meters committed for this event when participating |
+| `decidedAt` | string | No | UTC when opt-in/opt-out was recorded |
+| `reason` | string | No | Optional opt-out reason / audit |
+| `contractId` | string | No | Denormalized contract id |
+
+**participationStatus**
+
+| Value | Description |
+|:------|:------------|
+| `PENDING` | No explicit decision for this event yet |
+| `OPTED_IN` | Explicitly participating |
+| `OPTED_OUT` | Explicitly not participating (opt-out) |
+| `DEFAULT_IN` | In by program default (`optOutDefault` false) until explicit opt-out |
+| `DEFAULT_OUT` | Out by program default (`optOutDefault` true) until explicit opt-in |
+
+Specification: [`specification/schema/EnergyEventParticipation/v2.0/`](../../../../specification/schema/EnergyEventParticipation/v2.0/README.md).
+
+### 6.7. EnergyEventMeasurement
+
+Attached as **`energyEventMeasurements[]`** on the **Contract** (BDR profile). One row per **meter / EnergyResource** per **event** (and optionally per phase when baseline and actual are separate rows).
+
+| Field | Type | Required | Description |
+|:------|:-----|:---------|:------------|
+| `id` | string | No | Stable row id for idempotency / ledger |
+| `eventId` | string | Yes | `EnergyEvent.id` |
+| `resourceId` | string | Yes | Smart meter / `EnergyResource` id (same namespace as `DemandFlexPerformance.meters[].meterId`) |
+| `measurementPhase` | string | Yes | `BASELINE`, `ACTUAL`, `ADJUSTED`, `VERIFIED` |
+| `measurementWindow` | object | Yes | UTC `{startDate, endDate}` |
+| `baselineKw` | number | No | Baseline power (kW) |
+| `actualKw` | number | No | Actual power (kW) |
+| `verifiedReductionKw` | number | No | Verified demand reduction for settlement |
+| `verifiedEnergyKwh` | number | No | Optional energy delta (kWh) |
+| `methodology` | string | No | e.g. `5of10` |
+| `dataQuality` | string | No | `RAW`, `ESTIMATED`, `REVISED`, `CERTIFIED` |
+| `resourceContextUrl` | uri | No | JSON-LD context for resource typing |
+| `contractId` | string | No | Denormalized contract id |
+
+Specification: [`specification/schema/EnergyEventMeasurement/v2.0/`](../../../../specification/schema/EnergyEventMeasurement/v2.0/README.md).
+
+### 6.8. EnergySettlement
+
+Attached as **`energySettlements[]`** on the **Contract**. Represents one **settlement run** (re-run ⇒ new `settlementId`).
+
+| Field | Type | Required | Description |
+|:------|:-----|:---------|:------------|
+| `settlementId` | string | Yes | Unique id for this calculation |
+| `contractId` | string | Yes | Beckn contract |
+| `eventId` | string | No | Scope to one `EnergyEvent` when applicable |
+| `status` | string | Yes | `DRAFT`, `COMPUTED`, `FINAL`, `DISPUTED`, `VOID` |
+| `computedAt` | string | Yes | UTC timestamp |
+| `policy` | object | No | `{url, queryPath}` (+ optional `policyRevision`) |
+| `netZeroVerified` | boolean | No | Sum of role flows equals zero |
+| `revenueFlows` | array | No | `{role, value, currency}` — mirror `DEGContract.revenueFlows` when same run |
+| `lineItems` | array | No | `{kind, amount, currency, ...}` — `INCENTIVE`, `PENALTY`, `PREMIUM`, etc. |
+| `violations` | array | No | Policy warnings from evaluation |
+
+Specification: [`specification/schema/EnergySettlement/v2.0/`](../../../../specification/schema/EnergySettlement/v2.0/README.md).
+
 ## 7. Policy and Settlement
 
 The demand-flex rego policy ([demand_flex_revenue.rego](../../../../specification/policies/demand_flex_revenue.rego)) is a pure function:
@@ -1959,12 +2061,15 @@ The demand-flex rego policy ([demand_flex_revenue.rego](../../../../specificatio
 - `commitments[0].offer.offerAttributes.inputs[]` — buyer's incentive rate
 - `commitments[0].resources[0].resourceAttributes.eventWindow` — event duration
 - `performance[0].performanceAttributes.meters[]` — baselines + actuals
+- Optional: `energyEventMeasurements[]` — normalized per-resource M&V linked to `EnergyEvent.id` (implementations MAY map these into the same shape Rego expects from `performance`)
 
 **Outputs:**
 - `revenue_flows` — `[{role:"buyer", value:-525, currency:"INR"}, {role:"seller", value:525, currency:"INR"}]`
 - `settlement_components` — per-meter breakdown
 - `net_zero_ok` — boolean (sum of all flows == 0)
 - `violations` — warnings (missing actuals, negative reductions clamped, etc.)
+
+**Structured capture:** map Rego outputs into **`EnergySettlement`** (`revenueFlows`, `lineItems`, `netZeroVerified`, `violations`, `policy`) on the contract or ledger, in addition to injecting `revenueFlows` into **`DEGContract`**.
 
 **Net-zero invariant:** The buyer pays exactly what the seller receives. Sum of all `revenue_flows[].value` = 0.
 
@@ -1994,7 +2099,7 @@ The `revenueflows` middleware plugin runs on BPP Caller `on_status` messages. It
 - Send `/discover` to the CDS to find flex opportunities matching your criteria
 - The offer's `contractTerms` contains the DEGContract template with roles and policy
 - At `/init`, fill the seller role in `inputs` with your `participantId` and `plannedDemandChange`
-- Use `/update` before each event to update `participatingMeters` and `plannedDemandChange`
+- Use `/update` before each event to update `participatingMeters` and `plannedDemandChange`; prefer also emitting **`energyEventParticipations[]`** (and **`energyEvents[]`** when the utility publishes the occurrence) for auditable opt-in/opt-out
 - Revenue flows in `on_status` (settled) show what you receive — verify against the rego policy
 
 ### 8.2. For BPPs (Utility)
@@ -2002,8 +2107,8 @@ The `revenueflows` middleware plugin runs on BPP Caller `on_status` messages. It
 - Publish catalog with `contractTerms` in the offer — defines roles, policy, and buyer terms
 - At `/on_select`, promote `contractTerms` to `contractAttributes` and bind buyer role
 - At `/on_init`, bind seller role in `contractAttributes.roles`
-- Send baselines via `on_status` before the event, actuals after
-- The `revenueflows` middleware computes and injects revenue flows automatically on `on_status`
+- Send baselines via `on_status` before the event, actuals after; optionally emit **`energyEventMeasurements[]`** for each meter/`EnergyEvent` for a clearer audit trail than aggregate `DemandFlexPerformance` alone
+- The `revenueflows` middleware computes and injects revenue flows automatically on `on_status`; consider persisting a full **`EnergySettlement`** row (`lineItems`, `netZeroVerified`, `violations`) alongside `contractAttributes.revenueFlows`
 - All quantity fields use `beckn:Quantity` with `@type: "Quantity"` and `unitCode`/`unitQuantity`
 
 ## 9. Devkit

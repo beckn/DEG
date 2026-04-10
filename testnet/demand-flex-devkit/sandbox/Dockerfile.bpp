@@ -1,0 +1,10 @@
+# Extend fidedocker/sandbox-2.0 with demand-flex mock responses for BPP webhook.
+# Paths follow beckn/sandbox: normalizeDomain strips trailing :version from context.domain,
+# then PERSONA=bpp loads .../response/bpp/{action}.json first.
+# See: https://github.com/beckn/sandbox/blob/main/src/utils/index.ts
+
+FROM fidedocker/sandbox-2.0:latest
+
+USER root
+RUN mkdir -p "/app/dist/webhook/jsons/beckn.one:deg:demand-flex/response/bpp"
+COPY bpp-response/ "/app/dist/webhook/jsons/beckn.one:deg:demand-flex/response/bpp/"

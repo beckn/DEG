@@ -1,0 +1,176 @@
+openapi: 3.1.1
+info:
+  title: Energy Settlement — calculation snapshot (v2.0)
+  version: 2.0.0
+  description: >
+    Structured settlement result for a flex contract (and optionally one EnergyEvent).
+    Captures policy-driven totals, per-role flows, and optional per-meter line items.
+    Complements DEGContract.revenueFlows with audit metadata and dispute lifecycle.
+
+components:
+  schemas:
+    EnergySettlement:
+      type: object
+      description: >
+        Settlement calculation snapshot. May be produced by OPA/Rego (e.g. demand_flex_revenue)
+        or an external settlement engine; embed or reference from on_status / ledger.
+      additionalProperties: false
+      required: [settlementId, contractId, status, computedAt]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": EnergySettlement
+      properties:
+        settlementId:
+          type: string
+          description: Unique id for this settlement run (re-run creates a new id).
+          example: "stl-2026-04-01-contract-flex-001"
+          x-jsonld:
+            "@id": settlementId
+
+        contractId:
+          type: string
+          description: Beckn Contract id.
+          x-jsonld:
+            "@id": contractId
+
+        eventId:
+          type: string
+          description: Optional EnergyEvent.id when settlement is scoped to one event.
+          x-jsonld:
+            "@id": eventId
+
+        transactionId:
+          type: string
+          description: Optional Beckn transactionId for traceability.
+          x-jsonld:
+            "@id": transactionId
+
+        status:
+          type: string
+          description: >
+            DRAFT — internal; COMPUTED — engine finished; FINAL — agreed for payout;
+            DISPUTED — under challenge; VOID — superseded or cancelled.
+          enum:
+            - DRAFT
+            - COMPUTED
+            - FINAL
+            - DISPUTED
+            - VOID
+          example: "COMPUTED"
+          x-jsonld:
+            "@id": status
+            "@type": "@id"
+
+        computedAt:
+          type: string
+          format: date-time
+          pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$'
+          description: UTC timestamp when the settlement was computed.
+          x-jsonld:
+            "@id": computedAt
+
+        policy:
+          type: object
+          description: Policy package used for calculation (align with DEGContract.policy when same).
+          additionalProperties: false
+          required: [url, queryPath]
+          properties:
+            url:
+              type: string
+              format: uri
+            queryPath:
+              type: string
+            policyRevision:
+              type: string
+              description: Optional content hash or version tag of the Rego bundle.
+          x-jsonld:
+            "@id": policy
+
+        netZeroVerified:
+          type: boolean
+          description: True when sum of monetary flows across roles is zero (or profile-equivalent).
+          x-jsonld:
+            "@id": netZeroVerified
+
+        revenueFlows:
+          type: array
+          description: >
+            Net settlement per role (negative = pays out, positive = receives). SHOULD match
+            DEGContract.revenueFlows when both are present for the same run.
+          items:
+            $ref: "#/components/schemas/SettlementRevenueFlow"
+          x-jsonld:
+            "@id": revenueFlows
+
+        lineItems:
+          type: array
+          description: >
+            Detailed components (per meter, penalties, premiums) feeding the revenue flows.
+          items:
+            $ref: "#/components/schemas/SettlementLineItem"
+          x-jsonld:
+            "@id": lineItems
+
+        violations:
+          type: array
+          description: Optional policy warnings (e.g. missing actuals) carried from Rego evaluation.
+          items:
+            type: object
+            additionalProperties: true
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+          x-jsonld:
+            "@id": violations
+
+    SettlementRevenueFlow:
+      type: object
+      additionalProperties: false
+      required: [role, value, currency]
+      properties:
+        role:
+          type: string
+          description: Contract role (e.g. buyer, seller).
+          example: "seller"
+        value:
+          type: number
+          description: Signed amount; sum across all flows SHOULD be zero when netZeroVerified.
+          example: 525.0
+        currency:
+          type: string
+          example: "INR"
+
+    SettlementLineItem:
+      type: object
+      additionalProperties: false
+      required: [kind, amount, currency]
+      properties:
+        kind:
+          type: string
+          description: Line type for audit and reporting.
+          enum:
+            - INCENTIVE
+            - PENALTY
+            - PREMIUM
+            - ADJUSTMENT
+            - FEE
+            - OTHER
+        amount:
+          type: number
+        currency:
+          type: string
+        role:
+          type: string
+          description: buyer / seller or extension roles.
+        participantId:
+          type: string
+        resourceId:
+          type: string
+          description: Meter / EnergyResource id when line is per-resource.
+        eventId:
+          type: string
+        description:
+          type: string
+          maxLength: 2048

@@ -1,3 +1,22 @@
+# =============================================================================
+# Demand-flex devkit — BAP ONIX adapter (Beckn Protocol API v2.0.0)
+# =============================================================================
+# Transport contract (paths, Ack/Nack, Signature / CounterSignature): OpenAPI at
+#   schemaValidator.location → beckn/protocol-specifications-v2 …/api/v2.0.0/beckn.yaml
+# Inbound requests MUST include HTTP Authorization with Beckn HTTP Signature
+#   (Ed25519 + BLAKE digest over the body). Outbound calls from this adapter use
+#   the signer plugin to attach that header.
+#
+# Receiver (/bap/receiver/): validateSign → checkPolicy → addRoute → validateSchema
+#   Verifies peer signature, applies DEG network policy, routes, then validates
+#   body against v2 + extended DEG schemas (context.schemaContext).
+# Caller (/bap/caller/): validateSchema → checkPolicy → addRoute → sign
+#   Validates before send, then signs every forwarded request to BPP/sandbox.
+#
+# Sync HTTP responses follow Ack per the same OpenAPI (status + signature field
+# for counter-signature where the adapter implements it). Details: same repo
+# api/v2.0.0/README.md “Security and acknowledgments”.
+# =============================================================================
 appName: "onix-local"
 log:
   level: debug
@@ -33,7 +52,6 @@ modules:
           config:
             url: https://api.dev.beckn.io/registry/dedi
             registryName: subscribers.beckn.one
-            allowedParentNamespaces: "IES,IES-DISCOMS"
             timeout: 10
         keyManager:
           id: simplekeymanager
@@ -45,6 +63,7 @@ modules:
             signingPublicKey: KVYEWkQB2WwnttVMWfy7KrnqiD51ZDvi8vfCac2IwRE=
             encrPrivateKey: Pc6dkYo5LeP0LkwvZXVRV9pcbeh8jDdtdHWymID5cjw=
             encrPublicKey: KVYEWkQB2WwnttVMWfy7KrnqiD51ZDvi8vfCac2IwRE=
+        # Beckn Protocol API v2.0.0 — request/response shapes, Ack, Authorization
         schemaValidator:
           id: schemav2validator
           config:
@@ -56,11 +75,16 @@ modules:
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
             extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
+            # BDR context.jsonld URLs to list in context.schemaContext when messages use EnergyEvent / EnergyEventParticipation / EnergyEventMeasurement / EnergySettlement:
+            # https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergyEvent/v2.0/context.jsonld
+            # https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergyEventParticipation/v2.0/context.jsonld
+            # https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergyEventMeasurement/v2.0/context.jsonld
+            # https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergySettlement/v2.0/context.jsonld
         checkPolicy:
           id: opapolicychecker
           config:
             type: url
-            location: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
+            location: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_network.rego"
             query: "data.deg.policy.demand_flex_network.violations"
             refreshIntervalSeconds: "300"
         cache:
@@ -100,7 +124,6 @@ modules:
           config:
             url: https://api.dev.beckn.io/registry/dedi
             registryName: subscribers.beckn.one
-            allowedParentNamespaces: "IES,IES-DISCOMS"
             timeout: 10
         keyManager:
           id: simplekeymanager
@@ -111,6 +134,7 @@ modules:
             signingPublicKey: KVYEWkQB2WwnttVMWfy7KrnqiD51ZDvi8vfCac2IwRE=
             encrPrivateKey: Pc6dkYo5LeP0LkwvZXVRV9pcbeh8jDdtdHWymID5cjw=
             encrPublicKey: KVYEWkQB2WwnttVMWfy7KrnqiD51ZDvi8vfCac2IwRE=
+        # Beckn Protocol API v2.0.0 — request/response shapes, Ack, Authorization
         schemaValidator:
           id: schemav2validator
           config:
@@ -122,11 +146,16 @@ modules:
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
             extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.beckn.io"
+            # BDR context.jsonld URLs to list in context.schemaContext when messages use EnergyEvent / EnergyEventParticipation / EnergyEventMeasurement / EnergySettlement:
+            # https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergyEvent/v2.0/context.jsonld
+            # https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergyEventParticipation/v2.0/context.jsonld
+            # https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergyEventMeasurement/v2.0/context.jsonld
+            # https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/schema/EnergySettlement/v2.0/context.jsonld
         checkPolicy:
           id: opapolicychecker
           config:
             type: url
-            location: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_network.rego"
+            location: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/deg-prime-mvp/specification/policies/demand_flex_network.rego"
             query: "data.deg.policy.demand_flex_network.violations"
             refreshIntervalSeconds: "300"
         cache:

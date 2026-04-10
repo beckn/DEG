@@ -1,0 +1,137 @@
+openapi: 3.1.1
+info:
+  title: Energy Event Measurement — per-resource M&V (v2.0)
+  version: 2.0.0
+  description: >
+    Measurement & verification row for one EnergyResource (e.g. smart meter) tied to an EnergyEvent.
+    Complements DemandFlexPerformance (aggregate Performance slot) with a normalized, event-scoped
+    resource record suitable for settlement line items and audits.
+
+components:
+  schemas:
+    EnergyEventMeasurement:
+      type: object
+      description: >
+        M&V for a single meter/resource during one flex event. resourceId SHOULD align with
+        EnergyResource identifiers in catalog and with DemandFlexPerformance.meters[].meterId where used.
+      additionalProperties: false
+      required: [eventId, resourceId, measurementPhase, measurementWindow]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": EnergyEventMeasurement
+      properties:
+        id:
+          type: string
+          description: Optional stable id for this measurement row (idempotency / ledger).
+          example: "meas-evt-2026-04-01-001-meter-001"
+          x-jsonld:
+            "@id": id
+
+        eventId:
+          type: string
+          description: References EnergyEvent.id.
+          example: "evt-2026-04-01-peak-001"
+          x-jsonld:
+            "@id": eventId
+
+        resourceId:
+          type: string
+          description: >
+            Identifier of the measured EnergyResource / smart meter (same namespace as participatingMeters / DemandFlexPerformance.meterId).
+          example: "der://meter/001"
+          x-jsonld:
+            "@id": resourceId
+
+        contractId:
+          type: string
+          description: Optional Beckn Contract id.
+          x-jsonld:
+            "@id": contractId
+
+        measurementPhase:
+          type: string
+          description: >
+            BASELINE — pre-event reference; ACTUAL — measured during event window;
+            ADJUSTED — after data cleansing; VERIFIED — accepted for settlement.
+          enum:
+            - BASELINE
+            - ACTUAL
+            - ADJUSTED
+            - VERIFIED
+          example: "ACTUAL"
+          x-jsonld:
+            "@id": measurementPhase
+            "@type": "@id"
+
+        measurementWindow:
+          type: object
+          additionalProperties: false
+          required: [startDate, endDate]
+          description: UTC observation window (often matches EnergyEvent.eventWindow).
+          properties:
+            startDate:
+              type: string
+              format: date-time
+              pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$'
+            endDate:
+              type: string
+              format: date-time
+              pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$'
+          x-jsonld:
+            "@id": measurementWindow
+
+        baselineKw:
+          type: number
+          description: Baseline average or integrated power in kW over measurementWindow (profile-specific).
+          example: 45.0
+          x-jsonld:
+            "@id": baselineKw
+
+        actualKw:
+          type: number
+          description: Actual average or integrated power in kW during the window (absent until measured).
+          example: 20.0
+          x-jsonld:
+            "@id": actualKw
+
+        verifiedReductionKw:
+          type: number
+          description: >
+            Non-negative verified demand reduction in kW (or profile-defined quantity) for settlement.
+          minimum: 0
+          example: 25.0
+          x-jsonld:
+            "@id": verifiedReductionKw
+
+        verifiedEnergyKwh:
+          type: number
+          description: Optional verified energy delta in kWh when settlement uses energy not power.
+          x-jsonld:
+            "@id": verifiedEnergyKwh
+
+        methodology:
+          type: string
+          description: Baseline / M&V methodology label (e.g. 5of10); may mirror DemandFlexPerformance.methodology.
+          example: "5of10"
+          x-jsonld:
+            "@id": methodology
+
+        dataQuality:
+          type: string
+          description: Provenance / quality flag for the reading.
+          enum:
+            - RAW
+            - ESTIMATED
+            - REVISED
+            - CERTIFIED
+          x-jsonld:
+            "@id": dataQuality
+            "@type": "@id"
+
+        resourceContextUrl:
+          type: string
+          format: uri
+          description: >
+            Optional JSON-LD @context URL for the EnergyResource type when resourceId is not globally unique.
+          x-jsonld:
+            "@id": resourceContextUrl

@@ -1,3 +1,15 @@
+# Build onix-adapter-deg from DEG (see DEG/build/Dockerfile.onix-adapter-deg + DEG/build/README.md).
+# From this directory: docker compose -f docker-compose-demand-flex.yml up --build
+# Rebuilds from scratch each time you pass --build (no_cache: true). Override paths if your layout differs:
+#   DEG_ROOT=../../.. BECKN_ONIX_ROOT=../../../../beckn-onix docker compose -f docker-compose-demand-flex.yml up --build
+
+x-onix-adapter-deg-build: &onix_adapter_deg_build
+  context: ${DEG_ROOT:-../../../}
+  dockerfile: build/Dockerfile.onix-adapter-deg
+  additional_contexts:
+    beckn-onix: ${BECKN_ONIX_ROOT:-../../../../beckn-onix}
+  no_cache: true
+
 services:
   # ============================================
   # Core Infrastructure Services
@@ -22,7 +34,10 @@ services:
   # ============================================
 
   onix-bap:
-    image: onix-adapter-deg:p2p-multiarch-v5
+    build:
+      <<: *onix_adapter_deg_build
+    image: ${ONIX_IMAGE:-onix-adapter-deg:demand-flex-devkit}
+    pull_policy: never
     container_name: onix-bap
     networks:
       - beckn_network
@@ -43,7 +58,10 @@ services:
     command: ["./server", "--config=/app/config/local-demand-flex-bap.yaml"]
 
   onix-bpp:
-    image: onix-adapter-deg:p2p-multiarch-v5
+    build:
+      <<: *onix_adapter_deg_build
+    image: ${ONIX_IMAGE:-onix-adapter-deg:demand-flex-devkit}
+    pull_policy: never
     container_name: onix-bpp
     networks:
       - beckn_network
@@ -87,7 +105,11 @@ services:
 
   sandbox-bpp:
     container_name: sandbox-bpp
-    image: fidedocker/sandbox-2.0:latest
+    build:
+      context: ../sandbox
+      dockerfile: Dockerfile.bpp
+    image: sandbox-bpp:demand-flex-devkit
+    pull_policy: never
     platform: linux/amd64
     environment:
       - NODE_ENV=production

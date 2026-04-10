@@ -1,0 +1,42 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/EnergyEventMeasurement/v2.0/",
+    "EnergyEventMeasurement": "deg:EnergyEventMeasurement",
+    "id": "deg:id",
+    "eventId": "deg:eventId",
+    "resourceId": "deg:resourceId",
+    "contractId": "deg:contractId",
+    "measurementPhase": {
+      "@id": "deg:measurementPhase",
+      "@type": "@id"
+    },
+    "measurementWindow": "deg:measurementWindow",
+    "startDate": "beckn:startDate",
+    "endDate": "beckn:endDate",
+    "baselineKw": "deg:baselineKw",
+    "actualKw": "deg:actualKw",
+    "verifiedReductionKw": "deg:verifiedReductionKw",
+    "verifiedEnergyKwh": "deg:verifiedEnergyKwh",
+    "methodology": "deg:methodology",
+    "dataQuality": {
+      "@id": "deg:dataQuality",
+      "@type": "@id"
+    },
+    "resourceContextUrl": "deg:resourceContextUrl",
+    "BASELINE": "deg:PhaseBaseline",
+    "ACTUAL": "deg:PhaseActual",
+    "ADJUSTED": "deg:PhaseAdjusted",
+    "VERIFIED": "deg:PhaseVerified",
+    "RAW": "deg:QualityRaw",
+    "ESTIMATED": "deg:QualityEstimated",
+    "REVISED": "deg:QualityRevised",
+    "CERTIFIED": "deg:QualityCertified"
+  },
+  "@graph": []
+}

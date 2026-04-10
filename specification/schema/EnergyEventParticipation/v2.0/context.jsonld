@@ -1,0 +1,27 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "deg": "https://schema.beckn.io/deg/EnergyEventParticipation/v2.0/",
+    "EnergyEventParticipation": "deg:EnergyEventParticipation",
+    "eventId": "deg:eventId",
+    "participantId": "deg:participantId",
+    "participationStatus": {
+      "@id": "deg:participationStatus",
+      "@type": "@id"
+    },
+    "meterIds": "deg:meterIds",
+    "decidedAt": "deg:decidedAt",
+    "reason": "deg:reason",
+    "contractId": "deg:contractId",
+    "PENDING": "deg:ParticipationPending",
+    "OPTED_IN": "deg:ParticipationOptedIn",
+    "OPTED_OUT": "deg:ParticipationOptedOut",
+    "DEFAULT_IN": "deg:ParticipationDefaultIn",
+    "DEFAULT_OUT": "deg:ParticipationDefaultOut"
+  },
+  "@graph": []
+}
