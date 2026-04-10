@@ -7,38 +7,6 @@
   },
   "item": [
     {
-      "name": "confirm",
-      "item": [
-        {
-          "name": "confirm-request",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"confirm\",\n    \"domain\": \"{{domain}}\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_uri}}\",\n    \"subscriber_id\": \"{{bap_id}}\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_uri}}\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld\",\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld\",\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld\",\n      \"https://schema.beckn.io/Quantity/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"status\": {\n        \"code\": \"DRAFT\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-flex-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"DRAFT\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"flex-need-north-delhi-apr1\",\n              \"descriptor\": {\n                \"name\": \"Peak Demand Flex - North Delhi\",\n                \"shortDesc\": \"500 kW curtailment needed Apr 1, 2-4pm IST\"\n              },\n              \"quantity\": {\n                \"unitCode\": \"kW\",\n                \"unitQuantity\": 150,\n                \"@type\": \"Quantity\"\n              },\n              \"resourceAttributes\": {\n                \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld\",\n                \"@type\": \"DemandFlexNeed\",\n                \"direction\": \"REDUCE\",\n                \"eventWindow\": {\n                  \"startDate\": \"2026-04-01T08:30:00Z\",\n                  \"endDate\": \"2026-04-01T10:30:00Z\"\n                },\n                \"capacityType\": \"CURTAILMENT\",\n                \"maxCapacityKw\": 500,\n                \"location\": {\n                  \"type\": \"Point\",\n                  \"coordinates\": [\n                    77.209,\n                    28.6139\n                  ]\n                }\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-flex-001\",\n            \"resourceIds\": [\n              \"flex-need-north-delhi-apr1\"\n            ],\n            \"offerAttributes\": {\n              \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld\",\n              \"@type\": \"DemandFlexBuyOffer\",\n              \"inputs\": [\n                {\n                  \"role\": \"buyer\",\n                  \"participantId\": \"tpddl-north-delhi\",\n                  \"inputs\": {\n                    \"incentivePerKwh\": 3.5,\n                    \"currency\": \"INR\",\n                    \"baselineMethodology\": {\n                      \"bestOf\": 5,\n                      \"outOf\": 10\n                    },\n                    \"penaltyRate\": 1.5,\n                    \"premiumForGuaranteed\": 5.0,\n                    \"optOutDefault\": false\n                  }\n                },\n                {\n                  \"role\": \"seller\",\n                  \"participantId\": \"greenflex-agg\",\n                  \"inputs\": {\n                    \"plannedDemandChange\": {\n                      \"unitCode\": \"KWH\",\n                      \"unitQuantity\": 150.0,\n                      \"@type\": \"Quantity\"\n                    },\n                    \"participatingMeters\": [\n                      \"der://meter/001\",\n                      \"der://meter/002\"\n                    ]\n                  }\n                }\n              ]\n            }\n          }\n        }\n      ],\n      \"contractAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld\",\n        \"@type\": \"DEGContract\",\n        \"roles\": [\n          {\n            \"role\": \"buyer\",\n            \"participantId\": \"tpddl-north-delhi\"\n          },\n          {\n            \"role\": \"seller\",\n            \"participantId\": \"greenflex-agg\"\n          }\n        ],\n        \"policy\": {\n          \"url\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego\",\n          \"queryPath\": \"data.deg.contracts.demand_flex\"\n        }\n      }\n    }\n  }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{bap_adapter_url}}/confirm",
-              "host": [
-                "{{bap_adapter_url}}"
-              ],
-              "path": [
-                "confirm"
-              ]
-            },
-            "description": "Confirm request: confirm-request"
-          },
-          "response": []
-        }
-      ]
-    },
-    {
       "name": "discover",
       "item": [
         {
@@ -48,7 +16,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"discover\",\n    \"domain\": \"{{domain}}\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_uri}}\",\n    \"subscriber_id\": \"{{bap_id}}\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"descriptor\": {\n        \"name\": \"demand-flex\"\n      },\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CURTAILMENT\"\n        }\n      }\n    }\n  }\n}",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"discover\",\n    \"domain\": \"{{domain}}\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_uri}}\",\n    \"subscriber_id\": \"{{bap_id}}\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld\",\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld\",\n      \"https://schema.beckn.io/Quantity/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"intent\": {\n      \"descriptor\": {\n        \"name\": \"demand-flex\"\n      },\n      \"category\": {\n        \"descriptor\": {\n          \"code\": \"CURTAILMENT\"\n        }\n      }\n    }\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -64,7 +32,39 @@
                 "discover"
               ]
             },
-            "description": "Discover request: discover-request"
+            "description": "Discover (local): BAP → ONIX BPP → sandbox-bpp → on_discover → sandbox-bap. Uses fixed BPP URL in routing (no bppUri). For catalog-fabric discovery instead, add a separate routing rule to your CDS URL."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "item": [
+        {
+          "name": "select-request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"select\",\n    \"domain\": \"{{domain}}\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_uri}}\",\n    \"subscriber_id\": \"{{bap_id}}\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_uri}}\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld\",\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld\",\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld\",\n      \"https://schema.beckn.io/Quantity/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"status\": {\n        \"code\": \"DRAFT\"\n      },\n      \"commitments\": [\n        {\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"DRAFT\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"flex-need-north-delhi-apr1\",\n              \"descriptor\": {\n                \"name\": \"Peak Demand Flex - North Delhi\",\n                \"shortDesc\": \"500 kW curtailment needed Apr 1, 2-4pm IST\"\n              },\n              \"quantity\": {\n                \"unitCode\": \"kW\",\n                \"unitQuantity\": 150,\n                \"@type\": \"Quantity\"\n              },\n              \"resourceAttributes\": {\n                \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld\",\n                \"@type\": \"DemandFlexNeed\",\n                \"direction\": \"REDUCE\",\n                \"eventWindow\": {\n                  \"startDate\": \"2026-04-01T08:30:00Z\",\n                  \"endDate\": \"2026-04-01T10:30:00Z\"\n                },\n                \"capacityType\": \"CURTAILMENT\",\n                \"maxCapacityKw\": 500,\n                \"location\": {\n                  \"type\": \"Point\",\n                  \"coordinates\": [\n                    77.209,\n                    28.6139\n                  ]\n                }\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-flex-001\",\n            \"resourceIds\": [\n              \"flex-need-north-delhi-apr1\"\n            ],\n            \"offerAttributes\": {\n              \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld\",\n              \"@type\": \"DemandFlexBuyOffer\",\n              \"inputs\": [\n                {\n                  \"role\": \"buyer\",\n                  \"participantId\": \"tpddl-north-delhi\",\n                  \"inputs\": {\n                    \"incentivePerKwh\": 3.5,\n                    \"currency\": \"INR\",\n                    \"baselineMethodology\": {\n                      \"bestOf\": 5,\n                      \"outOf\": 10\n                    },\n                    \"penaltyRate\": 1.5,\n                    \"premiumForGuaranteed\": 5.0,\n                    \"optOutDefault\": false\n                  }\n                },\n                {\n                  \"role\": \"seller\",\n                  \"participantId\": null\n                }\n              ]\n            }\n          }\n        }\n      ],\n      \"contractAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld\",\n        \"@type\": \"DEGContract\",\n        \"roles\": [\n          {\n            \"role\": \"buyer\"\n          },\n          {\n            \"role\": \"seller\"\n          }\n        ],\n        \"policy\": {\n          \"url\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego\",\n          \"queryPath\": \"data.deg.contracts.demand_flex\"\n        }\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/select",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "select"
+              ]
+            },
+            "description": "Select request: select-request"
           },
           "response": []
         }
@@ -103,16 +103,16 @@
       ]
     },
     {
-      "name": "select",
+      "name": "confirm",
       "item": [
         {
-          "name": "select-request",
+          "name": "confirm-request",
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"select\",\n    \"domain\": \"{{domain}}\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_uri}}\",\n    \"subscriber_id\": \"{{bap_id}}\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_uri}}\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld\",\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld\",\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld\",\n      \"https://schema.beckn.io/Quantity/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"status\": {\n        \"code\": \"DRAFT\"\n      },\n      \"commitments\": [\n        {\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"DRAFT\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"flex-need-north-delhi-apr1\",\n              \"descriptor\": {\n                \"name\": \"Peak Demand Flex - North Delhi\",\n                \"shortDesc\": \"500 kW curtailment needed Apr 1, 2-4pm IST\"\n              },\n              \"quantity\": {\n                \"unitCode\": \"kW\",\n                \"unitQuantity\": 150,\n                \"@type\": \"Quantity\"\n              },\n              \"resourceAttributes\": {\n                \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld\",\n                \"@type\": \"DemandFlexNeed\",\n                \"direction\": \"REDUCE\",\n                \"eventWindow\": {\n                  \"startDate\": \"2026-04-01T08:30:00Z\",\n                  \"endDate\": \"2026-04-01T10:30:00Z\"\n                },\n                \"capacityType\": \"CURTAILMENT\",\n                \"maxCapacityKw\": 500,\n                \"location\": {\n                  \"type\": \"Point\",\n                  \"coordinates\": [\n                    77.209,\n                    28.6139\n                  ]\n                }\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-flex-001\",\n            \"resourceIds\": [\n              \"flex-need-north-delhi-apr1\"\n            ],\n            \"offerAttributes\": {\n              \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld\",\n              \"@type\": \"DemandFlexBuyOffer\",\n              \"inputs\": [\n                {\n                  \"role\": \"buyer\",\n                  \"participantId\": \"tpddl-north-delhi\",\n                  \"inputs\": {\n                    \"incentivePerKwh\": 3.5,\n                    \"currency\": \"INR\",\n                    \"baselineMethodology\": {\n                      \"bestOf\": 5,\n                      \"outOf\": 10\n                    },\n                    \"penaltyRate\": 1.5,\n                    \"premiumForGuaranteed\": 5.0,\n                    \"optOutDefault\": false\n                  }\n                },\n                {\n                  \"role\": \"seller\",\n                  \"participantId\": null\n                }\n              ]\n            }\n          }\n        }\n      ],\n      \"contractAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld\",\n        \"@type\": \"DEGContract\",\n        \"roles\": [\n          {\n            \"role\": \"buyer\"\n          },\n          {\n            \"role\": \"seller\"\n          }\n        ],\n        \"policy\": {\n          \"url\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego\",\n          \"queryPath\": \"data.deg.contracts.demand_flex\"\n        }\n      }\n    }\n  }\n}",
+              "raw": "{\n  \"context\": {\n    \"version\": \"{{version}}\",\n    \"action\": \"confirm\",\n    \"domain\": \"{{domain}}\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_uri}}\",\n    \"subscriber_id\": \"{{bap_id}}\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_uri}}\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld\",\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld\",\n      \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld\",\n      \"https://schema.beckn.io/Quantity/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"status\": {\n        \"code\": \"DRAFT\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-flex-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"DRAFT\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"flex-need-north-delhi-apr1\",\n              \"descriptor\": {\n                \"name\": \"Peak Demand Flex - North Delhi\",\n                \"shortDesc\": \"500 kW curtailment needed Apr 1, 2-4pm IST\"\n              },\n              \"quantity\": {\n                \"unitCode\": \"kW\",\n                \"unitQuantity\": 150,\n                \"@type\": \"Quantity\"\n              },\n              \"resourceAttributes\": {\n                \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexNeed/v2.0/context.jsonld\",\n                \"@type\": \"DemandFlexNeed\",\n                \"direction\": \"REDUCE\",\n                \"eventWindow\": {\n                  \"startDate\": \"2026-04-01T08:30:00Z\",\n                  \"endDate\": \"2026-04-01T10:30:00Z\"\n                },\n                \"capacityType\": \"CURTAILMENT\",\n                \"maxCapacityKw\": 500,\n                \"location\": {\n                  \"type\": \"Point\",\n                  \"coordinates\": [\n                    77.209,\n                    28.6139\n                  ]\n                }\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-flex-001\",\n            \"resourceIds\": [\n              \"flex-need-north-delhi-apr1\"\n            ],\n            \"offerAttributes\": {\n              \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld\",\n              \"@type\": \"DemandFlexBuyOffer\",\n              \"inputs\": [\n                {\n                  \"role\": \"buyer\",\n                  \"participantId\": \"tpddl-north-delhi\",\n                  \"inputs\": {\n                    \"incentivePerKwh\": 3.5,\n                    \"currency\": \"INR\",\n                    \"baselineMethodology\": {\n                      \"bestOf\": 5,\n                      \"outOf\": 10\n                    },\n                    \"penaltyRate\": 1.5,\n                    \"premiumForGuaranteed\": 5.0,\n                    \"optOutDefault\": false\n                  }\n                },\n                {\n                  \"role\": \"seller\",\n                  \"participantId\": \"greenflex-agg\",\n                  \"inputs\": {\n                    \"plannedDemandChange\": {\n                      \"unitCode\": \"KWH\",\n                      \"unitQuantity\": 150.0,\n                      \"@type\": \"Quantity\"\n                    },\n                    \"participatingMeters\": [\n                      \"der://meter/001\",\n                      \"der://meter/002\"\n                    ]\n                  }\n                }\n              ]\n            }\n          }\n        }\n      ],\n      \"contractAttributes\": {\n        \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/schema/DEGContract/v2.0/context.jsonld\",\n        \"@type\": \"DEGContract\",\n        \"roles\": [\n          {\n            \"role\": \"buyer\",\n            \"participantId\": \"tpddl-north-delhi\"\n          },\n          {\n            \"role\": \"seller\",\n            \"participantId\": \"greenflex-agg\"\n          }\n        ],\n        \"policy\": {\n          \"url\": \"https://raw.githubusercontent.com/beckn/DEG/refs/heads/p2p-trading-becknv2/specification/policies/demand_flex_revenue.rego\",\n          \"queryPath\": \"data.deg.contracts.demand_flex\"\n        }\n      }\n    }\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -120,15 +120,15 @@
               }
             },
             "url": {
-              "raw": "{{bap_adapter_url}}/select",
+              "raw": "{{bap_adapter_url}}/confirm",
               "host": [
                 "{{bap_adapter_url}}"
               ],
               "path": [
-                "select"
+                "confirm"
               ]
             },
-            "description": "Select request: select-request"
+            "description": "Confirm request: confirm-request"
           },
           "response": []
         }

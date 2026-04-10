@@ -68,7 +68,7 @@ Verify all containers are running:
 docker compose -f docker-compose-demand-flex.yml ps
 ```
 
-**Sandbox BPP and `on_*` callbacks:** `sandbox-bpp` merges static JSON from [`sandbox/webhook/jsons/`](sandbox/webhook/jsons/) (mounted at `/app/dist/webhook/jsons` in the container). For domain `beckn.one:deg:demand-flex` it expects files such as `response/on_select.json`, `response/on_update.json`, etc. Those files must include a **`message`** body; otherwise the sandbox forwards **context-only** payloads to `onix-bpp` and you get **400** / `property "message" is missing` from schema validation. The checked-in templates are copied from [`examples/demand-flex/v2/`](../../examples/demand-flex/v2/) with BAP/BPP IDs aligned to this devkit. If bind-mounting fails on Windows (path contains `:`), keep the repo on the WSL filesystem.
+**Sandbox BPP and `on_*` callbacks:** `sandbox-bpp` merges static JSON from [`sandbox/webhook/jsons/`](sandbox/webhook/jsons/) (mounted at `/app/dist/webhook/jsons` in the container). For domain `beckn.one:deg:demand-flex` it expects files such as `response/on_discover.json`, `response/on_select.json`, `response/on_update.json`, etc. Those files must include a **`message`** body; otherwise the sandbox forwards **context-only** payloads to `onix-bpp` and you get **400** / `property "message" is missing` from schema validation. The checked-in templates are copied from [`examples/demand-flex/v2/`](../../examples/demand-flex/v2/) with BAP/BPP IDs aligned to this devkit. If bind-mounting fails on Windows (path contains `:`), keep the repo on the WSL filesystem.
 
 ### 2. Import Postman collections
 
@@ -82,13 +82,14 @@ Execute requests in this order:
 
 | Step | Collection | Folder | Description |
 |:-----|:-----------|:-------|:------------|
-| 1 | BPP | publish | Utility publishes flex catalog |
-| 2 | BAP | select | Consumer selects a flex offer |
-| 3 | BAP | init | Consumer provides identity and taker details |
-| 4 | BAP | confirm | Consumer confirms the contract |
-| 5 | BAP | update | Consumer sends participating meters |
-| 6 | BPP | on_status | Utility sends baselines (pre-event) |
-| 7 | BPP | on_status | Utility sends actuals + settlement (post-event) |
+| 1 | BAP | discover | Consumer searches for flex catalogs (`on_discover` from sandbox BPP; no external CDS required for this path) |
+| 2 | BPP | publish | Utility publishes flex catalog (e.g. to catalog fabric — optional if you only use local discover) |
+| 3 | BAP | select | Consumer selects a flex offer |
+| 4 | BAP | init | Consumer provides identity and taker details |
+| 5 | BAP | confirm | Consumer confirms the contract |
+| 6 | BAP | update | Consumer sends participating meters |
+| 7 | BPP | on_status | Utility sends baselines (pre-event) |
+| 8 | BPP | on_status | Utility sends actuals + settlement (post-event) |
 
 ### 4. Cleanup
 
@@ -111,7 +112,9 @@ docker compose -f docker-compose-demand-flex.yml down -v
 
 **BPP caller (`/bpp/caller/publish`, `on_select`, …):** Put **`subscriber_id`** (snake_case) in `context`, with the **same value as `bppId`** for BPP-originated traffic. For **`on_*`** callbacks to the BAP, [`local-demand-flex-routing-BPP-Caller.yaml`](config/local-demand-flex-routing-BPP-Caller.yaml) sets **`target.url`** under **`targetType: bap`** to `http://onix-bap:8081/bap/receiver` because the sandbox often emits **`bapUri`** (camelCase) only, while the router looks for **`bap_uri`** or a fallback.
 
-**BAP caller (`select`, `init`, …):** Put **`subscriber_id`** (snake_case) in `context`, same value as **`bapId`** (`p2p-trading-sandbox1.com` in this devkit). ONIX does not use **`subscriberId`** (camelCase) for this. The **`bapTxnCaller`** handler in [`local-demand-flex-bap.yaml`](config/local-demand-flex-bap.yaml) also sets **`subscriberId`** in YAML as a default for signing. Routing: [`local-demand-flex-routing-BAP-Caller.yaml`](config/local-demand-flex-routing-BAP-Caller.yaml) **`target.url`** fallback under **`targetType: bpp`** when **`bppUri`** is omitted.
+**BAP caller (`discover`, `select`, `init`, …):** Put **`subscriber_id`** (snake_case) in `context`, same value as **`bapId`** (`p2p-trading-sandbox1.com` in this devkit). ONIX does not use **`subscriberId`** (camelCase) for this. The **`bapTxnCaller`** handler in [`local-demand-flex-bap.yaml`](config/local-demand-flex-bap.yaml) also sets **`subscriberId`** in YAML as a default for signing. Routing: [`local-demand-flex-routing-BAP-Caller.yaml`](config/local-demand-flex-routing-BAP-Caller.yaml) sends **`discover`** to **`http://onix-bpp:8082/bpp/receiver`** (no **`bppUri`** in discover requests). Other actions use **`target.url`** fallback under **`targetType: bpp`** when **`bppUri`** is omitted.
+
+**Production-style discovery:** Point **`discover`** at your catalog / search URL (see p2p-trading devkit `targetType: url` pattern) instead of the local BPP hop.
 
 ### Config Files
 

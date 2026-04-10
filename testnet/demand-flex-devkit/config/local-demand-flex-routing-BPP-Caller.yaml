@@ -6,6 +6,7 @@ routingRules:
     target:
       url: "http://onix-bap:8081/bap/receiver"
     endpoints:
+      - on_discover
       - on_select
       - on_init
       - on_confirm

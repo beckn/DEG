@@ -5,6 +5,7 @@ routingRules:
     target:
       url: "http://sandbox-bap:3001/api/bap-webhook"
     endpoints:
+      - on_discover
       - on_select
       - on_init
       - on_confirm

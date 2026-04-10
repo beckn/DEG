@@ -1,5 +1,13 @@
 # BAP Caller routing: outbound requests from BAP → BPP adapter
 routingRules:
+  # Discover: no bppUri in context — send to local ONIX BPP; sandbox-bpp returns on_discover with catalogs.
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "http://onix-bpp:8082/bpp/receiver"
+    endpoints:
+      - discover
+
   - version: "2.0.0"
     targetType: "bpp"
     # Fallback when context has no bppUri (local dev). Override via bppUri/bppId in requests for multi-BPP.
