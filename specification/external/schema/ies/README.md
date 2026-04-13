@@ -11,6 +11,7 @@ External schemas from the [India Energy Stack](https://github.com/India-Energy-S
 | Module | Description |
 |--------|-------------|
 | [core/](./core/) | IES Data Exchange schemas — `IES_Report`, `IES_Program`, `IES_Policy` — built on OpenADR 3.1.0 |
+| [arr/](./arr/) | ARR Filing schemas — `IES_ARR_Filing`, `IES_ARR_FiscalYear`, `IES_ARR_LineItem` — regulatory filings |
 
 ---
 
