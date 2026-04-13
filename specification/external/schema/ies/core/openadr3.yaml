@@ -2476,7 +2476,10 @@ components:
       example: 2023-06-15T09:30:00Z
     duration:
       type: string
-      pattern: "^(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$"
+      # Original openadr3 pattern which parsing library had issues with
+      # pattern: "^(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$"
+      # simplified pattern without lookahead that parsing library can handle.
+      pattern: "^(-?)P(?:\\d+Y)?(?:\\d+M)?(?:\\d+[DW])?(?:T(?:\\d+H)?(?:\\d+M)?(?:\\d+(?:\\.\\d+)?S)?)?$"
       description: duration in ISO 8601 format
       example: PT1H
       default: PT0S
