@@ -1,0 +1,2784 @@
+openapi: 3.0.0
+info:
+  title: OpenADR 3 API
+  version: 1.0.0
+  description: |
+    The OpenADR 3 API supports energy retailer to energy customer Demand Response programs.
+    See OpenADR 3 User Guide and Definitions for detailed descriptions of usage.
+    The API includes the following capabilities and operations:
+
+    __Manage programs:__
+
+    * Create/Update/Delete a program
+    * Search programs
+
+    __Manage events:__
+
+    * Create/Update/Delete an event
+    * Search events
+
+    __Manage reports:__
+
+    * Create/Update/Delete a report
+    * Search reports
+
+    __Manage subscriptions:__
+
+    * Create/Update/Delete subscriptions to programs, events, and reports
+    * Search subscriptions
+    * Subscriptions allows clients to register a callback URL (webhook) to be notified
+      on the change of state of a resource
+
+    __Manage vens:__
+
+    * Create/Update/Delete vens and ven resources
+    * Search ven and ven resources
+
+    __List notifiers:__
+
+    * List all notification protocols, and for each notifier, usage details
+
+    __List MQTT notifier object topic names:__
+
+    * List all MQTT broker topic names for an object and the operations upon the object
+
+    __Manage tokens:__
+
+    * Obtain an access token
+    * This endpoint is provided as a convenience and may be neglected in a commercial implementation
+  contact:
+    email: info@openadr.org
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+paths:
+  /programs:
+    get:
+      tags:
+        - programs
+      summary: searches all programs
+      operationId: searchAllPrograms
+      description: |
+        List all programs known to the server.
+        May filter results by targets params.
+        Use skip and pagination query params to limit response size.
+      security:
+        - oAuth2ClientCredentials: [read_targets]
+        # bearerAuth added here and elsewhere to support RI /ui service. See RI README for description of /ui
+        - bearerAuth: []
+      parameters:
+        - name: targets
+          in: query
+          description: Indicates targets
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/target'
+        - name: skip
+          in: query
+          description: number of records to skip for pagination.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - name: limit
+          in: query
+          description: maximum number of records to return.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            maximum: 50
+            minimum: 0
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/program'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    post:
+      tags:
+        - programs
+      summary: create a program
+      operationId: createProgram
+      description: Create a new program in the server.
+      security:
+        - oAuth2ClientCredentials: [write_programs]
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/programRequest'
+        description: program item to add.
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/program'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '409':
+          $ref: '#/components/responses/conflict'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /programs/{programID}:
+    parameters:
+      - name: programID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        required: true
+        description: Object ID of the program object.
+    get:
+      tags:
+        - programs
+      summary: searches programs by program ID
+      operationId: searchProgramByProgramId
+      description: |
+        Fetch the program specified by the programID in path.
+      security:
+        - oAuth2ClientCredentials: [read_targets]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/program'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    put:
+      tags:
+        - programs
+      summary: update a program
+      operationId: updateProgram
+      description: Update an existing program with the programID in path.
+      security:
+        - oAuth2ClientCredentials: [write_programs]
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/programRequest'
+        description: program item to update.
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/program'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/problem'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/problem'
+        '404':
+          description: Not Found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/problem'
+        '409':
+          description: Conflict. Implementation dependent response if program with the same programName exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/problem'
+        '500':
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/problem'
+    delete:
+      tags:
+        - programs
+      summary: delete a program
+      operationId: deleteProgram
+      description: Delete an existing program with the programID in path.
+      security:
+        - oAuth2ClientCredentials: [write_programs]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/program'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /reports:
+    get:
+      tags:
+        - reports
+      summary: searches all reports
+      operationId: searchAllReports
+      description: |
+        List all reports known to the server.
+        May filter results by programID, eventID,  and clientName as query param.
+        Use skip and pagination query params to limit response size.
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      parameters:
+        - name: programID
+          in: query
+          schema:
+            $ref: '#/components/schemas/objectID'
+          required: false
+          description: filter results to reports with programID.
+          example: program-999
+        - name: eventID
+          in: query
+          schema:
+            $ref: '#/components/schemas/objectID'
+          required: false
+          description: filter results to reports with eventID.
+          example: event-999
+        - name: clientName
+          in: query
+          schema:
+            $ref: '#/components/schemas/clientName'
+          required: false
+          description: filter results to reports with clientName.
+          example: '999'
+        - name: skip
+          in: query
+          description: number of records to skip for pagination.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - name: limit
+          in: query
+          description: maximum number of records to return.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            maximum: 50
+            minimum: 0
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/report'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    post:
+      tags:
+        - reports
+      summary: add a report
+      operationId: createReport
+      description: Create a new report in the server.
+      security:
+        - oAuth2ClientCredentials: [write_reports]
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/reportRequest'
+        description: report item to add.
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/report'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '409':
+          $ref: '#/components/responses/conflict'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /reports/{reportID}:
+    parameters:
+      - name: reportID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        required: true
+        description: object ID of a report.
+    get:
+      tags:
+        - reports
+      summary: searches reports by reportID
+      operationId: searchReportsByReportID
+      description: |
+        Fetch the report specified by the reportID in path.
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/report'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    put:
+      tags:
+        - reports
+      summary: update a report
+      operationId: updateReport
+      description: Update the report specified by the reportID in path.
+      security:
+        - oAuth2ClientCredentials: [write_reports]
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/reportRequest'
+        description: Report item to update.
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/report'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '409':
+          $ref: '#/components/responses/conflict'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    delete:
+      tags:
+        - reports
+      summary: delete a report
+      operationId: deleteReport
+      description: Delete the report specified by the reportID in path.
+      security:
+        - oAuth2ClientCredentials: [write_reports]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/report'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /events:
+    get:
+      tags:
+        - events
+      summary: searches all events
+      operationId: searchAllEvents
+      description: |
+        List all events known to the server.
+        May filter results by programID query param.
+        May filter results by targets params.
+        Use skip and pagination query params to limit response size.
+      security:
+        - oAuth2ClientCredentials: [read_targets]
+        - bearerAuth: []
+      parameters:
+        - name: programID
+          in: query
+          schema:
+            $ref: '#/components/schemas/objectID'
+          required: false
+          description: filter results to events with programID.
+          example: program-999
+        - name: targets
+          in: query
+          description: Indicates targets
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/target'
+        - name: skip
+          in: query
+          description: number of records to skip for pagination.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - name: limit
+          in: query
+          description: maximum number of records to return.
+          required: false
+          schema:
+            type: integer
+            format: int32
+            maximum: 50
+            minimum: 0
+        - name: active
+          in: query
+          description: ignore events that have transpired.
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/event'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    post:
+      tags:
+        - events
+      summary: create an event
+      operationId: createEvent
+      description: Create a new event in the server.
+      security:
+        - oAuth2ClientCredentials: [write_events]
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/eventRequest'
+        description: Event item to add.
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/event'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '409':
+          $ref: '#/components/responses/conflict'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /events/{eventID}:
+    parameters:
+      - name: eventID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        description: object ID of event.
+        required: true
+    get:
+      tags:
+        - events
+      summary: search events by ID
+      operationId: searchEventsByID
+      description: |
+        Fetch event associated with the eventID in path.
+      security:
+        - oAuth2ClientCredentials: [read_targets]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/event'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    put:
+      tags:
+        - events
+      summary: update an event
+      operationId: updateEvent
+      description: Update the event specified by the eventID in path.
+      security:
+        - oAuth2ClientCredentials: [write_events]
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/eventRequest'
+        description: event item to update.
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/event'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '409':
+          $ref: '#/components/responses/conflict'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    delete:
+      tags:
+        - events
+      summary: delete an event
+      operationId: deleteEvent
+      description: |
+        Delete the event specified by the eventID in path.
+      security:
+        - oAuth2ClientCredentials: [write_events]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/event'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /subscriptions:
+    get:
+      tags:
+        - subscriptions
+      summary: search subscriptions
+      operationId: searchSubscriptions
+      description: |
+        List all subscriptions.
+        May filter results by programID and clientName as query params.
+        May filter results by objects as query param. See objectTypes schema.
+        Use skip and pagination query params to limit response size.
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      parameters:
+        - name: programID
+          in: query
+          schema:
+            $ref: '#/components/schemas/objectID'
+          description: filter results to subscriptions with programID.
+          required: false
+        - name: clientName
+          in: query
+          schema:
+            $ref: '#/components/schemas/clientName'
+          description: filter results to subscriptions with clientName.
+          required: false
+        - name: objects
+          in: query
+          description: list of objects to subscribe to.
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/objectTypes'
+        - name: skip
+          in: query
+          description: number of records to skip for pagination.
+          required: false
+          style: form
+          explode: true
+          schema:
+            minimum: 0
+            type: integer
+            format: int32
+        - name: limit
+          in: query
+          description: maximum number of records to return.
+          required: false
+          style: form
+          explode: true
+          schema:
+            maximum: 50
+            minimum: 0
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/subscription'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    post:
+      tags:
+        - subscriptions
+      summary: create subscription
+      operationId: createSubscription
+      description: Create a new subscription.
+      security:
+        - oAuth2ClientCredentials: [write_subscriptions]
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/subscriptionRequest'
+      callbacks: # Callback definition
+        notifyEvent: # callback Event name
+          '{$request.body#/callbackUrl}': # The callback URL. Refers to the passed URL
+            post:
+              requestBody: # Contents of the callback message
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/notification'
+              responses: # Expected responses to the callback message
+                '200':
+                  description: Your server returns this code if it accepts the callback.
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/subscription'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '409':
+          $ref: '#/components/responses/conflict'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /subscriptions/{subscriptionID}:
+    parameters:
+      - name: subscriptionID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        description: object ID of the associated subscription.
+        required: true
+    get:
+      tags:
+        - subscriptions
+      summary: search subscriptions by ID
+      operationId: searchSubscriptionByID
+      description: Return the subscription specified by subscriptionID specified in path.
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/subscription'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    put:
+      tags:
+        - subscriptions
+      summary: update  subscription
+      operationId: updateSubscription
+      description: Update the subscription specified by subscriptionID specified in path.
+      security:
+        - oAuth2ClientCredentials: [write_subscriptions]
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/subscriptionRequest'
+        description: subscription item to update.
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/subscription'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '409':
+          $ref: '#/components/responses/conflict'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    delete:
+      tags:
+        - subscriptions
+      summary: delete  subscription
+      operationId: deleteSubscription
+      description: Delete the subscription specified by subscriptionID specified in path.
+      security:
+        - oAuth2ClientCredentials: [write_subscriptions]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/subscription'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /vens:
+    get:
+      tags:
+        - vens
+      summary: search vens
+      operationId: searchVens
+      description: |
+        List all vens.
+        May filter results by venName as query param.
+        May filter results by targets params.
+        Use skip and pagination query params to limit response size.
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      parameters:
+        - name: venName
+          in: query
+          description: Indicates ven objects w venName
+          required: false
+          schema:
+            $ref: '#/components/schemas/venName'
+        - name: targets
+          in: query
+          description: Indicates targets
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/target'
+        - name: skip
+          in: query
+          description: number of records to skip for pagination.
+          required: false
+          style: form
+          explode: true
+          schema:
+            minimum: 0
+            type: integer
+            format: int32
+        - name: limit
+          in: query
+          description: maximum number of records to return.
+          required: false
+          style: form
+          explode: true
+          schema:
+            maximum: 50
+            minimum: 0
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ven'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    post:
+      tags:
+        - vens
+      summary: create ven
+      operationId: createVen
+      description: Create a new ven.
+      security:
+        - oAuth2ClientCredentials: [write_vens]
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/venRequest'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ven'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /vens/{venID}:
+    parameters:
+      - name: venID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        description: object ID of ven.
+        required: true
+    get:
+      tags:
+        - vens
+      summary: search vens by ID
+      operationId: searchVenByID
+      description: Return the ven specified by venID specified in path.
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ven'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    put:
+      tags:
+        - vens
+      summary: update  ven
+      operationId: updateVen
+      description: Update the ven specified by venID specified in path.
+      security:
+        - oAuth2ClientCredentials: [write_vens]
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/venRequest'
+        description: ven item to update.
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ven'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '409':
+          $ref: '#/components/responses/conflict'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    delete:
+      tags:
+        - vens
+      summary: delete  ven
+      operationId: deleteVen
+      description: Delete the ven specified by venID specified in path.
+      security:
+        - oAuth2ClientCredentials: [write_vens]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ven'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /resources:
+    get:
+      tags:
+        - resources
+      summary: search ven resources
+      operationId: searchVenResources
+      description: |
+        List all ven resources associated with ven with specified venID.
+        May filter results by resourceName as query params.
+        May filter results by targets params.
+        Use skip and pagination query params to limit response size.
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      parameters:
+        - name: resourceName
+          in: query
+          description: Indicates resource objects with resourceName
+          required: false
+          schema:
+            $ref: '#/components/schemas/resourceName'
+        - name: venID
+          in: query
+          description: Indicates resource objects with venID
+          required: false
+          schema:
+            $ref: '#/components/schemas/objectID'
+        - name: targets
+          in: query
+          description: Indicates targets
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/target'
+        - name: skip
+          in: query
+          description: number of records to skip for pagination.
+          required: false
+          style: form
+          explode: true
+          schema:
+            minimum: 0
+            type: integer
+            format: int32
+        - name: limit
+          in: query
+          description: maximum number of records to return.
+          required: false
+          style: form
+          explode: true
+          schema:
+            maximum: 50
+            minimum: 0
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/resource'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    post:
+      tags:
+        - resources
+      summary: create resource
+      operationId: createResource
+      description: Create a new resource.
+      security:
+        - oAuth2ClientCredentials: [write_vens]
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/resourceRequest'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resource'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '409':
+          $ref: '#/components/responses/conflict'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /resources/{resourceID}:
+    parameters:
+      - name: resourceID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        description: object ID of the resource.
+        required: true
+    get:
+      tags:
+        - resources
+      summary: search ven resources by ID
+      operationId: searchVenResourceByID
+      description: Return the ven resource specified by venID and resourceID specified in path.
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resource'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    put:
+      tags:
+        - resources
+      summary: update  ven resource
+      operationId: updateVenResource
+      description: Update the ven resource specified by venID and resourceID specified in path.
+      security:
+        - oAuth2ClientCredentials: [write_vens]
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/resourceRequest'
+        description: resource item to update.
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resource'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '409':
+          $ref: '#/components/responses/conflict'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    delete:
+      tags:
+        - resources
+      summary: delete  ven resource
+      operationId: deleteVenResource
+      description: Delete the ven resource specified by venID and resourceID specified in path.
+      security:
+        - oAuth2ClientCredentials: [write_vens]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resource'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /auth/server:
+    get:
+      tags:
+        - Auth
+      summary: fetch server info
+      operationId: getAuthServerInfo
+      description: Return the URL of the token endpoint.
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authServerInfo'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /auth/token: # this is an optional endpoint
+    post:
+      tags:
+        - Auth
+      summary: fetch a token
+      operationId: fetchToken
+      description: Return an access token based on clientID and clientSecret.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/clientCredentialRequest'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/clientCredentialResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+        '501':
+          $ref: '#/components/responses/notImplemented'
+  /notifiers:
+    get:
+      tags:
+        - notifiers
+      summary: List all notifier bindings
+      operationId: listAllNotifiers
+      description: |
+        List all notifier bindings supported by the server
+      security:
+        - oAuth2ClientCredentials: [read_all]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notifiersResponse'
+  /notifiers/mqtt/topics/programs:
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT notifier topic names for operations on programs
+      description: |
+        List all MQTT notifier topic names for operations on programs
+      operationId: listAllMqttNotifierTopicsPrograms
+      security:
+        - oAuth2ClientCredentials: [read_all]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/programs/{programID}:
+    parameters:
+      - name: programID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        required: true
+        description: 'objectID of the program object'
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on a program
+      description: |
+        List all MQTT binding topic names for operations on a program
+      operationId: listAllMqttNotifierTopicsProgram
+      security:
+        - oAuth2ClientCredentials: [read_all]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/events:
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on all events
+      description: |
+        List all MQTT binding topic names for operations on all events
+      operationId: listAllMqttNotifierTopicsEvents
+      security:
+        - oAuth2ClientCredentials: [read_bl]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/programs/{programID}/events:
+    parameters:
+      - name: programID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        required: true
+        description: Object ID of the program object
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on events for a program
+      description: |
+        List all MQTT binding topic names for operations on events for a program
+      operationId: listAllMqttNotifierTopicsProgramEvents
+      security:
+        - oAuth2ClientCredentials: [read_all]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/reports:
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on all reports
+      description: |
+        List all MQTT binding topic names for operations on all reports
+      operationId: listAllMqttNotifierTopicsReports
+      security:
+        - oAuth2ClientCredentials: [read_bl]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/subscriptions:
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on all subscriptions
+      description: |
+        List all MQTT binding topic names for operations on all subscriptions
+      operationId: listAllMqttNotifierTopicsSubscriptions
+      security:
+        - oAuth2ClientCredentials: [read_bl]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/vens:
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on vens
+      description: |
+        List all MQTT binding topic names for operations on vens
+      operationId: listAllMqttNotifierTopicsVens
+      security:
+        - oAuth2ClientCredentials: [read_bl]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/vens/{venID}:
+    parameters:
+      - name: venID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        required: true
+        description: 'venID of the vens object'
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on a ven
+      description: |
+        List all MQTT binding topic names for operations on a ven
+      operationId: listAllMqttNotifierTopicsVen
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/resources:
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on resources
+      description: |
+        List all MQTT binding topic names for operations on resources
+      operationId: listAllMqttNotifierTopicsResources
+      security:
+        - oAuth2ClientCredentials: [read_bl]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/vens/{venID}/events:
+    parameters:
+      - name: venID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        required: true
+        description: 'object ID of the ven object'
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on events targeted for a ven
+      description: |
+        List all MQTT binding topic names for operations on events targated for a ven
+      operationId: listAllMqttNotifierTopicsVenEvents
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/vens/{venID}/programs:
+    parameters:
+      - name: venID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        required: true
+        description: 'object ID of the ven object'
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on programs targeted for a ven
+      description: |
+        List all MQTT binding topic names for operations on programs targeted for a ven
+      operationId: listAllMqttNotifierTopicsVenPrograms
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /notifiers/mqtt/topics/vens/{venID}/resources:
+    parameters:
+      - name: venID
+        in: path
+        schema:
+          $ref: '#/components/schemas/objectID'
+        required: true
+        description: 'object ID of the ven object'
+    get:
+      tags:
+        - MQTT_notifier
+      summary: |
+        List all MQTT binding topic names for operations on resources for a ven
+      description: |
+        List all MQTT binding topic names for operations on resources for a ven
+      operationId: listAllMqttNotifierTopicsVenResources
+      security:
+        - oAuth2ClientCredentials: [read_ven_objects]
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/notifiersTopicsResponse'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/notFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+components:
+  responses:
+    # 400
+    badRequest:
+      description: The request is malformed or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/problem'
+    # 401
+    unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/problem'
+    # 403
+    forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/problem'
+    # 404
+    notFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/problem'
+    # 409
+    conflict:
+      description: Conflict. Could for example be a violation of a foreign key constraint or of a unique constraint on a name or id.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/problem'
+    # 500
+    internalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/problem'
+    # 501
+    notImplemented:
+      description: Not implemented
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/problem'
+    # 200 /notifiers/{notifierBinding}/topics/FOO
+    notifiersTopicsResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/notifierTopicsResponse'
+  schemas:
+    # examples are provided at the element level to aid readability and to support Reference Implementation UI
+    program:
+      type: object
+      description: Server provided representation of program
+      allOf:
+        - $ref: '#/components/schemas/objectMetadata'
+        - $ref: '#/components/schemas/programRequest'
+    programRequest:
+      type: object
+      description: Client provided description of program
+      required:
+        - programName
+      properties:
+        programName:
+          type: string
+          description: Short name to uniquely identify program.
+          minLength: 1
+          maxLength: 128
+          example: ResTOU
+        intervalPeriod:
+          # The temporal span of the program, which could be years-long.
+          $ref: '#/components/schemas/intervalPeriod'
+        programDescriptions:
+          type: array
+          description: A list of programDescriptions
+          items:
+            required:
+              - URL
+            properties:
+              URL:
+                type: string
+                format: uri
+                minLength: 2 # see https://www.rfc-editor.org/rfc/rfc3986#appendix-A
+                maxLength: 8000
+                # see https://www.rfc-editor.org/rfc/rfc7230#section-3.1.1
+                # see https://www.rfc-editor.org/rfc/rfc9110#section-4.1-5
+                # see also: https://stackoverflow.com/a/417184/6571327
+                description: A human or machine readable program description
+                example: https://www.myCorporation.com/myProgramDescription
+          nullable: true
+          default: null
+        payloadDescriptors:
+          type: array
+          description: A list of payloadDescriptors.
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/eventPayloadDescriptor'
+              - $ref: '#/components/schemas/reportPayloadDescriptor'
+            discriminator:
+              propertyName: objectType
+          nullable: true
+          default: null
+        attributes:
+          type: array
+          description: A list of valuesMap objects describing attributes.
+          items:
+            $ref: '#/components/schemas/valuesMap'
+          nullable: true
+          default: null
+        targets:
+          type: array
+          description: A list of targets.
+          items:
+            $ref: '#/components/schemas/target'
+          nullable: true
+          default: null
+    report:
+      type: object
+      description: Server provided representation of report
+      allOf:
+        - $ref: '#/components/schemas/objectMetadata'
+        - $ref: '#/components/schemas/reportRequest'
+        - type: object
+          required:
+            - clientID
+          properties:
+            clientID:
+              $ref: '#/components/schemas/clientID'
+    reportRequest:
+      type: object
+      description: report object.
+      required:
+        - eventID
+        - clientName
+        - resources
+      properties:
+        eventID:
+          # ID attribute of the event object this report is associated with.
+          $ref: '#/components/schemas/objectID'
+        clientName:
+          # User generated identifier; may be VEN ID provisioned out-of-band.
+          $ref: '#/components/schemas/clientName'
+        reportName:
+          type: string
+          description: User defined string for use in debugging or User Interface.
+          example: Battery_usage_04112023
+          nullable: true
+          default: null
+        payloadDescriptors:
+          # An optional list of objects that provide context to payload types.
+          type: array
+          description: A list of reportPayloadDescriptors.
+          items:
+            $ref: '#/components/schemas/reportPayloadDescriptor'
+          nullable: true
+          default: null
+        resources:
+          type: array
+          description: A list of objects containing report data for a set of resources.
+          items:
+            type: object
+            description: Report data associated with a resource.
+            required:
+              - resourceName
+              - intervals
+            properties:
+              resourceName:
+                $ref: '#/components/schemas/resourceName'
+              intervalPeriod:
+                # Defines default start and durations of intervals.
+                $ref: '#/components/schemas/intervalPeriod'
+              intervals:
+                type: array
+                description: A list of interval objects.
+                items:
+                  $ref: '#/components/schemas/interval'
+    event:
+      type: object
+      description: Server provided representation of event
+      allOf:
+        - $ref: '#/components/schemas/objectMetadata'
+        - $ref: '#/components/schemas/eventRequest'
+    eventRequest:
+      type: object
+      description: |
+        Event object to communicate a Demand Response request to VEN.
+        If intervalPeriod is present, sets default start time and duration of intervals.
+      required:
+        - programID
+      properties:
+        programID:
+          # ID attribute of the program object this event is associated with.
+          $ref: '#/components/schemas/objectID'
+        eventName:
+          type: string
+          description: User defined string for use in debugging or User Interface.
+          example: price event 11-18-2022
+          nullable: true
+          default: null
+        duration:
+          #  Optional duration of event. May be used to loop intervals. See User Guide.
+          $ref: '#/components/schemas/duration'
+        priority:
+          type: integer
+          minimum: 0
+          description: Relative priority of event. A lower number is a higher priority.
+          example: 0
+          nullable: true
+          default: null
+        targets:
+          type: array
+          description: A list of targets.
+          items:
+            $ref: '#/components/schemas/target'
+          nullable: true
+          default: null
+        reportDescriptors:
+          type: array
+          description: A list of reportDescriptor objects. Used to request reports from VEN.
+          items:
+            $ref: '#/components/schemas/reportDescriptor'
+          nullable: true
+          default: null
+        payloadDescriptors:
+          type: array
+          description: A list of payloadDescriptor objects.
+          items:
+            $ref: '#/components/schemas/eventPayloadDescriptor'
+          nullable: true
+          default: null
+        intervalPeriod:
+          # Defines default start and durations of intervals.
+          $ref: '#/components/schemas/intervalPeriod'
+        intervals:
+          type: array
+          description: A list of interval objects.
+          items:
+            $ref: '#/components/schemas/interval'
+    subscription:
+      type: object
+      description: Server provided representation of subscription
+      allOf:
+        - $ref: '#/components/schemas/objectMetadata'
+        - $ref: '#/components/schemas/subscriptionRequest'
+        - type: object
+          required:
+            - clientID
+          properties:
+            clientID:
+              $ref: '#/components/schemas/clientID'
+    subscriptionRequest:
+      type: object
+      description: |
+        An object created by a client to receive notification of operations on objects.
+        Clients may subscribe to be notified when a type of object is created,
+        updated, or deleted.
+      required:
+        - clientName
+        - objectOperations
+      properties:
+        clientName:
+          # User generated identifier, may be VEN identifier provisioned out-of-band.
+          $ref: '#/components/schemas/clientName'
+        programID:
+          # ID attribute of the program object this subscription is associated with.
+          $ref: '#/components/schemas/objectID'
+        objectOperations:
+          type: array
+          description: list of objects and operations to subscribe to.
+          items:
+            type: object
+            description: object type, operations, and callbackUrl.
+            required:
+              - objects
+              - operations
+              - callbackUrl
+            properties:
+              objects:
+                type: array
+                description: list of objects to subscribe to.
+                items:
+                  $ref: '#/components/schemas/objectTypes'
+              operations:
+                type: array
+                description: list of operations to subscribe to.
+                items:
+                  type: string
+                  description: object operation to subscribe to.
+                  example: CREATE
+                  enum: [READ, CREATE, UPDATE, DELETE]
+              callbackUrl:
+                type: string
+                format: uri
+                minLength: 2
+                maxLength: 8000
+                description: User provided webhook URL.
+                example: https://myserver.com/send/callback/here
+              bearerToken:
+                type: string
+                description: |
+                  User provided token.
+                  To avoid custom integrations, callback endpoints
+                  should accept the provided bearer token to authenticate VTN requests.
+                example: NCEJGI9E8ER9802UT9HUG
+                nullable: true
+                default: null
+        targets:
+          type: array
+          description: A list of target objects. Used by server to filter notifications.
+          items:
+            $ref: '#/components/schemas/target'
+          nullable: true
+          default: null
+    ven:
+      type: object
+      description: Server provided representation of ven
+      allOf:
+        - $ref: '#/components/schemas/objectMetadata'
+        - $ref: '#/components/schemas/BlVenRequest'
+    venRequest:
+      oneOf:
+        - $ref: '#/components/schemas/VenVenRequest'
+        - $ref: '#/components/schemas/BlVenRequest'
+#      discriminator:
+#        propertyName: objectType
+    BlVenRequest:
+      type: object
+      description: Business Logic provided representation of ven.
+      required:
+      - objectType
+      - clientID
+      - venName
+      properties:
+       objectType:
+         type: string
+         description: Used as discriminator.
+         enum: [ BL_VEN_REQUEST ]
+       clientID:
+          $ref: '#/components/schemas/clientID'
+       targets:
+         type: array
+         description: A list of targets.
+         items:
+           $ref: '#/components/schemas/target'
+         nullable: true
+         default: null          -
+       venName:
+         $ref: '#/components/schemas/venName'
+       attributes:
+         type: array
+         description: A list of valuesMap objects describing attributes.
+         items:
+           $ref: '#/components/schemas/valuesMap'
+         nullable: true
+         default: null
+    VenVenRequest:
+       type: object
+       description: VEN provided representation of ven.
+       required:
+       - objectType
+       - venName
+       properties:
+         objectType:
+           type: string
+           description: Used as discriminator.
+           enum: [ VEN_VEN_REQUEST ]
+         venName:
+           $ref: '#/components/schemas/venName'
+         attributes:
+           type: array
+           description: A list of valuesMap objects describing attributes.
+           items:
+             $ref: '#/components/schemas/valuesMap'
+           nullable: true
+           default: null
+    resource:
+      type: object
+      description: Server provided representation of resource
+      allOf:
+        - $ref: '#/components/schemas/objectMetadata'
+        - $ref: '#/components/schemas/BlResourceRequest'
+    resourceRequest:
+      oneOf:
+        - $ref: '#/components/schemas/BlResourceRequest'
+        - $ref: '#/components/schemas/VenResourceRequest'
+#      discriminator:
+#        propertyName: objectType
+    BlResourceRequest:
+      type: object
+      description: |
+        Business Logic provided representation of ven resource.
+      required:
+        - objectType
+        - clientID
+        - resourceName
+        - venID
+      properties:
+        objectType:
+          type: string
+          description: Used as discriminator.
+          enum: [BL_RESOURCE_REQUEST]
+        clientID:
+          $ref: '#/components/schemas/clientID'
+        targets:
+          type: array
+          description: A list of targets.
+          items:
+            $ref: '#/components/schemas/target'
+          nullable: true
+          default: null
+        resourceName:
+          $ref: '#/components/schemas/resourceName'
+        venID:
+          # VTN provisioned on object creation based on the path, e.g., POST <>/ven/{venID}/resources.
+          $ref: '#/components/schemas/objectID'
+        attributes:
+          type: array
+          description: A list of valuesMap objects describing attributes.
+          items:
+            $ref: '#/components/schemas/valuesMap'
+          nullable: true
+          default: null
+    VenResourceRequest:
+      type: object
+      description: |
+        Business Logic provided representation of ven resource.
+      required:
+        - objectType
+        - resourceName
+        - venID
+      properties:
+        objectType:
+          type: string
+          description: Used as discriminator.
+          enum: [VEN_RESOURCE_REQUEST]
+        resourceName:
+          $ref: '#/components/schemas/resourceName'
+        venID:
+          # VTN provisioned on object creation based on the path, e.g., POST <>/ven/{venID}/resources.
+          $ref: '#/components/schemas/objectID'
+        attributes:
+          type: array
+          description: A list of valuesMap objects describing attributes.
+          items:
+            $ref: '#/components/schemas/valuesMap'
+          nullable: true
+          default: null
+    objectMetadata:
+      type: object
+      description: metadata common to all addressable objects. Values provided by VTN on object creation.
+      required:
+        - id
+        - createdDateTime
+        - modificationDateTime
+        - objectType
+      properties:
+        id:
+          # VTN provisioned on object creation.
+          $ref: '#/components/schemas/objectID'
+        createdDateTime:
+          #  VTN provisioned on object creation.
+          $ref: '#/components/schemas/dateTime'
+        modificationDateTime:
+          #  VTN provisioned on object modification.
+          $ref: '#/components/schemas/dateTime'
+        objectType:
+          # VTN provisioned on object creation.
+          $ref: '#/components/schemas/objectTypes'
+    interval:
+      type: object
+      description: |
+        An object defining a temporal window and a list of valuesMaps.
+        if intervalPeriod present may set temporal aspects of interval or override event.intervalPeriod.
+      required:
+        - id
+        - payloads
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: A client generated number assigned an interval object. Not a sequence number.
+          example: 0
+        intervalPeriod:
+          # Defines start and duration of the interval.
+          $ref: '#/components/schemas/intervalPeriod'
+        payloads:
+          type: array
+          description: A list of valuesMap objects.
+          items:
+            $ref: '#/components/schemas/valuesMap'
+    intervalPeriod:
+      type: object
+      description: |
+        Defines temporal aspects of intervals.
+        A start of "0001-01-01" or "0001-01-01T00:00:00" may indicate 'now'. See User Guide.
+        A duration of "P9999Y" may indicate infinity. See User Guide.
+        A randomizeStart indicates absolute range of client applied offset to start. See User Guide.
+      properties:
+        start:
+          #  The start time of an interval or set of intervals.
+          $ref: '#/components/schemas/dateTime'
+        duration:
+          #  The duration of an interval or set of intervals.
+          $ref: '#/components/schemas/duration'
+        randomizeStart:
+          #  Indicates a randomization time that may be applied to start.
+          $ref: '#/components/schemas/duration'
+    valuesMap:
+      type: object
+      description: |
+        Represents one or more values associated with a type.
+
+        See enumerations in Definitions for defined string values, or use privately defined strings
+      required:
+        - type
+        - values
+      properties:
+        type:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: |
+            Represents the nature of values.
+
+            See enumerations in Definitions for defined string values, or use privately defined strings
+          example: PRICE
+        values:
+          type: array
+          description: A list of data points. Most often a singular value such as a price.
+          example: [0.17]
+          items:
+            anyOf:
+              - type: number
+              - type: integer
+              - type: string
+              - type: boolean
+              - $ref: '#/components/schemas/point'
+    point:
+      type: object
+      description: A pair of floats typically used as a point on a 2 dimensional grid.
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: number
+          format: float
+          description: A value on an x axis.
+          example: 1.0
+        y:
+          type: number
+          format: float
+          description: A value on a y axis.
+          example: 2.0
+    eventPayloadDescriptor:
+      type: object
+      description: |
+        Contextual information used to interpret event valuesMap values.
+        E.g. a PRICE payload simply contains a price value, an
+        associated descriptor provides necessary context such as units and currency.
+      required:
+        - objectType
+        - payloadType
+      properties:
+        objectType:
+          type: string
+          description: Used as discriminator.
+          enum: [EVENT_PAYLOAD_DESCRIPTOR]
+        payloadType:
+          type: string
+          description: |
+            Represents the nature of values.
+
+            See enumerations in Definitions for defined string values, or use privately defined strings
+          minLength: 1
+          maxLength: 128
+          example: PRICE
+        units:
+          $ref: '#/components/schemas/units'
+        currency:
+          type: string
+          description: Currency of price payload.
+          example: USD
+          nullable: true
+          default: null
+    reportPayloadDescriptor:
+      type: object
+      description: |
+        Contextual information used to interpret report payload values.
+        E.g. a USAGE payload simply contains a usage value, an
+        associated descriptor provides necessary context such as units and data quality.
+      required:
+        - objectType
+        - payloadType
+      properties:
+        objectType:
+          type: string
+          description: Used as discriminator.
+          enum: [REPORT_PAYLOAD_DESCRIPTOR]
+        payloadType:
+          type: string
+          description: |
+            Represents the nature of values.
+
+            See enumerations in Definitions for defined string values, or use privately defined strings
+          minLength: 1
+          maxLength: 128
+          example: USAGE
+        readingType:
+          $ref: '#/components/schemas/readingType'
+        units:
+          $ref: '#/components/schemas/units'
+        accuracy:
+          type: number
+          format: float
+          description: A quantification of the accuracy of a set of payload values.
+          example: 0.0
+          nullable: true
+          default: null
+        confidence:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+          description: A quantification of the confidence in a set of payload values.
+          example: 100
+          nullable: true
+          default: null
+    reportDescriptor:
+      type: object
+      description: |
+        An object that may be used to request a report from a VEN.
+      required:
+        - payloadType
+      properties:
+        payloadType:
+          type: string
+          description: |
+            Represents the nature of values.
+
+            See enumerations in Definitions for defined string values, or use privately defined strings
+          minLength: 1
+          maxLength: 128
+          example: USAGE
+        readingType:
+          $ref: '#/components/schemas/readingType'
+        units:
+          $ref: '#/components/schemas/units'
+        targets:
+          type: array
+          description: A list of targets.
+          items:
+            $ref: '#/components/schemas/target'
+          nullable: true
+          default: null
+        aggregate:
+          type: boolean
+          description: |
+            True if report should aggregate results from all targeted resources.
+            False if report includes results for each resource.
+          example: false
+          default: false
+        startInterval:
+          type: integer
+          format: int32
+          description: |
+            The interval on which to generate a report.
+            -1 indicates generate report at end of last interval.
+          example: -1
+          default: -1
+        numIntervals:
+          type: integer
+          format: int32
+          description: |
+            The number of intervals to include in a report.
+            -1 indicates that all intervals are to be included.
+          example: -1
+          default: -1
+        historical:
+          type: boolean
+          description: |
+            True indicates report on intervals preceding startInterval.
+            False indicates report on intervals following startInterval (e.g. forecast).
+          example: true
+          default: true
+        frequency:
+          type: integer
+          format: int32
+          description: |
+            Number of intervals that elapse between reports.
+            -1 indicates same as numIntervals.
+          example: -1
+          default: -1
+        repeat:
+          type: integer
+          format: int32
+          description: |
+            Number of times to repeat report.
+            1 indicates generate one report.
+            -1 indicates repeat indefinitely.
+          example: 1
+          default: 1
+        reportIntervals:
+          type: string
+          description: Indicates VEN report interval options. See User Guide.
+          example: INTERVALS
+          enum: [INTERVALS, SUB_INTERVALS, OPEN_INTERVALS ]
+          default: INTERVALS
+    objectID:
+      type: string
+      pattern: '^[a-zA-Z0-9_-]*$'
+      minLength: 1
+      maxLength: 128
+      description: URL safe VTN assigned object ID.
+      example: object-999
+    clientID:
+      type: string
+      description: |
+        ClientID as provisioned by Auhtentication Service and associated with client's bearer token
+      minLength: 1
+      maxLength: 128
+      example: 249rj49jiej
+    venName:
+      type: string
+      description: |
+        User generated identifier, may be VEN identifier provisioned out-of-band.
+        venName is expected to be unique within the scope of a VTN
+      minLength: 1
+      maxLength: 128
+      example: VEN-999
+    clientName:
+      type: string
+      description: User generated identifier, may be VEN identifier provisioned out-of-band.
+      minLength: 1
+      maxLength: 128
+      example: VEN-999
+    target:
+      type: string
+      minLength: 1
+      maxLength: 128
+      description: User generated target string.
+      example: group-1
+    resourceName:
+      type: string
+      minLength: 1
+      maxLength: 128
+      description: User generated identifier. A value of AGGREGATED_REPORT indicates an aggregation of more that one resource's data
+      example: RESOURCE-999
+    units:
+      type: string
+      description: Units of measure.
+      example: KWH
+      nullable: true
+      default: null
+      minLength: 1
+      maxLength: 128 # this may be excessive
+    readingType:
+      type: string
+      description: |
+        Represents the type of reading.
+
+        See enumerations in Definitions for defined string values, or use privately defined strings
+      example: DIRECT_READ
+      minLength: 1
+      maxLength: 128
+      nullable: true
+      default: null
+    notification:
+      type: object
+      description: |
+        VTN generated object included in request to subscription callbackUrl.
+      required:
+        - objectType
+        - operation
+        - object
+      properties:
+        objectType:
+          $ref: '#/components/schemas/objectTypes'
+        operation:
+          type: string
+          description: the operation on on object that triggered the notification.
+          example: UPDATE
+          enum: [CREATE, READ, UPDATE, DELETE]
+        object:
+          type: object
+          description: the object that is the subject of the notification.
+          example: {}
+          oneOf:
+            - $ref: '#/components/schemas/program'
+            - $ref: '#/components/schemas/report'
+            - $ref: '#/components/schemas/event'
+            - $ref: '#/components/schemas/subscription'
+            - $ref: '#/components/schemas/ven'
+            - $ref: '#/components/schemas/resource'
+          discriminator:
+            propertyName: objectType
+        targets:
+          type: array
+          description: A list of targets.
+          items:
+            $ref: '#/components/schemas/target'
+          nullable: true
+          default: null
+    objectTypes:
+      type: string
+      description: Types of objects addressable through API.
+      example: EVENT
+      enum: [PROGRAM, EVENT, REPORT, SUBSCRIPTION, VEN, RESOURCE]
+    dateTime:
+      type: string
+      format: date-time
+      description: datetime in RFC 3339 format
+      example: 2023-06-15T09:30:00Z
+    duration:
+      type: string
+      pattern: "^(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$"
+      description: duration in ISO 8601 format
+      example: PT1H
+      default: PT0S
+    clientCredentialRequest:
+      type: object
+      description: |
+        Body of POST request to /auth/token. Note snake case per https://www.rfc-editor.org/rfc/rfc6749
+      required:
+        - grant_type
+        - client_id
+        - client_secret
+      properties:
+        grant_type:
+          type: string
+          description: OAuth2 grant type, must be 'client_credentials'
+          example: client_credentials
+          enum: [client_credentials]
+        client_id:
+          type: string
+          minLength: 1
+          maxLength: 4096
+          description: client ID to exchange for bearer token.
+          example: ven_client_99
+        client_secret:
+          type: string
+          minLength: 1
+          maxLength: 4096
+          description: client secret to exchange for bearer token.
+          example: ven_secret_99
+        scope:
+          type: string
+          minLength: 0
+          maxLength: 4096
+          description: application defined scope.
+          example: read_all
+    clientCredentialResponse:
+      type: object
+      description: |
+        Body response from /auth/token. Note snake case per https://www.rfc-editor.org/rfc/rfc6749
+      required:
+        - access_token
+        - token_type
+      properties:
+        access_token:
+          type: string
+          minLength: 1
+          maxLength: 4096
+          description: access token provided by Authorization service
+          example: MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3
+        token_type:
+          type: string
+          description: token type, must be Bearer.
+          example: Bearer
+          enum: [Bearer]
+        expires_in:
+          type: integer
+          description: expiration period in seconds.
+          example: 3600
+        refresh_token:
+          type: string
+          minLength: 1
+          maxLength: 4096
+          description: refresh token provided by Authorization service
+          example: IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk
+        scope:
+          type: string
+          minLength: 0
+          maxLength: 4096
+          description: application defined scope.
+          example: read_all
+    authError:
+      type: object
+      description: error response on HTTP 400 from auth/token per https://www.rfc-editor.org/rfc/rfc6749
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: As described in rfc6749 |
+            invalid_request – The request is missing a parameter so the server can’t proceed with the request. This may also be returned if the request includes an unsupported parameter or repeats a parameter.
+            invalid_client – Client authentication failed, such as if the request contains an invalid client ID or secret. Send an HTTP 401 response in this case.
+            invalid_grant – The authorization code (or user’s password for the password grant type) is invalid or expired. This is also the error you would return if the redirect URL given in the authorization grant does not match the URL provided in this access token request.
+            invalid_scope – For access token requests that include a scope (password or client_credentials grants), this error indicates an invalid scope value in the request.
+            unauthorized_client – This client is not authorized to use the requested grant type. For example, if you restrict which applications can use the Implicit grant, you would return this error for the other apps.
+            unsupported_grant_type – If a grant type is requested that the authorization server doesn’t recognize, use this code. Note that unknown grant types also use this specific error code rather than using the invalid_request above.
+          example: invalid_request
+          enum:
+            [
+              invalid_request,
+              invalid_client,
+              invalid_grant,
+              invalid_scope,
+              unauthorized_client,
+              unsupported_grant_type,
+            ]
+        error_description:
+          type: string
+          description: Should be a sentence or two at most describing the circumstance of the error
+          example: Request was missing the 'client_id' parameter.
+        error_uri:
+          type: string
+          format: uri
+          minLength: 2
+          maxLength: 8000
+          description: Optional reference to more detailed error description
+          example: See the full API docs at https://authorization-server.com/docs/access_toke
+    authServerInfo:
+      type: object
+      required:
+        - tokenURL
+      properties:
+        tokenURL:
+          type: string
+          format: uri
+          minLength: 2
+          maxLength: 8000
+          description: URL of the token endpoint.
+    problem:
+      type: object
+      description: |
+        reusable error response. From https://opensource.zalando.com/problem/schema.yaml.
+      properties:
+        type:
+          type: string
+          format: uri
+          minLength: 2
+          maxLength: 8000
+          description: |
+            An absolute URI that identifies the problem type.
+            When dereferenced, it SHOULD provide human-readable documentation for the problem type
+            (e.g., using HTML).
+          default: 'about:blank'
+          example: 'https://zalando.github.io/problem/constraint-violation'
+        title:
+          type: string
+          description: |
+            A short, summary of the problem type. Written in english and readable
+            for engineers (usually not suited for non technical stakeholders and
+            not localized); example: Service Unavailable.
+        status:
+          type: integer
+          format: int32
+          description: |
+            The HTTP status code generated by the origin server for this occurrence
+            of the problem.
+          minimum: 100
+          maximum: 600
+          exclusiveMaximum: true
+          example: 503
+        detail:
+          type: string
+          description: |
+            A human readable explanation specific to this occurrence of the
+            problem.
+          example: Connection to database timed out
+        instance:
+          type: string
+          minLength: 3 # since this must be an absolute URI
+          maxLength: 8000
+          format: uri
+          description: |
+            An absolute URI that identifies the specific occurrence of the problem.
+            It may or may not yield further information if dereferenced.
+    notifiersResponse:
+      type: object
+      description: Provides details of each notifier binding supported
+      required:
+        - WEBHOOK
+      properties:
+        WEBHOOK:
+          type: boolean
+          description: 'Currently MUST be true'
+          example: true
+        MQTT:
+          $ref: '#/components/schemas/mqttNotifierBindingObject'
+    mqttNotifierBindingObject:
+      type: object
+      description: Details of MQTT binding for messaging protocol support
+      required:
+        - URIS
+        - serialization
+        - authentication
+      properties:
+        URIS:
+          type: array
+          items:
+            type: string
+            format: uri
+            description: URIs for connection to MQTT broker
+            example: 'mqtts://broker.vtn.company.com'
+        serialization:
+          type: string
+          description: Currently always JSON, perhaps other formats supported in future
+          enum: [JSON]
+        authentication:
+          oneOf:
+            - $ref: '#/components/schemas/mqttNotifierAuthenticationAnonymous'
+            - $ref: '#/components/schemas/mqttNotifierAuthenticationOauth2BearerToken'
+            - $ref: '#/components/schemas/mqttNotifierAuthenticationCertificate'
+          description: Authentication method supported for connection to MQTT broker
+    mqttNotifierAuthenticationAnonymous:
+      type: object
+      description: MQTT broker anonymous authentication details
+      required:
+        - method
+      properties:
+        method:
+          type: string
+          enum: [ANONYMOUS]
+          description: Specifies anonymous authentication
+    mqttNotifierAuthenticationOauth2BearerToken:
+      type: object
+      description: MQTT broker OAuth2 Bearer Token authentication details
+      required:
+        - method
+        - username
+      properties:
+        method:
+          type: string
+          enum: [OAUTH2_BEARER_TOKEN]
+          description: Specifies OAuth2 bearer token authentication
+        username:
+          type: string
+          description: 'Either the distinguished string "{clientID}", or any other literal string'
+    mqttNotifierAuthenticationCertificate:
+      type: object
+      description: MQTT broker mTLS client certificate authentication details
+      required:
+        - method
+        - caCert
+        - clientCert
+        - clientKey
+      properties:
+        method:
+          type: string
+          enum: [CERTIFICATE]
+          description: Specifies certificate authentication
+        caCert:
+          type: string
+          description: String containing the Certificate Authority certificate
+        clientCert:
+          type: string
+          description: String containing the Client certificate
+        clientKey:
+          type: string
+          description: String containing the client certificate private key
+    notifierOperationsTopics:
+      type: object
+      description: MQTT notifier topic names for notifications of subscribable-object operations
+      required:
+        - UPDATE
+        - DELETE
+      properties:
+        CREATE:
+          type: string
+          description: |
+            'Topic path for CREATE operations,
+             not provided for notifications for a specific object ID,
+             e.g. until programID foo is created, clients unable to
+             request notifications of its creation'
+          example: '{objectType}s/create'
+        UPDATE:
+          type: string
+          description: Topic path for UPDATE operations
+          example: '{objectType}s/update'
+        DELETE:
+          type: string
+          description: Topic path for DELETE operations
+          example: '{objectType}s/delete'
+        ALL:
+          type: string
+          description: Topic path for ALL operations, if supported by VTN
+          example: '{objectType}s/+'
+    notifierTopicsResponse:
+      type: object
+      required:
+        - topics
+      properties:
+        topics:
+          $ref: '#/components/schemas/notifierOperationsTopics'
+  securitySchemes:
+    oAuth2ClientCredentials:
+      type: oauth2
+      description: Client credential flow.
+      # x-tokenInfoFunc: auth.verifyToken
+      flows:
+        clientCredentials:
+          tokenUrl: auth/token
+          scopes:
+            read_all: BL can read all resources
+            read_targets: VENs may only read objects with targets by providing matching targets
+            read_ven_objects: VENs may only read objects whose clientID matches their own
+            write_programs: Only BL can write to programs
+            write_events: Only BL can write to events
+            write_reports: only VENs can write to reports
+            write_subscriptions: VENs and BL can write to subscriptions
+            write_vens: VENS and BL can write to vens and resources
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT # optional, arbitrary value for documentation purposes
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/OPENADR3_1/openADR3.1.0/1.0.0
