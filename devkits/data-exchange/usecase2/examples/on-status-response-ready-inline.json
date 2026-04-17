@@ -75,6 +75,7 @@
             "dataset:accessMethod": "INLINE",
             "dataPayload": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/ies-specs/specification/external/schema/ies/arr/context.jsonld",
+              "@type": "IES_ARR_Filing",
               "objectType": "ARR_FILING",
               "filingId": "KERC/ARR/BESCOM/2025-26",
               "filingDate": "2025-11-15",

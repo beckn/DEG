@@ -76,8 +76,8 @@
             "dataPayload": {
               "@context": "https://raw.githubusercontent.com/beckn/DEG/ies-specs/specification/external/schema/ies/core/context.jsonld",
               "@type": "IES_Report",
-              "id": "rpt-ami-blr-zone-a-20260401",
               "objectType": "REPORT",
+              "id": "rpt-ami-blr-zone-a-20260401",
               "createdDateTime": "2026-04-01T09:20:00Z",
               "modificationDateTime": "2026-04-01T09:20:00Z",
               "programID": "prog-bescom-ami-metering-2026",
