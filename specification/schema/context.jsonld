@@ -11,6 +11,7 @@
       "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
       "xsd": "http://www.w3.org/2001/XMLSchema#"
     },
+    "./ConnectorType/v2.0/context.jsonld",
     "./EnergyEnrollment/v2.0/context.jsonld",
     "./EnergyTrade/v2.0/context.jsonld",
     "./EvChargingOffer/v2.0/context.jsonld",

@@ -1,0 +1,30 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "deg": "https://schema.beckn.io/deg/ConnectorType/v2.0/#",
+    "ConnectorType": "deg:ConnectorType",
+    "connectorType": {
+      "@id": "deg:connectorType",
+      "@type": "@id",
+      "@context": {
+        "CCS2": "deg:ConnectorTypeCCS2",
+        "Type2": "deg:ConnectorTypeType2",
+        "Type1": "deg:ConnectorTypeType1",
+        "CHAdeMO": "deg:ConnectorTypeCHAdeMO",
+        "GB_T": "deg:ConnectorTypeGBT",
+        "GB/T": "deg:ConnectorTypeGBT",
+        "GB-T": "deg:ConnectorTypeGBT",
+        "GBT_AC": "deg:ConnectorTypeGBT_AC",
+        "GBT_DC": "deg:ConnectorTypeGBT_DC",
+        "AC-001": "deg:ConnectorTypeAC001",
+        "DC-001": "deg:ConnectorTypeDC001",
+        "15A": "deg:ConnectorType15A",
+        "IEC_AC": "deg:ConnectorTypeIECAC",
+        "IEC_60309": "deg:ConnectorTypeIEC60309",
+        "Anderson": "deg:ConnectorTypeAnderson",
+        "Type6": "deg:ConnectorTypeType6"
+      }
+    }
+  },
+  "@graph": []
+}
