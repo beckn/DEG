@@ -5,7 +5,7 @@
 #
 # Usage (from usecase1/workflows/):
 #   ./run-arazzo.sh                                    # run all workflows
-#   ./run-arazzo.sh -w select-through-status -v        # single workflow, verbose
+#   ./run-arazzo.sh -w select-through-confirm -v       # single workflow, verbose
 #
 # Over-the-internet mode:
 #   PUBLIC_URL=https://your-domain.ngrok-free.dev ./run-arazzo.sh

@@ -29,7 +29,7 @@
           "id": "commitment-arr-filing-001",
           "status": {
             "descriptor": {
-              "code": "ACTIVE"
+              "code": "CLOSED"
             }
           },
           "resources": [
@@ -53,29 +53,66 @@
             "resourceIds": [
               "ds-bescom-arr-filing-fy2025-26"
             ]
+          }
+        }
+      ],
+      "performance": [
+        {
+          "id": "perf-arr-filing-delivery-001",
+          "status": {
+            "code": "DELIVERY_COMPLETE",
+            "name": "ARR filing delivered inline via dataPayload"
           },
-          "commitmentAttributes": {
+          "commitmentIds": [
+            "commitment-arr-filing-001"
+          ],
+          "performanceAttributes": {
             "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld",
             "@type": "DatasetItem",
             "schema:identifier": "ds-bescom-arr-filing-fy2025-26",
             "schema:name": "BESCOM ARR Filing - FY 2025-26",
             "schema:temporalCoverage": "2025-04-01/2026-03-31",
-            "dataset:accessMethod": "INLINE"
-          }
-        }
-      ],
-      "consideration": [
-        {
-          "id": "consideration-arr-regulatory-mandate",
-          "status": {
-            "code": "ACTIVE"
-          },
-          "considerationAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
-            "@type": "PriceSpecification",
-            "currency": "INR",
-            "value": 0,
-            "description": "Mandatory regulatory filing - no commercial consideration"
+            "dataset:accessMethod": "INLINE",
+            "dataPayload": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/ies-specs/specification/external/schema/ies/arr/context.jsonld",
+              "@type": "IES_ARR_Filing",
+              "id": "arr-filing-bescom-fy2025-26",
+              "objectType": "FILING",
+              "createdDateTime": "2026-04-01T09:20:00Z",
+              "modificationDateTime": "2026-04-01T09:20:00Z",
+              "fiscalYear": "2025-26",
+              "utilityName": "BESCOM",
+              "reportName": "ARR_Filing_FY2025_26",
+              "payloadDescriptors": [
+                {
+                  "objectType": "FILING_PAYLOAD_DESCRIPTOR",
+                  "payloadType": "ARR",
+                  "units": "INR"
+                }
+              ],
+              "resources": [
+                {
+                  "resourceName": "ARR-Line-Item-001",
+                  "lineItems": [
+                    {
+                      "id": 0,
+                      "description": "Power purchase cost",
+                      "amount": 1250000000
+                    },
+                    {
+                      "id": 1,
+                      "description": "Transmission charges",
+                      "amount": 230000000
+                    },
+                    {
+                      "id": 2,
+                      "description": "Operations and maintenance",
+                      "amount": 80000000
+                    }
+                  ]
+                }
+              ]
+            }
           }
         }
       ],
@@ -84,29 +121,31 @@
           "id": "bescom-discom-001",
           "descriptor": {
             "name": "BESCOM - Bangalore Electricity Supply Company"
-          },
-          "participantAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
-            "@type": "Organization",
-            "id": "bescom-discom-001",
-            "name": "BESCOM - Bangalore Electricity Supply Company"
           }
         },
         {
           "id": "aperc-regulator-001",
           "descriptor": {
             "name": "APERC - AP Electricity Regulatory Commission"
-          },
-          "participantAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
-            "@type": "Organization",
-            "id": "aperc-regulator-001",
-            "name": "APERC - AP Electricity Regulatory Commission"
           }
         }
       ],
-      "performance": [],
-      "settlements": []
+      "settlements": [
+        {
+          "id": "settlement-payment-completed",
+          "considerationId": "consideration-arr-regulatory-mandate",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:paymentStatus": "COMPLETED",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 0
+            }
+          }
+        }
+      ]
     }
   }
 }

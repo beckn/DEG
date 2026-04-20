@@ -29,7 +29,7 @@
           "id": "commitment-ami-meter-001",
           "status": {
             "descriptor": {
-              "code": "ACTIVE"
+              "code": "CLOSED"
             }
           },
           "resources": [
@@ -53,29 +53,100 @@
             "resourceIds": [
               "ds-ami-meter-data-blr-zone-a-q1-2026"
             ]
+          }
+        }
+      ],
+      "performance": [
+        {
+          "id": "perf-ami-meter-delivery-001",
+          "status": {
+            "code": "DELIVERY_COMPLETE",
+            "name": "AMI meter data delivered inline via dataPayload"
           },
-          "commitmentAttributes": {
+          "commitmentIds": [
+            "commitment-ami-meter-001"
+          ],
+          "performanceAttributes": {
             "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld",
             "@type": "DatasetItem",
             "schema:identifier": "ds-ami-meter-data-blr-zone-a-q1-2026",
             "schema:name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026",
             "schema:temporalCoverage": "2026-01-01/2026-03-31",
-            "dataset:accessMethod": "INLINE"
-          }
-        }
-      ],
-      "consideration": [
-        {
-          "id": "consideration-ami-existing-contract",
-          "status": {
-            "code": "ACTIVE"
-          },
-          "considerationAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
-            "@type": "PriceSpecification",
-            "currency": "INR",
-            "value": 0,
-            "description": "Covered under existing AMI services contract (BESCOM-AMISP-2025-001)"
+            "dataset:accessMethod": "INLINE",
+            "dataPayload": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/ies-specs/specification/external/schema/ies/core/context.jsonld",
+              "@type": "IES_Report",
+              "id": "rpt-ami-blr-zone-a-20260401",
+              "objectType": "REPORT",
+              "createdDateTime": "2026-04-01T09:20:00Z",
+              "modificationDateTime": "2026-04-01T09:20:00Z",
+              "programID": "prog-bescom-ami-metering-2026",
+              "eventID": "evt-ami-scheduled-read-20260401",
+              "clientName": "IntelliGrid-VEN-BLR-ZONE-A",
+              "clientID": "intelligrid-ven-blr-zone-a-001",
+              "reportName": "AMI_15min_usage_BLR_ZoneA_20260401",
+              "payloadDescriptors": [
+                {
+                  "objectType": "REPORT_PAYLOAD_DESCRIPTOR",
+                  "payloadType": "USAGE",
+                  "readingType": "DIRECT_READ",
+                  "units": "KWH",
+                  "accuracy": 0.5,
+                  "confidence": 98
+                }
+              ],
+              "resources": [
+                {
+                  "resourceName": "METER-BESCOM-SM-2025-654321",
+                  "intervalPeriod": {
+                    "start": "2026-04-01T00:00:00+05:30",
+                    "duration": "PT15M"
+                  },
+                  "intervals": [
+                    {
+                      "id": 0,
+                      "intervalPeriod": {
+                        "start": "2026-04-01T00:00:00+05:30",
+                        "duration": "PT15M"
+                      },
+                      "payloads": [
+                        { "type": "USAGE", "values": [0.42] }
+                      ]
+                    },
+                    {
+                      "id": 1,
+                      "intervalPeriod": {
+                        "start": "2026-04-01T00:15:00+05:30",
+                        "duration": "PT15M"
+                      },
+                      "payloads": [
+                        { "type": "USAGE", "values": [0.38] }
+                      ]
+                    },
+                    {
+                      "id": 2,
+                      "intervalPeriod": {
+                        "start": "2026-04-01T00:30:00+05:30",
+                        "duration": "PT15M"
+                      },
+                      "payloads": [
+                        { "type": "USAGE", "values": [0.35] }
+                      ]
+                    },
+                    {
+                      "id": 3,
+                      "intervalPeriod": {
+                        "start": "2026-04-01T00:45:00+05:30",
+                        "duration": "PT15M"
+                      },
+                      "payloads": [
+                        { "type": "USAGE", "values": [0.31] }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
           }
         }
       ],
@@ -84,29 +155,31 @@
           "id": "intelligrid-amisp-001",
           "descriptor": {
             "name": "IntelliGrid AMI Services"
-          },
-          "participantAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
-            "@type": "Organization",
-            "id": "intelligrid-amisp-001",
-            "name": "IntelliGrid AMI Services"
           }
         },
         {
           "id": "bescom-discom-001",
           "descriptor": {
             "name": "BESCOM - Distribution Company"
-          },
-          "participantAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
-            "@type": "Organization",
-            "id": "bescom-discom-001",
-            "name": "BESCOM - Distribution Company"
           }
         }
       ],
-      "performance": [],
-      "settlements": []
+      "settlements": [
+        {
+          "id": "settlement-payment-completed",
+          "considerationId": "consideration-ami-existing-contract",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:paymentStatus": "COMPLETED",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 0
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -3,35 +3,21 @@ info:
   title: Energy Data Exchange Workflow - Use Case 2 (ARR Filing)
   version: 1.0.0
   description: >
-    End-to-end Beckn 2.0 workflow for ARR filing data exchange via
-    DatasetItem with IES_ARR_Filing dataPayload.
-    Scenario: BESCOM (discom) submits ARR filing data to
-    APERC (state regulator) with in-message delivery.
+    End-to-end Beckn 2.0 workflow for inline ARR filing exchange.
+    The main delivery happens in on_confirm with DatasetItem dataPayload.
 
     Run via the workflow runner (from usecase2/workflows/):
 
-      Local mode (default, against docker-compose-adapter.yml on localhost):
+      Local mode:
         ./run-arazzo.sh
-        ./run-arazzo.sh -w select-through-status -v
+        ./run-arazzo.sh -w select-through-confirm -v
 
-      Over-internet mode (against the public ngrok URL fronting
-      docker-compose-over-internet.yml):
+      Over-internet mode:
         PUBLIC_URL=https://<host>.ngrok-free.dev ./run-arazzo.sh
 
-      Direct respect invocation (advanced; no on-the-fly URI rewrites):
+      Direct respect invocation:
         npx @redocly/cli respect data-exchange.arazzo.yaml \
           --severity 'SCHEMA_CHECK=off' -v
-
-      Available workflows: publish-catalog, discover, select-through-status,
-        cancellation
-
-      The catalog-service subscription is a one-time network-level setup
-      call (not part of the transactional flow); see
-      ../../scripts/subscribe-catalog.sh.
-
-      Override server URLs (optional, defaults in x-serverUrl):
-        -S beckn-bap-caller=http://localhost:8081/bap/caller \
-        -S beckn-bpp-caller=http://localhost:8082/bpp/caller
 
 sourceDescriptions:
   - name: beckn-bap-caller
@@ -67,8 +53,8 @@ workflows:
           payload:
             $ref: "../examples/discover-request.json"
 
-  - workflowId: select-through-status
-    summary: Regulator selects, confirms, and receives ARR filing delivery
+  - workflowId: select-through-confirm
+    summary: Regulator selects, confirms, and receives ARR filing inline on confirm
     steps:
       - stepId: select
         description: Regulator selects ARR filing dataset for inline delivery
@@ -79,7 +65,7 @@ workflows:
             $ref: "../examples/select-request.json"
 
       - stepId: on-select
-        description: Discom responds with terms for selected ARR filing (regulatory mandate)
+        description: Discom responds with terms for the selected ARR filing
         operationId: beckn-bpp-caller.onSelect
         requestBody:
           contentType: application/json
@@ -95,7 +81,7 @@ workflows:
             $ref: "../examples/init-request.json"
 
       - stepId: on-init
-        description: Discom confirms readiness to deliver ARR filing
+        description: Discom confirms the contract is ready for confirmation
         operationId: beckn-bpp-caller.onInit
         requestBody:
           contentType: application/json
@@ -103,7 +89,7 @@ workflows:
             $ref: "../examples/on-init-response.json"
 
       - stepId: confirm
-        description: Regulator confirms ARR filing exchange
+        description: Regulator confirms the ARR filing exchange
         operationId: beckn-bap-caller.confirm
         requestBody:
           contentType: application/json
@@ -111,47 +97,12 @@ workflows:
             $ref: "../examples/confirm-request.json"
 
       - stepId: on-confirm
-        description: Discom acknowledges and begins ARR filing preparation
+        description: Discom confirms the contract and delivers ARR filing inline
         operationId: beckn-bpp-caller.onConfirm
         requestBody:
           contentType: application/json
           payload:
             $ref: "../examples/on-confirm-response.json"
-
-      - stepId: status
-        description: Regulator checks ARR filing delivery status
-        operationId: beckn-bap-caller.status
-        requestBody:
-          contentType: application/json
-          payload:
-            $ref: "../examples/status-request.json"
-
-      - stepId: on-status-processing
-        description: Discom reports ARR filing preparation in progress
-        operationId: beckn-bpp-caller.onStatus
-        requestBody:
-          contentType: application/json
-          payload:
-            $ref: "../examples/on-status-response-processing.json"
-
-      - stepId: on-status-ready-url
-        description: Discom delivers ARR filing via URL download
-        operationId: beckn-bpp-caller.onStatus
-        requestBody:
-          contentType: application/json
-          payload:
-            $ref: "../examples/on-status-response-ready-url.json"
-
-      - stepId: on-status-ready-inline
-        description: >
-          Discom delivers ARR filing inline via dataPayload.
-          This step demonstrates DatasetItem's in-message delivery
-          with an IES_ARR_Filing embedded in dataPayload.
-        operationId: beckn-bpp-caller.onStatus
-        requestBody:
-          contentType: application/json
-          payload:
-            $ref: "../examples/on-status-response-ready-inline.json"
 
   - workflowId: cancellation
     summary: ARR filing exchange cancellation

@@ -23,11 +23,12 @@
 # and enter your authtoken from ngrok website and start ngrok. This exposes port 9000.
 #   ngrok start --all --config ngrok.yml
 
-# With local env, you can run end--to-end automated workflows using arazzo scripts from workflow folder.
-# Set PUBLIC_URL to the external URL shown in ngrok dashboard, and run all workflows
+# With local env, you can run end-to-end automated workflows using the
+# Arazzo scripts from the workflow folder.
+# Set PUBLIC_URL to the external URL shown in ngrok dashboard, and run all workflows:
 #   PUBLIC_URL=$PUBLIC_URL ./run-arazzo.sh
-# for runnig specific workflows e.g. select-through-status, you can run 
-#   PUBLIC_URL=$PUBLIC_URL ./run-arazzo.sh -w select-through-status -v
+# For a specific workflow, use for example:
+#   PUBLIC_URL=$PUBLIC_URL ./run-arazzo.sh -w select-through-confirm -v
 
 services:
   # ---------- BAP side ----------
