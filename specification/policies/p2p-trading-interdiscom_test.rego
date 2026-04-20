@@ -27,6 +27,88 @@ _input_with_ids(buyer_meter, buyer_utility, provider_meter, provider_utility) :=
 	}},
 }
 
+_input_with_quantity(qty, cap) := {
+	"context": {
+		"version": "2.0.0",
+		"action": "confirm",
+		"timestamp": "2024-10-04T10:25:00Z",
+		"domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0",
+	},
+	"message": {
+		"order": {
+			"@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+			"@type": "beckn:Order",
+			"beckn:buyer": {
+				"@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+				"@type": "beckn:Buyer",
+				"beckn:buyerAttributes": {
+					"@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+					"@type": "EnergyCustomer",
+					"meterId": "REAL_METER_BUYER",
+					"utilityCustomerId": "REAL-CUST-BUYER-001",
+					"utilityId": "PVVNL",
+				},
+			},
+			"beckn:orderAttributes": {
+				"@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+				"@type": "EnergyTradeOrder",
+				"bap_id": "bap.energy-consumer.com",
+				"bpp_id": "bpp.energy-provider.com",
+			},
+			"beckn:orderItems": [{
+				"beckn:orderItemAttributes": {
+					"@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+					"@type": "EnergyOrderItem",
+					"providerAttributes": {
+						"@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+						"@type": "EnergyCustomer",
+						"meterId": "REAL_METER_SELLER",
+						"utilityCustomerId": "REAL-CUST-SELLER-001",
+						"utilityId": "TPDDL",
+					},
+				},
+				"beckn:quantity": {
+					"unitQuantity": qty,
+					"unitText": "kWh",
+				},
+				"beckn:acceptedOffer": {
+					"@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+					"@type": "beckn:Offer",
+					"beckn:price": {
+						"@type": "schema:PriceSpecification",
+						"schema:price": 15,
+						"schema:priceCurrency": "INR",
+						"unitText": "kWh",
+						"applicableQuantity": {
+							"unitQuantity": cap,
+							"unitText": "kWh",
+						},
+					},
+					"beckn:offerAttributes": {
+						"@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+						"@type": "EnergyTradeOffer",
+						"pricingModel": "PER_KWH",
+						"deliveryWindow": {
+							"@type": "beckn:TimePeriod",
+							"schema:startTime": "2026-01-09T10:00:00Z",
+							"schema:endTime": "2026-01-09T11:00:00Z",
+						},
+						"validityWindow": {
+							"@type": "beckn:TimePeriod",
+							"schema:startTime": "2026-01-09T00:00:00Z",
+							"schema:endTime": "2026-01-09T06:00:00Z",
+						},
+					},
+				},
+			}],
+			"beckn:fulfillment": {
+				"@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+				"@type": "beckn:Fulfillment",
+			},
+		},
+	},
+}
+
 # ──────────────────────────────────────────────────────────────────────────────
 # T1 – test-consistency violation rules
 # ──────────────────────────────────────────────────────────────────────────────
@@ -100,4 +182,10 @@ test_t1_mixed_buyer_utility_fail if {
 	some msg in msgs
 	contains(msg, "buyer utilityId")
 	contains(msg, "TEST_DISCOM_BUYER")
+}
+
+test_order_quantity_equal_to_cap_fails if {
+	msgs := _order_violations with input as _input_with_quantity(20.0, 20.0)
+	some msg in msgs
+	contains(msg, "must be strictly less than the applicableQuantity")
 }

@@ -239,10 +239,10 @@ _order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	qty := item["beckn:quantity"].unitQuantity
 	cap := item["beckn:acceptedOffer"]["beckn:price"].applicableQuantity.unitQuantity
-	qty > cap
+	qty >= cap
 
 	msg := sprintf(
-		"order item [%d]: beckn:quantity.unitQuantity (%v) must not be greater than the applicableQuantity (%v)",
+		"order item [%d]: beckn:quantity.unitQuantity (%v) must be strictly less than the applicableQuantity (%v)",
 		[i, qty, cap],
 	)
 }
