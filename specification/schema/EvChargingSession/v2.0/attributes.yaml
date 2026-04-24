@@ -55,7 +55,7 @@ properties:
 
   connectorType:
     type: string
-    enum: [CCS2, Type2, CHAdeMO, GB_T]
+    enum: [CCS2, Type2, CHAdeMO, GB_T, GBT_AC, GBT_DC, AC-001, DC-001, 15A, IEC_AC, IEC_60309, Anderson, Type6, Type1]
     description: Connector used for this session (may differ from listing).
     example: "CCS2"
     x-jsonld:

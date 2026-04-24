@@ -1,0 +1,141 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "deg": "https://schema.beckn.io/deg/ConnectorType/v2.0/#",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "deg:ConnectorType",
+      "@type": "schema:Enumeration",
+      "schema:name": "Connector Type",
+      "rdfs:comment": "Enumeration of electric vehicle connector interface types.",
+      "schema:hasEnumerationMember": [
+        { "@id": "deg:ConnectorTypeCCS2" },
+        { "@id": "deg:ConnectorTypeType2" },
+        { "@id": "deg:ConnectorTypeCHAdeMO" },
+        { "@id": "deg:ConnectorTypeGBT" },
+        { "@id": "deg:ConnectorTypeGBT_AC" },
+        { "@id": "deg:ConnectorTypeGBT_DC" },
+        { "@id": "deg:ConnectorTypeAC001" },
+        { "@id": "deg:ConnectorTypeDC001" },
+        { "@id": "deg:ConnectorType15A" },
+        { "@id": "deg:ConnectorTypeIECAC" },
+        { "@id": "deg:ConnectorTypeIEC60309" },
+        { "@id": "deg:ConnectorTypeAnderson" },
+        { "@id": "deg:ConnectorTypeType6" },
+        { "@id": "deg:ConnectorTypeType1" }
+      ]
+    },
+    {
+      "@id": "deg:ConnectorTypeCCS2",
+      "@type": "deg:ConnectorType",
+      "schema:name": "CCS2",
+      "schema:identifier": "CCS2",
+      "rdfs:comment": "IEC 62196 Combo 2 (CCS2). Type 2 inlet with additional DC pins for DC fast charging.",
+      "rdfs:seeAlso": "https://github.com/ocpi/ocpi/blob/master/mod_locations.asciidoc"
+    },
+    {
+      "@id": "deg:ConnectorTypeType2",
+      "@type": "deg:ConnectorType",
+      "schema:name": "Type2",
+      "schema:identifier": "Type2",
+      "rdfs:comment": "IEC 62196 Type 2 (AC) connector, commonly called Type 2 or Mennekes, used for AC charging.",
+      "rdfs:seeAlso": "https://github.com/ocpi/ocpi/blob/master/mod_locations.asciidoc"
+    },
+    {
+      "@id": "deg:ConnectorTypeCHAdeMO",
+      "@type": "deg:ConnectorType",
+      "schema:name": "CHAdeMO",
+      "schema:identifier": "CHAdeMO",
+      "rdfs:comment": "CHAdeMO DC fast charging connector system.",
+      "rdfs:seeAlso": "https://github.com/ocpi/ocpi/blob/master/mod_locations.asciidoc"
+    },
+    {
+      "@id": "deg:ConnectorTypeGBT",
+      "@type": "deg:ConnectorType",
+      "schema:name": "GB/T",
+      "schema:identifier": "GB_T",
+      "schema:alternateName": "GB-T",
+      "rdfs:comment": "GB/T connector family. OCPI distinguishes AC vs DC (GBT_AC vs GBT_DC). Consider splitting if the distinction matters for interoperability.",
+      "rdfs:seeAlso": "https://github.com/ocpi/ocpi/blob/master/mod_locations.asciidoc"
+    },
+    {
+      "@id": "deg:ConnectorTypeGBT_AC",
+      "@type": "deg:ConnectorType",
+      "schema:name": "GBT AC",
+      "schema:identifier": "GBT_AC",
+      "rdfs:comment": "GB/T AC connector type.",
+      "rdfs:seeAlso": "https://github.com/ocpi/ocpi/blob/master/mod_locations.asciidoc"
+    },
+    {
+      "@id": "deg:ConnectorTypeGBT_DC",
+      "@type": "deg:ConnectorType",
+      "schema:name": "GBT DC",
+      "schema:identifier": "GBT_DC",
+      "rdfs:comment": "GB/T DC connector type.",
+      "rdfs:seeAlso": "https://github.com/ocpi/ocpi/blob/master/mod_locations.asciidoc"
+    },
+    {
+      "@id": "deg:ConnectorTypeType1",
+      "@type": "deg:ConnectorType",
+      "schema:name": "Type1",
+      "schema:identifier": "Type1",
+      "rdfs:comment": "IEC 62196 Type 1 (SAE J1772) AC connector, common in North America and Japan.",
+      "rdfs:seeAlso": "https://github.com/ocpi/ocpi/blob/master/mod_locations.asciidoc"
+    },
+    {
+      "@id": "deg:ConnectorTypeAC001",
+      "@type": "deg:ConnectorType",
+      "schema:name": "AC-001",
+      "schema:identifier": "AC-001",
+      "rdfs:comment": "Bharat AC-001 charging specification and program."
+    },
+    {
+      "@id": "deg:ConnectorTypeDC001",
+      "@type": "deg:ConnectorType",
+      "schema:name": "DC-001",
+      "schema:identifier": "DC-001",
+      "rdfs:comment": "Bharat DC-001 charging specification and program."
+    },
+    {
+      "@id": "deg:ConnectorType15A",
+      "@type": "deg:ConnectorType",
+      "schema:name": "15A",
+      "schema:identifier": "15A",
+      "rdfs:comment": "15A is a current rating, not a connector family. Consider modeling this as rated or max current, not as ConnectorType."
+    },
+    {
+      "@id": "deg:ConnectorTypeIECAC",
+      "@type": "deg:ConnectorType",
+      "schema:name": "IEC AC",
+      "schema:identifier": "IEC_AC",
+      "rdfs:comment": "Ambiguous shorthand. Prefer a specific IEC connector family (Type 1, Type 2, IEC 60309), or deprecate."
+    },
+    {
+      "@id": "deg:ConnectorTypeIEC60309",
+      "@type": "deg:ConnectorType",
+      "schema:name": "IEC 60309",
+      "schema:identifier": "IEC_60309",
+      "rdfs:comment": "IEC 60309 industrial connector family. Multiple variants exist by phase and current rating. Consider narrowing or splitting into variants if needed.",
+      "rdfs:seeAlso": "https://github.com/ocpi/ocpi/blob/master/mod_locations.asciidoc"
+    },
+    {
+      "@id": "deg:ConnectorTypeAnderson",
+      "@type": "deg:ConnectorType",
+      "schema:name": "Anderson",
+      "schema:identifier": "Anderson",
+      "rdfs:comment": "Anderson-style DC connector family label. Not directly represented in OCPI ConnectorType list."
+    },
+    {
+      "@id": "deg:ConnectorTypeType6",
+      "@type": "deg:ConnectorType",
+      "schema:name": "Type6",
+      "schema:identifier": "Type6",
+      "rdfs:comment": "IEC 62196-6 or IS 17017-2-6 (Type 6) connector, typically referenced in LEV charging contexts."
+    }
+  ]
+}

@@ -267,63 +267,6 @@
       "schema:identifier": "UNAVAILABLE"
     },
     {
-      "@id": "deg:ConnectorType",
-      "@type": "schema:Enumeration",
-      "schema:name": "Connector Type",
-      "rdfs:comment": "Enumeration of electric vehicle connector interface types.",
-      "schema:hasEnumerationMember": [
-        {
-          "@id": "deg:ConnectorTypeCCS2"
-        },
-        {
-          "@id": "deg:ConnectorTypeType2"
-        },
-        {
-          "@id": "deg:ConnectorTypeCHAdeMO"
-        },
-        {
-          "@id": "deg:ConnectorTypeGBT"
-        }
-      ]
-    },
-    {
-      "@id": "deg:ConnectorTypeCCS2",
-      "@type": [
-        "deg:ConnectorType",
-        "schema:Enumeration"
-      ],
-      "schema:name": "CCS2",
-      "schema:identifier": "CCS2"
-    },
-    {
-      "@id": "deg:ConnectorTypeType2",
-      "@type": [
-        "deg:ConnectorType",
-        "schema:Enumeration"
-      ],
-      "schema:name": "Type2",
-      "schema:identifier": "Type2"
-    },
-    {
-      "@id": "deg:ConnectorTypeCHAdeMO",
-      "@type": [
-        "deg:ConnectorType",
-        "schema:Enumeration"
-      ],
-      "schema:name": "CHAdeMO",
-      "schema:identifier": "CHAdeMO"
-    },
-    {
-      "@id": "deg:ConnectorTypeGBT",
-      "@type": [
-        "deg:ConnectorType",
-        "schema:Enumeration"
-      ],
-      "schema:name": "GB/T",
-      "schema:identifier": "GB_T",
-      "schema:alternateName": "GB-T"
-    },
-    {
       "@id": "deg:TelemetryMetric",
       "@type": "schema:Enumeration",
       "schema:name": "Telemetry Metric",

@@ -70,6 +70,15 @@
       "schema:rangeIncludes": "schema:Text"
     },
     {
+      "@id": "deg:qrIdentifier",
+      "@type": "rdf:Property",
+      "rdfs:label": "QR identifier",
+      "rdfs:comment": "The short URL or plain-text token encoded in the physical QR code affixed to this charging connector. BPPs populate this during catalog publish so that BAPs can discover a specific connector by scanning its QR, without requiring CPO-specific SDK logic to resolve the scanned value.",
+      "rdfs:domain": "deg:ChargingService",
+      "schema:rangeIncludes": "schema:Text",
+      "rdfs:seeAlso": "https://schema.org/identifier"
+    },
+    {
       "@id": "deg:roamingNetwork",
       "@type": "rdf:Property",
       "rdfs:label": "Roaming network",
@@ -203,63 +212,6 @@
       "schema:name": "PARKING",
       "schema:identifier": "PARKING",
       "schema:alternateName": "Parking"
-    },
-    {
-      "@id": "deg:ConnectorType",
-      "@type": "schema:Enumeration",
-      "schema:name": "Connector Type",
-      "rdfs:comment": "Enumeration of electric vehicle connector interface types.",
-      "schema:hasEnumerationMember": [
-        {
-          "@id": "deg:ConnectorTypeCCS2"
-        },
-        {
-          "@id": "deg:ConnectorTypeType2"
-        },
-        {
-          "@id": "deg:ConnectorTypeCHAdeMO"
-        },
-        {
-          "@id": "deg:ConnectorTypeGBT"
-        }
-      ]
-    },
-    {
-      "@id": "deg:ConnectorTypeCCS2",
-      "@type": [
-        "deg:ConnectorType",
-        "schema:Enumeration"
-      ],
-      "schema:name": "CCS2",
-      "schema:identifier": "CCS2"
-    },
-    {
-      "@id": "deg:ConnectorTypeType2",
-      "@type": [
-        "deg:ConnectorType",
-        "schema:Enumeration"
-      ],
-      "schema:name": "Type2",
-      "schema:identifier": "Type2"
-    },
-    {
-      "@id": "deg:ConnectorTypeCHAdeMO",
-      "@type": [
-        "deg:ConnectorType",
-        "schema:Enumeration"
-      ],
-      "schema:name": "CHAdeMO",
-      "schema:identifier": "CHAdeMO"
-    },
-    {
-      "@id": "deg:ConnectorTypeGBT",
-      "@type": [
-        "deg:ConnectorType",
-        "schema:Enumeration"
-      ],
-      "schema:name": "GB/T",
-      "schema:identifier": "GB_T",
-      "schema:alternateName": "GB-T"
     },
     {
       "@id": "deg:PowerType",

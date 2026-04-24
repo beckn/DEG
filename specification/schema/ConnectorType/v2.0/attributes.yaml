@@ -1,0 +1,31 @@
+$id: "https://schema.beckn.io/ConnectorType/v2.0"
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: ConnectorType
+description: >
+  Enumeration of electric vehicle connector interface types used across
+  DEG EV charging schemas. This is the single source of truth for
+  connector type definitions.
+x-tags:
+  - ev-charging
+  - connector
+  - enumeration
+type: string
+x-jsonld:
+  "@context": ./context.jsonld
+  "@type": ConnectorType
+enum:
+  - CCS2
+  - Type2
+  - CHAdeMO
+  - GB_T
+  - GBT_AC
+  - GBT_DC
+  - AC-001
+  - DC-001
+  - 15A
+  - IEC_AC
+  - IEC_60309
+  - Anderson
+  - Type6
+  - Type1
+example: "CCS2"

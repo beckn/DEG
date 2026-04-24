@@ -21,7 +21,8 @@
 | Property | Type | Required | Description |
 |----------|------|:--------:|-------------|
 | `evseId` | `string` | — | EVSE identifier (e.g., OCPI/Hubject style). |
-| `connectorType` | `string` (enum) | ✓ | Physical connector type: `CCS2`, `Type2`, `CHAdeMO`, `GB_T`. |
+| `qrIdentifier` | `string` | — | Short URL or token encoded in the physical QR code affixed to the connector, for BAP-side QR-scan discovery. |
+| `connectorType` | `string` (enum) | ✓ | Physical connector type. Full list: see [ConnectorType](../ConnectorType/README.md). |
 | `maxPowerKW` | `number` | ✓ | Maximum output power of the connector (kW). |
 | `minPowerKW` | `number` | — | Minimum controllable power if throttling is supported (kW). |
 | `reservationSupported` | `boolean` | — | Whether advance reservations are supported. |
@@ -31,6 +32,7 @@
 | `roamingNetworks` | `array<string>` | — | Interoperability/roaming networks this EVSE participates in. |
 | `ocppVersion` | `string` | — | OCPP protocol version supported. |
 | `powerType` | `string` (enum) | — | AC or DC power type. |
+| `vehicleType` | `string` or `array<string>` (enum) | — | Vehicle type(s) that can use this charging service: `2-WHEELER`, `3-WHEELER`, `4-WHEELER`. |
 
 ## Linked Data
 

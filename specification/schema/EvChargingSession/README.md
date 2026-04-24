@@ -23,7 +23,7 @@
 | `sessionStatus` | `string` (enum) | — | High-level session state: `PENDING`, `ACTIVE`, `STOP`, `COMPLETED`, `INTERRUPTED`. |
 | `connectorStatus` | `string` (enum) | — | Charging connector status (OCPP codes): `AVAILABLE`, `PREPARING`, `UNAVAILABLE`. |
 | `buyerFinderFee` | `object` | — | Commission payable by provider to the BAP for this session. |
-| `connectorType` | `string` (enum) | — | Connector used for this session: `CCS2`, `Type2`, `CHAdeMO`, `GB_T`. |
+| `connectorType` | `string` (enum) | — | Connector used for this session. Full list: see [ConnectorType](../ConnectorType/README.md). |
 | `maxPowerKW` | `number` | — | Peak power observed/allowed for this session (kW). |
 | `meteredEnergyKWh` | `number` | — | Total metered energy delivered (kWh). |
 | `meteredDurationMinutes` | `number` | — | Total metered duration of the session (minutes). |
