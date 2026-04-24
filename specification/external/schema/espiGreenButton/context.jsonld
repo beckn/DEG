@@ -1,0 +1,255 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "id": "@id",
+        "type": "@type",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "espi": "http://naesb.org/espi#",
+
+        "start": {
+            "@id": "espi:start",
+            "@type": "xsd:dateTime"
+        },
+        "duration": {
+            "@id": "espi:duration",
+            "@type": "xsd:integer"
+        },
+        "value": {
+            "@id": "espi:value",
+            "@type": "xsd:decimal"
+        },
+        "powerOfTenMultiplier": {
+            "@id": "espi:powerOfTenMultiplier",
+            "@type": "xsd:integer"
+        },
+        "uom": {
+            "@id": "espi:uom",
+            "@type": "xsd:integer"
+        },
+        "currency": {
+            "@id": "espi:currency",
+            "@type": "xsd:integer"
+        },
+        "qualityOfReading": {
+            "@id": "espi:qualityOfReading",
+            "@type": "xsd:integer"
+        },
+        "commodity": {
+            "@id": "espi:commodity",
+            "@type": "xsd:integer"
+        },
+
+        "DateTimeInterval": {
+            "@id": "espi:DateTimeInterval"
+        },
+
+        "ServiceCategory": {
+            "@id": "espi:ServiceCategory",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "kind": {
+                    "@id": "espi:kind",
+                    "@type": "xsd:integer"
+                }
+            }
+        },
+
+        "ReadingType": {
+            "@id": "espi:ReadingType",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "accumulationBehaviour": {
+                    "@id": "espi:accumulationBehaviour",
+                    "@type": "xsd:integer"
+                },
+                "flowDirection": {
+                    "@id": "espi:flowDirection",
+                    "@type": "xsd:integer"
+                },
+                "intervalLength": {
+                    "@id": "espi:intervalLength",
+                    "@type": "xsd:integer"
+                },
+                "kind": {
+                    "@id": "espi:kind",
+                    "@type": "xsd:integer"
+                },
+                "phase": {
+                    "@id": "espi:phase",
+                    "@type": "xsd:integer"
+                },
+                "dataQualifier": {
+                    "@id": "espi:dataQualifier",
+                    "@type": "xsd:integer"
+                },
+                "defaultQuality": {
+                    "@id": "espi:defaultQuality",
+                    "@type": "xsd:integer"
+                },
+                "timeAttribute": {
+                    "@id": "espi:timeAttribute",
+                    "@type": "xsd:integer"
+                },
+                "measuringPeriod": {
+                    "@id": "espi:measuringPeriod",
+                    "@type": "xsd:integer"
+                },
+                "consumptionTier": {
+                    "@id": "espi:consumptionTier",
+                    "@type": "xsd:integer"
+                },
+                "tou": {
+                    "@id": "espi:tou",
+                    "@type": "xsd:integer"
+                },
+                "cpp": {
+                    "@id": "espi:cpp",
+                    "@type": "xsd:integer"
+                }
+            }
+        },
+
+        "IntervalBlock": {
+            "@id": "espi:IntervalBlock",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "interval": {
+                    "@id": "espi:interval",
+                    "@type": "@id"
+                },
+                "IntervalReading": {
+                    "@id": "espi:IntervalReading",
+                    "@type": "@id",
+                    "@container": "@set",
+                    "@context": {
+                        "@version": 1.1,
+                        "@protected": true,
+                        "timePeriod": {
+                            "@id": "espi:timePeriod",
+                            "@type": "@id"
+                        },
+                        "cost": {
+                            "@id": "espi:cost",
+                            "@type": "xsd:integer"
+                        },
+                        "ReadingQuality": {
+                            "@id": "espi:ReadingQuality",
+                            "@type": "@id",
+                            "@context": {
+                                "@version": 1.1,
+                                "@protected": true,
+                                "quality": {
+                                    "@id": "espi:quality",
+                                    "@type": "xsd:integer"
+                                }
+                            }
+                        },
+                        "consumptionTier": {
+                            "@id": "espi:consumptionTier",
+                            "@type": "xsd:integer"
+                        },
+                        "tou": {
+                            "@id": "espi:tou",
+                            "@type": "xsd:integer"
+                        },
+                        "cpp": {
+                            "@id": "espi:cpp",
+                            "@type": "xsd:integer"
+                        }
+                    }
+                }
+            }
+        },
+
+        "UsageSummary": {
+            "@id": "espi:UsageSummary",
+            "@type": "@id",
+            "@container": "@set",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "billingPeriod": {
+                    "@id": "espi:billingPeriod",
+                    "@type": "@id"
+                },
+                "billLastPeriod": {
+                    "@id": "espi:billLastPeriod",
+                    "@type": "xsd:integer"
+                },
+                "billToDate": {
+                    "@id": "espi:billToDate",
+                    "@type": "xsd:integer"
+                },
+                "costAdditionalLastPeriod": {
+                    "@id": "espi:costAdditionalLastPeriod",
+                    "@type": "xsd:integer"
+                },
+                "costAdditionalDetailLastPeriod": {
+                    "@id": "espi:costAdditionalDetailLastPeriod",
+                    "@type": "@id",
+                    "@container": "@set",
+                    "@context": {
+                        "@version": 1.1,
+                        "@protected": true,
+                        "amount": {
+                            "@id": "espi:amount",
+                            "@type": "xsd:integer"
+                        },
+                        "itemKind": {
+                            "@id": "espi:itemKind",
+                            "@type": "xsd:integer"
+                        },
+                        "unitCost": {
+                            "@id": "espi:unitCost",
+                            "@type": "xsd:integer"
+                        },
+                        "note": {
+                            "@id": "espi:note",
+                            "@type": "xsd:string"
+                        },
+                        "rounding": {
+                            "@id": "espi:rounding",
+                            "@type": "xsd:integer"
+                        },
+                        "dateTime": {
+                            "@id": "espi:dateTime",
+                            "@type": "xsd:dateTime"
+                        },
+                        "measurement": {
+                            "@id": "espi:measurement",
+                            "@type": "@id"
+                        },
+                        "itemPeriod": {
+                            "@id": "espi:itemPeriod",
+                            "@type": "@id"
+                        }
+                    }
+                },
+                "overallConsumptionLastPeriod": {
+                    "@id": "espi:overallConsumptionLastPeriod",
+                    "@type": "@id"
+                },
+                "currentBillingPeriodOverAllConsumption": {
+                    "@id": "espi:currentBillingPeriodOverAllConsumption",
+                    "@type": "@id"
+                },
+                "peakDemand": {
+                    "@id": "espi:peakDemand",
+                    "@type": "@id"
+                }
+            }
+        },
+
+        "SummaryMeasurement": {
+            "@id": "espi:SummaryMeasurement"
+        },
+
+        "LineItem": {
+            "@id": "espi:LineItem"
+        }
+    }
+}

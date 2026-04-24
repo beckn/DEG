@@ -1,0 +1,29 @@
+{
+  "context": {
+    "networkId": "beckn.one/testnet",
+    "version": "2.0.0",
+    "action": "catalog/subscription",
+    "bapId": "p2p-trading-sandbox1.com",
+    "bapUri": "http://onix-bap:8081/bap/receiver",
+    "bppId": "tpddl-utility.example.com",
+    "bppUri": "https://tpddl-utility.example.com/beckn",
+    "transactionId": "txn-subscribe-001",
+    "messageId": "msg-subscribe-001",
+    "timestamp": "2026-03-28T06:00:00Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/becknv2-demand-flex/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/becknv2-demand-flex/specification/schema/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.beckn.io/Quantity/context.jsonld"
+    ]
+  },
+  "message": {
+    "subscription": {
+      "networkIds": ["beckn.one/testnet"],
+      "schemaTypes": [
+        "https://raw.githubusercontent.com/beckn/DEG/refs/heads/becknv2-demand-flex/specification/schema/DemandFlexBuyOffer/v2.0/context.jsonld",
+        "https://raw.githubusercontent.com/beckn/DEG/refs/heads/becknv2-demand-flex/specification/schema/DemandFlexNeed/v2.0/context.jsonld"
+      ],
+      "callbackUrl": "https://tpddl-utility.example.com/beckn/catalog/callback"
+    }
+  }
+}

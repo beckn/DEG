@@ -338,7 +338,7 @@ Specifically, please use the following configuration:
 
 ### 8.2.3. 10.2.3 Performing a test transaction
 
-Step 1 : Download the postman collection, from [here](/testnet/p2p-trading-devkit/postman).
+Step 1 : Download the postman collection, from [here](/devkits/p2p-trading/postman).
 
 Step 2 : Run API calls
 
@@ -406,7 +406,7 @@ Beckn Protocol v2 provides a composable schema architecture that enables:
 **Example**:
 ```json
 {
-  "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EnergyResource/v0.2/context.jsonld",
+  "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/EnergyResource/v0.2/context.jsonld",
   "@type": "EnergyResource",
   "sourceType": "SOLAR",
   "deliveryMode": "GRID_INJECTION",
@@ -434,7 +434,7 @@ Beckn Protocol v2 provides a composable schema architecture that enables:
 **Example**:
 ```json
 {
-  "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EnergyTradeOffer/v0.2/context.jsonld",
+  "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/EnergyTradeOffer/v0.2/context.jsonld",
   "@type": "EnergyTradeOffer",
   "pricingModel": "PER_KWH",
   "settlementType": "DAILY",
@@ -464,7 +464,7 @@ Beckn Protocol v2 provides a composable schema architecture that enables:
 **Example**:
 ```json
 {
-  "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/EnergyTradeContract/v0.2/context.jsonld",
+  "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/EnergyTradeContract/v0.2/context.jsonld",
   "@type": "EnergyTradeContract",
   "contractStatus": "ACTIVE",
   "sourceMeterId": "100200300",
@@ -3053,6 +3053,6 @@ TODO
 
 ## 12.2. References
 
-* [Postman collection for EV Charging](/testnet/ev-charging-devkit/postman/)  
+* [Postman collection for EV Charging](/devkits/ev-charging/postman/)  
 * [Beckn 1.0 (legacy) Layer2 config for peer to peer trading](https://github.com/beckn/missions/blob/main/DEG2.0/layer2/P2P/trade_1.1.0.yaml)
 

@@ -1,0 +1,59 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "deg": "https://schema.beckn.io/deg/",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#"
+    },
+    "@graph": [
+        {
+            "@id": "deg:CustomerProfile",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Customer Profile",
+            "rdfs:comment": "Core customer identity for energy credentials — links a utility account to a physical meter."
+        },
+        {
+            "@id": "deg:customerProfile",
+            "@type": "rdf:Property",
+            "rdfs:label": "customer Profile",
+            "rdfs:comment": "Container for customer identity attributes within a credential subject."
+        },
+        {
+            "@id": "deg:customerNumber",
+            "@type": "rdf:Property",
+            "rdfs:label": "customer Number",
+            "rdfs:comment": "Utility account number assigned by the distribution company."
+        },
+        {
+            "@id": "deg:meterNumber",
+            "@type": "rdf:Property",
+            "rdfs:label": "meter Number",
+            "rdfs:comment": "Unique meter serial number."
+        },
+        {
+            "@id": "deg:meterType",
+            "@type": "rdf:Property",
+            "rdfs:label": "meter Type",
+            "rdfs:comment": "Type of electricity meter installed (AMR, AMI, Electromechanical, Forward, Reverse, Bidirectional, Prepaid, NetMeter, Other)."
+        },
+        {
+            "@id": "deg:idRef",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Identity Reference",
+            "rdfs:comment": "Reusable identity reference linking an issuing authority (DID) to a subject identifier."
+        },
+        {
+            "@id": "deg:issuedBy",
+            "@type": "rdf:Property",
+            "rdfs:label": "issued By",
+            "rdfs:comment": "DID or URI of the issuing authority."
+        },
+        {
+            "@id": "deg:subjectId",
+            "@type": "rdf:Property",
+            "rdfs:label": "subject Id",
+            "rdfs:comment": "Identifier within the authority's system (e.g., regulatory registration number)."
+        }
+    ]
+}

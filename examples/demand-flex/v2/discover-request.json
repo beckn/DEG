@@ -1,0 +1,20 @@
+{
+  "context": {
+    "networkId": "beckn.one/testnet",
+    "version": "2.0.0",
+    "action": "discover",
+    "bapId": "greenflex-agg.example.com",
+    "bapUri": "https://greenflex-agg.example.com/beckn",
+    "transactionId": "txn-flex-001",
+    "messageId": "msg-discover-001",
+    "timestamp": "2026-03-30T09:00:00Z"
+  },
+  "message": {
+    "intent": {
+      "filters": {
+        "type": "jsonpath",
+        "expression": "$.catalogs[*].resources[*] ? (@.resourceAttributes.capacityType == 'CURTAILMENT' && @.resourceAttributes.direction == 'REDUCE')"
+      }
+    }
+  }
+}

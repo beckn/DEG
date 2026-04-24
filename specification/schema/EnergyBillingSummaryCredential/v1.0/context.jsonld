@@ -1,0 +1,37 @@
+{
+    "@context": [
+        "https://schema.beckn.io/external/espi/context.jsonld",
+        "https://schema.beckn.io/EnergyCustomerProfile/context.jsonld",
+        {
+            "@version": 1.1,
+            "@protected": true,
+            "id": "@id",
+            "type": "@type",
+            "schema": "https://schema.org/",
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "deg": "https://schema.beckn.io/deg/",
+
+            "EnergyBillingSummaryCredential": {
+                "@id": "deg:EnergyBillingSummaryCredential",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "id": "@id",
+                    "type": "@type",
+                    "billingSummary": {
+                        "@id": "deg:billingSummary",
+                        "@type": "@id",
+                        "@context": {
+                            "@version": 1.1,
+                            "@protected": true,
+                            "timeZone": {
+                                "@id": "deg:timeZone",
+                                "@type": "xsd:string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

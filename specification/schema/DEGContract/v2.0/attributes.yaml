@@ -1,0 +1,63 @@
+openapi: 3.1.1
+info:
+  title: DEG — Contract (v2.0)
+  version: 2.0.0
+  description: >
+    Standard contract schema for all DEG energy contracts. Carried as a
+    sub-attribute of domain-specific offer schemas (e.g. DemandFlexBuyOffer.contractTerms)
+    and promoted to Contract.contractAttributes at select/init.
+    Defines roles, policy reference, and computed revenue flows.
+
+components:
+  schemas:
+    DEGContract:
+      type: object
+      additionalProperties: true
+      required: [roles, policy]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": DEGContract
+      properties:
+
+        roles:
+          type: array
+          description: >
+            Contract roles. participantId is null in the catalog/offer and
+            bound to actual participant IDs at init/confirm.
+          items:
+            type: object
+            required: [role]
+            properties:
+              role:
+                type: string
+                enum: [buyer, seller]
+              participantId:
+                type: string
+                description: Bound at init/confirm. Null in catalog.
+
+        policy:
+          type: object
+          required: [url, queryPath]
+          description: OPA/Rego policy governing this contract.
+          properties:
+            url:
+              type: string
+              format: uri
+            queryPath:
+              type: string
+
+        revenueFlows:
+          type: array
+          description: >
+            Computed after settlement. Positive = receives, negative = pays.
+            Sum of all values MUST equal zero (net-zero).
+          items:
+            type: object
+            required: [role, value, currency]
+            properties:
+              role:
+                type: string
+              value:
+                type: number
+              currency:
+                type: string

@@ -1,0 +1,38 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "discover",
+    "domain": "beckn.one:deg:ev-charging:*",
+    "bap_id": "bap.example.com",
+    "bap_uri": "https://bap.example.com",
+    "bpp_id": "bpp.example.com",
+    "bpp_uri": "https://bpp.example.com",
+    "transaction_id": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "message_id": "a1eabf26-29f5-4a01-9d4e-4c5c9d1a3d02",
+    "timestamp": "2025-10-14T07:31:00Z",
+    "ttl": "PT30S",
+    "schema_context": [
+      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/EvChargingService/v1.0/context.jsonld"
+    ]
+  },
+  "message": {
+    "filters": {
+      "type": "jsonpath",
+      "expression": "$[?(@.beckn:itemAttributes.connectorType == 'CCS2' && @.beckn:itemAttributes.maxPowerKW >= 50)]"
+    },
+    "spatial": [
+      {
+        "op": "s_dwithin",
+        "targets": "$['beckn:itemAttributes.chargingStation.serviceLocation.geo']",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            77.59,
+            12.94
+          ]
+        },
+        "distanceMeters": 10000
+      }
+    ]
+  }
+}

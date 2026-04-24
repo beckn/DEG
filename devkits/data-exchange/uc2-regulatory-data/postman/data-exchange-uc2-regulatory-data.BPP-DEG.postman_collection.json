@@ -1,0 +1,309 @@
+{
+  "info": {
+    "_postman_id": "fd4a0cb3-5d7a-4b18-a19d-02610b1ce70a",
+    "name": "data-exchange-uc2-regulatory-data.BPP-DEG",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for Buyer Provider Platform implementing data-exchange-uc2-regulatory-data APIs based on Beckn Protocol v2"
+  },
+  "item": [
+    {
+      "name": "on_cancel",
+      "item": [
+        {
+          "name": "on-cancel-response",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"on_cancel\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"ARR Filing Data Exchange\",\n        \"shortDesc\": \"ARR filing submission under regulatory mandate\"\n      },\n      \"status\": {\n        \"code\": \"CANCELLED\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-arr-filing-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"CLOSED\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-bescom-arr-filing-fy2025-26\",\n              \"descriptor\": {\n                \"name\": \"BESCOM ARR Filing - FY 2025-26\"\n              },\n              \"quantity\": {\n                \"unitText\": \"filing\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-arr-filing-inline\",\n            \"descriptor\": {\n              \"name\": \"ARR Filing Inline Delivery - BESCOM FY 2025-26\"\n            },\n            \"resourceIds\": [\n              \"ds-bescom-arr-filing-fy2025-26\"\n            ]\n          }\n        }\n      ],\n      \"participants\": [\n        {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\"\n          }\n        },\n        {\n          \"id\": \"aperc-regulator-001\",\n          \"descriptor\": {\n            \"name\": \"APERC - AP Electricity Regulatory Commission\"\n          }\n        }\n      ],\n      \"settlements\": [\n        {\n          \"id\": \"settlement-refund\",\n          \"considerationId\": \"consideration-arr-regulatory-mandate\",\n          \"status\": \"COMPLETE\",\n          \"settlementAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld\",\n            \"@type\": \"Payment\",\n            \"beckn:paymentStatus\": \"COMPLETED\",\n            \"beckn:amount\": {\n              \"currency\": \"INR\",\n              \"value\": 0\n            }\n          }\n        }\n      ]\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bpp_adapter_url}}/on_cancel",
+              "host": [
+                "{{bpp_adapter_url}}"
+              ],
+              "path": [
+                "on_cancel"
+              ]
+            },
+            "description": "On_cancel request: on-cancel-response"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "on_confirm",
+      "item": [
+        {
+          "name": "on-confirm-response",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"on_confirm\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"ARR Filing Data Exchange\",\n        \"shortDesc\": \"ARR filing submission under regulatory mandate\"\n      },\n      \"status\": {\n        \"code\": \"ACTIVE\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-arr-filing-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"ACTIVE\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-bescom-arr-filing-fy2025-26\",\n              \"descriptor\": {\n                \"name\": \"BESCOM ARR Filing - FY 2025-26\"\n              },\n              \"quantity\": {\n                \"unitText\": \"filing\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-arr-filing-inline\",\n            \"descriptor\": {\n              \"name\": \"ARR Filing Inline Delivery - BESCOM FY 2025-26\"\n            },\n            \"resourceIds\": [\n              \"ds-bescom-arr-filing-fy2025-26\"\n            ]\n          },\n          \"commitmentAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\",\n            \"@type\": \"DatasetItem\",\n            \"schema:identifier\": \"ds-bescom-arr-filing-fy2025-26\",\n            \"schema:name\": \"BESCOM ARR Filing - FY 2025-26\",\n            \"schema:temporalCoverage\": \"2025-04-01/2026-03-31\",\n            \"dataset:accessMethod\": \"INLINE\"\n          }\n        }\n      ],\n      \"consideration\": [\n        {\n          \"id\": \"consideration-arr-regulatory-mandate\",\n          \"status\": {\n            \"code\": \"ACTIVE\"\n          },\n          \"considerationAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld\",\n            \"@type\": \"PriceSpecification\",\n            \"currency\": \"INR\",\n            \"value\": 0,\n            \"description\": \"Mandatory regulatory filing - no commercial consideration\"\n          }\n        }\n      ],\n      \"participants\": [\n        {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"bescom-discom-001\",\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\"\n          }\n        },\n        {\n          \"id\": \"aperc-regulator-001\",\n          \"descriptor\": {\n            \"name\": \"APERC - AP Electricity Regulatory Commission\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"aperc-regulator-001\",\n            \"name\": \"APERC - AP Electricity Regulatory Commission\"\n          }\n        }\n      ],\n      \"performance\": [],\n      \"settlements\": []\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bpp_adapter_url}}/on_confirm",
+              "host": [
+                "{{bpp_adapter_url}}"
+              ],
+              "path": [
+                "on_confirm"
+              ]
+            },
+            "description": "On_confirm request: on-confirm-response"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "on_init",
+      "item": [
+        {
+          "name": "on-init-response",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"on_init\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"ARR Filing Data Exchange\",\n        \"shortDesc\": \"ARR filing submission under regulatory mandate\"\n      },\n      \"status\": {\n        \"code\": \"ACTIVE\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-arr-filing-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"ACTIVE\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-bescom-arr-filing-fy2025-26\",\n              \"descriptor\": {\n                \"name\": \"BESCOM ARR Filing - FY 2025-26\"\n              },\n              \"quantity\": {\n                \"unitText\": \"filing\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-arr-filing-inline\",\n            \"descriptor\": {\n              \"name\": \"ARR Filing Inline Delivery - BESCOM FY 2025-26\"\n            },\n            \"resourceIds\": [\n              \"ds-bescom-arr-filing-fy2025-26\"\n            ]\n          },\n          \"commitmentAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\",\n            \"@type\": \"DatasetItem\",\n            \"schema:identifier\": \"ds-bescom-arr-filing-fy2025-26\",\n            \"schema:name\": \"BESCOM ARR Filing - FY 2025-26\",\n            \"schema:temporalCoverage\": \"2025-04-01/2026-03-31\",\n            \"dataset:accessMethod\": \"INLINE\"\n          }\n        }\n      ],\n      \"consideration\": [\n        {\n          \"id\": \"consideration-arr-regulatory-mandate\",\n          \"status\": {\n            \"code\": \"ACTIVE\"\n          },\n          \"considerationAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld\",\n            \"@type\": \"PriceSpecification\",\n            \"currency\": \"INR\",\n            \"value\": 0,\n            \"description\": \"Mandatory regulatory filing - no commercial consideration\"\n          }\n        }\n      ],\n      \"participants\": [\n        {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"bescom-discom-001\",\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\"\n          }\n        },\n        {\n          \"id\": \"aperc-regulator-001\",\n          \"descriptor\": {\n            \"name\": \"APERC - AP Electricity Regulatory Commission\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"aperc-regulator-001\",\n            \"name\": \"APERC - AP Electricity Regulatory Commission\"\n          }\n        }\n      ],\n      \"performance\": [],\n      \"settlements\": []\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bpp_adapter_url}}/on_init",
+              "host": [
+                "{{bpp_adapter_url}}"
+              ],
+              "path": [
+                "on_init"
+              ]
+            },
+            "description": "On_init request: on-init-response"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "on_select",
+      "item": [
+        {
+          "name": "on-select-response",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"on_select\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"ARR Filing Data Exchange\",\n        \"shortDesc\": \"ARR filing submission under regulatory mandate\"\n      },\n      \"status\": {\n        \"code\": \"DRAFT\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-arr-filing-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"DRAFT\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-bescom-arr-filing-fy2025-26\",\n              \"descriptor\": {\n                \"name\": \"BESCOM ARR Filing - FY 2025-26\"\n              },\n              \"quantity\": {\n                \"unitText\": \"filing\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-arr-filing-inline\",\n            \"descriptor\": {\n              \"name\": \"ARR Filing Inline Delivery - BESCOM FY 2025-26\"\n            },\n            \"resourceIds\": [\n              \"ds-bescom-arr-filing-fy2025-26\"\n            ]\n          },\n          \"commitmentAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\",\n            \"@type\": \"DatasetItem\",\n            \"schema:identifier\": \"ds-bescom-arr-filing-fy2025-26\",\n            \"schema:name\": \"BESCOM ARR Filing - FY 2025-26\",\n            \"schema:temporalCoverage\": \"2025-04-01/2026-03-31\",\n            \"dataset:accessMethod\": \"INLINE\"\n          }\n        }\n      ],\n      \"consideration\": [\n        {\n          \"id\": \"consideration-arr-regulatory-mandate\",\n          \"status\": {\n            \"code\": \"ACTIVE\"\n          },\n          \"considerationAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld\",\n            \"@type\": \"PriceSpecification\",\n            \"currency\": \"INR\",\n            \"value\": 0,\n            \"description\": \"Mandatory regulatory filing - no commercial consideration\"\n          }\n        }\n      ],\n      \"participants\": [\n        {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\",\n            \"shortDesc\": \"Distribution utility serving Bengaluru\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"bescom-discom-001\",\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\"\n          }\n        },\n        {\n          \"id\": \"aperc-regulator-001\",\n          \"descriptor\": {\n            \"name\": \"APERC - AP Electricity Regulatory Commission\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"aperc-regulator-001\",\n            \"name\": \"APERC - AP Electricity Regulatory Commission\"\n          }\n        }\n      ],\n      \"performance\": [],\n      \"settlements\": []\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bpp_adapter_url}}/on_select",
+              "host": [
+                "{{bpp_adapter_url}}"
+              ],
+              "path": [
+                "on_select"
+              ]
+            },
+            "description": "On_select request: on-select-response"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "on_status",
+      "item": [
+        {
+          "name": "on-status-response-processing",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"on_status\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"ARR Filing Data Exchange\",\n        \"shortDesc\": \"ARR filing submission under regulatory mandate\"\n      },\n      \"status\": {\n        \"code\": \"ACTIVE\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-arr-filing-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"ACTIVE\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-bescom-arr-filing-fy2025-26\",\n              \"descriptor\": {\n                \"name\": \"BESCOM ARR Filing - FY 2025-26\"\n              },\n              \"quantity\": {\n                \"unitText\": \"filing\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-arr-filing-inline\",\n            \"descriptor\": {\n              \"name\": \"ARR Filing Inline Delivery - BESCOM FY 2025-26\"\n            },\n            \"resourceIds\": [\n              \"ds-bescom-arr-filing-fy2025-26\"\n            ]\n          }\n        }\n      ],\n      \"performance\": [\n        {\n          \"id\": \"perf-arr-filing-preparation-001\",\n          \"status\": {\n            \"code\": \"PROCESSING\",\n            \"name\": \"ARR filing preparation and validation in progress\"\n          },\n          \"commitmentIds\": [\n            \"commitment-arr-filing-001\"\n          ],\n          \"performanceAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\",\n            \"@type\": \"DatasetItem\",\n            \"schema:identifier\": \"ds-bescom-arr-filing-fy2025-26\",\n            \"schema:name\": \"BESCOM ARR Filing - FY 2025-26\",\n            \"schema:temporalCoverage\": \"2025-04-01/2026-03-31\"\n          }\n        }\n      ],\n      \"participants\": [\n        {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\"\n          }\n        },\n        {\n          \"id\": \"aperc-regulator-001\",\n          \"descriptor\": {\n            \"name\": \"APERC - AP Electricity Regulatory Commission\"\n          }\n        }\n      ],\n      \"settlements\": []\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bpp_adapter_url}}/on_status",
+              "host": [
+                "{{bpp_adapter_url}}"
+              ],
+              "path": [
+                "on_status"
+              ]
+            },
+            "description": "On_status request: on-status-response-processing"
+          },
+          "response": []
+        },
+        {
+          "name": "on-status-response-ready-inline",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"on_status\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"ARR Filing Data Exchange\",\n        \"shortDesc\": \"ARR filing submission under regulatory mandate\"\n      },\n      \"status\": {\n        \"code\": \"ACTIVE\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-arr-filing-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"CLOSED\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-bescom-arr-filing-fy2025-26\",\n              \"descriptor\": {\n                \"name\": \"BESCOM ARR Filing - FY 2025-26\"\n              },\n              \"quantity\": {\n                \"unitText\": \"filing\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-arr-filing-inline\",\n            \"descriptor\": {\n              \"name\": \"ARR Filing Inline Delivery - BESCOM FY 2025-26\"\n            },\n            \"resourceIds\": [\n              \"ds-bescom-arr-filing-fy2025-26\"\n            ]\n          }\n        }\n      ],\n      \"performance\": [\n        {\n          \"id\": \"perf-arr-filing-delivery-001\",\n          \"status\": {\n            \"code\": \"DELIVERY_COMPLETE\",\n            \"name\": \"ARR filing delivered inline via dataPayload\"\n          },\n          \"commitmentIds\": [\n            \"commitment-arr-filing-001\"\n          ],\n          \"performanceAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\",\n            \"@type\": \"DatasetItem\",\n            \"schema:identifier\": \"ds-bescom-arr-filing-fy2025-26\",\n            \"schema:name\": \"BESCOM ARR Filing - FY 2025-26\",\n            \"schema:temporalCoverage\": \"2025-04-01/2026-03-31\",\n            \"dataset:accessMethod\": \"INLINE\",\n            \"dataPayload\": {\n              \"@context\": \"https://raw.githubusercontent.com/beckn/DEG/ies-specs/specification/external/schema/ies/arr/context.jsonld\",\n              \"objectType\": \"ARR_FILING\",\n              \"filingId\": \"KERC/ARR/BESCOM/2025-26\",\n              \"filingDate\": \"2025-11-15\",\n              \"filingType\": \"ANNUAL\",\n              \"licensee\": \"Bangalore Electricity Supply Company Limited\",\n              \"licenseeCode\": \"BESCOM\",\n              \"stateProvince\": \"Karnataka\",\n              \"regulatoryCommission\": \"KERC\",\n              \"currency\": \"INR\",\n              \"unitScale\": \"CRORE\",\n              \"status\": \"SUBMITTED\",\n              \"formReference\": \"Form 1\",\n              \"fiscalYears\": [\n                {\n                  \"fiscalYear\": \"FY 2025-26\",\n                  \"yearType\": \"CONTROL_PERIOD\",\n                  \"amountBasis\": \"PROPOSED\",\n                  \"lineItems\": [\n                    {\n                      \"lineItemId\": \"power-purchase-cost\",\n                      \"serialNumber\": 1,\n                      \"category\": \"VARIABLE\",\n                      \"subCategory\": \"POWER_PURCHASE\",\n                      \"head\": \"Power Purchase Cost\",\n                      \"amount\": 18245.5,\n                      \"formReference\": \"Form 1.1\"\n                    },\n                    {\n                      \"lineItemId\": \"transmission-cost\",\n                      \"serialNumber\": 2,\n                      \"category\": \"FIXED\",\n                      \"subCategory\": \"NETWORK_COST\",\n                      \"head\": \"Transmission Cost\",\n                      \"amount\": 2150.0,\n                      \"componentOf\": \"network-and-sldc-cost\"\n                    },\n                    {\n                      \"lineItemId\": \"o-and-m-expenses\",\n                      \"serialNumber\": 3,\n                      \"category\": \"FIXED\",\n                      \"subCategory\": \"O_AND_M\",\n                      \"head\": \"O&M Expenses\",\n                      \"amount\": 3420.75\n                    },\n                    {\n                      \"lineItemId\": \"depreciation\",\n                      \"serialNumber\": 4,\n                      \"category\": \"FIXED\",\n                      \"subCategory\": \"DEPRECIATION\",\n                      \"head\": \"Depreciation\",\n                      \"amount\": 1890.3\n                    },\n                    {\n                      \"lineItemId\": \"interest-on-loan\",\n                      \"serialNumber\": 5,\n                      \"category\": \"FIXED\",\n                      \"subCategory\": \"INTEREST\",\n                      \"head\": \"Interest on Loan Capital\",\n                      \"amount\": 1245.0\n                    },\n                    {\n                      \"lineItemId\": \"return-on-equity\",\n                      \"serialNumber\": 6,\n                      \"category\": \"FIXED\",\n                      \"subCategory\": \"RETURN_ON_EQUITY\",\n                      \"head\": \"Return on Equity\",\n                      \"amount\": 980.25\n                    },\n                    {\n                      \"lineItemId\": \"non-tariff-income\",\n                      \"serialNumber\": 7,\n                      \"category\": \"INCOME\",\n                      \"subCategory\": \"NON_TARIFF_INCOME\",\n                      \"head\": \"Non-Tariff Income\",\n                      \"amount\": -450.0\n                    },\n                    {\n                      \"lineItemId\": \"total-arr\",\n                      \"serialNumber\": 8,\n                      \"category\": \"ARR\",\n                      \"subCategory\": \"NET_ARR\",\n                      \"head\": \"Aggregate Revenue Requirement\",\n                      \"amount\": 27481.8,\n                      \"formula\": \"power-purchase-cost + transmission-cost + o-and-m-expenses + depreciation + interest-on-loan + return-on-equity + non-tariff-income\"\n                    }\n                  ]\n                }\n              ]\n            }\n          }\n        }\n      ],\n      \"participants\": [\n        {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\"\n          }\n        },\n        {\n          \"id\": \"aperc-regulator-001\",\n          \"descriptor\": {\n            \"name\": \"APERC - AP Electricity Regulatory Commission\"\n          }\n        }\n      ],\n      \"settlements\": [\n        {\n          \"id\": \"settlement-payment-completed\",\n          \"considerationId\": \"consideration-arr-regulatory-mandate\",\n          \"status\": \"COMPLETE\",\n          \"settlementAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld\",\n            \"@type\": \"Payment\",\n            \"beckn:paymentStatus\": \"COMPLETED\",\n            \"beckn:amount\": {\n              \"currency\": \"INR\",\n              \"value\": 0\n            }\n          }\n        }\n      ]\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bpp_adapter_url}}/on_status",
+              "host": [
+                "{{bpp_adapter_url}}"
+              ],
+              "path": [
+                "on_status"
+              ]
+            },
+            "description": "On_status request: on-status-response-ready-inline"
+          },
+          "response": []
+        },
+        {
+          "name": "on-status-response-ready-url",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"on_status\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"ARR Filing Data Exchange\",\n        \"shortDesc\": \"ARR filing submission under regulatory mandate\"\n      },\n      \"status\": {\n        \"code\": \"ACTIVE\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-arr-filing-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"CLOSED\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-bescom-arr-filing-fy2025-26\",\n              \"descriptor\": {\n                \"name\": \"BESCOM ARR Filing - FY 2025-26\"\n              },\n              \"quantity\": {\n                \"unitText\": \"filing\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-arr-filing-inline\",\n            \"descriptor\": {\n              \"name\": \"ARR Filing Inline Delivery - BESCOM FY 2025-26\"\n            },\n            \"resourceIds\": [\n              \"ds-bescom-arr-filing-fy2025-26\"\n            ]\n          }\n        }\n      ],\n      \"performance\": [\n        {\n          \"id\": \"perf-arr-filing-delivery-001\",\n          \"status\": {\n            \"code\": \"DELIVERY_COMPLETE\",\n            \"name\": \"ARR filing available for download\"\n          },\n          \"commitmentIds\": [\n            \"commitment-arr-filing-001\"\n          ],\n          \"performanceAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\",\n            \"@type\": \"DatasetItem\",\n            \"schema:identifier\": \"ds-bescom-arr-filing-fy2025-26\",\n            \"schema:name\": \"BESCOM ARR Filing - FY 2025-26\",\n            \"schema:temporalCoverage\": \"2025-04-01/2026-03-31\",\n            \"dataset:accessMethod\": \"DOWNLOAD\",\n            \"dataset:exportFormat\": \"JSON\",\n            \"dataset:downloadUrl\": \"https://bescom.example.in/exports/arr-filing-fy2025-26.json\",\n            \"dataset:downloadExpiresAt\": \"2026-04-08T09:25:05Z\",\n            \"dataset:fileSizeBytes\": 245000,\n            \"dataset:checksum\": {\n              \"algorithm\": \"SHA-256\",\n              \"value\": \"a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2\"\n            }\n          }\n        }\n      ],\n      \"participants\": [\n        {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\"\n          }\n        },\n        {\n          \"id\": \"aperc-regulator-001\",\n          \"descriptor\": {\n            \"name\": \"APERC - AP Electricity Regulatory Commission\"\n          }\n        }\n      ],\n      \"settlements\": [\n        {\n          \"id\": \"settlement-payment-completed\",\n          \"considerationId\": \"consideration-arr-regulatory-mandate\",\n          \"status\": \"COMPLETE\",\n          \"settlementAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld\",\n            \"@type\": \"Payment\",\n            \"beckn:paymentStatus\": \"COMPLETED\",\n            \"beckn:amount\": {\n              \"currency\": \"INR\",\n              \"value\": 0\n            }\n          }\n        }\n      ]\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bpp_adapter_url}}/on_status",
+              "host": [
+                "{{bpp_adapter_url}}"
+              ],
+              "path": [
+                "on_status"
+              ]
+            },
+            "description": "On_status request: on-status-response-ready-url"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "publish",
+      "item": [
+        {
+          "name": "publish-catalog",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"catalog/publish\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"catalogs\": [\n      {\n        \"id\": \"catalog-bescom-arr-filings-001\",\n        \"descriptor\": {\n          \"name\": \"BESCOM - ARR Filing Data Catalogue\",\n          \"shortDesc\": \"Aggregate Revenue Requirement filings for regulatory review\"\n        },\n        \"bppId\": \"bpp.example.com\",\n        \"bppUri\": \"http://bpp.example.com/bpp/receiver\",\n        \"provider\": {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Bangalore Electricity Supply Company\"\n          }\n        },\n        \"resources\": [\n          {\n            \"id\": \"ds-bescom-arr-filing-fy2025-26\",\n            \"descriptor\": {\n              \"name\": \"BESCOM ARR Filing - FY 2025-26\",\n              \"shortDesc\": \"Aggregate Revenue Requirement filing for BESCOM FY 2025-26\",\n              \"longDesc\": \"IES_ARR_Filing-format regulatory data containing cost components, revenue requirements, and tariff projections for BESCOM FY 2025-26, suitable for SERC review and tariff order processing.\"\n            },\n            \"resourceAttributes\": {\n              \"@context\": \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\",\n              \"@type\": \"DatasetItem\",\n              \"schema:identifier\": \"ds-bescom-arr-filing-fy2025-26\",\n              \"schema:name\": \"BESCOM ARR Filing - FY 2025-26\",\n              \"schema:temporalCoverage\": \"2025-04-01/2026-03-31\",\n              \"dataset:sensitivityLevel\": \"CONFIDENTIAL\",\n              \"dataset:refreshType\": \"RECURRING\",\n              \"dataset:refreshFrequency\": \"P1Y\",\n              \"dataset:accessMethod\": \"INLINE\"\n            }\n          }\n        ],\n        \"offers\": [\n          {\n            \"id\": \"offer-arr-filing-inline\",\n            \"descriptor\": {\n              \"name\": \"ARR Filing Inline Delivery - BESCOM FY 2025-26\",\n              \"shortDesc\": \"In-message delivery of ARR filing via beckn dataPayload (IES_ARR_Filing format)\"\n            },\n            \"resourceIds\": [\n              \"ds-bescom-arr-filing-fy2025-26\"\n            ],\n            \"validity\": {\n              \"startDate\": \"2026-01-01T00:00:00Z\",\n              \"endDate\": \"2026-06-30T23:59:59Z\"\n            },\n            \"considerations\": [\n              {\n                \"id\": \"consideration-arr-regulatory-mandate\",\n                \"status\": {\n                  \"code\": \"ACTIVE\"\n                },\n                \"considerationAttributes\": {\n                  \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld\",\n                  \"@type\": \"PriceSpecification\",\n                  \"currency\": \"INR\",\n                  \"value\": 0,\n                  \"description\": \"Mandatory regulatory filing - no commercial consideration\"\n                }\n              }\n            ]\n          }\n        ]\n      }\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bpp_adapter_url}}/publish",
+              "host": [
+                "{{bpp_adapter_url}}"
+              ],
+              "path": [
+                "publish"
+              ]
+            },
+            "description": "Publish request: publish-catalog"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pure JS pre-request script to replace moment()",
+          "// 1) ISO 8601 timestamp without needing moment",
+          "const isoTimestamp = new Date().toISOString();",
+          "pm.collectionVariables.set('iso_date', isoTimestamp);",
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "domain",
+      "value": "nfh.global/testnet-deg"
+    },
+    {
+      "key": "version",
+      "value": "2.0.0"
+    },
+    {
+      "key": "bap_id",
+      "value": "bap.example.com"
+    },
+    {
+      "key": "bpp_id",
+      "value": "bpp.example.com"
+    },
+    {
+      "key": "transaction_id",
+      "value": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002"
+    },
+    {
+      "key": "iso_date",
+      "value": ""
+    },
+    {
+      "key": "bap_host_root",
+      "value": "http://beckn-router:9000"
+    },
+    {
+      "key": "bpp_host_root",
+      "value": "http://beckn-router:9000"
+    },
+    {
+      "key": "bpp_adapter_url",
+      "value": "http://localhost:8082/bpp/caller"
+    }
+  ]
+}

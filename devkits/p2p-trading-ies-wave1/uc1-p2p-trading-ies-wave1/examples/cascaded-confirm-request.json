@@ -1,0 +1,142 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "confirm",
+    "timestamp": "2024-10-04T10:25:00Z",
+    "message_id": "msg-cascaded-confirm-001",
+    "transaction_id": "txn-cascaded-energy-001",
+    "bap_id": "p2p-trading-sandbox1.com",
+    "bap_uri": "https://p2p-trading-sandbox1.com",
+    "bpp_id": "p2p-trading-sandbox2.com",
+    "bpp_uri": "https://p2p-trading-sandbox2.com",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:orderStatus": "CREATED",
+      "beckn:seller": "provider-solar-farm-001",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "buyer-001",
+        "beckn:buyerAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+          "@type": "EnergyCustomer",
+          "meterId": "TEST_METER_BUYER",
+          "utilityCustomerId": "TEST-CUST-BUYER-001",
+          "utilityId": "TEST_DISCOM_BUYER"
+        }
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+        "@type": "EnergyTradeOrder",
+        "bap_id": "p2p-trading-sandbox1.com",
+        "bpp_id": "p2p-trading-sandbox2.com",
+        "total_quantity": {
+          "unitQuantity": 15.0,
+          "unitText": "kWh"
+        }
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "energy-resource-solar-001",
+          "beckn:quantity": {
+            "unitQuantity": 15.0,
+            "unitText": "kWh"
+          },
+          "beckn:orderItemAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@type": "EnergyOrderItem",
+            "providerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@type": "EnergyCustomer",
+              "meterId": "TEST_METER_SELLER",
+              "utilityCustomerId": "TEST-CUST-SELLER-001",
+              "utilityId": "TEST_DISCOM_SELLER"
+            }
+          },
+          "beckn:acceptedOffer": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-morning-001",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Morning Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ],
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 15,
+              "schema:priceCurrency": "INR",
+              "unitText": "kWh",
+              "applicableQuantity": {
+                "unitQuantity": 20.0,
+                "unitText": "kWh"
+              }
+            },
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "deliveryWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T10:00:00Z",
+                "schema:endTime": "2026-01-09T11:00:00Z"
+              },
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T00:00:00Z",
+                "schema:endTime": "2026-01-09T06:00:00Z"
+              }
+            }
+          }
+        }
+      ],
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-energy-001",
+        "beckn:mode": "DELIVERY"
+      },
+      "beckn:payment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+        "@type": "beckn:Payment",
+        "beckn:id": "payment-cascaded-p2p-energy-001",
+        "beckn:amount": {
+          "currency": "INR",
+          "value": 225
+        },
+        "beckn:beneficiary": "BPP",
+        "beckn:paymentStatus": "AUTHORIZED",
+        "beckn:paymentAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/PaymentSettlement/v1/context.jsonld",
+          "@type": "PaymentSettlement",
+          "settlementAccounts": [
+            {
+              "beneficiaryId": "p2pTrading-bpp.com",
+              "accountHolderName": "P2P Trading Platform Pvt Ltd",
+              "accountNumber": "5555666677",
+              "ifscCode": "SBIN0001234",
+              "bankName": "State Bank of India",
+              "vpa": "p2p-trading@upi"
+            },
+            {
+              "beneficiaryId": "example-transmission-bpp.com",
+              "accountHolderName": "Transmission Utility Provider Pvt Ltd",
+              "accountNumber": "8888999900",
+              "ifscCode": "AXIS0004567",
+              "bankName": "Axis Bank",
+              "vpa": "transmission-utility@upi"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

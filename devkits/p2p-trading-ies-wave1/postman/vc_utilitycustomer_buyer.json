@@ -1,0 +1,45 @@
+{
+	"credential": {
+		"id": "did:rcw:d404cf77-7ce8-4ba1-a829-2c9eb61efc7d",
+		"type": [
+			"VerifiableCredential",
+			"UtilityCustomerCredential"
+		],
+		"proof": {
+			"type": "Ed25519Signature2020",
+			"created": "2026-03-17T16:06:05Z",
+			"proofValue": "z3EPLuecomH2HaP1255DAUwu8C1qrH7amZK9ky8J9UCp4Ejz7kLb7TfcU2k4ofA9x7vKYrKErUbc55JLCyAnB3DJt",
+			"proofPurpose": "assertionMethod",
+			"verificationMethod": "did:rcw:221fff93-cc6d-4779-8189-6ea129e7e8b3#key-0"
+		},
+		"issuer": "did:rcw:221fff93-cc6d-4779-8189-6ea129e7e8b3",
+		"@context": [
+			"https://www.w3.org/2018/credentials/v1",
+			"https://anusree-j.github.io/vc_context/energy/utility-customer-context.json",
+			"https://w3id.org/security/suites/ed25519-2020/v1"
+		],
+		"issuanceDate": "2026-01-18T00:00:00.000Z",
+		"expirationDate": "2036-01-18T23:59:59.000Z",
+		"credentialSubject": {
+			"id": "did:rcw:customer-john-smith",
+			"type": "UtilityCustomerCredential",
+			"fullName": "John Smith",
+			"issuerName": "TEST_DISCOM_BUYER",
+			"fullAddress": "123 Green Energy Lane, Solar City, SC 12345, India",
+			"meterNumber": "TEST_METER_BUYER",
+			"consumerNumber": "TEST_CUSTID_BUYER",
+			"maskedIdNumber": "XXXX-XXXX-1234",
+			"serviceConnectionDate": "2020-06-15"
+		}
+	},
+	"credentialSchemaId": "did:schema:983ef1bf-52ef-4912-bf03-f9ffbec5cf90",
+	"createdAt": "2026-03-17T16:06:05.930Z",
+	"updatedAt": "2026-03-17T16:06:05.930Z",
+	"createdBy": "",
+	"updatedBy": "",
+	"tags": [
+		"energy",
+		"utility",
+		"customer"
+	]
+}

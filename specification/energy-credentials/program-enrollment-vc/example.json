@@ -1,33 +1,49 @@
 {
   "@context": [
-    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/ns/credentials/v2",
     "https://schema.org/",
-    "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/program-enrollment-vc/context.jsonld"
+    "https://schema.beckn.io/programEnrollment",
+    "https://schema.beckn.io/customerProfile",
+    "https://schema.beckn.io/customerDetails"
   ],
   "id": "urn:uuid:7f8e9d0c-5678-1234-abcd-123456789abc",
-  "type": ["VerifiableCredential", "UtilityProgramEnrollmentCredential"],
+  "type": [
+    "VerifiableCredential",
+    "UtilityProgramEnrollmentCredential"
+  ],
   "issuer": {
-    "id": "did:web:example-utility.com",
+    "id": "https://example-utility.com/issuers/energy-dept",
     "name": "Example Energy Utility",
-    "licenseNumber": "REG-2025-00001"
+    "idRef": {
+      "issuedBy": "did:web:exreg.gov",
+      "subjectId": "exreg.gov:AABPC00001"
+    }
   },
-  "issuanceDate": "2025-01-13T11:00:00Z",
+  "validFrom": "2025-01-13T11:00:00-05:00",
+  "validUntil": "2026-01-13T11:00:00-05:00",
   "credentialStatus": {
-    "id": "https://dedi.global/dedi/query/did:web:example-utility.com/VC_revocation_registry",
-    "type": "dediregistry"
+    "id": "https://dedi.global/dedi/lookup/example-utility.com/vc-revocation-registry/7f8e9d0c-5678-1234-abcd-123456789abc",
+    "type": "dedi",
+    "statusPurpose": "revocation",
+    "statusListCredential": "https://dedi.global/dedi/query/example-utility.com/vc-revocation-registry"
   },
   "credentialSubject": {
-    "id": "did:example:consumer:abc123",
-    "consumerNumber": "UTIL-2025-001234567",
-    "fullName": "Jane Doe",
+    "id": "did:example:customer:abc123",
+    "customerProfile": {
+      "customerNumber": "UTIL-2025-001234567"
+    },
+    "customerDetails": {
+      "fullName": "Jane Doe"
+    },
     "programName": "Peer-to-Peer Energy Trading",
     "programCode": "P2P-2025",
-    "enrollmentDate": "2025-01-13"
+    "enrollmentDate": "2025-01-13T00:00:00-05:00",
+    "enrollmentValidUntil": "2026-01-13T00:00:00-05:00"
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-01-13T11:00:00Z",
-    "verificationMethod": "did:web:example-utility.com#key-1",
+    "created": "2025-01-13T11:00:00-05:00",
+    "verificationMethod": "https://example-utility.com/issuers/energy-dept#key-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "z3FXQehWgc9VfTh8WpLmkJd2rNn..."
   }

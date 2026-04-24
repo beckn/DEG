@@ -170,7 +170,7 @@ At selection, the seller platform returns the inter-platform settlement quote an
         "@type": "beckn:Buyer",
         "beckn:id": "buyer-001",
         "beckn:buyerAttributes": {
-          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
           "@type": "EnergyCustomer",
           "meterId": "der://meter/98765456",
           "utilityCustomerId": "BESCOM-CUST-001",
@@ -178,7 +178,7 @@ At selection, the seller platform returns the inter-platform settlement quote an
         }
       },
       "beckn:orderAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
         "@type": "EnergyTradeOrder",
         "bap_id": "bap.energy-consumer.com",
         "bpp_id": "bpp.energy-provider.com",
@@ -202,10 +202,10 @@ At selection, the seller platform returns the inter-platform settlement quote an
         {
           "beckn:orderedItem": "energy-resource-solar-001",
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
@@ -239,7 +239,7 @@ At selection, the seller platform returns the inter-platform settlement quote an
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {
@@ -258,10 +258,10 @@ At selection, the seller platform returns the inter-platform settlement quote an
         {
           "beckn:orderedItem": "energy-resource-solar-001",
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
@@ -295,7 +295,7 @@ At selection, the seller platform returns the inter-platform settlement quote an
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {
@@ -352,7 +352,7 @@ The initialization response confirms accepted payment methods and the settlement
         "@type": "beckn:Buyer",
         "beckn:id": "buyer-001",
         "beckn:buyerAttributes": {
-          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
           "@type": "EnergyCustomer",
           "meterId": "der://meter/98765456",
           "utilityCustomerId": "BESCOM-CUST-001",
@@ -360,7 +360,7 @@ The initialization response confirms accepted payment methods and the settlement
         }
       },
       "beckn:orderAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
         "@type": "EnergyTradeOrder",
         "bap_id": "bap.energy-consumer.com",
         "bpp_id": "bpp.energy-provider.com",
@@ -377,10 +377,10 @@ The initialization response confirms accepted payment methods and the settlement
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
@@ -410,7 +410,7 @@ The initialization response confirms accepted payment methods and the settlement
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {
@@ -433,10 +433,10 @@ The initialization response confirms accepted payment methods and the settlement
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
@@ -466,7 +466,7 @@ The initialization response confirms accepted payment methods and the settlement
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {
@@ -547,7 +547,7 @@ The confirmation response returns the full order details with payment status AUT
         "@type": "beckn:Buyer",
         "beckn:id": "buyer-001",
         "beckn:buyerAttributes": {
-          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
           "@type": "EnergyCustomer",
           "meterId": "der://meter/98765456",
           "utilityCustomerId": "BESCOM-CUST-001",
@@ -555,7 +555,7 @@ The confirmation response returns the full order details with payment status AUT
         }
       },
       "beckn:orderAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
         "@type": "EnergyTradeOrder",
         "bap_id": "bap.energy-consumer.com",
         "bpp_id": "bpp.energy-provider.com",
@@ -572,10 +572,10 @@ The confirmation response returns the full order details with payment status AUT
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
@@ -605,7 +605,7 @@ The confirmation response returns the full order details with payment status AUT
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {
@@ -628,10 +628,10 @@ The confirmation response returns the full order details with payment status AUT
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
@@ -661,7 +661,7 @@ The confirmation response returns the full order details with payment status AUT
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {
@@ -741,7 +741,7 @@ If delivery is curtailed (e.g., grid outage), the seller platform pushes an upda
         "@type": "beckn:Buyer",
         "beckn:id": "buyer-001",
         "beckn:buyerAttributes": {
-          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
           "@type": "EnergyCustomer",
           "meterId": "der://meter/98765456",
           "utilityCustomerId": "BESCOM-CUST-001",
@@ -756,17 +756,17 @@ If delivery is curtailed (e.g., grid outage), the seller platform pushes an upda
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
               "utilityId": "BESCOM-KA"
             },
             "fulfillmentAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeDelivery",
               "deliveryStatus": "IN_PROGRESS",
               "deliveryMode": "GRID_INJECTION",
@@ -812,7 +812,7 @@ If delivery is curtailed (e.g., grid outage), the seller platform pushes an upda
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {
@@ -889,7 +889,7 @@ After energy allocation is complete, the buyer platform queries status. The sell
         "@type": "beckn:Buyer",
         "beckn:id": "buyer-001",
         "beckn:buyerAttributes": {
-          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
           "@type": "EnergyCustomer",
           "meterId": "der://meter/98765456",
           "utilityCustomerId": "BESCOM-CUST-001",
@@ -904,17 +904,17 @@ After energy allocation is complete, the buyer platform queries status. The sell
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
               "utilityId": "BESCOM-KA"
             },
             "fulfillmentAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeDelivery",
               "deliveryStatus": "COMPLETED",
               "deliveryMode": "GRID_INJECTION",
@@ -958,7 +958,7 @@ After energy allocation is complete, the buyer platform queries status. The sell
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {
@@ -981,17 +981,17 @@ After energy allocation is complete, the buyer platform queries status. The sell
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
               "utilityId": "BESCOM-KA"
             },
             "fulfillmentAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeDelivery",
               "deliveryStatus": "COMPLETED",
               "deliveryMode": "GRID_INJECTION",
@@ -1035,7 +1035,7 @@ After energy allocation is complete, the buyer platform queries status. The sell
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {
@@ -1125,7 +1125,7 @@ Once money has moved from buyer platform to seller platform (tracked via URL), t
         "@type": "beckn:Buyer",
         "beckn:id": "buyer-001",
         "beckn:buyerAttributes": {
-          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
           "@type": "EnergyCustomer",
           "meterId": "der://meter/98765456",
           "utilityCustomerId": "BESCOM-CUST-001",
@@ -1229,7 +1229,7 @@ Final status shows the order and payment as complete.
         "@type": "beckn:Buyer",
         "beckn:id": "buyer-001",
         "beckn:buyerAttributes": {
-          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
           "@type": "EnergyCustomer",
           "meterId": "der://meter/98765456",
           "utilityCustomerId": "BESCOM-CUST-001",
@@ -1244,17 +1244,17 @@ Final status shows the order and payment as complete.
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
               "utilityId": "BESCOM-KA"
             },
             "fulfillmentAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeDelivery",
               "deliveryStatus": "COMPLETED",
               "deliveryMode": "GRID_INJECTION",
@@ -1309,7 +1309,7 @@ Final status shows the order and payment as complete.
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {
@@ -1332,17 +1332,17 @@ Final status shows the order and payment as complete.
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "der://meter/98765456",
               "utilityCustomerId": "BESCOM-CUST-001",
               "utilityId": "BESCOM-KA"
             },
             "fulfillmentAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeDelivery",
               "deliveryStatus": "COMPLETED",
               "deliveryMode": "GRID_INJECTION",
@@ -1397,7 +1397,7 @@ Final status shows the order and payment as complete.
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {

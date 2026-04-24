@@ -1,0 +1,66 @@
+openapi: 3.1.1
+info:
+  title: EnergyBillingSummaryCredential
+  version: 1.0.0
+  description: >
+    Verifiable Credential containing aggregated billing period data using
+    ESPI/Green Button types (UsageSummary, SummaryMeasurement, LineItem).
+    Subclass of EnergyCredential. The credential subject combines a customer
+    profile with billing summary data within a W3C VC 2.0 envelope.
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+servers:
+  - url: https://schema.beckn.io
+    description: Canonical schema registry
+paths: {}
+components:
+  schemas:
+    EnergyBillingSummaryCredential:
+      $id: https://schema.beckn.io/EnergyBillingSummaryCredential/v1.0
+      title: EnergyBillingSummaryCredential
+      description: >
+        Verifiable Credential containing aggregated billing period data using
+        ESPI/Green Button types (UsageSummary, SummaryMeasurement, LineItem).
+        Subclass of EnergyCredential. The credential subject combines a customer
+        profile with billing summary data within a W3C VC 2.0 envelope.
+      x-tags:
+        - energy
+        - credential
+        - verifiable-credential
+        - billing
+        - green-button
+        - espi
+      type: object
+      additionalProperties: true
+      allOf:
+        - $ref: "https://schema.beckn.io/EnergyCredential/v2.0"
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": EnergyBillingSummaryCredential
+      properties:
+        credentialSubject:
+          description: >
+            The credential subject containing customer identity and aggregated
+            billing summary data for a single meter.
+          x-jsonld:
+            "@id": deg:credentialSubject
+          type: object
+          required:
+            - customerProfile
+            - billingSummary
+          properties:
+            id:
+              type: string
+              format: uri
+              description: DID of the customer/credential subject.
+              x-jsonld:
+                "@id": "@id"
+            customerProfile:
+              $ref: "../../EnergyCustomerProfile/v1.0/attributes.yaml#/components/schemas/EnergyCustomerProfile"
+              description: Shared customer identity linking a utility account to a physical meter.
+              x-jsonld:
+                "@id": deg:customerProfile
+            billingSummary:
+              $ref: "../../EnergyBillingSummary/v1.0/attributes.yaml#/components/schemas/EnergyBillingSummary"
+              description: ESPI/Green Button billing summary data for the meter.
+              x-jsonld:
+                "@id": deg:billingSummary

@@ -1,0 +1,84 @@
+{
+  "context": {
+    "networkId": "nfh.global/testnet-deg",
+    "version": "2.0.0",
+    "action": "catalog/publish",
+    "bppId": "bpp.example.com",
+    "bppUri": "http://beckn-router:9000/bpp/receiver",
+    "transactionId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "messageId": "1a2b3c4d-5e6f-7890-abcd-ef0987654321",
+    "timestamp": "2026-04-01T06:00:00Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld"
+    ]
+  },
+  "message": {
+    "catalogs": [
+      {
+        "id": "catalog-bescom-arr-filings-001",
+        "descriptor": {
+          "name": "BESCOM - ARR Filing Data Catalogue",
+          "shortDesc": "Aggregate Revenue Requirement filings for regulatory review"
+        },
+        "bppId": "bpp.example.com",
+        "bppUri": "http://bpp.example.com/bpp/receiver",
+        "provider": {
+          "id": "bescom-discom-001",
+          "descriptor": {
+            "name": "BESCOM - Bangalore Electricity Supply Company"
+          }
+        },
+        "resources": [
+          {
+            "id": "ds-bescom-arr-filing-fy2025-26",
+            "descriptor": {
+              "name": "BESCOM ARR Filing - FY 2025-26",
+              "shortDesc": "Aggregate Revenue Requirement filing for BESCOM FY 2025-26",
+              "longDesc": "IES_ARR_Filing-format regulatory data containing cost components, revenue requirements, and tariff projections for BESCOM FY 2025-26, suitable for SERC review and tariff order processing."
+            },
+            "resourceAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld",
+              "@type": "DatasetItem",
+              "schema:identifier": "ds-bescom-arr-filing-fy2025-26",
+              "schema:name": "BESCOM ARR Filing - FY 2025-26",
+              "schema:temporalCoverage": "2025-04-01/2026-03-31",
+              "dataset:sensitivityLevel": "CONFIDENTIAL",
+              "dataset:refreshType": "RECURRING",
+              "dataset:refreshFrequency": "P1Y",
+              "dataset:accessMethod": "INLINE"
+            }
+          }
+        ],
+        "offers": [
+          {
+            "id": "offer-arr-filing-inline",
+            "descriptor": {
+              "name": "ARR Filing Inline Delivery - BESCOM FY 2025-26",
+              "shortDesc": "In-message delivery of ARR filing via beckn dataPayload (IES_ARR_Filing format)"
+            },
+            "resourceIds": ["ds-bescom-arr-filing-fy2025-26"],
+            "validity": {
+              "startDate": "2026-01-01T00:00:00Z",
+              "endDate": "2026-06-30T23:59:59Z"
+            },
+            "considerations": [
+              {
+                "id": "consideration-arr-regulatory-mandate",
+                "status": {
+                  "code": "ACTIVE"
+                },
+                "considerationAttributes": {
+                  "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
+                  "@type": "PriceSpecification",
+                  "currency": "INR",
+                  "value": 0,
+                  "description": "Mandatory regulatory filing - no commercial consideration"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

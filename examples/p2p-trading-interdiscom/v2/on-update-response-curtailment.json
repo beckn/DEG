@@ -24,7 +24,7 @@
         "@type": "beckn:Buyer",
         "beckn:id": "buyer-001",
         "beckn:buyerAttributes": {
-          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
           "@type": "EnergyCustomer",
           "meterId": "TEST_METER_BUYER",
           "utilityCustomerId": "TEST-CUST-BUYER-001",
@@ -39,17 +39,17 @@
             "unitText": "kWh"
           },
           "beckn:orderItemAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
             "@type": "EnergyOrderItem",
             "providerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyCustomer",
               "meterId": "TEST_METER_SELLER",
               "utilityCustomerId": "TEST-CUST-SELLER-001",
               "utilityId": "TEST_DISCOM_SELLER"
             },
             "fulfillmentAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeDelivery",
               "deliveryStatus": "IN_PROGRESS",
               "deliveryMode": "GRID_INJECTION",
@@ -95,7 +95,7 @@
               }
             },
             "beckn:offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
               "@type": "EnergyTradeOffer",
               "pricingModel": "PER_KWH",
               "deliveryWindow": {

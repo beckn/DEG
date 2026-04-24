@@ -6,56 +6,155 @@
         "type": "@type",
         "schema": "https://schema.org/",
         "xsd": "http://www.w3.org/2001/XMLSchema#",
-        "utility": "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/program-enrollment-vc/context.jsonld#",
-
+        "deg": "https://schema.beckn.io/deg#",
         "UtilityProgramEnrollmentCredential": {
-            "@id": "utility:UtilityProgramEnrollmentCredential",
+            "@id": "deg:UtilityProgramEnrollmentCredential",
             "@context": {
                 "@version": 1.1,
                 "@protected": true,
                 "id": "@id",
-                "type": "@type",
-                "consumerNumber": {
-                    "@id": "utility:consumerNumber",
+                "type": "@type"
+            }
+        },
+        "customerProfile": {
+            "@id": "deg:customerProfile",
+            "@type": "@id",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "customerNumber": {
+                    "@id": "deg:customerNumber",
                     "@type": "xsd:string"
                 },
+                "meterNumber": {
+                    "@id": "deg:meterNumber",
+                    "@type": "xsd:string"
+                },
+                "meterType": {
+                    "@id": "deg:meterType",
+                    "@type": "xsd:string"
+                },
+                "idRef": {
+                    "@id": "deg:idRef",
+                    "@type": "@id",
+                    "@context": {
+                        "issuedBy": {
+                            "@id": "deg:issuedBy",
+                            "@type": "@id"
+                        },
+                        "subjectId": {
+                            "@id": "deg:subjectId",
+                            "@type": "xsd:string"
+                        }
+                    }
+                }
+            }
+        },
+        "customerDetails": {
+            "@id": "deg:customerDetails",
+            "@type": "@id",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
                 "fullName": {
                     "@id": "schema:name",
                     "@type": "xsd:string"
                 },
-                "programName": {
-                    "@id": "utility:programName",
-                    "@type": "xsd:string"
+                "serviceConnectionDate": {
+                    "@id": "deg:serviceConnectionDate",
+                    "@type": "xsd:dateTime"
                 },
-                "programCode": {
-                    "@id": "utility:programCode",
-                    "@type": "xsd:string"
-                },
-                "enrollmentDate": {
-                    "@id": "utility:enrollmentDate",
-                    "@type": "xsd:date"
-                },
-                "validUntil": {
-                    "@id": "utility:validUntil",
-                    "@type": "xsd:date"
+                "installationAddress": {
+                    "@id": "deg:installationAddress",
+                    "@type": "@id",
+                    "@context": {
+                        "fullAddress": {
+                            "@id": "schema:streetAddress",
+                            "@type": "xsd:string"
+                        },
+                        "city": {
+                            "@id": "schema:addressLocality",
+                            "@type": "xsd:string"
+                        },
+                        "district": {
+                            "@id": "deg:district",
+                            "@type": "xsd:string"
+                        },
+                        "stateProvince": {
+                            "@id": "schema:addressRegion",
+                            "@type": "xsd:string"
+                        },
+                        "postalCode": {
+                            "@id": "schema:postalCode",
+                            "@type": "xsd:string"
+                        },
+                        "country": {
+                            "@id": "schema:addressCountry",
+                            "@type": "xsd:string"
+                        },
+                        "geo": {
+                            "@id": "schema:geo",
+                            "@type": "@id",
+                            "@context": {
+                                "latitude": {
+                                    "@id": "schema:latitude",
+                                    "@type": "xsd:decimal"
+                                },
+                                "longitude": {
+                                    "@id": "schema:longitude",
+                                    "@type": "xsd:decimal"
+                                }
+                            }
+                        },
+                        "openLocationCode": {
+                            "@id": "deg:openLocationCode",
+                            "@type": "xsd:string"
+                        }
+                    }
                 }
             }
         },
-
-        "UtilityIssuer": {
-            "@id": "utility:UtilityIssuer",
+        "programName": {
+            "@id": "deg:programName",
+            "@type": "xsd:string"
+        },
+        "programCode": {
+            "@id": "deg:programCode",
+            "@type": "xsd:string"
+        },
+        "enrollmentDate": {
+            "@id": "deg:enrollmentDate",
+            "@type": "xsd:dateTime"
+        },
+        "enrollmentValidUntil": {
+            "@id": "deg:enrollmentValidUntil",
+            "@type": "xsd:dateTime"
+        },
+        "idRef": {
+            "@id": "deg:idRef",
+            "@type": "@id",
             "@context": {
-                "@version": 1.1,
-                "@protected": true,
-                "id": "@id",
-                "type": "@type",
-                "name": {
-                    "@id": "schema:name",
+                "issuedBy": {
+                    "@id": "deg:issuedBy",
+                    "@type": "@id"
+                },
+                "subjectId": {
+                    "@id": "deg:subjectId",
+                    "@type": "xsd:string"
+                }
+            }
+        },
+        "credentialStatus": {
+            "@id": "deg:credentialStatus",
+            "@type": "@id",
+            "@context": {
+                "statusPurpose": {
+                    "@id": "deg:statusPurpose",
                     "@type": "xsd:string"
                 },
-                "licenseNumber": {
-                    "@id": "utility:licenseNumber",
-                    "@type": "xsd:string"
+                "statusListCredential": {
+                    "@id": "deg:statusListCredential",
+                    "@type": "@id"
                 }
             }
         }

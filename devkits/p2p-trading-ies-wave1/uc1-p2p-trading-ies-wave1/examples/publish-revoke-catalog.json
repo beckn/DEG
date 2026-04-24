@@ -1,0 +1,181 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "catalog_publish",
+    "timestamp": "2024-10-04T08:00:00Z",
+    "message_id": "msg-publish-001",
+    "transaction_id": "txn-catalog-001",
+    "bap_id": "p2p-trading-sandbox1.com",
+    "bap_uri": "https://p2p-trading-sandbox1.com",
+    "bpp_id": "p2p-trading-sandbox2.com",
+    "bpp_uri": "https://p2p-trading-sandbox2.com",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "catalogs": [
+      {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+        "@type": "beckn:Catalog",
+        "beckn:id": "catalog-energy-001",
+        "beckn:descriptor": {
+          "@type": "beckn:Descriptor",
+          "schema:name": "Solar Energy Trading Catalog"
+        },
+        "beckn:bppId": "bpp.energy-provider.com",
+        "beckn:bppUri": "https://bpp.energy-provider.com",
+        "beckn:isActive": false,
+        "beckn:items": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+            "@type": "beckn:Item",
+            "beckn:networkId": [
+              "p2p-interdiscom-trading-test-network"
+            ],
+            "beckn:id": "energy-resource-solar-001",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Solar Energy - 30.5 kWh",
+              "beckn:shortDesc": "Carbon Offset Certified Solar Energy",
+              "beckn:longDesc": "High-quality solar energy from verified source with carbon offset certification"
+            },
+            "beckn:provider": {
+              "beckn:id": "provider-solar-farm-001",
+              "beckn:descriptor": {
+                "@type": "beckn:Descriptor",
+                "schema:name": "Solar Farm 001"
+              },
+              "beckn:providerAttributes": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+                "@type": "EnergyCustomer",
+                "meterId": "TEST_METER_SELLER",
+                "utilityId": "TEST_DISCOM_SELLER",
+                "utilityCustomerId": "TEST-CUST-SELLER-001"
+              }
+            },
+            "beckn:itemAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@type": "EnergyResource",
+              "sourceType": "SOLAR",
+              "meterId": "TEST_METER_SELLER"
+            }
+          },
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+            "@type": "beckn:Item",
+            "beckn:networkId": [
+              "p2p-interdiscom-trading-test-network"
+            ],
+            "beckn:id": "energy-resource-solar-002",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Solar Energy - 50.0 kWh",
+              "beckn:shortDesc": "Standard Solar Energy",
+              "beckn:longDesc": "Reliable solar energy from verified source"
+            },
+            "beckn:provider": {
+              "beckn:id": "provider-solar-farm-001",
+              "beckn:descriptor": {
+                "@type": "beckn:Descriptor",
+                "schema:name": "Solar Farm 001"
+              },
+              "beckn:providerAttributes": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+                "@type": "EnergyCustomer",
+                "meterId": "TEST_METER_SELLER",
+                "utilityId": "TEST_DISCOM_SELLER",
+                "utilityCustomerId": "TEST-CUST-SELLER-001"
+              }
+            },
+            "beckn:itemAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@type": "EnergyResource",
+              "sourceType": "SOLAR",
+              "meterId": "TEST_METER_SELLER"
+            }
+          }
+        ],
+        "beckn:offers": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-energy-001",
+            "beckn:isActive": false,
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Daily Settlement Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ],
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 15,
+              "schema:priceCurrency": "INR",
+              "unitText": "kWh",
+              "applicableQuantity": {
+                "unitQuantity": 30.5,
+                "unitText": "kWh"
+              }
+            },
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "deliveryWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2024-10-04T10:00:00Z",
+                "schema:endTime": "2024-10-04T18:00:00Z"
+              },
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2024-10-04T00:00:00Z",
+                "schema:endTime": "2024-10-04T23:59:59Z"
+              }
+            }
+          },
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-energy-002",
+            "beckn:isActive": false,
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Bulk Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-002"
+            ],
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 12,
+              "schema:priceCurrency": "INR",
+              "unitText": "kWh",
+              "applicableQuantity": {
+                "unitQuantity": 50.0,
+                "unitText": "kWh"
+              }
+            },
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "deliveryWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2024-10-04T08:00:00Z",
+                "schema:endTime": "2024-10-04T16:00:00Z"
+              },
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2024-10-04T00:00:00Z",
+                "schema:endTime": "2024-10-11T23:59:59Z"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

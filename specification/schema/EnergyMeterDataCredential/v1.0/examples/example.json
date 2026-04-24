@@ -1,0 +1,102 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://schema.org/",
+    "https://schema.beckn.io/EnergyMeterDataGB/v1.0/context.jsonld"
+  ],
+  "id": "urn:uuid:d4e5f6a7-8901-23bc-def0-456789012345",
+  "type": [
+    "VerifiableCredential",
+    "EnergyMeterDataCredential"
+  ],
+  "issuer": {
+    "id": "did:web:example-utility.com",
+    "type": "idRef",
+    "name": "Example Energy Utility",
+    "issuedBy": "did:web:example-utility.com",
+    "subjectId": "REG-2025-00001",
+    "licenseNumber": "REG-2025-00001"
+  },
+  "validFrom": "2025-07-15T06:00:00Z",
+  "credentialStatus": {
+    "id": "https://dedi.global/dedi/query/did:web:example-utility.com/VC_revocation_registry",
+    "type": "dediregistry",
+    "statusPurpose": "revocation",
+    "statusListCredential": "https://dedi.global/dedi/lookup/did:web:example-utility.com/VC_revocation_registry"
+  },
+  "credentialSubject": {
+    "id": "did:example:consumer:abc123",
+    "customerProfile": {
+      "customerNumber": "UTIL-2025-001234567",
+      "meterNumber": "MET2025789456123",
+      "meterType": "AMI"
+    },
+    "meterDataGB": {
+      "ServiceCategory": {
+        "kind": "electricity"
+      },
+      "timeZone": "Asia/Kolkata",
+      "ReadingType": {
+        "commodity": "electricitySecondaryMetered",
+        "flowDirection": "forward",
+        "uom": "Wh",
+        "powerOfTenMultiplier": 0,
+        "accumulationBehaviour": "deltaData",
+        "intervalLength": 900,
+        "currency": "INR",
+        "kind": "energy",
+        "phase": "notApplicable"
+      },
+      "qualityOfReading": "validated",
+      "IntervalBlock": [
+        {
+          "interval": {
+            "start": "2025-07-14T18:30:00Z",
+            "duration": 3600
+          },
+          "IntervalReading": [
+            {
+              "timePeriod": {
+                "start": "2025-07-15T00:00:00+05:30",
+                "duration": 900
+              },
+              "value": 375,
+              "cost": 281300
+            },
+            {
+              "timePeriod": {
+                "start": "2025-07-15T00:15:00+05:30",
+                "duration": 900
+              },
+              "value": 410,
+              "cost": 307500
+            },
+            {
+              "timePeriod": {
+                "start": "2025-07-15T00:30:00+05:30",
+                "duration": 900
+              },
+              "value": 520,
+              "cost": 520000
+            },
+            {
+              "timePeriod": {
+                "start": "2025-07-15T00:45:00+05:30",
+                "duration": 900
+              },
+              "value": 485,
+              "cost": 485000
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2025-07-15T06:00:00Z",
+    "verificationMethod": "did:web:example-utility.com#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z58DAdFfa9SkqZMVPxAQpic7ndTaXoT..."
+  }
+}

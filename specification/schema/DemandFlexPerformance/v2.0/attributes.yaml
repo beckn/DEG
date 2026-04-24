@@ -1,0 +1,63 @@
+openapi: 3.1.1
+info:
+  title: Demand Flex — Performance Attributes (v2.0)
+  version: 2.0.0
+  description: >
+    Attribute schemas for demand-flex M&V (Performance.performanceAttributes).
+    Before the event: utility sends baselines per meter (actualKw is null).
+    After the event: utility sends both baselines and actuals per meter.
+    The rego policy uses baselines and actuals to compute settlements.
+
+components:
+  schemas:
+    DemandFlexPerformance:
+      type: object
+      description: >
+        Performance attributes for demand-flex M&V (Measurement & Verification).
+        Attached to Performance.performanceAttributes in on_status callbacks.
+      additionalProperties: false
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": DemandFlexPerformance
+      properties:
+
+        eventId:
+          type: string
+          description: Identifier of the flex event being measured.
+          example: "evt-2026-04-01-001"
+          x-jsonld:
+            "@id": eventId
+
+        methodology:
+          type: string
+          description: >
+            Baseline methodology used across all meters (e.g., "5of10" means
+            average of 5 highest-consumption days out of last 10).
+          example: "5of10"
+          x-jsonld:
+            "@id": methodology
+
+        meters:
+          type: array
+          description: >
+            Per-meter M&V data. Each entry contains the meter ID, its baseline,
+            and (after the event) the actual load measured during the event.
+          x-jsonld:
+            "@id": meters
+          items:
+            type: object
+            required: [meterId, baselineKw]
+            properties:
+              meterId:
+                type: string
+                description: Meter identifier.
+                example: "der://meter/001"
+              baselineKw:
+                type: number
+                description: Baseline load in kW for the event window.
+                example: 45.0
+              actualKw:
+                type: number
+                description: >
+                  Actual load in kW during the event window. Null/absent before event completion.
+                example: 20.0

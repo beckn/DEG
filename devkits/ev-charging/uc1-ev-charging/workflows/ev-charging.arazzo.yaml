@@ -1,0 +1,141 @@
+arazzo: 1.0.1
+info:
+  title: EV Charging Workflow - Use Case 1
+  version: 1.0.0
+  description: >
+    End-to-end Beckn 2.0 workflow for EV charging discovery, reservation,
+    session, and cancellation.
+
+    Run via the workflow runner (from uc1-ev-charging/workflows/):
+
+      Local-bridge mode (default, BAP↔BPP via Caddy router inside docker —
+      `docker compose up -d` in install/):
+        ./run-arazzo.sh
+        ./run-arazzo.sh -w select-through-status -v
+
+      Over-internet mode (against the public ngrok URL fronting the router):
+        PUBLIC_URL=https://<host>.ngrok-free.dev ./run-arazzo.sh
+
+      Available workflows: discover, select-through-status,
+        ev-charging-cancellation
+
+      Override server URLs (optional, defaults in x-serverUrl):
+        -S beckn-bap-caller=http://localhost:8081/bap/caller \
+        -S beckn-bpp-caller=http://localhost:8082/bpp/caller
+
+sourceDescriptions:
+  - name: beckn-bap-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8081/bap/caller
+
+  - name: beckn-bpp-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8082/bpp/caller
+
+workflows:
+  - workflowId: discover
+    summary: EV driver app discovers nearby charging stations
+    steps:
+      - stepId: discover
+        description: BAP discovers charging stations within a circular boundary
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/01_discover/discovery-within-a-circular-boundary.json"
+
+      - stepId: on-discover
+        description: BPP returns catalog of charging stations
+        operationId: beckn-bpp-caller.onDiscover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/02_on_discover/ev-charging-discovery-catalog.json"
+
+  - workflowId: select-through-status
+    summary: Select station, initialize, confirm, and check session status
+    steps:
+      - stepId: select
+        description: BAP selects a specific station with fulfillment details
+        operationId: beckn-bap-caller.select
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/03_select/ev-charging-select.json"
+
+      - stepId: on-select
+        description: BPP returns pricing and confirms selection
+        operationId: beckn-bpp-caller.onSelect
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/04_on_select/ev-charging-on-select.json"
+
+      - stepId: init
+        description: BAP initializes with payment and billing details
+        operationId: beckn-bap-caller.init
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/05_init/ev-charging-bap-payment-init.json"
+
+      - stepId: on-init
+        description: BPP acknowledges initialization with quote
+        operationId: beckn-bpp-caller.onInit
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/06_on_init/ev-charging-bpp-payment-on-init.json"
+
+      - stepId: confirm
+        description: BAP confirms the reservation with authorization
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/07_confirm/ev-charging-confirm.json"
+
+      - stepId: on-confirm
+        description: BPP confirms reservation and starts session
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/08_00_on_confirm/ev-charging-on-confirm.json"
+
+      - stepId: status
+        description: BAP polls for current connector status
+        operationId: beckn-bap-caller.status
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/08_01_status/ev-charging-connector-status.json"
+
+      - stepId: on-status
+        description: BPP returns current connector status
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/08_02_on_status/ev-charging-connector-on-status.json"
+
+  - workflowId: ev-charging-cancellation
+    summary: Cancel an EV charging reservation
+    steps:
+      - stepId: cancel
+        description: BAP cancels reserved slot
+        operationId: beckn-bap-caller.cancel
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/19_cancel/ev-charging-cancel-reserved-slot.json"
+
+      - stepId: on-cancel
+        description: BPP confirms cancellation with any applicable refund
+        operationId: beckn-bpp-caller.onCancel
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/20_on_cancel/ev-charging-bpp-reservation-on-cancel.json"

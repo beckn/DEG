@@ -1,0 +1,303 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "id": "@id",
+        "type": "@type",
+        "schema": "https://schema.org/",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "deg": "https://schema.beckn.io/deg#",
+        "CustomerCredential": {
+            "@id": "deg:CustomerCredential",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "id": "@id",
+                "type": "@type"
+            }
+        },
+        "customerProfile": {
+            "@id": "deg:customerProfile",
+            "@type": "@id",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "customerNumber": {
+                    "@id": "deg:customerNumber",
+                    "@type": "xsd:string"
+                },
+                "meterNumber": {
+                    "@id": "deg:meterNumber",
+                    "@type": "xsd:string"
+                },
+                "meterType": {
+                    "@id": "deg:meterType",
+                    "@type": "xsd:string"
+                },
+                "idRef": {
+                    "@id": "deg:idRef",
+                    "@type": "@id",
+                    "@context": {
+                        "issuedBy": {
+                            "@id": "deg:issuedBy",
+                            "@type": "@id"
+                        },
+                        "subjectId": {
+                            "@id": "deg:subjectId",
+                            "@type": "xsd:string"
+                        }
+                    }
+                }
+            }
+        },
+        "customerDetails": {
+            "@id": "deg:customerDetails",
+            "@type": "@id",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "fullName": {
+                    "@id": "schema:name",
+                    "@type": "xsd:string"
+                },
+                "serviceConnectionDate": {
+                    "@id": "deg:serviceConnectionDate",
+                    "@type": "xsd:dateTime"
+                },
+                "installationAddress": {
+                    "@id": "beckn:Location",
+                    "@type": "@id",
+                    "@context": {
+                        "beckn": "https://schema.beckn.io/",
+                        "descriptor": {
+                            "@id": "beckn:descriptor",
+                            "@type": "@id",
+                            "@context": {
+                                "name": {
+                                    "@id": "beckn:name",
+                                    "@type": "xsd:string"
+                                },
+                                "code": {
+                                    "@id": "beckn:code",
+                                    "@type": "xsd:string"
+                                },
+                                "short_desc": {
+                                    "@id": "beckn:short_desc",
+                                    "@type": "xsd:string"
+                                },
+                                "long_desc": {
+                                    "@id": "beckn:long_desc",
+                                    "@type": "xsd:string"
+                                }
+                            }
+                        },
+                        "map_url": {
+                            "@id": "beckn:map_url",
+                            "@type": "@id"
+                        },
+                        "gps": {
+                            "@id": "beckn:gps",
+                            "@type": "xsd:string"
+                        },
+                        "address": {
+                            "@id": "beckn:address",
+                            "@type": "xsd:string"
+                        },
+                        "city": {
+                            "@id": "beckn:city",
+                            "@type": "@id",
+                            "@context": {
+                                "name": {
+                                    "@id": "beckn:name",
+                                    "@type": "xsd:string"
+                                },
+                                "code": {
+                                    "@id": "beckn:code",
+                                    "@type": "xsd:string"
+                                }
+                            }
+                        },
+                        "district": {
+                            "@id": "beckn:district",
+                            "@type": "xsd:string"
+                        },
+                        "state": {
+                            "@id": "beckn:state",
+                            "@type": "@id",
+                            "@context": {
+                                "name": {
+                                    "@id": "beckn:name",
+                                    "@type": "xsd:string"
+                                },
+                                "code": {
+                                    "@id": "beckn:code",
+                                    "@type": "xsd:string"
+                                }
+                            }
+                        },
+                        "country": {
+                            "@id": "beckn:country",
+                            "@type": "@id",
+                            "@context": {
+                                "name": {
+                                    "@id": "beckn:name",
+                                    "@type": "xsd:string"
+                                },
+                                "code": {
+                                    "@id": "beckn:code",
+                                    "@type": "xsd:string"
+                                }
+                            }
+                        },
+                        "area_code": {
+                            "@id": "beckn:area_code",
+                            "@type": "xsd:string"
+                        },
+                        "circle": {
+                            "@id": "beckn:circle",
+                            "@type": "@id",
+                            "@context": {
+                                "gps": {
+                                    "@id": "beckn:gps",
+                                    "@type": "xsd:string"
+                                },
+                                "radius": {
+                                    "@id": "beckn:radius",
+                                    "@type": "@id"
+                                }
+                            }
+                        },
+                        "polygon": {
+                            "@id": "beckn:polygon",
+                            "@type": "xsd:string"
+                        },
+                        "3dspace": {
+                            "@id": "beckn:3dspace",
+                            "@type": "xsd:string"
+                        },
+                        "rating": {
+                            "@id": "beckn:rating",
+                            "@type": "xsd:string"
+                        },
+                        "openLocationCode": {
+                            "@id": "deg:openLocationCode",
+                            "@type": "xsd:string"
+                        }
+                    }
+                }
+            }
+        },
+        "consumptionProfile": {
+            "@id": "deg:consumptionProfile",
+            "@type": "@id",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "premisesType": {
+                    "@id": "deg:premisesType",
+                    "@type": "xsd:string"
+                },
+                "connectionType": {
+                    "@id": "deg:connectionType",
+                    "@type": "xsd:string"
+                },
+                "sanctionedLoadKW": {
+                    "@id": "deg:sanctionedLoadKW",
+                    "@type": "xsd:decimal"
+                },
+                "tariffCategoryCode": {
+                    "@id": "deg:tariffCategoryCode",
+                    "@type": "xsd:string"
+                }
+            }
+        },
+        "generationProfile": {
+            "@id": "deg:generationProfile",
+            "@type": "@id",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "assetId": {
+                    "@id": "deg:assetId",
+                    "@type": "xsd:string"
+                },
+                "generationType": {
+                    "@id": "deg:generationType",
+                    "@type": "xsd:string"
+                },
+                "capacityKW": {
+                    "@id": "deg:capacityKW",
+                    "@type": "xsd:decimal"
+                },
+                "commissioningDate": {
+                    "@id": "deg:commissioningDate",
+                    "@type": "xsd:dateTime"
+                },
+                "manufacturer": {
+                    "@id": "schema:manufacturer",
+                    "@type": "xsd:string"
+                },
+                "modelNumber": {
+                    "@id": "deg:modelNumber",
+                    "@type": "xsd:string"
+                }
+            }
+        },
+        "storageProfile": {
+            "@id": "deg:storageProfile",
+            "@type": "@id",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "assetId": {
+                    "@id": "deg:storageAssetId",
+                    "@type": "xsd:string"
+                },
+                "storageCapacityKWh": {
+                    "@id": "deg:storageCapacityKWh",
+                    "@type": "xsd:decimal"
+                },
+                "powerRatingKW": {
+                    "@id": "deg:powerRatingKW",
+                    "@type": "xsd:decimal"
+                },
+                "commissioningDate": {
+                    "@id": "deg:storageCommissioningDate",
+                    "@type": "xsd:dateTime"
+                },
+                "storageType": {
+                    "@id": "deg:storageType",
+                    "@type": "xsd:string"
+                }
+            }
+        },
+        "idRef": {
+            "@id": "deg:idRef",
+            "@type": "@id",
+            "@context": {
+                "issuedBy": {
+                    "@id": "deg:issuedBy",
+                    "@type": "@id"
+                },
+                "subjectId": {
+                    "@id": "deg:subjectId",
+                    "@type": "xsd:string"
+                }
+            }
+        },
+        "credentialStatus": {
+            "@id": "deg:credentialStatus",
+            "@type": "@id",
+            "@context": {
+                "statusPurpose": {
+                    "@id": "deg:statusPurpose",
+                    "@type": "xsd:string"
+                },
+                "statusListCredential": {
+                    "@id": "deg:statusListCredential",
+                    "@type": "@id"
+                }
+            }
+        }
+    }
+}

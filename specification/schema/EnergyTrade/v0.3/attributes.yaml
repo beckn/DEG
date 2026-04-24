@@ -44,7 +44,7 @@ components:
 
         validityWindow:
           allOf:
-            - $ref: 'https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/attributes.yaml#/components/schemas/TimePeriod'
+            - $ref: 'https://raw.githubusercontent.com/beckn/protocol-specifications-new/tags/core-2.0.0-rc-eos-release/schema/core/v2/attributes.yaml#/components/schemas/TimePeriod'
             - type: object
               description: >
                 Time window during which this offer can be selected/accepted. Typically set
@@ -56,7 +56,7 @@ components:
 
         deliveryWindow:
           allOf:
-            - $ref: 'https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/attributes.yaml#/components/schemas/TimePeriod'
+            - $ref: 'https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/attributes.yaml#/components/schemas/TimePeriod'
             - type: object
               description: >
                 Specific time period (start and end time) when energy delivery occurs.
@@ -167,7 +167,7 @@ components:
 
         total_quantity:
           allOf:
-            - $ref: 'https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/attributes.yaml#/components/schemas/Quantity'
+            - $ref: 'https://raw.githubusercontent.com/beckn/protocol-specifications-new/tags/core-2.0.0-rc-eos-release/schema/core/v2/attributes.yaml#/components/schemas/Quantity'
             - type: object
               description: >
                 Total quantity of energy for this trade order. Units should be in kWh.

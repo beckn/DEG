@@ -1,0 +1,22 @@
+routingRules:
+  - domain: "nfh.global/testnet-evcharging"
+    version: "2.0.0"
+    targetType: "bpp"
+    endpoints:
+      - select
+      - init
+      - confirm
+      - status
+      - track
+      - cancel
+      - update
+      - rate
+      - support
+
+  - domain: "nfh.global/testnet-evcharging"  # Retail domain
+    version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "https://34.14.221.66.sslip.io/beckn"
+    endpoints:
+      - discover

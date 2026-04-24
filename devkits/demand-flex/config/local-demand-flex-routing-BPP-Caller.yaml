@@ -1,0 +1,19 @@
+# BPP Caller routing: on_* callbacks from BPP → BAP adapter
+routingRules:
+  - version: "2.0.0"
+    targetType: "bap"
+    endpoints:
+      - on_select
+      - on_init
+      - on_confirm
+      - on_status
+      - on_update
+      - on_cancel
+
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "https://fabric.nfh.global/beckn/catalog"
+    endpoints:
+      - publish
+      - subscribe

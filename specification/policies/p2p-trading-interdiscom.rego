@@ -46,7 +46,7 @@ import rego.v1
 #     provider utilityId must be TEST_DISCOM_SELLER.
 # P3. Validity-to-delivery gap: on each catalog offer, validity window end must
 #     be at least minDeliveryLeadHours before delivery window start (mirrors O2).
-# P3b. [DISABLED] Delivery slot duration: delivery window must be exactly 1 hour
+# P3b. Delivery slot duration: delivery window must be exactly 1 hour
 #      (mirrors O3).
 # P4. Currency: each catalog offer's schema:priceCurrency must be "INR" (mirrors O6).
 # P5. Quantity unit: each catalog offer's applicableQuantity.unitText must be
@@ -61,9 +61,10 @@ import rego.v1
 #
 # ── test ID consistency (when message.order exists) ──
 #
-# T1. If any provider uses test identifiers (meterId or utilityId starting
-#     with "TEST_"), the buyer must also use test values:
-#     TEST_METER_BUYER and TEST_DISCOM_BUYER.
+# T1. If ANY party (buyer OR any provider) uses a test identifier (meterId
+#     or utilityId starting with "TEST_"), ALL parties must use test values:
+#       buyer    → meterId = TEST_METER_BUYER, utilityId = TEST_DISCOM_BUYER
+#       provider → meterId and utilityId must each start with "TEST_"
 #
 # Config:
 #   data.config.minDeliveryLeadHours  - minimum hours of lead time (default: 4)
@@ -173,24 +174,24 @@ _order_violations contains msg if {
 }
 
 # Rule 3 – Delivery window must be exactly 1 hour
-#_order_violations contains msg if {
-#	item := input.message.order["beckn:orderItems"][i]
-#	offer_attrs := item["beckn:acceptedOffer"]["beckn:offerAttributes"]
-#
-#	dw := _delivery_window(offer_attrs)
-#	dw != null
-#
-#	start_str := dw["schema:startTime"]
-#	end_str := dw["schema:endTime"]
-#	duration_hours := (time.parse_rfc3339_ns(end_str) - time.parse_rfc3339_ns(start_str)) / ns_per_hour
-#
-#	duration_hours != 1
-#
-#	msg := sprintf(
-#		"order item [%d]: delivery window (%s to %s) is %v hours; must be exactly 1 hour",
-#		[i, start_str, end_str, duration_hours],
-#	)
-#}
+_order_violations contains msg if {
+	item := input.message.order["beckn:orderItems"][i]
+	offer_attrs := item["beckn:acceptedOffer"]["beckn:offerAttributes"]
+
+	dw := _delivery_window(offer_attrs)
+	dw != null
+
+	start_str := dw["schema:startTime"]
+	end_str := dw["schema:endTime"]
+	duration_hours := (time.parse_rfc3339_ns(end_str) - time.parse_rfc3339_ns(start_str)) / ns_per_hour
+
+	duration_hours != 1
+
+	msg := sprintf(
+		"order item [%d]: delivery window (%s to %s) is %v hours; must be exactly 1 hour",
+		[i, start_str, end_str, duration_hours],
+	)
+}
 
 # Helper: extract buyer meterId
 _buyer_meter_id := input.message.order["beckn:buyer"]["beckn:buyerAttributes"].meterId
@@ -238,10 +239,10 @@ _order_violations contains msg if {
 	item := input.message.order["beckn:orderItems"][i]
 	qty := item["beckn:quantity"].unitQuantity
 	cap := item["beckn:acceptedOffer"]["beckn:price"].applicableQuantity.unitQuantity
-	qty >= cap
+	qty > cap
 
 	msg := sprintf(
-		"order item [%d]: beckn:quantity.unitQuantity (%v) must be less than applicableQuantity (%v)",
+		"order item [%d]: beckn:quantity.unitQuantity (%v) must not be greater than the applicableQuantity (%v)",
 		[i, qty, cap],
 	)
 }
@@ -355,7 +356,7 @@ _order_violations contains msg if {
 #   beckn:items[*].beckn:itemAttributes                             → EnergyResource
 #   beckn:offers[*].beckn:offerAttributes                           → EnergyTradeOffer
 
-_energytrade_context := "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld"
+_energytrade_context := "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld"
 
 # --- Order domain: beckn:buyerAttributes → EnergyCustomer ---
 
@@ -677,24 +678,24 @@ _publish_violations contains msg if {
 }
 
 # Publish Rule 5b — Delivery window must be exactly 1 hour (mirrors O3)
-#_publish_violations contains msg if {
-#	offer := input.message.catalogs[_]["beckn:offers"][j]
-#	offer_attrs := offer["beckn:offerAttributes"]
-#
-#	dw := _delivery_window(offer_attrs)
-#	dw != null
-#
-#	start_str := dw["schema:startTime"]
-#	end_str := dw["schema:endTime"]
-#	duration_hours := (time.parse_rfc3339_ns(end_str) - time.parse_rfc3339_ns(start_str)) / ns_per_hour
-#
-#	duration_hours != 1
-#
-#	msg := sprintf(
-#		"catalog offer [%d]: delivery window (%s to %s) is %v hours; must be exactly 1 hour",
-#		[j, start_str, end_str, duration_hours],
-#	)
-#}
+_publish_violations contains msg if {
+	offer := input.message.catalogs[_]["beckn:offers"][j]
+	offer_attrs := offer["beckn:offerAttributes"]
+
+	dw := _delivery_window(offer_attrs)
+	dw != null
+
+	start_str := dw["schema:startTime"]
+	end_str := dw["schema:endTime"]
+	duration_hours := (time.parse_rfc3339_ns(end_str) - time.parse_rfc3339_ns(start_str)) / ns_per_hour
+
+	duration_hours != 1
+
+	msg := sprintf(
+		"catalog offer [%d]: delivery window (%s to %s) is %v hours; must be exactly 1 hour",
+		[j, start_str, end_str, duration_hours],
+	)
+}
 
 # Publish Rule 6 — Currency must be INR (mirrors O6)
 _publish_violations contains msg if {
@@ -904,43 +905,75 @@ _publish_violations contains msg if {
 
 # ===== Test ID consistency (non-publish actions) =====
 #
-# If any provider on an order item uses a test identifier (meterId or utilityId
-# starting with "TEST_"), the buyer must also use test identifiers:
-#   - buyer meterId = TEST_METER_BUYER
-#   - buyer utilityId = TEST_DISCOM_BUYER
+# If ANY party (buyer OR any provider) uses a test identifier (meterId or
+# utilityId starting with "TEST_"), ALL parties must use test identifiers:
+#   - buyer meterId    = TEST_METER_BUYER
+#   - buyer utilityId  = TEST_DISCOM_BUYER
+#   - every provider meterId   must start with "TEST_"
+#   - every provider utilityId must start with "TEST_"
 
-_any_provider_is_test if {
+_any_party_is_test if { startswith(_buyer_meter_id, "TEST_") }
+
+_any_party_is_test if { startswith(_buyer_utility_id, "TEST_") }
+
+_any_party_is_test if {
 	item := input.message.order["beckn:orderItems"][_]
 	provider := item["beckn:orderItemAttributes"].providerAttributes
 	startswith(provider.meterId, "TEST_")
 }
 
-_any_provider_is_test if {
+_any_party_is_test if {
 	item := input.message.order["beckn:orderItems"][_]
 	provider := item["beckn:orderItemAttributes"].providerAttributes
 	startswith(provider.utilityId, "TEST_")
 }
 
-# Test consistency: buyer meterId must be TEST_METER_BUYER
+# T1 – buyer meterId must be TEST_METER_BUYER
 _test_consistency_violations contains msg if {
-	_any_provider_is_test
+	_any_party_is_test
 	buyer_mid := _buyer_meter_id
 	buyer_mid != "TEST_METER_BUYER"
 
 	msg := sprintf(
-		"test consistency: provider uses test identifiers but buyer meterId is %q; must be TEST_METER_BUYER",
+		"test consistency: a party uses test identifiers but buyer meterId is %q; must be TEST_METER_BUYER",
 		[buyer_mid],
 	)
 }
 
-# Test consistency: buyer utilityId must be TEST_DISCOM_BUYER
+# T1 – buyer utilityId must be TEST_DISCOM_BUYER
 _test_consistency_violations contains msg if {
-	_any_provider_is_test
+	_any_party_is_test
 	buyer_uid := _buyer_utility_id
 	buyer_uid != "TEST_DISCOM_BUYER"
 
 	msg := sprintf(
-		"test consistency: provider uses test identifiers but buyer utilityId is %q; must be TEST_DISCOM_BUYER",
+		"test consistency: a party uses test identifiers but buyer utilityId is %q; must be TEST_DISCOM_BUYER",
 		[buyer_uid],
+	)
+}
+
+# T1 – each provider meterId must start with TEST_
+_test_consistency_violations contains msg if {
+	_any_party_is_test
+	item := input.message.order["beckn:orderItems"][i]
+	provider := item["beckn:orderItemAttributes"].providerAttributes
+	not startswith(provider.meterId, "TEST_")
+
+	msg := sprintf(
+		"test consistency: a party uses test identifiers but order item [%d] provider meterId is %q; must start with TEST_",
+		[i, provider.meterId],
+	)
+}
+
+# T1 – each provider utilityId must start with TEST_
+_test_consistency_violations contains msg if {
+	_any_party_is_test
+	item := input.message.order["beckn:orderItems"][i]
+	provider := item["beckn:orderItemAttributes"].providerAttributes
+	not startswith(provider.utilityId, "TEST_")
+
+	msg := sprintf(
+		"test consistency: a party uses test identifiers but order item [%d] provider utilityId is %q; must start with TEST_",
+		[i, provider.utilityId],
 	)
 }

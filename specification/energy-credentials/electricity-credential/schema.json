@@ -1,0 +1,576 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/beckn/DEG/blob/main/specification/energy-credentials/electricity-credential/schema.json",
+    "title": "Customer Credential Schema",
+    "description": "JSON Schema for a unified customer credential that combines customer identity, customer details, consumption characteristics, generation capability, and storage capability as equal-level properties within a single W3C Verifiable Credential (VC Data Model 2.0). Issued by energy providers.",
+    "type": "object",
+    "required": [
+        "@context",
+        "id",
+        "type",
+        "issuer",
+        "validFrom",
+        "credentialSubject"
+    ],
+    "properties": {
+        "@context": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "contains": {
+                "const": "https://www.w3.org/ns/credentials/v2"
+            },
+            "minItems": 2
+        },
+        "id": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "description": "Unique identifier for the credential in URN UUID format"
+        },
+        "type": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "contains": {
+                "const": "CustomerCredential"
+            },
+            "minItems": 2
+        },
+        "issuer": {
+            "type": "object",
+            "required": [
+                "id",
+                "name"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL of the issuing provider"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Name of the provider"
+                },
+                "idRef": {
+                    "type": "object",
+                    "description": "Reference to an identity issued by an external authority",
+                    "required": [
+                        "issuedBy",
+                        "subjectId"
+                    ],
+                    "properties": {
+                        "issuedBy": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "DID of the authority that issued the identity (e.g., did:web:kerc.karnataka.gov.in)"
+                        },
+                        "subjectId": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9._-]+:[A-Za-z0-9X_-]+$",
+                            "description": "Subject identifier in the format authority-domain:id-value (e.g., kerc.karnataka.gov.in:AABPC12345)"
+                        }
+                    }
+                }
+            }
+        },
+        "validFrom": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time from which the credential is valid (W3C VC Data Model 2.0)"
+        },
+        "validUntil": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date and time until which the credential is valid (W3C VC Data Model 2.0)"
+        },
+        "credentialStatus": {
+            "type": "object",
+            "required": [
+                "id",
+                "type",
+                "statusPurpose",
+                "statusListCredential"
+            ],
+            "description": "Revocation status information for the credential",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to look up the revocation status of this specific credential via DeDi registry"
+                },
+                "type": {
+                    "type": "string",
+                    "const": "dedi",
+                    "description": "Type of status check mechanism (DeDi)"
+                },
+                "statusPurpose": {
+                    "type": "string",
+                    "enum": [
+                        "revocation",
+                        "suspension"
+                    ],
+                    "description": "Purpose of the credential status entry"
+                },
+                "statusListCredential": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to the issuer revocation registry on DeDi"
+                }
+            }
+        },
+        "credentialSubject": {
+            "type": "object",
+            "description": "Single subject with five profile sections: customerProfile (required), customerDetails, consumptionProfile, generationProfile, storageProfile (all optional except customerProfile)",
+            "required": [
+                "customerProfile"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Optional DID of the customer/credential subject"
+                },
+                "customerProfile": {
+                    "$ref": "#/$defs/CustomerProfile"
+                },
+                "customerDetails": {
+                    "$ref": "#/$defs/CustomerDetails"
+                },
+                "consumptionProfile": {
+                    "$ref": "#/$defs/ConsumptionProfile"
+                },
+                "generationProfile": {
+                    "$ref": "#/$defs/GenerationProfile"
+                },
+                "storageProfile": {
+                    "$ref": "#/$defs/StorageProfile"
+                }
+            }
+        },
+        "proof": {
+            "type": "object",
+            "required": [
+                "type",
+                "created",
+                "verificationMethod",
+                "proofPurpose",
+                "proofValue"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Cryptographic signature type (e.g., Ed25519Signature2020)"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Timestamp when the proof was created"
+                },
+                "verificationMethod": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URI of the verification method/public key"
+                },
+                "proofPurpose": {
+                    "type": "string",
+                    "enum": [
+                        "assertionMethod",
+                        "authentication"
+                    ],
+                    "description": "Purpose of the proof"
+                },
+                "proofValue": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The cryptographic signature value"
+                }
+            }
+        }
+    },
+    "$defs": {
+        "CustomerProfile": {
+            "type": "object",
+            "description": "Core customer identity: customer number, meter number, external ID reference",
+            "required": [
+                "customerNumber",
+                "meterNumber",
+                "meterType"
+            ],
+            "properties": {
+                "customerNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Full customer account number assigned by the utility"
+                },
+                "meterNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "description": "Unique meter serial number"
+                },
+                "meterType": {
+                    "type": "string",
+                    "description": "Type of electricity meter installed. Values derived from Green Button / ESPI meter kind classifications.",
+                    "enum": [
+                        "AMR",
+                        "AMI",
+                        "Electromechanical",
+                        "Forward",
+                        "Reverse",
+                        "Bidirectional",
+                        "Prepaid",
+                        "NetMeter",
+                        "Other"
+                    ]
+                },
+                "idRef": {
+                    "type": "object",
+                    "description": "Reference to an identity issued by an external authority",
+                    "required": [
+                        "issuedBy",
+                        "subjectId"
+                    ],
+                    "properties": {
+                        "issuedBy": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "DID of the authority that issued the identity (e.g., did:web:kerc.karnataka.gov.in)"
+                        },
+                        "subjectId": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9._-]+:[A-Za-z0-9X_-]+$",
+                            "description": "Subject identifier in the format authority-domain:id-value (e.g., kerc.karnataka.gov.in:AABPC12345)"
+                        }
+                    }
+                }
+            }
+        },
+        "CustomerDetails": {
+            "type": "object",
+            "description": "Customer personal and address information",
+            "required": [
+                "fullName",
+                "installationAddress",
+                "serviceConnectionDate"
+            ],
+            "properties": {
+                "fullName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Full name of the customer as per ID proof"
+                },
+                "installationAddress": {
+                    "type": "object",
+                    "description": "The physical location of the installation. Follows the beckn Location schema.",
+                    "required": [
+                        "address",
+                        "area_code",
+                        "country"
+                    ],
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "Unique identifier for the location"
+                        },
+                        "descriptor": {
+                            "type": "object",
+                            "description": "Physical description of the location",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of the location"
+                                },
+                                "code": {
+                                    "type": "string",
+                                    "description": "Location code"
+                                },
+                                "short_desc": {
+                                    "type": "string",
+                                    "description": "Short description of the location"
+                                },
+                                "long_desc": {
+                                    "type": "string",
+                                    "description": "Long description of the location"
+                                }
+                            }
+                        },
+                        "map_url": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "URL to the map of the location"
+                        },
+                        "gps": {
+                            "type": "string",
+                            "pattern": "^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?),\\s*[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$",
+                            "description": "GPS coordinates of the installation (e.g., '12.9716,77.5946')"
+                        },
+                        "address": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Complete postal address of the installation"
+                        },
+                        "city": {
+                            "type": "object",
+                            "description": "City of the installation",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of the city"
+                                },
+                                "code": {
+                                    "type": "string",
+                                    "description": "City code"
+                                }
+                            }
+                        },
+                        "district": {
+                            "type": "string",
+                            "description": "District or county name"
+                        },
+                        "state": {
+                            "type": "object",
+                            "description": "State or province of the installation",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of the state"
+                                },
+                                "code": {
+                                    "type": "string",
+                                    "description": "State code as per country or international standards"
+                                }
+                            }
+                        },
+                        "country": {
+                            "type": "object",
+                            "description": "Country of the installation",
+                            "required": [
+                                "code"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of the country"
+                                },
+                                "code": {
+                                    "type": "string",
+                                    "pattern": "^[A-Z]{2}$",
+                                    "description": "Country code as per ISO 3166-1 alpha-2 format"
+                                }
+                            }
+                        },
+                        "area_code": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Area code or postal/ZIP code"
+                        },
+                        "circle": {
+                            "type": "object",
+                            "description": "Circular geo-fence around the location",
+                            "properties": {
+                                "gps": {
+                                    "type": "string",
+                                    "pattern": "^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?),\\s*[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$",
+                                    "description": "GPS coordinates of the center"
+                                },
+                                "radius": {
+                                    "type": "object",
+                                    "description": "Radius of the circle",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        },
+                                        "estimated_value": {
+                                            "type": "string"
+                                        },
+                                        "computed_value": {
+                                            "type": "string"
+                                        },
+                                        "range": {
+                                            "type": "object",
+                                            "properties": {
+                                                "min": {
+                                                    "type": "string"
+                                                },
+                                                "max": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "unit": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "polygon": {
+                            "type": "string",
+                            "description": "Boundary polygon of the location"
+                        },
+                        "3dspace": {
+                            "type": "string",
+                            "description": "Three dimensional region describing the location"
+                        },
+                        "rating": {
+                            "type": "string",
+                            "description": "Rating of the location"
+                        },
+                        "openLocationCode": {
+                            "type": "string",
+                            "pattern": "^[23456789CFGHJMPQRVWX]{4,8}\\+[23456789CFGHJMPQRVWX]{0,4}$",
+                            "description": "Open Location Code (OLC) for the installation location"
+                        }
+                    }
+                },
+                "serviceConnectionDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Date and time when the electricity connection was activated (with timezone offset)"
+                }
+            }
+        },
+        "ConsumptionProfile": {
+            "type": "object",
+            "description": "Connection and consumption characteristics for load management and tariff purposes",
+            "required": [
+                "premisesType",
+                "connectionType",
+                "sanctionedLoadKW",
+                "tariffCategoryCode"
+            ],
+            "properties": {
+                "premisesType": {
+                    "type": "string",
+                    "enum": [
+                        "Residential",
+                        "Commercial",
+                        "Industrial",
+                        "Agricultural"
+                    ],
+                    "description": "Type of premises for the electricity connection"
+                },
+                "connectionType": {
+                    "type": "string",
+                    "enum": [
+                        "Single-phase",
+                        "Three-phase"
+                    ],
+                    "description": "Type of electrical connection"
+                },
+                "sanctionedLoadKW": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 10000,
+                    "description": "Sanctioned/approved electrical load in kilowatts (kW)"
+                },
+                "tariffCategoryCode": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Billing/tariff category code assigned by the utility"
+                }
+            }
+        },
+        "GenerationProfile": {
+            "type": "object",
+            "description": "DER (Distributed Energy Resource) generation capability",
+            "required": [
+                "generationType",
+                "capacityKW",
+                "commissioningDate"
+            ],
+            "properties": {
+                "assetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Unique identifier for the generation asset"
+                },
+                "generationType": {
+                    "type": "string",
+                    "enum": [
+                        "Solar",
+                        "Wind",
+                        "MicroHydro",
+                        "Other"
+                    ],
+                    "description": "Type of distributed energy generation"
+                },
+                "capacityKW": {
+                    "type": "number",
+                    "minimum": 0.1,
+                    "maximum": 10000,
+                    "description": "Installed generation capacity in kilowatts (kW)"
+                },
+                "commissioningDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Date and time when the generation system was activated (with timezone offset)"
+                },
+                "manufacturer": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Equipment manufacturer"
+                },
+                "modelNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Equipment model number"
+                }
+            }
+        },
+        "StorageProfile": {
+            "type": "object",
+            "description": "Battery/energy storage capability",
+            "required": [
+                "storageCapacityKWh",
+                "powerRatingKW",
+                "commissioningDate"
+            ],
+            "properties": {
+                "assetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Unique identifier for the storage asset"
+                },
+                "storageCapacityKWh": {
+                    "type": "number",
+                    "minimum": 0.1,
+                    "maximum": 10000,
+                    "description": "Battery storage capacity in kilowatt-hours (kWh)"
+                },
+                "powerRatingKW": {
+                    "type": "number",
+                    "minimum": 0.1,
+                    "maximum": 10000,
+                    "description": "Battery charge/discharge power rating in kilowatts (kW)"
+                },
+                "commissioningDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Date and time when the storage system was activated (with timezone offset)"
+                },
+                "storageType": {
+                    "type": "string",
+                    "enum": [
+                        "LithiumIon",
+                        "LeadAcid",
+                        "FlowBattery",
+                        "Other"
+                    ],
+                    "description": "Type of battery storage technology"
+                }
+            }
+        }
+    }
+}

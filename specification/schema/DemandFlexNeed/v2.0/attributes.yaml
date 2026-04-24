@@ -1,0 +1,88 @@
+openapi: 3.1.1
+info:
+  title: Demand Flex — Need Attributes (v2.0)
+  version: 2.0.0
+  description: >
+    Attribute schemas for demand-flex needs (Resource.resourceAttributes).
+    Describes what the utility needs from the network: direction, event timing,
+    capacity, and location.
+
+components:
+  schemas:
+    DemandFlexNeed:
+      type: object
+      description: >
+        Resource attributes describing a demand-flex need. Attached to
+        Resource.resourceAttributes to describe what the utility needs from the network.
+        Captures the direction (increase/reduce), event timing, capacity, and location.
+      additionalProperties: false
+      required: [direction, eventWindow, maxCapacityKw]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": DemandFlexNeed
+      properties:
+
+        direction:
+          type: string
+          enum: [INCREASE, REDUCE]
+          description: >
+            Whether the utility needs demand increase or demand reduction.
+            REDUCE = curtailment (typical DR). INCREASE = load shifting to off-peak.
+          example: "REDUCE"
+          x-jsonld:
+            "@id": direction
+            "@type": "@id"
+
+        eventWindow:
+          description: >
+            The time window during which the flex event occurs.
+            All times MUST be in UTC (ISO 8601 with Z suffix).
+          x-jsonld:
+            "@id": eventWindow
+          type: object
+          required: ["startDate", "endDate"]
+          properties:
+            startDate:
+              type: string
+              format: date-time
+              pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$'
+              description: Event start time in UTC.
+              example: "2026-04-01T14:00:00Z"
+            endDate:
+              type: string
+              format: date-time
+              pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$'
+              description: Event end time in UTC.
+              example: "2026-04-01T16:00:00Z"
+
+        capacityType:
+          type: string
+          enum: [CURTAILMENT, SHIFT, GENERATION]
+          description: >
+            Type of flex capacity. CURTAILMENT = reduce consumption.
+            SHIFT = move consumption to different time. GENERATION = increase local generation.
+          example: "CURTAILMENT"
+          x-jsonld:
+            "@id": capacityType
+            "@type": "@id"
+
+        maxCapacityKw:
+          type: number
+          minimum: 0
+          description: Maximum flex capacity needed in kW.
+          example: 500
+          x-jsonld:
+            "@id": maxCapacityKw
+
+        location:
+          description: Geographic area where flex is needed (GeoJSON).
+          x-jsonld:
+            "@id": location
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [Point, Polygon]
+            coordinates:
+              type: array
+              items: {}

@@ -1,0 +1,42 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "deg": "https://schema.beckn.io/deg/",
+
+        "CustomerProfile": "deg:CustomerProfile",
+        "customerProfile": {
+            "@id": "deg:customerProfile",
+            "@type": "@id"
+        },
+        "customerNumber": {
+            "@id": "deg:customerNumber",
+            "@type": "xsd:string"
+        },
+        "meterNumber": {
+            "@id": "deg:meterNumber",
+            "@type": "xsd:string"
+        },
+        "meterType": {
+            "@id": "deg:meterType",
+            "@type": "xsd:string"
+        },
+        "idRef": {
+            "@id": "deg:idRef",
+            "@type": "@id",
+            "@context": {
+                "@version": 1.1,
+                "@protected": true,
+                "issuedBy": {
+                    "@id": "deg:issuedBy",
+                    "@type": "@id"
+                },
+                "subjectId": {
+                    "@id": "deg:subjectId",
+                    "@type": "xsd:string"
+                }
+            }
+        }
+    }
+}

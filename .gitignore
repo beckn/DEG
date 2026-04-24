@@ -1,2 +1,28 @@
 validator.sh
 api/l2.yaml
+
+# OS artifacts
+.DS_Store
+
+# IDE / Claude Code
+.claude/
+CLAUDE.md
+
+# Environment files
+.env
+*.env
+!example.env
+
+# Local ngrok agent configs (contain authtokens). The committed templates
+# (*.example) stay tracked.
+ngrok.yml
+ngrok.yaml
+!ngrok.yml.example
+!ngrok.yaml.example
+
+# Python / Cython build artefacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so

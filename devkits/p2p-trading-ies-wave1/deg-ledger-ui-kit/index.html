@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEG Ledger Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .heat-0 { background-color: #f8fafc; }
+    .heat-1 { background-color: #dbeafe; }
+    .heat-2 { background-color: #93c5fd; }
+    .heat-3 { background-color: #3b82f6; color: white; }
+    .heat-4 { background-color: #1d4ed8; color: white; }
+    .heat-5 { background-color: #1e3a8a; color: white; }
+    .matrix-cell { cursor: pointer; transition: all 0.15s; }
+    .matrix-cell:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10; position: relative; }
+    .matrix-cell.selected { ring: 3px solid #f59e0b; outline: 3px solid #f59e0b; outline-offset: -3px; }
+    .pulse { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    table th { cursor: pointer; user-select: none; }
+    table th:hover { background-color: #e2e8f0; }
+    .status-completed { background-color: #dcfce7; color: #166534; }
+    .status-pending { background-color: #fef9c3; color: #854d0e; }
+    .status-cancelled { background-color: #fee2e2; color: #991b1b; }
+    .status-curtailed { background-color: #ffedd5; color: #9a3412; }
+    .status-confirmed { background-color: #dbeafe; color: #1e40af; }
+    .status-none { background-color: #f1f5f9; color: #64748b; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+  <!-- Top Bar -->
+  <header class="sticky top-0 z-50 bg-slate-900 text-white shadow-lg">
+    <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <h1 class="text-2xl font-bold tracking-tight">DEG Ledger</h1>
+        <span id="recordBadge" class="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-full hidden">0 records</span>
+      </div>
+      <div id="pollInfo" class="text-slate-300 text-sm text-center">
+        <div id="lastPolled">Not yet polled</div>
+        <div id="countdown" class="text-xs text-slate-400"></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="loadingIndicator" class="hidden text-blue-400 text-sm pulse">Fetching...</span>
+        <button id="autoRefreshBtn" onclick="toggleAutoRefresh()" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors shadow bg-green-600 hover:bg-green-700 text-white">
+          <span id="autoRefreshLabel">AutoRefresh: </span>
+          <span id="autoRefreshStatus" class="px-2 py-1 rounded text-sm font-bold bg-green-500 text-white">ON</span>
+        </button>
+        <button id="refreshBtn" onclick="fetchAllRecords()" class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg transition-colors shadow">
+          Refresh Now
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-[1600px] mx-auto px-6 py-6 space-y-6">
+
+    <!-- Summary Cards -->
+    <section id="summaryCards" class="grid grid-cols-2 md:grid-cols-4 gap-4 fade-in">
+      <div class="bg-white rounded-xl shadow p-5">
+        <div class="text-sm font-medium text-slate-500 uppercase tracking-wide">Total Trades</div>
+        <div id="totalTrades" class="text-3xl font-bold text-slate-900 mt-1">--</div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <div class="text-sm font-medium text-slate-500 uppercase tracking-wide">Total Energy</div>
+        <div id="totalEnergy" class="text-3xl font-bold text-slate-900 mt-1">-- <span class="text-lg font-normal text-slate-400">KWH</span></div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <div class="text-sm font-medium text-slate-500 uppercase tracking-wide">Discom Pairs</div>
+        <div id="discomPairs" class="text-3xl font-bold text-slate-900 mt-1">--</div>
+      </div>
+      <div class="bg-white rounded-xl shadow p-5">
+        <div class="text-sm font-medium text-slate-500 uppercase tracking-wide">Active Platforms</div>
+        <div id="activePlatforms" class="text-3xl font-bold text-slate-900 mt-1">--</div>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-slate-900">Filters</h2>
+        <button id="clearAllFilters" onclick="clearAllFilters()" class="hidden text-sm text-blue-600 hover:text-blue-800 font-medium">Clear all filters</button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Trade Time Range</label>
+          <div class="flex items-center gap-3">
+            <div class="flex-1">
+              <label class="block text-xs text-slate-500 mb-1">From</label>
+              <input type="datetime-local" id="tradeTimeStart" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div class="flex-1">
+              <label class="block text-xs text-slate-500 mb-1">To</label>
+              <input type="datetime-local" id="tradeTimeEnd" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div class="flex items-end gap-2">
+              <button onclick="setLastNDays(2)" class="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors">
+                Last 2 Days
+              </button>
+              <button onclick="setLastNDays(5)" class="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors">
+                Last 5 Days
+              </button>
+              <button onclick="setLastNDays(10)" class="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors">
+                Last 10 Days
+              </button>
+              <button onclick="searchWithDateRange()" id="searchBtn" class="px-5 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-sm">
+                🔍 Search
+              </button>
+            </div>
+          </div>
+          <div class="text-xs text-slate-500 mt-1">Filters trades by trade time. Default: 1 month ago to 2 days ahead. Click Search to re-fetch.</div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Discoms (applies to both buyer and seller)</label>
+          <select id="discomFilter" multiple class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm min-h-[100px]" size="8">
+            <!-- Populated dynamically -->
+          </select>
+          <div class="text-xs text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple. Filters trades where both buyer and seller discom are in the selection.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hourly Energy Histogram -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-slate-900">Hourly Energy Trades</h2>
+      </div>
+      <div class="relative" style="height: 300px;">
+        <canvas id="hourlyHistogram"></canvas>
+      </div>
+    </section>
+
+    <!-- Discom Matrix -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-slate-900">Discom Pair Matrix</h2>
+        <div class="flex items-center gap-3">
+          <button id="clearFilter" onclick="clearMatrixFilter()" class="hidden text-sm text-blue-600 hover:text-blue-800 font-medium">Clear filter</button>
+          <div class="flex items-center gap-1 text-xs text-slate-400">
+            <span>Less</span>
+            <span class="inline-block w-4 h-4 rounded heat-0 border border-slate-200"></span>
+            <span class="inline-block w-4 h-4 rounded heat-1"></span>
+            <span class="inline-block w-4 h-4 rounded heat-2"></span>
+            <span class="inline-block w-4 h-4 rounded heat-3"></span>
+            <span class="inline-block w-4 h-4 rounded heat-4"></span>
+            <span class="inline-block w-4 h-4 rounded heat-5"></span>
+            <span>More</span>
+          </div>
+        </div>
+      </div>
+      <div id="matrixContainer" class="overflow-x-auto">
+        <div class="text-slate-400 text-sm py-8 text-center">Loading matrix...</div>
+      </div>
+    </section>
+
+    <!-- Records Table -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-slate-900">
+          Trade Records
+          <span id="filterLabel" class="text-sm font-normal text-slate-500 hidden"></span>
+        </h2>
+        <div id="tableCount" class="text-sm text-slate-500"></div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead id="recordsHead">
+            <!-- Rendered dynamically by renderTableHeader() -->
+          </thead>
+          <tbody id="recordsBody" class="divide-y divide-slate-100">
+            <tr><td colspan="13" class="px-3 py-8 text-center text-slate-400">Loading records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ── State ──
+    const API_URL = '/api/ledger/get';
+    const POLL_INTERVAL = 3600; // seconds (60 minutes)
+    let allRecords = [];
+    let filteredRecords = null; // null = no filter
+    let selectedPair = null; // { buyer, seller }
+    let selectedDiscoms = []; // Array of selected discoms (applies to both buyer and seller)
+    let allDiscoms = []; // All available discoms
+    let tradeTimeStart = null; // Start date for trade time filter
+    let tradeTimeEnd = null; // End date for trade time filter
+    let sortCol = 'tradeTime';
+    let sortAsc = false;
+    let countdownSec = POLL_INTERVAL;
+    let pollTimer = null;
+    let countdownTimer = null;
+    let isFetching = false;
+    let hourlyChart = null;
+    let autoRefreshEnabled = true; // Auto-refresh is ON by default
+    let showParticipantIds = false; // Toggled via SHOW_PARTICIPANT_IDS env var
+
+    // ── Fetch ──
+    async function fetchAllRecords() {
+      if (isFetching) return;
+      isFetching = true;
+      document.getElementById('loadingIndicator').classList.remove('hidden');
+      document.getElementById('refreshBtn').disabled = true;
+      document.getElementById('refreshBtn').classList.add('opacity-50');
+
+      const records = [];
+      let offset = 0;
+      const limit = 500;
+
+      try {
+        // Build request body with date range if set
+        const buildBody = () => {
+          const body = { limit, offset, sort: 'tradeTime', sortOrder: 'desc' };
+          if (tradeTimeStart) body.tradeTimeFrom = new Date(tradeTimeStart).toISOString();
+          if (tradeTimeEnd) body.tradeTimeTo = new Date(tradeTimeEnd).toISOString();
+          return body;
+        };
+
+        while (true) {
+          const reqBody = buildBody();
+          reqBody.offset = offset;
+          const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reqBody)
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          records.push(...(data.records || []));
+          if ((data.count || 0) < limit) break;
+          offset += limit;
+        }
+
+        allRecords = records;
+        
+        // Initialize all discoms list
+        const discomSet = new Set();
+        records.forEach(r => {
+          if (r.discomIdBuyer) discomSet.add(r.discomIdBuyer);
+          if (r.discomIdSeller) discomSet.add(r.discomIdSeller);
+        });
+        allDiscoms = Array.from(discomSet).sort();
+        
+        // Select all non-TEST discoms by default
+        if (selectedDiscoms.length === 0) {
+          selectedDiscoms = allDiscoms.filter(d => !d.startsWith('TEST'));
+        }
+        
+        filteredRecords = null;
+        selectedPair = null;
+        
+        // Initialize time range to last 10 days if not already set
+        if (!tradeTimeStart || !tradeTimeEnd) {
+          // setLastNDays() will call applyFilters() internally
+          setLastNDays(2);
+        } else {
+          // Update the input fields with current values
+          document.getElementById('tradeTimeStart').value = tradeTimeStart;
+          document.getElementById('tradeTimeEnd').value = tradeTimeEnd;
+          // Apply filters with current settings
+          applyFilters();
+        }
+        
+        updateUI();
+        updatePollTime();
+        resetCountdown();
+
+      } catch (err) {
+        console.error('Fetch failed:', err);
+        document.getElementById('lastPolled').textContent = `Fetch error: ${err.message}`;
+      } finally {
+        isFetching = false;
+        document.getElementById('loadingIndicator').classList.add('hidden');
+        document.getElementById('refreshBtn').disabled = false;
+        document.getElementById('refreshBtn').classList.remove('opacity-50');
+      }
+    }
+
+    // ── Poll timer ──
+    function updatePollTime() {
+      const now = new Date();
+      document.getElementById('lastPolled').textContent =
+        `Last polled: ${now.toLocaleTimeString()}`;
+    }
+
+    function resetCountdown() {
+      countdownSec = POLL_INTERVAL;
+      if (pollTimer) clearInterval(pollTimer);
+      if (countdownTimer) clearInterval(countdownTimer);
+
+      if (autoRefreshEnabled) {
+        countdownTimer = setInterval(() => {
+          countdownSec--;
+          if (countdownSec <= 0) countdownSec = 0;
+          const m = Math.floor(countdownSec / 60);
+          const s = countdownSec % 60;
+          document.getElementById('countdown').textContent =
+            `Next poll in ${m}:${String(s).padStart(2, '0')}`;
+        }, 1000);
+
+        pollTimer = setInterval(() => {
+          fetchAllRecords();
+        }, POLL_INTERVAL * 1000);
+      } else {
+        document.getElementById('countdown').textContent = 'Auto-refresh paused';
+      }
+    }
+
+    function toggleAutoRefresh() {
+      autoRefreshEnabled = !autoRefreshEnabled;
+      updateAutoRefreshButton();
+      resetCountdown();
+    }
+
+    function updateAutoRefreshButton() {
+      const btn = document.getElementById('autoRefreshBtn');
+      const status = document.getElementById('autoRefreshStatus');
+      
+      if (autoRefreshEnabled) {
+        btn.className = 'flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors shadow bg-green-600 hover:bg-green-700 text-white';
+        status.textContent = 'ON';
+        status.className = 'px-2 py-1 rounded text-sm font-bold bg-green-500 text-white';
+      } else {
+        btn.className = 'flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors shadow bg-slate-600 hover:bg-slate-700 text-white';
+        status.textContent = 'OFF';
+        status.className = 'px-2 py-1 rounded text-sm font-bold bg-slate-500 text-white';
+      }
+    }
+
+    // ── Compute stats ──
+    function getEnergy(record) {
+      if (!record.tradeDetails || !record.tradeDetails.length) return 0;
+      return record.tradeDetails.reduce((sum, d) => {
+        if (d.tradeUnit === 'KWH') return sum + (d.tradeQty || 0);
+        return sum;
+      }, 0);
+    }
+
+    function getTradeType(record) {
+      if (!record.tradeDetails || !record.tradeDetails.length) return '--';
+      return record.tradeDetails.map(d => d.tradeType).join(', ');
+    }
+
+    function getStatus(record) {
+      const s = record.statusSellerDiscom || record.statusBuyerDiscom || null;
+      return s;
+    }
+
+    function getBuyerDiscomAllocation(record) {
+      if (!record.buyerFulfillmentValidationMetrics) return null;
+      const metric = record.buyerFulfillmentValidationMetrics.find(m => m.validationMetricType === 'ACTUAL_PULLED');
+      return metric ? parseFloat(metric.validationMetricValue) : null;
+    }
+
+    function getSellerDiscomAllocation(record) {
+      if (!record.sellerFulfillmentValidationMetrics) return null;
+      const metric = record.sellerFulfillmentValidationMetrics.find(m => m.validationMetricType === 'ACTUAL_PUSHED');
+      return metric ? parseFloat(metric.validationMetricValue) : null;
+    }
+
+    function computeStats() {
+      // Use filtered records if available, otherwise all records
+      const records = filteredRecords || allRecords;
+      
+      const pairMap = {};
+      let totalEnergy = 0;
+      const platforms = new Set();
+      const buyerDiscoms = new Set();
+      const sellerDiscoms = new Set();
+
+      for (const r of records) {
+        const buyer = r.discomIdBuyer || 'UNKNOWN';
+        const seller = r.discomIdSeller || 'UNKNOWN';
+        const key = `${buyer}|||${seller}`;
+        const energy = getEnergy(r);
+        totalEnergy += energy;
+
+        if (!pairMap[key]) {
+          pairMap[key] = { buyer, seller, count: 0, energy: 0, statuses: {} };
+        }
+        pairMap[key].count++;
+        pairMap[key].energy += energy;
+
+        const st = getStatus(r) || 'NONE';
+        pairMap[key].statuses[st] = (pairMap[key].statuses[st] || 0) + 1;
+
+        buyerDiscoms.add(buyer);
+        sellerDiscoms.add(seller);
+        if (r.platformIdBuyer) platforms.add(r.platformIdBuyer);
+        if (r.platformIdSeller) platforms.add(r.platformIdSeller);
+      }
+
+      return {
+        totalTrades: records.length,
+        totalEnergy,
+        pairMap,
+        pairCount: Object.keys(pairMap).length,
+        platformCount: platforms.size,
+        buyerDiscoms: [...buyerDiscoms].sort(),
+        sellerDiscoms: [...sellerDiscoms].sort()
+      };
+    }
+
+    // ── UI Update ──
+    function updateUI() {
+      const stats = computeStats();
+
+      // Badge (always show total records)
+      const badge = document.getElementById('recordBadge');
+      badge.textContent = `${allRecords.length} records`;
+      badge.classList.remove('hidden');
+
+      // Update summary cards
+      updateSummaryCards(stats);
+
+      // Populate filter dropdowns
+      populateDiscomFilters(stats);
+
+      // Histogram
+      renderHourlyHistogram();
+
+      // Matrix
+      renderMatrix(stats);
+
+      // Table
+      renderTable();
+
+      // Clear filter UI
+      updateFilterUI();
+    }
+
+    function updateSummaryCards(stats) {
+      document.getElementById('totalTrades').textContent = stats.totalTrades.toLocaleString();
+      document.getElementById('totalEnergy').innerHTML =
+        `${stats.totalEnergy.toFixed(1)} <span class="text-lg font-normal text-slate-400">KWH</span>`;
+      document.getElementById('discomPairs').textContent = stats.pairCount;
+      document.getElementById('activePlatforms').textContent = stats.platformCount;
+    }
+
+    // ── Matrix ──
+    function renderMatrix(stats) {
+      const { pairMap } = stats;
+      
+      // Use selected discoms for matrix rows/columns (or all discoms if all are selected)
+      const discomsToShow = selectedDiscoms.length > 0 && selectedDiscoms.length < allDiscoms.length 
+        ? selectedDiscoms 
+        : allDiscoms;
+      
+      if (!discomsToShow.length) {
+        document.getElementById('matrixContainer').innerHTML =
+          '<div class="text-slate-400 text-sm py-8 text-center">No discoms selected</div>';
+        return;
+      }
+      
+      // Use the same list for both buyer and seller (since filter applies to both)
+      const filteredBuyerDiscoms = discomsToShow;
+      const filteredSellerDiscoms = discomsToShow;
+
+      // Find max count for heat scale
+      let maxCount = 0;
+      for (const p of Object.values(pairMap)) {
+        if (p.count > maxCount) maxCount = p.count;
+      }
+
+      // Compute row/column totals
+      const colTotals = {};
+      const colEnergy = {};
+      filteredBuyerDiscoms.forEach(b => { colTotals[b] = 0; colEnergy[b] = 0; });
+      const rowTotals = {};
+      const rowEnergy = {};
+      filteredSellerDiscoms.forEach(s => { rowTotals[s] = 0; rowEnergy[s] = 0; });
+
+      for (const p of Object.values(pairMap)) {
+        colTotals[p.buyer] = (colTotals[p.buyer] || 0) + p.count;
+        colEnergy[p.buyer] = (colEnergy[p.buyer] || 0) + p.energy;
+        rowTotals[p.seller] = (rowTotals[p.seller] || 0) + p.count;
+        rowEnergy[p.seller] = (rowEnergy[p.seller] || 0) + p.energy;
+      }
+
+      let html = '<table class="w-full text-sm border-collapse">';
+      // Header row
+      html += '<thead><tr>';
+      html += '<th class="px-3 py-2 text-left text-slate-500 font-semibold border-b-2 border-slate-200 bg-slate-50">Seller \\ Buyer</th>';
+      for (const b of filteredBuyerDiscoms) {
+        html += `<th class="px-3 py-2 text-center text-slate-600 font-semibold border-b-2 border-slate-200 bg-slate-50 whitespace-nowrap">${escHtml(b)}</th>`;
+      }
+      html += '<th class="px-3 py-2 text-center text-slate-500 font-bold border-b-2 border-slate-200 bg-slate-50">Total</th>';
+      html += '</tr></thead><tbody>';
+
+      // Data rows
+      for (const s of filteredSellerDiscoms) {
+        html += '<tr>';
+        html += `<td class="px-3 py-2 font-semibold text-slate-700 border-b border-slate-100 whitespace-nowrap bg-slate-50">${escHtml(s)}</td>`;
+        for (const b of filteredBuyerDiscoms) {
+          const key = `${b}|||${s}`;
+          const pair = pairMap[key];
+          const count = pair ? pair.count : 0;
+          const energy = pair ? pair.energy : 0;
+          const heat = getHeatLevel(count, maxCount);
+          const isSelected = selectedPair && selectedPair.buyer === b && selectedPair.seller === s;
+
+          html += `<td class="px-3 py-2 text-center border-b border-slate-100 matrix-cell heat-${heat} rounded ${isSelected ? 'selected' : ''}"
+                       onclick="filterByPair('${escAttr(b)}', '${escAttr(s)}')"
+                       title="${escAttr(b)} → ${escAttr(s)}: ${count} trades, ${energy.toFixed(1)} KWH">`;
+          if (count > 0) {
+            html += `<div class="font-bold text-base">${count}</div>`;
+            html += `<div class="text-xs opacity-75">${energy.toFixed(1)} KWH</div>`;
+          } else {
+            html += `<div class="text-slate-300">--</div>`;
+          }
+          html += '</td>';
+        }
+        // Row total
+        html += `<td class="px-3 py-2 text-center border-b border-slate-100 bg-slate-50 font-bold">
+          <div>${rowTotals[s] || 0}</div>
+          <div class="text-xs font-normal text-slate-500">${(rowEnergy[s] || 0).toFixed(1)}</div>
+        </td>`;
+        html += '</tr>';
+      }
+
+      // Column totals row
+      html += '<tr class="bg-slate-50 font-bold">';
+      html += '<td class="px-3 py-2 border-t-2 border-slate-200">Total</td>';
+      for (const b of filteredBuyerDiscoms) {
+        html += `<td class="px-3 py-2 text-center border-t-2 border-slate-200">
+          <div>${colTotals[b] || 0}</div>
+          <div class="text-xs font-normal text-slate-500">${(colEnergy[b] || 0).toFixed(1)}</div>
+        </td>`;
+      }
+      html += '</tr>';
+      html += '</tbody></table>';
+
+      document.getElementById('matrixContainer').innerHTML = html;
+    }
+
+    function getHeatLevel(count, max) {
+      if (count === 0) return 0;
+      if (max <= 0) return 1;
+      const ratio = count / max;
+      if (ratio <= 0.1) return 1;
+      if (ratio <= 0.25) return 2;
+      if (ratio <= 0.5) return 3;
+      if (ratio <= 0.75) return 4;
+      return 5;
+    }
+
+    // ── Filter ──
+    function populateDiscomFilters(stats) {
+      const discomSelect = document.getElementById('discomFilter');
+      
+      // Use allDiscoms (from all records) for the filter dropdown, not filtered stats
+      const discomsToShow = allDiscoms.length > 0 ? allDiscoms : [...new Set([...stats.buyerDiscoms, ...stats.sellerDiscoms])].sort();
+      
+      // Clear and populate discoms
+      discomSelect.innerHTML = '';
+      discomsToShow.forEach(discom => {
+        const option = document.createElement('option');
+        option.value = discom;
+        option.textContent = discom;
+        // Select if in selectedDiscoms
+        if (selectedDiscoms.includes(discom)) {
+          option.selected = true;
+        }
+        discomSelect.appendChild(option);
+      });
+
+      // If selectedDiscoms is empty, select all non-TEST discoms by default
+      if (selectedDiscoms.length === 0 && discomsToShow.length > 0) {
+        selectedDiscoms = discomsToShow.filter(d => !d.startsWith('TEST'));
+        Array.from(discomSelect.options).forEach(opt => {
+          opt.selected = selectedDiscoms.includes(opt.value);
+        });
+        // Apply filters after setting default discoms
+        applyFilters();
+      }
+
+      // Add event listener
+      discomSelect.onchange = applyDiscomFilters;
+    }
+
+    function applyDiscomFilters() {
+      const discomSelect = document.getElementById('discomFilter');
+      const selected = Array.from(discomSelect.selectedOptions).map(opt => opt.value);
+      
+      // If nothing selected, select all (don't allow empty selection)
+      if (selected.length === 0 && allDiscoms.length > 0) {
+        selectedDiscoms = [...allDiscoms];
+        Array.from(discomSelect.options).forEach(opt => opt.selected = true);
+      } else {
+        selectedDiscoms = selected;
+      }
+      
+      applyFilters();
+    }
+
+    function applyFilters() {
+      let records = allRecords;
+
+      // Apply trade time range filter
+      if (tradeTimeStart && tradeTimeEnd) {
+        const startTime = new Date(tradeTimeStart).getTime();
+        const endTime = new Date(tradeTimeEnd).getTime();
+        records = records.filter(r => {
+          if (!r.tradeTime) return false;
+          const tradeTime = new Date(r.tradeTime).getTime();
+          return tradeTime >= startTime && tradeTime <= endTime;
+        });
+      }
+
+      // Apply discom filter (applies to both buyer and seller)
+      // Filter if selectedDiscoms is not empty and not all discoms are selected
+      let discomFilterApplied = false;
+      if (selectedDiscoms.length > 0 && allDiscoms.length > 0) {
+        // Check if all discoms are selected (no filtering needed)
+        const allSelected = selectedDiscoms.length === allDiscoms.length && 
+                           selectedDiscoms.every(d => allDiscoms.includes(d)) &&
+                           allDiscoms.every(d => selectedDiscoms.includes(d));
+        
+        if (!allSelected) {
+          discomFilterApplied = true;
+          records = records.filter(r => {
+            const buyer = r.discomIdBuyer || 'UNKNOWN';
+            const seller = r.discomIdSeller || 'UNKNOWN';
+            return selectedDiscoms.includes(buyer) && selectedDiscoms.includes(seller);
+          });
+        }
+      }
+
+      // Apply matrix pair filter (if any)
+      if (selectedPair) {
+        records = records.filter(
+          r => (r.discomIdBuyer || 'UNKNOWN') === selectedPair.buyer && 
+               (r.discomIdSeller || 'UNKNOWN') === selectedPair.seller
+        );
+      }
+
+      // Always set filteredRecords if filtering was applied (even if result is same length)
+      // This ensures the table uses filteredRecords instead of allRecords
+      const hasTimeFilter = tradeTimeStart && tradeTimeEnd;
+      const allDiscomsSelected = selectedDiscoms.length > 0 && allDiscoms.length > 0 &&
+                                 selectedDiscoms.length === allDiscoms.length &&
+                                 selectedDiscoms.every(d => allDiscoms.includes(d)) &&
+                                 allDiscoms.every(d => selectedDiscoms.includes(d));
+      const hasDiscomFilter = discomFilterApplied;
+      const hasPairFilter = selectedPair !== null;
+      
+      // Always set filteredRecords if any filter was applied
+      if (hasTimeFilter || hasDiscomFilter || hasPairFilter) {
+        filteredRecords = records;
+      } else {
+        filteredRecords = null;
+      }
+      
+      // Update all views
+      const stats = computeStats();
+      updateSummaryCards(stats);
+      renderTable();
+      renderHourlyHistogram();
+      renderMatrix(stats);
+      updateFilterUI();
+    }
+
+    function filterByPair(buyer, seller) {
+      if (selectedPair && selectedPair.buyer === buyer && selectedPair.seller === seller) {
+        clearMatrixFilter();
+        return;
+      }
+      selectedPair = { buyer, seller };
+      applyFilters();
+      // Show filter label
+      document.getElementById('filterLabel').textContent = ` — ${buyer} → ${seller}`;
+      document.getElementById('filterLabel').classList.remove('hidden');
+    }
+
+    function clearMatrixFilter() {
+      selectedPair = null;
+      applyFilters();
+      document.getElementById('filterLabel').classList.add('hidden');
+    }
+
+    // Format a Date for datetime-local input (YYYY-MM-DDTHH:mm)
+    function formatDateTimeLocal(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function setDateRange(startDate, endDate) {
+      tradeTimeStart = formatDateTimeLocal(startDate);
+      tradeTimeEnd = formatDateTimeLocal(endDate);
+      document.getElementById('tradeTimeStart').value = tradeTimeStart;
+      document.getElementById('tradeTimeEnd').value = tradeTimeEnd;
+      applyFilters();
+    }
+
+    function setLastNDays(n) {
+      const endDate = new Date();
+      endDate.setHours(endDate.getHours() + 4);
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - n);
+      setDateRange(startDate, endDate);
+    }
+
+    function setDefaultDateRange() {
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 2);
+      endDate.setHours(23, 59, 0, 0);
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - 1);
+      startDate.setHours(0, 0, 0, 0);
+      setDateRange(startDate, endDate);
+    }
+
+    function searchWithDateRange() {
+      // Read current values from date inputs
+      const startInput = document.getElementById('tradeTimeStart');
+      const endInput = document.getElementById('tradeTimeEnd');
+      tradeTimeStart = startInput.value || null;
+      tradeTimeEnd = endInput.value || null;
+
+      // Re-fetch from server with the new date range, then apply filters
+      fetchAllRecords();
+    }
+
+    function applyTimeRangeFilters() {
+      const startInput = document.getElementById('tradeTimeStart');
+      const endInput = document.getElementById('tradeTimeEnd');
+
+      tradeTimeStart = startInput.value || null;
+      tradeTimeEnd = endInput.value || null;
+
+      applyFilters();
+    }
+
+    function clearAllFilters() {
+      selectedPair = null;
+
+      // Reset to all non-TEST discoms selected
+      selectedDiscoms = allDiscoms.filter(d => !d.startsWith('TEST'));
+
+      const discomSelect = document.getElementById('discomFilter');
+      Array.from(discomSelect.options).forEach(opt => {
+        opt.selected = selectedDiscoms.includes(opt.value);
+      });
+      
+      // Reset time range to default (1 month ago to 2 days from now)
+      setDefaultDateRange();
+    }
+
+    function updateFilterUI() {
+      const hasTimeFilter = tradeTimeStart && tradeTimeEnd;
+      const hasDiscomFilter = selectedDiscoms.length > 0 && selectedDiscoms.length < allDiscoms.length;
+      const hasFilters = hasTimeFilter || selectedPair || hasDiscomFilter;
+      document.getElementById('clearAllFilters').classList.toggle('hidden', !hasFilters);
+      document.getElementById('clearFilter').classList.toggle('hidden', !selectedPair);
+      if (!selectedPair) {
+        document.getElementById('filterLabel').classList.add('hidden');
+      }
+    }
+
+    // ── Histogram ──
+    function renderHourlyHistogram() {
+      const records = filteredRecords || allRecords;
+      const { tradeTimeData, deliveryTimeData, allHours } = computeHourlyEnergy(records);
+
+      const ctx = document.getElementById('hourlyHistogram');
+      if (!ctx) return;
+
+      // Create arrays for both datasets aligned to allHours
+      const tradeEnergies = allHours.map(hour => {
+        const found = tradeTimeData.find(d => d.hourKey === hour);
+        return found ? found.energy : 0;
+      });
+      
+      const deliveryEnergies = allHours.map(hour => {
+        const found = deliveryTimeData.find(d => d.hourKey === hour);
+        return found ? found.energy : 0;
+      });
+
+      const labels = allHours.map(hour => {
+        return formatISTDate(hour);
+      });
+
+      if (hourlyChart) {
+        hourlyChart.destroy();
+      }
+
+      hourlyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Trade Time (IST)',
+              data: tradeEnergies,
+              backgroundColor: 'rgba(59, 130, 246, 0.6)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+              borderWidth: 1
+            },
+            {
+              label: 'Delivery Time (IST)',
+              data: deliveryEnergies,
+              backgroundColor: 'rgba(239, 68, 68, 0.6)',
+              borderColor: 'rgba(239, 68, 68, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.dataset.label}: ${context.parsed.y.toFixed(2)} KWH`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Energy (KWH)'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Hour (IST)'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function getDeliveryStartTime(record) {
+      // Check various possible field names for delivery time
+      if (record.deliveryTime) {
+        return new Date(record.deliveryTime);
+      }
+      if (record.deliveryStartTime) {
+        return new Date(record.deliveryStartTime);
+      }
+      if (record.deliveryStart) {
+        return new Date(record.deliveryStart);
+      }
+      if (record.tradeDetails && record.tradeDetails.length > 0) {
+        const firstDetail = record.tradeDetails[0];
+        if (firstDetail.startTime) {
+          return new Date(firstDetail.startTime);
+        }
+        if (firstDetail.deliveryStartTime) {
+          return new Date(firstDetail.deliveryStartTime);
+        }
+        if (firstDetail.deliveryStart) {
+          return new Date(firstDetail.deliveryStart);
+        }
+      }
+      return null;
+    }
+
+    function getDeliveryEndTime(record) {
+      if (record.deliveryEndTime) {
+        return new Date(record.deliveryEndTime);
+      }
+      if (record.deliveryEnd) {
+        return new Date(record.deliveryEnd);
+      }
+      if (record.tradeDetails && record.tradeDetails.length > 0) {
+        const firstDetail = record.tradeDetails[0];
+        if (firstDetail.endTime) {
+          return new Date(firstDetail.endTime);
+        }
+        if (firstDetail.deliveryEndTime) {
+          return new Date(firstDetail.deliveryEndTime);
+        }
+        if (firstDetail.deliveryEnd) {
+          return new Date(firstDetail.deliveryEnd);
+        }
+      }
+      return null;
+    }
+
+    function computeHourlyEnergy(records) {
+      const tradeTimeMap = new Map();
+      const deliveryTimeMap = new Map();
+      const allHourKeys = new Set();
+      
+      for (const record of records) {
+        const energy = getEnergy(record);
+        if (energy <= 0) continue;
+
+        // Process trade time (convert UTC to IST for grouping)
+        if (record.tradeTime) {
+          const tradeTimeUTC = new Date(record.tradeTime);
+          // Convert to IST and round to hour
+          const tradeTimeIST = convertUTCtoIST(tradeTimeUTC);
+          const tradeHour = new Date(tradeTimeIST);
+          tradeHour.setMinutes(0, 0, 0);
+          tradeHour.setSeconds(0, 0);
+          tradeHour.setMilliseconds(0);
+          // Store as ISO string (but represents IST hour)
+          const tradeHourKey = tradeHour.toISOString();
+          
+          tradeTimeMap.set(tradeHourKey, (tradeTimeMap.get(tradeHourKey) || 0) + energy);
+          allHourKeys.add(tradeHourKey);
+        }
+
+        // Process delivery time
+        const deliveryStartTime = getDeliveryStartTime(record);
+        let deliveryEndTime = getDeliveryEndTime(record);
+        
+        if (!deliveryEndTime && deliveryStartTime) {
+          deliveryEndTime = deliveryStartTime;
+        }
+
+        // If we have delivery time information, distribute energy across hours (convert UTC to IST)
+        if (deliveryStartTime) {
+          if (!deliveryEndTime) {
+            deliveryEndTime = deliveryStartTime;
+          }
+
+          // Convert to IST first
+          const startTimeIST = convertUTCtoIST(deliveryStartTime);
+          const endTimeIST = convertUTCtoIST(deliveryEndTime);
+
+          // Calculate hours spanned in IST
+          const startHour = new Date(startTimeIST);
+          startHour.setMinutes(0, 0, 0);
+          startHour.setSeconds(0, 0);
+          startHour.setMilliseconds(0);
+          const endHour = new Date(endTimeIST);
+          endHour.setMinutes(0, 0, 0);
+          endHour.setSeconds(0, 0);
+          endHour.setMilliseconds(0);
+          
+          const diffMs = endHour.getTime() - startHour.getTime();
+          const hours = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60)) + 1);
+          const energyPerHour = energy / hours;
+
+          // Distribute energy evenly across delivery hours (in IST)
+          const currentHour = new Date(startHour);
+          for (let i = 0; i < hours; i++) {
+            const hourKey = currentHour.toISOString();
+            deliveryTimeMap.set(hourKey, (deliveryTimeMap.get(hourKey) || 0) + energyPerHour);
+            allHourKeys.add(hourKey);
+            
+            // Move to next hour
+            currentHour.setHours(currentHour.getHours() + 1);
+          }
+        }
+      }
+
+      // Convert to arrays and sort by time
+      const tradeTimeArray = Array.from(tradeTimeMap.entries())
+        .map(([hourKey, energy]) => ({
+          hourKey: hourKey,
+          energy: energy,
+          timestamp: new Date(hourKey).getTime()
+        }))
+        .sort((a, b) => a.timestamp - b.timestamp);
+
+      const deliveryTimeArray = Array.from(deliveryTimeMap.entries())
+        .map(([hourKey, energy]) => ({
+          hourKey: hourKey,
+          energy: energy,
+          timestamp: new Date(hourKey).getTime()
+        }))
+        .sort((a, b) => a.timestamp - b.timestamp);
+
+      // Get all unique hours sorted
+      const sortedHours = Array.from(allHourKeys)
+        .map(hourKey => ({
+          hourKey: hourKey,
+          timestamp: new Date(hourKey).getTime()
+        }))
+        .sort((a, b) => a.timestamp - b.timestamp)
+        .map(h => h.hourKey);
+
+      return {
+        tradeTimeData: tradeTimeArray,
+        deliveryTimeData: deliveryTimeArray,
+        allHours: sortedHours
+      };
+    }
+
+    // ── Table ──
+    function renderTableHeader() {
+      let html = '<tr class="border-b-2 border-slate-200 text-left text-slate-600 text-xs">';
+      html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'tradeTime\')">Trade Time<span id="sort-tradeTime" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'deliveryStartTime\')">Delivery Start<span id="sort-deliveryStartTime" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold text-right" onclick="sortTable(\'deliveryDuration\')">Dur(h)<span id="sort-deliveryDuration" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold text-right" onclick="sortTable(\'energy\')">Qty(KWH)<span id="sort-energy" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold text-right" onclick="sortTable(\'buyerDiscomAllocation\')">Buyer Alloc<span id="sort-buyerDiscomAllocation" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold text-right" onclick="sortTable(\'sellerDiscomAllocation\')">Seller Alloc<span id="sort-sellerDiscomAllocation" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'statusBuyerDiscom\')">B.Status<span id="sort-statusBuyerDiscom" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'statusSellerDiscom\')">S.Status<span id="sort-statusSellerDiscom" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'discomIdBuyer\')">Buyer Discom<span id="sort-discomIdBuyer" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'discomIdSeller\')">Seller Discom<span id="sort-discomIdSeller" class="text-xs"></span></th>';
+      if (showParticipantIds) {
+        html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'buyerId\')">Buyer ID<span id="sort-buyerId" class="text-xs"></span></th>';
+        html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'sellerId\')">Seller ID<span id="sort-sellerId" class="text-xs"></span></th>';
+      }
+      html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'platformIdBuyer\')">Buyer App<span id="sort-platformIdBuyer" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'platformIdSeller\')">Seller App<span id="sort-platformIdSeller" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold" onclick="sortTable(\'tradeType\')">Type<span id="sort-tradeType" class="text-xs"></span></th>';
+      html += '<th class="px-2 py-2 font-semibold">Txn ID</th>';
+      html += '<th class="px-2 py-2 font-semibold"></th>';
+      html += '</tr>';
+      document.getElementById('recordsHead').innerHTML = html;
+    }
+
+    function getTableColSpan() {
+      return showParticipantIds ? 17 : 15;
+    }
+
+    function renderTable() {
+      renderTableHeader();
+      const records = filteredRecords || allRecords;
+      const sorted = sortRecords(records);
+      const tbody = document.getElementById('recordsBody');
+      document.getElementById('tableCount').textContent = `${sorted.length} records`;
+
+      // Update sort indicators
+      document.querySelectorAll('[id^="sort-"]').forEach(el => el.textContent = '');
+      const sortEl = document.getElementById(`sort-${sortCol}`);
+      if (sortEl) sortEl.textContent = sortAsc ? ' ↑' : ' ↓';
+
+      if (!sorted.length) {
+        tbody.innerHTML = `<tr><td colspan="${getTableColSpan()}" class="px-3 py-8 text-center text-slate-400">No records</td></tr>`;
+        return;
+      }
+
+      let html = '';
+      for (const r of sorted) {
+        const energy = getEnergy(r);
+        const tradeType = getTradeType(r);
+        const statusBuyer = r.statusBuyerDiscom || null;
+        const statusSeller = r.statusSellerDiscom || null;
+        const statusClassBuyer = getStatusClass(statusBuyer);
+        const statusClassSeller = getStatusClass(statusSeller);
+        const statusLabelBuyer = statusBuyer || '--';
+        const statusLabelSeller = statusSeller || '--';
+        const tradeTime = formatISTDateTime(r.tradeTime);
+        const deliveryStartTime = getDeliveryStartTime(r);
+        const deliveryEndTime = getDeliveryEndTime(r);
+        const deliveryStartTimeStr = formatISTDateTime(deliveryStartTime);
+
+        // Calculate duration in hours
+        let deliveryDurationStr = '--';
+        let deliveryDurationHours = null;
+        if (deliveryStartTime && deliveryEndTime) {
+          const durationMs = deliveryEndTime.getTime() - deliveryStartTime.getTime();
+          deliveryDurationHours = durationMs / (1000 * 60 * 60);
+          deliveryDurationStr = deliveryDurationHours.toFixed(2);
+        } else if (deliveryStartTime) {
+          deliveryDurationHours = 1;
+          deliveryDurationStr = '1.00';
+        }
+
+        const txnShort = r.transactionId ? (r.transactionId.length > 20 ? r.transactionId.slice(0, 20) + '...' : r.transactionId) : '--';
+
+        html += `<tr class="hover:bg-slate-50 transition-colors text-xs">
+          <td class="px-2 py-1.5 whitespace-nowrap text-slate-700">${escHtml(tradeTime)}</td>
+          <td class="px-2 py-1.5 whitespace-nowrap text-slate-700">${escHtml(deliveryStartTimeStr)}</td>
+          <td class="px-2 py-1.5 text-right font-mono text-slate-700">${escHtml(deliveryDurationStr)}</td>
+          <td class="px-2 py-1.5 text-right font-mono font-semibold text-slate-800">${energy.toFixed(2)}</td>
+          <td class="px-2 py-1.5 text-right font-mono text-slate-800">${getBuyerDiscomAllocation(r) !== null ? getBuyerDiscomAllocation(r).toFixed(2) : '--'}</td>
+          <td class="px-2 py-1.5 text-right font-mono text-slate-800">${getSellerDiscomAllocation(r) !== null ? getSellerDiscomAllocation(r).toFixed(2) : '--'}</td>
+          <td class="px-2 py-1.5"><span class="px-1.5 py-0.5 rounded-full text-xs font-semibold ${statusClassBuyer}">${escHtml(statusLabelBuyer)}</span></td>
+          <td class="px-2 py-1.5"><span class="px-1.5 py-0.5 rounded-full text-xs font-semibold ${statusClassSeller}">${escHtml(statusLabelSeller)}</span></td>
+          <td class="px-2 py-1.5 font-medium text-slate-900">${escHtml(r.discomIdBuyer || '--')}</td>
+          <td class="px-2 py-1.5 font-medium text-slate-900">${escHtml(r.discomIdSeller || '--')}</td>`;
+        if (showParticipantIds) {
+          html += `<td class="px-2 py-1.5 text-slate-600 font-mono">${escHtml(r.buyerId || '--')}</td>`;
+          html += `<td class="px-2 py-1.5 text-slate-600 font-mono">${escHtml(r.sellerId || '--')}</td>`;
+        }
+        html += `<td class="px-2 py-1.5 text-slate-600">${escHtml(r.platformIdBuyer || '--')}</td>
+          <td class="px-2 py-1.5 text-slate-600">${escHtml(r.platformIdSeller || '--')}</td>
+          <td class="px-2 py-1.5 text-slate-600">${escHtml(tradeType)}</td>
+          <td class="px-2 py-1.5 text-slate-500 font-mono" title="${escAttr(r.transactionId || '')}">${escHtml(txnShort)}</td>
+          <td class="px-2 py-1.5"><button onclick="copyJson(this, '${escAttr(r.recordId)}')" class="text-xs text-blue-600 hover:text-blue-800 cursor-pointer whitespace-nowrap">JSON</button></td>
+        </tr>`;
+      }
+      tbody.innerHTML = html;
+    }
+
+    function sortRecords(records) {
+      const arr = [...records];
+      arr.sort((a, b) => {
+        let va, vb;
+        switch (sortCol) {
+          case 'tradeTime':
+            va = a.tradeTime || ''; vb = b.tradeTime || '';
+            break;
+          case 'discomIdBuyer':
+            va = a.discomIdBuyer || ''; vb = b.discomIdBuyer || '';
+            break;
+          case 'discomIdSeller':
+            va = a.discomIdSeller || ''; vb = b.discomIdSeller || '';
+            break;
+          case 'buyerId':
+            va = a.buyerId || ''; vb = b.buyerId || '';
+            break;
+          case 'sellerId':
+            va = a.sellerId || ''; vb = b.sellerId || '';
+            break;
+          case 'energy':
+            va = getEnergy(a); vb = getEnergy(b);
+            return sortAsc ? va - vb : vb - va;
+          case 'tradeType':
+            va = getTradeType(a); vb = getTradeType(b);
+            break;
+          case 'platformIdBuyer':
+            va = a.platformIdBuyer || ''; vb = b.platformIdBuyer || '';
+            break;
+          case 'platformIdSeller':
+            va = a.platformIdSeller || ''; vb = b.platformIdSeller || '';
+            break;
+          case 'deliveryStartTime':
+            const da = getDeliveryStartTime(a);
+            const db = getDeliveryStartTime(b);
+            va = da ? da.getTime() : 0;
+            vb = db ? db.getTime() : 0;
+            return sortAsc ? va - vb : vb - va;
+          case 'deliveryDuration':
+            const daStart = getDeliveryStartTime(a);
+            const daEnd = getDeliveryEndTime(a) || daStart;
+            const dbStart = getDeliveryStartTime(b);
+            const dbEnd = getDeliveryEndTime(b) || dbStart;
+            const durA = (daStart && daEnd) ? (daEnd.getTime() - daStart.getTime()) / (1000 * 60 * 60) : (daStart ? 1 : 0);
+            const durB = (dbStart && dbEnd) ? (dbEnd.getTime() - dbStart.getTime()) / (1000 * 60 * 60) : (dbStart ? 1 : 0);
+            return sortAsc ? durA - durB : durB - durA;
+          case 'buyerDiscomAllocation':
+            va = getBuyerDiscomAllocation(a) ?? -1; vb = getBuyerDiscomAllocation(b) ?? -1;
+            return sortAsc ? va - vb : vb - va;
+          case 'sellerDiscomAllocation':
+            va = getSellerDiscomAllocation(a) ?? -1; vb = getSellerDiscomAllocation(b) ?? -1;
+            return sortAsc ? va - vb : vb - va;
+          case 'statusBuyerDiscom':
+            va = a.statusBuyerDiscom || ''; vb = b.statusBuyerDiscom || '';
+            break;
+          case 'statusSellerDiscom':
+            va = a.statusSellerDiscom || ''; vb = b.statusSellerDiscom || '';
+            break;
+          default:
+            va = a.tradeTime || ''; vb = b.tradeTime || '';
+        }
+        if (typeof va === 'string') {
+          const cmp = va.localeCompare(vb);
+          return sortAsc ? cmp : -cmp;
+        }
+        return sortAsc ? va - vb : vb - va;
+      });
+      return arr;
+    }
+
+    function sortTable(col) {
+      if (sortCol === col) {
+        sortAsc = !sortAsc;
+      } else {
+        sortCol = col;
+        sortAsc = col === 'tradeTime' ? false : true;
+      }
+      renderTable();
+    }
+
+    function copyJson(btn, recordId) {
+      const records = filteredRecords || allRecords;
+      const record = records.find(r => r.recordId === recordId);
+      if (!record) return;
+      navigator.clipboard.writeText(JSON.stringify(record, null, 2)).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.replace('text-blue-600', 'text-green-600');
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.classList.replace('text-green-600', 'text-blue-600');
+        }, 1500);
+      });
+    }
+
+    function getStatusClass(status) {
+      if (!status) return 'status-none';
+      if (status === 'COMPLETED') return 'status-completed';
+      if (status === 'PENDING') return 'status-pending';
+      if (status === 'CONFIRMED') return 'status-confirmed';
+      if (status.startsWith('CANCELLED')) return 'status-cancelled';
+      if (status.startsWith('CURTAILED')) return 'status-curtailed';
+      return 'status-none';
+    }
+
+    // ── Helpers ──
+    function convertUTCtoIST(utcDate) {
+      if (!utcDate) return null;
+      const date = new Date(utcDate);
+      // Use Intl API to get IST time components
+      const istFormatter = new Intl.DateTimeFormat('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+
+      // Get IST time components
+      const parts = istFormatter.formatToParts(date);
+      const year = parseInt(parts.find(p => p.type === 'year').value);
+      const month = parseInt(parts.find(p => p.type === 'month').value) - 1; // 0-indexed
+      const day = parseInt(parts.find(p => p.type === 'day').value);
+      let hour = parseInt(parts.find(p => p.type === 'hour').value);
+      if (hour === 24) hour = 0; // Intl can return 24 for midnight
+      const minute = parseInt(parts.find(p => p.type === 'minute').value);
+      const second = parseInt(parts.find(p => p.type === 'second').value);
+
+      // Store IST values in UTC positions so .toISOString() returns IST values
+      // This avoids double-conversion when formatting labels
+      return new Date(Date.UTC(year, month, day, hour, minute, second));
+    }
+
+    function formatISTDateTime(date) {
+      if (!date) return '--';
+      const dateObj = new Date(date);
+      return dateObj.toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+    }
+
+    function formatISTDate(date) {
+      if (!date) return '--';
+      const dateObj = new Date(date);
+      // These dates already have IST values stored in UTC positions
+      // (from convertUTCtoIST), so format as UTC to avoid double-conversion
+      return dateObj.toLocaleString('en-IN', {
+        timeZone: 'UTC',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
+
+    function escHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function escAttr(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // ── Init ──
+    updateAutoRefreshButton();
+    renderTableHeader();
+
+    // Initialize time range to last 2 days
+    setLastNDays(2);
+
+    // Add event listeners for time range inputs
+    document.getElementById('tradeTimeStart').addEventListener('change', applyTimeRangeFilters);
+    document.getElementById('tradeTimeEnd').addEventListener('change', applyTimeRangeFilters);
+
+    // Fetch config then records
+    // Set default date range (1 month ago to 2 days from now) before first fetch
+    setDefaultDateRange();
+
+    fetch('/api/config')
+      .then(res => res.json())
+      .then(cfg => {
+        showParticipantIds = cfg.showParticipantIds || false;
+        renderTableHeader();
+      })
+      .catch(() => {}) // keep default (off)
+      .finally(() => fetchAllRecords());
+  </script>
+</body>
+</html>

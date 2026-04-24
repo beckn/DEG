@@ -1,0 +1,310 @@
+{
+    "@context": {
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "espi": "http://naesb.org/espi#"
+    },
+    "@graph": [
+        {
+            "@id": "espi:IntervalBlock",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Interval Block",
+            "rdfs:comment": "Time sequence of Readings of the same ReadingType.",
+            "skos:exactMatch": { "@id": "http://naesb.org/espi/IntervalBlock" }
+        },
+        {
+            "@id": "espi:IntervalReading",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Interval Reading",
+            "rdfs:comment": "Specific value measured by a meter or other asset. Each Reading is associated with a specific ReadingType.",
+            "skos:exactMatch": { "@id": "http://naesb.org/espi/IntervalReading" }
+        },
+        {
+            "@id": "espi:ReadingType",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Reading Type",
+            "rdfs:comment": "Metadata describing what is being measured, including commodity, unit, direction, and accumulation behavior.",
+            "skos:exactMatch": { "@id": "http://naesb.org/espi/ReadingType" }
+        },
+        {
+            "@id": "espi:DateTimeInterval",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Date Time Interval",
+            "rdfs:comment": "Interval of date and time defined by a start timestamp and duration in seconds.",
+            "skos:exactMatch": { "@id": "http://naesb.org/espi/DateTimeInterval" }
+        },
+        {
+            "@id": "espi:ServiceCategory",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Service Category",
+            "rdfs:comment": "Category of service provided to the customer (electricity, gas, water, etc.).",
+            "skos:exactMatch": { "@id": "http://naesb.org/espi/ServiceCategory" }
+        },
+        {
+            "@id": "espi:UsageSummary",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Usage Summary",
+            "rdfs:comment": "Summary of usage for a billing period, including bills, charges, and consumption totals.",
+            "skos:exactMatch": { "@id": "http://naesb.org/espi/UsageSummary" }
+        },
+        {
+            "@id": "espi:SummaryMeasurement",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Summary Measurement",
+            "rdfs:comment": "Aggregated measurement with value, unit of measure, and power-of-ten multiplier.",
+            "skos:exactMatch": { "@id": "http://naesb.org/espi/SummaryMeasurement" }
+        },
+        {
+            "@id": "espi:ReadingQuality",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Reading Quality",
+            "rdfs:comment": "Quality of a specific reading value or interval reading value.",
+            "skos:exactMatch": { "@id": "http://naesb.org/espi/ReadingQuality" }
+        },
+        {
+            "@id": "espi:LineItem",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Line Item",
+            "rdfs:comment": "Line item of detail for additional cost within a billing period.",
+            "skos:exactMatch": { "@id": "http://naesb.org/espi/LineItem" }
+        },
+
+        {
+            "@id": "espi:interval",
+            "@type": "rdf:Property",
+            "rdfs:label": "interval",
+            "rdfs:comment": "Time period during which the contained readings were taken.",
+            "rdfs:domain": { "@id": "espi:IntervalBlock" },
+            "rdfs:range": { "@id": "espi:DateTimeInterval" }
+        },
+        {
+            "@id": "espi:timePeriod",
+            "@type": "rdf:Property",
+            "rdfs:label": "time period",
+            "rdfs:comment": "The date time and duration of a reading.",
+            "rdfs:domain": { "@id": "espi:IntervalReading" },
+            "rdfs:range": { "@id": "espi:DateTimeInterval" }
+        },
+        {
+            "@id": "espi:value",
+            "@type": "rdf:Property",
+            "rdfs:label": "value",
+            "rdfs:comment": "Value in units specified by ReadingType. Integer (scaled by powerOfTenMultiplier) or decimal (direct physical quantity).",
+            "rdfs:range": { "@id": "xsd:decimal" }
+        },
+        {
+            "@id": "espi:cost",
+            "@type": "rdf:Property",
+            "rdfs:label": "cost",
+            "rdfs:comment": "Cost associated with this reading, in hundred-thousandths (1e-5) of the currency specified in ReadingType.",
+            "rdfs:domain": { "@id": "espi:IntervalReading" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:quality",
+            "@type": "rdf:Property",
+            "rdfs:label": "quality",
+            "rdfs:comment": "Quality code per QualityOfReading enumeration. 0=valid, 7=manuallyEdited, 8=estimatedUsingReferenceDay, 9=estimatedUsingLinearInterpolation, 10=questionable, 11=derived, 12=projected, 13=mixed, 14=raw, 15=normalizedForWeather, 16=other, 17=validated, 18=verified, 19=billingApproved.",
+            "rdfs:domain": { "@id": "espi:ReadingQuality" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:start",
+            "@type": "rdf:Property",
+            "rdfs:label": "start",
+            "rdfs:comment": "Start timestamp of an interval (ISO 8601 date-time with optional timezone offset).",
+            "rdfs:domain": { "@id": "espi:DateTimeInterval" },
+            "rdfs:range": { "@id": "xsd:dateTime" }
+        },
+        {
+            "@id": "espi:duration",
+            "@type": "rdf:Property",
+            "rdfs:label": "duration",
+            "rdfs:comment": "Duration of the interval, in seconds.",
+            "rdfs:domain": { "@id": "espi:DateTimeInterval" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+
+        {
+            "@id": "espi:accumulationBehaviour",
+            "@type": "rdf:Property",
+            "rdfs:label": "accumulation behaviour",
+            "rdfs:comment": "How value accumulates over time. 0=N/A, 1=bulkQuantity, 2=continuousCumulative, 3=cumulative, 4=deltaData, 6=indicating, 9=summation, 10=timeDelay, 12=instantaneous, 13=latchingQuantity, 14=boundedQuantity.",
+            "rdfs:domain": { "@id": "espi:ReadingType" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:commodity",
+            "@type": "rdf:Property",
+            "rdfs:label": "commodity",
+            "rdfs:comment": "Commodity being metered. 0=N/A, 1=electricitySecondaryMetered, 2=electricityPrimaryMetered, 7=naturalGas, 9=potableWater, etc.",
+            "rdfs:domain": { "@id": "espi:ReadingType" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:currency",
+            "@type": "rdf:Property",
+            "rdfs:label": "currency",
+            "rdfs:comment": "ISO 4217 numeric currency code. 840=USD, 978=EUR, 356=INR, 826=GBP, etc.",
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:flowDirection",
+            "@type": "rdf:Property",
+            "rdfs:label": "flow direction",
+            "rdfs:comment": "Direction of energy flow. 0=N/A, 1=forward, 4=net, 19=reverse, 20=total.",
+            "rdfs:domain": { "@id": "espi:ReadingType" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:kind",
+            "@type": "rdf:Property",
+            "rdfs:label": "kind",
+            "rdfs:comment": "Measurement kind (in ReadingType) or service kind (in ServiceCategory). ReadingType: 0=N/A, 12=energy, 37=power, 38=demand, etc. ServiceCategory: 0=electricity, 1=gas, 2=water, etc.",
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:phase",
+            "@type": "rdf:Property",
+            "rdfs:label": "phase",
+            "rdfs:comment": "Electrical phase being measured. 0=N/A, 128=A, 64=B, 32=C, 225=ABCN, etc.",
+            "rdfs:domain": { "@id": "espi:ReadingType" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:powerOfTenMultiplier",
+            "@type": "rdf:Property",
+            "rdfs:label": "power of ten multiplier",
+            "rdfs:comment": "SI prefix as power of ten. -3=milli, 0=none, 3=kilo, 6=mega, etc.",
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:uom",
+            "@type": "rdf:Property",
+            "rdfs:label": "unit of measure",
+            "rdfs:comment": "Unit of measure code. 5=A, 29=V, 33=Hz, 38=W, 42=m3, 61=VA, 63=VAr, 72=Wh, etc.",
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:intervalLength",
+            "@type": "rdf:Property",
+            "rdfs:label": "interval length",
+            "rdfs:comment": "Default interval length in seconds.",
+            "rdfs:domain": { "@id": "espi:ReadingType" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+
+        {
+            "@id": "espi:billingPeriod",
+            "@type": "rdf:Property",
+            "rdfs:label": "billing period",
+            "rdfs:comment": "The billing period to which measurements apply.",
+            "rdfs:domain": { "@id": "espi:UsageSummary" },
+            "rdfs:range": { "@id": "espi:DateTimeInterval" }
+        },
+        {
+            "@id": "espi:billLastPeriod",
+            "@type": "rdf:Property",
+            "rdfs:label": "bill last period",
+            "rdfs:comment": "Bill amount for the referenced billing period, in hundred-thousandths (1e-5) of the currency.",
+            "rdfs:domain": { "@id": "espi:UsageSummary" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:costAdditionalLastPeriod",
+            "@type": "rdf:Property",
+            "rdfs:label": "cost additional last period",
+            "rdfs:comment": "Additional charges for the billing period, in hundred-thousandths (1e-5) of the currency.",
+            "rdfs:domain": { "@id": "espi:UsageSummary" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:costAdditionalDetailLastPeriod",
+            "@type": "rdf:Property",
+            "rdfs:label": "cost additional detail last period",
+            "rdfs:comment": "Line item breakdown of additional charges for the billing period.",
+            "rdfs:domain": { "@id": "espi:UsageSummary" },
+            "rdfs:range": { "@id": "espi:LineItem" }
+        },
+        {
+            "@id": "espi:overallConsumptionLastPeriod",
+            "@type": "rdf:Property",
+            "rdfs:label": "overall consumption last period",
+            "rdfs:comment": "Total consumption for the billing period.",
+            "rdfs:domain": { "@id": "espi:UsageSummary" },
+            "rdfs:range": { "@id": "espi:SummaryMeasurement" }
+        },
+        {
+            "@id": "espi:qualityOfReading",
+            "@type": "rdf:Property",
+            "rdfs:label": "quality of reading",
+            "rdfs:comment": "Quality of summary readings. Same enum as ReadingQuality.quality.",
+            "rdfs:domain": { "@id": "espi:UsageSummary" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+
+        {
+            "@id": "espi:amount",
+            "@type": "rdf:Property",
+            "rdfs:label": "amount",
+            "rdfs:comment": "Cost of line item, in hundred-thousandths (1e-5) of the currency.",
+            "rdfs:domain": { "@id": "espi:LineItem" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:itemKind",
+            "@type": "rdf:Property",
+            "rdfs:label": "item kind",
+            "rdfs:comment": "Classification of line item. 1=energyGenerationFee, 2=energyDeliveryFee, 3=energyUsageFee, 4=administrativeFee, 5=tax, 6=energyGenerationCredit, 7=energyDeliveryCredit, 8=administrativeCredit, 9=payment, 10=information.",
+            "rdfs:domain": { "@id": "espi:LineItem" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:unitCost",
+            "@type": "rdf:Property",
+            "rdfs:label": "unit cost",
+            "rdfs:comment": "Per-unit cost, in hundred-thousandths (1e-5) of the currency.",
+            "rdfs:domain": { "@id": "espi:LineItem" },
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:note",
+            "@type": "rdf:Property",
+            "rdfs:label": "note",
+            "rdfs:comment": "Comment or description of line item.",
+            "rdfs:domain": { "@id": "espi:LineItem" },
+            "rdfs:range": { "@id": "xsd:string" }
+        },
+        {
+            "@id": "espi:itemPeriod",
+            "@type": "rdf:Property",
+            "rdfs:label": "item period",
+            "rdfs:comment": "Time period covered by the line item.",
+            "rdfs:domain": { "@id": "espi:LineItem" },
+            "rdfs:range": { "@id": "espi:DateTimeInterval" }
+        },
+        {
+            "@id": "espi:consumptionTier",
+            "@type": "rdf:Property",
+            "rdfs:label": "consumption tier",
+            "rdfs:comment": "Consumption rate tier code.",
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:tou",
+            "@type": "rdf:Property",
+            "rdfs:label": "time of use",
+            "rdfs:comment": "Time-of-use bucket code.",
+            "rdfs:range": { "@id": "xsd:integer" }
+        },
+        {
+            "@id": "espi:cpp",
+            "@type": "rdf:Property",
+            "rdfs:label": "critical peak period",
+            "rdfs:comment": "Critical peak period bucket code.",
+            "rdfs:range": { "@id": "xsd:integer" }
+        }
+    ]
+}

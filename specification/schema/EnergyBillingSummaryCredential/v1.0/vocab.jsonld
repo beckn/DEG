@@ -1,0 +1,25 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "deg": "https://schema.beckn.io/deg/",
+        "energyCred": "https://schema.beckn.io/deg/EnergyCredential/v2.0/",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#"
+    },
+    "@graph": [
+        {
+            "@id": "deg:EnergyBillingSummaryCredential",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Energy Billing Summary Credential",
+            "rdfs:comment": "A W3C Verifiable Credential containing aggregated billing period data using ESPI/Green Button types. Subclass of EnergyCredential.",
+            "rdfs:subClassOf": { "@id": "energyCred:EnergyCredential" }
+        },
+        {
+            "@id": "deg:credentialSubject",
+            "@type": "rdf:Property",
+            "rdfs:label": "Credential subject",
+            "rdfs:comment": "The subject of an energy billing summary verifiable credential, containing customer profile and billing data."
+        }
+    ]
+}

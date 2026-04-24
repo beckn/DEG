@@ -1,0 +1,57 @@
+openapi: 3.1.1
+info:
+  title: Demand Flex — Buy Offer Attributes (v2.0)
+  version: 2.0.0
+  description: >
+    Offer attributes for demand-flex contracts. Contains an inputs array
+    of DemandFlexRoleInput — one entry per role. At catalog time, entries
+    have null participantId. As the contract progresses through init/confirm,
+    participantIds and role-specific inputs are filled in.
+
+components:
+  schemas:
+    DemandFlexBuyOffer:
+      type: object
+      additionalProperties: true
+      required: [inputs]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": DemandFlexBuyOffer
+      properties:
+
+        contractTerms:
+          description: >
+            Portable DEGContract template. Present only in catalog/discover.
+            Promoted to Contract.contractAttributes at select/init.
+          type: object
+          additionalProperties: true
+
+        inputs:
+          type: array
+          description: >
+            One entry per role. participantId is null until the role is
+            bound (e.g. seller is null at catalog, filled at init).
+            inputs object is optional when participantId is null,
+            required when participantId is set.
+          items:
+            $ref: "#/components/schemas/DemandFlexRoleInput"
+
+    DemandFlexRoleInput:
+      type: object
+      required: [role, participantId]
+      additionalProperties: true
+      properties:
+        role:
+          type: string
+          enum: [buyer, seller]
+        participantId:
+          type: ["string", "null"]
+          description: >
+            Participant bound to this role. Null until bound.
+        inputs:
+          type: object
+          additionalProperties: true
+          description: >
+            Role-specific inputs. Structure varies by role and contract type.
+            For buyer: incentivePerKwh, currency, penaltyRate, baselineMethodology, etc.
+            For seller: plannedDemandChange (beckn:Quantity), participatingMeters, etc.

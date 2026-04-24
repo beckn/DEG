@@ -31,7 +31,7 @@ components:
 
         idleFeePolicy:
           allOf:
-            - $ref: "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/attributes.yaml#/components/schemas/PriceSpecification"
+            - $ref: "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/attributes.yaml#/components/schemas/PriceSpecification"
             - type: object
               description: Idle fee policy specification (reuses Beckn PriceSpecification).
               x-jsonld: { "@id": idleFeePolicy }

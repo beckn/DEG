@@ -1,0 +1,258 @@
+{
+  "info": {
+    "_postman_id": "f4d53aa8-aa09-49d3-90ba-4a982dbffd90",
+    "name": "data-exchange-uc1-meter-data.BAP-DEG",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for Buyer Application Platform implementing data-exchange-uc1-meter-data APIs based on Beckn Protocol v2"
+  },
+  "item": [
+    {
+      "name": "cancel",
+      "item": [
+        {
+          "name": "cancel-request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"cancel\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\"\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"AMI Meter Data Exchange\",\n        \"shortDesc\": \"AMI meter data exchange under existing AMISP contract\"\n      },\n      \"status\": {\n        \"code\": \"CANCELLED\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-ami-meter-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"CLOSED\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-ami-meter-data-blr-zone-a-q1-2026\",\n              \"descriptor\": {\n                \"name\": \"IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026\"\n              },\n              \"quantity\": {\n                \"unitText\": \"report\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-ami-meter-data-inline\",\n            \"descriptor\": {\n              \"name\": \"AMI Meter Data Inline Delivery - Bengaluru Zone A Q1 2026\"\n            },\n            \"resourceIds\": [\n              \"ds-ami-meter-data-blr-zone-a-q1-2026\"\n            ]\n          }\n        }\n      ]\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/cancel",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "cancel"
+              ]
+            },
+            "description": "Cancel request: cancel-request"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "confirm",
+      "item": [
+        {
+          "name": "confirm-request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"confirm\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"AMI Meter Data Exchange\",\n        \"shortDesc\": \"AMI meter data exchange under existing AMISP contract\"\n      },\n      \"status\": {\n        \"code\": \"ACTIVE\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-ami-meter-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"ACTIVE\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-ami-meter-data-blr-zone-a-q1-2026\",\n              \"descriptor\": {\n                \"name\": \"IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026\"\n              },\n              \"quantity\": {\n                \"unitText\": \"report\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-ami-meter-data-inline\",\n            \"descriptor\": {\n              \"name\": \"AMI Meter Data Inline Delivery - Bengaluru Zone A Q1 2026\"\n            },\n            \"resourceIds\": [\n              \"ds-ami-meter-data-blr-zone-a-q1-2026\"\n            ]\n          },\n          \"commitmentAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\",\n            \"@type\": \"DatasetItem\",\n            \"schema:identifier\": \"ds-ami-meter-data-blr-zone-a-q1-2026\",\n            \"schema:name\": \"IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026\",\n            \"schema:temporalCoverage\": \"2026-01-01/2026-03-31\",\n            \"dataset:accessMethod\": \"INLINE\"\n          }\n        }\n      ],\n      \"consideration\": [\n        {\n          \"id\": \"consideration-ami-existing-contract\",\n          \"status\": {\n            \"code\": \"ACTIVE\"\n          },\n          \"considerationAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld\",\n            \"@type\": \"PriceSpecification\",\n            \"currency\": \"INR\",\n            \"value\": 0,\n            \"description\": \"Covered under existing AMI services contract (BESCOM-AMISP-2025-001)\"\n          }\n        }\n      ],\n      \"participants\": [\n        {\n          \"id\": \"intelligrid-amisp-001\",\n          \"descriptor\": {\n            \"name\": \"IntelliGrid AMI Services\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"intelligrid-amisp-001\",\n            \"name\": \"IntelliGrid AMI Services\"\n          }\n        },\n        {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Distribution Company\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"bescom-discom-001\",\n            \"name\": \"BESCOM - Distribution Company\"\n          }\n        }\n      ],\n      \"performance\": [],\n      \"settlements\": [\n        {\n          \"id\": \"settlement-payment-completed\",\n          \"considerationId\": \"consideration-ami-existing-contract\",\n          \"status\": \"COMPLETE\",\n          \"settlementAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld\",\n            \"@type\": \"Payment\",\n            \"beckn:paymentStatus\": \"COMPLETED\",\n            \"beckn:amount\": {\n              \"currency\": \"INR\",\n              \"value\": 0\n            }\n          }\n        }\n      ]\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/confirm",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "confirm"
+              ]
+            },
+            "description": "Confirm request: confirm-request"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "discover",
+      "item": [
+        {
+          "name": "discover-request",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"discover\",\n    \"location\": {\n      \"country\": {\n        \"code\": \"IND\"\n      },\n      \"city\": {\n        \"code\": \"std:080\"\n      }\n    },\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"intent\": {\n      \"filters\": {\n        \"type\": \"jsonpath\",\n        \"expression\": \"$.catalogs[*].resources[*]\",\n        \"_expressionExamples\": [\n          \"// all catalogs where bppId exists\",\n          \"$.catalogs[*] ? (exists(@.bppId))\",\n          \"// all catalogs where bppId matches a given name and resources exists\",\n          \"$.catalogs[*] ? (@.bppId == 'hes.cuculus.in' && exists(@.resources))\",\n          \"// all catalogs from a specific bppId with active offers\",\n          \"$.catalogs[*] ? (@.bppId == 'hes.cuculus.in' && @.offers[*].validity.endDate < '2026-09-01T00:00:00Z')\"\n        ]\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/discover",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "discover"
+              ]
+            },
+            "description": "Discover request: discover-request"
+          },
+          "response": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "init",
+      "item": [
+        {
+          "name": "init-request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"init\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"AMI Meter Data Exchange\",\n        \"shortDesc\": \"AMI meter data exchange under existing AMISP contract\"\n      },\n      \"status\": {\n        \"code\": \"ACTIVE\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-ami-meter-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"ACTIVE\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-ami-meter-data-blr-zone-a-q1-2026\",\n              \"descriptor\": {\n                \"name\": \"IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026\"\n              },\n              \"quantity\": {\n                \"unitText\": \"report\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-ami-meter-data-inline\",\n            \"descriptor\": {\n              \"name\": \"AMI Meter Data Inline Delivery - Bengaluru Zone A Q1 2026\"\n            },\n            \"resourceIds\": [\n              \"ds-ami-meter-data-blr-zone-a-q1-2026\"\n            ]\n          },\n          \"commitmentAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\",\n            \"@type\": \"DatasetItem\",\n            \"schema:identifier\": \"ds-ami-meter-data-blr-zone-a-q1-2026\",\n            \"schema:name\": \"IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026\",\n            \"schema:temporalCoverage\": \"2026-01-01/2026-03-31\",\n            \"dataset:accessMethod\": \"INLINE\"\n          }\n        }\n      ],\n      \"consideration\": [\n        {\n          \"id\": \"consideration-ami-existing-contract\",\n          \"status\": {\n            \"code\": \"ACTIVE\"\n          },\n          \"considerationAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld\",\n            \"@type\": \"PriceSpecification\",\n            \"currency\": \"INR\",\n            \"value\": 0,\n            \"description\": \"Covered under existing AMI services contract (BESCOM-AMISP-2025-001)\"\n          }\n        }\n      ],\n      \"participants\": [\n        {\n          \"id\": \"intelligrid-amisp-001\",\n          \"descriptor\": {\n            \"name\": \"IntelliGrid AMI Services\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"intelligrid-amisp-001\",\n            \"name\": \"IntelliGrid AMI Services\"\n          }\n        },\n        {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Distribution Company\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"bescom-discom-001\",\n            \"name\": \"BESCOM - Distribution Company\"\n          }\n        }\n      ],\n      \"performance\": [],\n      \"settlements\": []\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/init",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "init"
+              ]
+            },
+            "description": "Init request: init-request"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "item": [
+        {
+          "name": "select-request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"select\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\",\n    \"schemaContext\": [\n      \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\"\n    ]\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"descriptor\": {\n        \"name\": \"AMI Meter Data Exchange\",\n        \"shortDesc\": \"AMI meter data exchange under existing AMISP contract\"\n      },\n      \"status\": {\n        \"code\": \"DRAFT\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-ami-meter-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"DRAFT\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-ami-meter-data-blr-zone-a-q1-2026\",\n              \"descriptor\": {\n                \"name\": \"IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026\"\n              },\n              \"quantity\": {\n                \"unitText\": \"report\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-ami-meter-data-inline\",\n            \"descriptor\": {\n              \"name\": \"AMI Meter Data Inline Delivery - Bengaluru Zone A Q1 2026\"\n            },\n            \"resourceIds\": [\n              \"ds-ami-meter-data-blr-zone-a-q1-2026\"\n            ]\n          },\n          \"commitmentAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1/context.jsonld\",\n            \"@type\": \"DatasetItem\",\n            \"schema:identifier\": \"ds-ami-meter-data-blr-zone-a-q1-2026\",\n            \"schema:name\": \"IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026\",\n            \"schema:temporalCoverage\": \"2026-01-01/2026-03-31\",\n            \"dataset:accessMethod\": \"INLINE\"\n          }\n        }\n      ],\n      \"consideration\": [\n        {\n          \"id\": \"consideration-ami-existing-contract\",\n          \"status\": {\n            \"code\": \"ACTIVE\"\n          },\n          \"considerationAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld\",\n            \"@type\": \"PriceSpecification\",\n            \"currency\": \"INR\",\n            \"value\": 0,\n            \"description\": \"Covered under existing AMI services contract (BESCOM-AMISP-2025-001)\"\n          }\n        }\n      ],\n      \"participants\": [\n        {\n          \"id\": \"intelligrid-amisp-001\",\n          \"descriptor\": {\n            \"name\": \"IntelliGrid AMI Services\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"intelligrid-amisp-001\",\n            \"name\": \"IntelliGrid AMI Services\"\n          }\n        },\n        {\n          \"id\": \"bescom-discom-001\",\n          \"descriptor\": {\n            \"name\": \"BESCOM - Distribution Company\"\n          },\n          \"participantAttributes\": {\n            \"@context\": \"https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld\",\n            \"@type\": \"Organization\",\n            \"id\": \"bescom-discom-001\",\n            \"name\": \"BESCOM - Distribution Company\"\n          }\n        }\n      ],\n      \"performance\": [],\n      \"settlements\": []\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/select",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "select"
+              ]
+            },
+            "description": "Select request: select-request"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "status",
+      "item": [
+        {
+          "name": "status-request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"status\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"bppId\": \"{{bpp_id}}\",\n    \"bppUri\": \"{{bpp_host_root}}/bpp/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\"\n  },\n  \"message\": {\n    \"contract\": {\n      \"id\": \"660e9500-f30c-52e5-b827-557766551300\",\n      \"status\": {\n        \"code\": \"ACTIVE\"\n      },\n      \"commitments\": [\n        {\n          \"id\": \"commitment-ami-meter-001\",\n          \"status\": {\n            \"descriptor\": {\n              \"code\": \"ACTIVE\"\n            }\n          },\n          \"resources\": [\n            {\n              \"id\": \"ds-ami-meter-data-blr-zone-a-q1-2026\",\n              \"descriptor\": {\n                \"name\": \"IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026\"\n              },\n              \"quantity\": {\n                \"unitText\": \"report\",\n                \"unitCode\": \"EA\",\n                \"value\": \"1\"\n              }\n            }\n          ],\n          \"offer\": {\n            \"id\": \"offer-ami-meter-data-inline\",\n            \"descriptor\": {\n              \"name\": \"AMI Meter Data Inline Delivery - Bengaluru Zone A Q1 2026\"\n            },\n            \"resourceIds\": [\n              \"ds-ami-meter-data-blr-zone-a-q1-2026\"\n            ]\n          }\n        }\n      ]\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{bap_adapter_url}}/status",
+              "host": [
+                "{{bap_adapter_url}}"
+              ],
+              "path": [
+                "status"
+              ]
+            },
+            "description": "Status request: status-request"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pure JS pre-request script to replace moment()",
+          "// 1) ISO 8601 timestamp without needing moment",
+          "const isoTimestamp = new Date().toISOString();",
+          "pm.collectionVariables.set('iso_date', isoTimestamp);",
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "domain",
+      "value": "nfh.global/testnet-deg"
+    },
+    {
+      "key": "version",
+      "value": "2.0.0"
+    },
+    {
+      "key": "bap_id",
+      "value": "bap.example.com"
+    },
+    {
+      "key": "bpp_id",
+      "value": "bpp.example.com"
+    },
+    {
+      "key": "transaction_id",
+      "value": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002"
+    },
+    {
+      "key": "iso_date",
+      "value": ""
+    },
+    {
+      "key": "bap_host_root",
+      "value": "http://beckn-router:9000"
+    },
+    {
+      "key": "bpp_host_root",
+      "value": "http://beckn-router:9000"
+    },
+    {
+      "key": "bap_adapter_url",
+      "value": "http://localhost:8081/bap/caller"
+    }
+  ]
+}

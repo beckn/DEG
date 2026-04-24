@@ -1,0 +1,102 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://schema.org/",
+    "https://schema.beckn.io/Location/2.0/context.jsonld",
+    "https://schema.beckn.io/deg/CustomerCredential/context.jsonld",
+    "https://schema.beckn.io/deg/CustomerProfile/context.jsonld",
+    "https://schema.beckn.io/deg/CustomerDetails/context.jsonld",
+    "https://schema.beckn.io/deg/ConsumptionProfile/context.jsonld",
+    "https://schema.beckn.io/deg/GenerationProfile/context.jsonld",
+    "https://schema.beckn.io/deg/StorageProfile/context.jsonld"
+  ],
+  "id": "urn:uuid:e5f6a7b8-9012-34ab-cdef-567890123456",
+  "type": [
+    "VerifiableCredential",
+    "CustomerCredential"
+  ],
+  "issuer": {
+    "id": "https://example-utility.com/issuers/energy-dept",
+    "name": "Example Energy Utility",
+    "idRef": {
+      "issuedBy": "did:web:exreg.gov",
+      "subjectId": "exreg.gov:AABPC00001"
+    }
+  },
+  "validFrom": "2025-01-13T10:30:00-05:00",
+  "validUntil": "2026-01-13T10:30:00-05:00",
+  "credentialStatus": {
+    "id": "https://dedi.global/dedi/lookup/example-utility.com/vc-revocation-registry/e5f6a7b8-9012-34ab-cdef-567890123456",
+    "type": "dedi",
+    "statusPurpose": "revocation",
+    "statusListCredential": "https://dedi.global/dedi/query/example-utility.com/vc-revocation-registry"
+  },
+  "credentialSubject": {
+    "id": "did:example:customer:abc123",
+    "customerProfile": {
+      "customerNumber": "UTIL-2025-001234567",
+      "meterNumber": "MET2025789456123",
+      "meterType": "AMR",
+      "idRef": {
+        "issuedBy": "did:web:ssa.gov",
+        "subjectId": "ssa.gov:XXX-XX-1234"
+      }
+    },
+    "customerDetails": {
+      "fullName": "Jane Doe",
+      "installationAddress": {
+        "id": "LOC-001",
+        "descriptor": {
+          "name": "Jane Doe Residence",
+          "short_desc": "Residential installation at 123 Energy Street"
+        },
+        "gps": "37.7749,-122.4194",
+        "address": "123 Energy Street, Unit 4",
+        "city": {
+          "name": "Metro City",
+          "code": "METRO"
+        },
+        "district": "Metro District",
+        "state": {
+          "name": "Example State",
+          "code": "EX"
+        },
+        "country": {
+          "name": "United States",
+          "code": "US"
+        },
+        "area_code": "12345",
+        "openLocationCode": "849VCWC8+R9"
+      },
+      "serviceConnectionDate": "2025-01-10T00:00:00-05:00"
+    },
+    "consumptionProfile": {
+      "premisesType": "Residential",
+      "connectionType": "Single-phase",
+      "sanctionedLoadKW": 5,
+      "tariffCategoryCode": "RES-01"
+    },
+    "generationProfile": {
+      "assetId": "DER-SOLAR-001",
+      "generationType": "Solar",
+      "capacityKW": 3,
+      "commissioningDate": "2025-01-12T00:00:00-05:00",
+      "manufacturer": "SunPower Corporation",
+      "modelNumber": "SPR-X22-360"
+    },
+    "storageProfile": {
+      "assetId": "BESS-001",
+      "storageCapacityKWh": 10,
+      "powerRatingKW": 5,
+      "commissioningDate": "2025-01-12T00:00:00-05:00",
+      "storageType": "LithiumIon"
+    }
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2025-01-13T10:30:00-05:00",
+    "verificationMethod": "https://example-utility.com/issuers/energy-dept#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z58DAdFfa9SkqZMVPxAQpic7ndTaXoT..."
+  }
+}

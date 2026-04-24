@@ -1,0 +1,200 @@
+arazzo: 1.0.1
+info:
+  title: P2P Trading Inter-Discom Workflow - Use Case 1
+  version: 1.0.0
+  description: >
+    End-to-end Beckn 2.0 workflow for peer-to-peer energy trading across
+    discoms. A buyer BAP discovers seller offers, negotiates a contract
+    and settles — with optional cascaded messages to the seller's utility
+    BPP for interdiscom coordination.
+
+    This devkit's catalog service and discover service share the same
+    endpoint, so there is no separate subscribe-catalog step.
+
+    Run via the workflow runner (from uc1-p2p-trading-ies-wave1/workflows/):
+
+      Local-bridge mode (default, BAP↔BPP via Caddy router inside docker —
+      `docker compose up -d` in install/):
+        ./run-arazzo.sh
+        ./run-arazzo.sh -w select-through-status -v
+
+      Over-internet mode (against the public ngrok URL fronting the router):
+        PUBLIC_URL=https://<host>.ngrok-free.dev ./run-arazzo.sh
+
+      Available workflows: publish-catalog, discover, select-through-status,
+        cascaded-init-confirm, p2p-trading-updates
+
+      Override server URLs (optional, defaults in x-serverUrl):
+        -S beckn-bap-caller=http://localhost:8081/bap/caller \
+        -S beckn-bpp-caller=http://localhost:8082/bpp/caller
+
+sourceDescriptions:
+  - name: beckn-bap-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8081/bap/caller
+
+  - name: beckn-bpp-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8082/bpp/caller
+
+workflows:
+  - workflowId: publish-catalog
+    summary: Seller BPP publishes p2p trading catalog
+    steps:
+      - stepId: publish-catalog
+        description: BPP publishes generation catalog for peer-to-peer trade
+        operationId: beckn-bpp-caller.catalogPublish
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/publish-catalog.json"
+
+  - workflowId: discover
+    summary: Buyer BAP discovers available p2p offers
+    steps:
+      - stepId: discover
+        description: BAP discovers energy offers across the network
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/discover-request.json"
+
+      - stepId: on-discover
+        description: BPP returns catalog of matching offers
+        operationId: beckn-bpp-caller.onDiscover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/discover-response.json"
+
+  - workflowId: select-through-status
+    summary: Buyer selects, initializes, confirms, and checks status
+    steps:
+      - stepId: select
+        description: Buyer selects a seller's offer
+        operationId: beckn-bap-caller.select
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/select-request.json"
+
+      - stepId: on-select
+        description: Seller returns DRAFT terms
+        operationId: beckn-bpp-caller.onSelect
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/select-response.json"
+
+      - stepId: init
+        description: Buyer provides identity and billing details
+        operationId: beckn-bap-caller.init
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/init-request.json"
+
+      - stepId: on-init
+        description: Seller acknowledges init
+        operationId: beckn-bpp-caller.onInit
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/init-response.json"
+
+      - stepId: confirm
+        description: Buyer confirms contract
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/confirm-request.json"
+
+      - stepId: on-confirm
+        description: Seller confirms contract is ACTIVE
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/confirm-response.json"
+
+      - stepId: status
+        description: Buyer polls for contract status
+        operationId: beckn-bap-caller.status
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/status-request.json"
+
+      - stepId: on-status
+        description: Seller returns current status
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/status-response.json"
+
+  - workflowId: cascaded-init-confirm
+    summary: Cascaded init + confirm to the seller's utility BPP (interdiscom coordination)
+    steps:
+      - stepId: cascaded-init
+        description: Seller BAP cascades init to its utility BPP
+        operationId: beckn-bap-caller.init
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/cascaded-init-request.json"
+
+      - stepId: cascaded-on-init
+        description: Utility BPP responds to cascaded init
+        operationId: beckn-bpp-caller.onInit
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/cascaded-on-init-response.json"
+
+      - stepId: cascaded-confirm
+        description: Seller BAP cascades confirm to its utility BPP
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/cascaded-confirm-request.json"
+
+      - stepId: cascaded-on-confirm
+        description: Utility BPP responds to cascaded confirm
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/cascaded-on-confirm-response.json"
+
+  - workflowId: p2p-trading-updates
+    summary: Post-commit updates (curtailment, final invoice, settlement)
+    steps:
+      - stepId: on-update-curtailment
+        description: Seller notifies buyer of curtailment event
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-update-response-curtailment.json"
+
+      - stepId: on-update-final-invoice
+        description: Seller publishes final invoice
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-update-response-final-invoice.json"
+
+      - stepId: on-update-settlement
+        description: Seller confirms settlement completion
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-update-response-settlement-complete.json"

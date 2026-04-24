@@ -1,0 +1,145 @@
+arazzo: 1.0.1
+info:
+  title: P2P Enrollment Workflow - Use Case 1
+  version: 1.0.0
+  description: >
+    End-to-end Beckn 2.0 workflow for consumer enrollment to DER programmes.
+    Covers OTP-based enrollment and OAuth2/OIDC-based enrollment, plus
+    consent revocation and unenrollment updates.
+
+    Run via the workflow runner (from uc1-p2p-enrollment/workflows/):
+
+      Local-bridge mode (default, BAP↔BPP via Caddy router inside docker —
+      `docker compose up -d` in install/):
+        ./run-arazzo.sh
+        ./run-arazzo.sh -w enroll-otp -v
+
+      Over-internet mode (against the public ngrok URL fronting the router):
+        PUBLIC_URL=https://<host>.ngrok-free.dev ./run-arazzo.sh
+
+      Available workflows: enroll-otp, enroll-oauth2, revoke-consent,
+        unenroll
+
+      Override server URLs (optional, defaults in x-serverUrl):
+        -S beckn-bap-caller=http://localhost:8081/bap/caller \
+        -S beckn-bpp-caller=http://localhost:8082/bpp/caller
+
+sourceDescriptions:
+  - name: beckn-bap-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8081/bap/caller
+
+  - name: beckn-bpp-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8082/bpp/caller
+
+workflows:
+  - workflowId: enroll-otp
+    summary: OTP-based consumer enrollment
+    steps:
+      - stepId: init
+        description: BAP initiates enrollment with OTP challenge
+        operationId: beckn-bap-caller.init
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/init-request-otp.json"
+
+      - stepId: on-init
+        description: BPP responds with OTP verification result
+        operationId: beckn-bpp-caller.onInit
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-init-response-otp.json"
+
+      - stepId: confirm
+        description: BAP confirms enrollment after successful OTP verification
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/confirm-request-otp.json"
+
+      - stepId: on-confirm
+        description: BPP acknowledges enrollment completion
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-confirm-response-otp.json"
+
+  - workflowId: enroll-oauth2
+    summary: OAuth2/OIDC-based consumer enrollment
+    steps:
+      - stepId: init
+        description: BAP initiates enrollment via utility's OAuth2 provider
+        operationId: beckn-bap-caller.init
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/init-request-oauth2.json"
+
+      - stepId: on-init
+        description: BPP responds with OAuth2 authorization result
+        operationId: beckn-bpp-caller.onInit
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-init-response-oauth2.json"
+
+      - stepId: confirm
+        description: BAP confirms enrollment after successful OAuth2 consent
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/confirm-request-oauth2.json"
+
+      - stepId: on-confirm
+        description: BPP acknowledges enrollment completion
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-confirm-response-oauth2.json"
+
+  - workflowId: revoke-consent
+    summary: Consumer revokes consent for an existing enrollment
+    steps:
+      - stepId: update
+        description: BAP requests consent revocation
+        operationId: beckn-bap-caller.update
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/update-request-consent-revocation.json"
+
+      - stepId: on-update
+        description: BPP acknowledges consent revocation
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-update-response-consent-revocation.json"
+
+  - workflowId: unenroll
+    summary: Consumer unenrolls from a programme
+    steps:
+      - stepId: update
+        description: BAP requests unenrollment
+        operationId: beckn-bap-caller.update
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/update-request-unenrollment.json"
+
+      - stepId: on-update
+        description: BPP confirms unenrollment
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-update-response-unenrollment.json"

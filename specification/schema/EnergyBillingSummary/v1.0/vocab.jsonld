@@ -1,0 +1,24 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "deg": "https://schema.beckn.io/deg/",
+        "espi": "http://naesb.org/espi#",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#"
+    },
+    "@graph": [
+        {
+            "@id": "deg:BillingSummary",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Billing Summary",
+            "rdfs:comment": "ESPI/Green Button billing summary data for a single meter. Contains ServiceCategory, currency, and UsageSummary entries."
+        },
+        {
+            "@id": "deg:billingSummary",
+            "@type": "rdf:Property",
+            "rdfs:label": "billing Summary",
+            "rdfs:comment": "Container for ESPI billing summary data within a credential subject."
+        }
+    ]
+}

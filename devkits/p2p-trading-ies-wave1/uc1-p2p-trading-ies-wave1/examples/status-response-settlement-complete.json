@@ -1,0 +1,96 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_status",
+    "timestamp": "2024-10-04T18:45:00Z",
+    "message_id": "msg-on-status-settlement-complete-001",
+    "transaction_id": "txn-energy-001",
+    "bap_id": "p2p-trading-sandbox1.com",
+    "bap_uri": "https://p2p-trading-sandbox1.com",
+    "bpp_id": "p2p-trading-sandbox2.com",
+    "bpp_uri": "https://p2p-trading-sandbox2.com",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-energy-001",
+      "beckn:orderStatus": "COMPLETED",
+      "beckn:seller": "provider-solar-farm-001",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "buyer-001",
+        "beckn:buyerAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+          "@type": "EnergyCustomer",
+          "meterId": "TEST_METER_BUYER",
+          "utilityCustomerId": "TEST-CUST-BUYER-001",
+          "utilityId": "TEST_DISCOM_BUYER"
+        }
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "energy-resource-solar-001",
+          "beckn:quantity": {
+            "unitQuantity": 15.0,
+            "unitText": "kWh"
+          },
+          "beckn:acceptedOffer": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-morning-001",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Morning Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ]
+          }
+        },
+        {
+          "beckn:orderedItem": "energy-resource-solar-001",
+          "beckn:quantity": {
+            "unitQuantity": 10.0,
+            "unitText": "kWh"
+          },
+          "beckn:acceptedOffer": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-afternoon-001",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Afternoon Solar Energy Offer"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ]
+          }
+        }
+      ],
+      "beckn:orderValue": {
+        "currency": "INR",
+        "value": 405,
+        "description": "Inter-platform settlement at catalog prices (15 kWh \u00d7 \u20b915 + 10 kWh \u00d7 \u20b918). Catalog prices are inclusive of seller platform charges."
+      },
+      "beckn:payment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+        "@type": "beckn:Payment",
+        "beckn:id": "payment-p2p-energy-001",
+        "beckn:amount": {
+          "currency": "INR",
+          "value": 405
+        },
+        "beckn:beneficiary": "BPP",
+        "beckn:paymentStatus": "SETTLED",
+        "beckn:paidAt": "2024-10-04T18:40:00Z",
+        "beckn:txnRef": "TXN-ENERGY-001-SETTLED"
+      }
+    }
+  }
+}

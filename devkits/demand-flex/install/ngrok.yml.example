@@ -1,0 +1,10 @@
+version: "3"
+agent:
+  authtoken: REPLACE_WITH_YOUR_NGROK_AUTHTOKEN
+tunnels:
+  beckn:
+    proto: http
+    addr: 9000
+    # Optional: pin to your reserved ngrok domain so the public URL is stable.
+    # Omit for an ephemeral *.ngrok-free.app URL per run.
+    # domain: your-subdomain.ngrok-free.dev

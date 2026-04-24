@@ -1,0 +1,145 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_discover",
+    "timestamp": "2024-10-04T10:00:05Z",
+    "message_id": "msg-on-discover-001",
+    "transaction_id": "txn-energy-001",
+    "bap_id": "p2p-trading-sandbox1.com",
+    "bap_uri": "https://p2p-trading-sandbox1.com",
+    "bpp_id": "p2p-trading-sandbox2.com",
+    "bpp_uri": "https://p2p-trading-sandbox2.com",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "catalogs": [
+      {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+        "@type": "beckn:Catalog",
+        "beckn:id": "catalog-energy-001",
+        "beckn:bppId": "bpp.energy-provider.com",
+        "beckn:bppUri": "https://bpp.energy-provider.com",
+        "beckn:descriptor": {
+          "@type": "beckn:Descriptor",
+          "schema:name": "Solar Energy Trading Catalog"
+        },
+        "beckn:items": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+            "@type": "beckn:Item",
+            "beckn:networkId": [
+              "p2p-interdiscom-trading-test-network"
+            ],
+            "beckn:isActive": true,
+            "beckn:id": "energy-resource-solar-001",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Solar Energy - 30.5 kWh"
+            },
+            "beckn:provider": {
+              "beckn:id": "provider-solar-farm-001",
+              "beckn:descriptor": {
+                "@type": "beckn:Descriptor",
+                "schema:name": "Solar Farm 001"
+              },
+              "beckn:providerAttributes": {
+                "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+                "@type": "EnergyCustomer",
+                "meterId": "TEST_METER_SELLER",
+                "utilityId": "TEST_DISCOM_SELLER",
+                "utilityCustomerId": "TEST-CUST-SELLER-001"
+              }
+            },
+            "beckn:itemAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@type": "EnergyResource",
+              "sourceType": "SOLAR",
+              "meterId": "TEST_METER_SELLER"
+            }
+          }
+        ],
+        "beckn:offers": [
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-morning-001",
+            "beckn:isActive": true,
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Morning Solar Energy Offer - 6am-12pm"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ],
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 15,
+              "schema:priceCurrency": "INR",
+              "unitText": "kWh",
+              "applicableQuantity": {
+                "unitQuantity": 20.0,
+                "unitText": "kWh"
+              }
+            },
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "deliveryWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T10:00:00Z",
+                "schema:endTime": "2026-01-09T11:00:00Z"
+              },
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T00:00:00Z",
+                "schema:endTime": "2026-01-09T06:00:00Z"
+              }
+            }
+          },
+          {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-afternoon-001",
+            "beckn:isActive": true,
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Afternoon Solar Energy Offer - 12pm-6pm"
+            },
+            "beckn:provider": "provider-solar-farm-001",
+            "beckn:items": [
+              "energy-resource-solar-001"
+            ],
+            "beckn:price": {
+              "@type": "schema:PriceSpecification",
+              "schema:price": 18,
+              "schema:priceCurrency": "INR",
+              "unitText": "kWh",
+              "applicableQuantity": {
+                "unitQuantity": 15.0,
+                "unitText": "kWh"
+              }
+            },
+            "beckn:offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld",
+              "@type": "EnergyTradeOffer",
+              "pricingModel": "PER_KWH",
+              "deliveryWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T14:00:00Z",
+                "schema:endTime": "2026-01-09T15:00:00Z"
+              },
+              "validityWindow": {
+                "@type": "beckn:TimePeriod",
+                "schema:startTime": "2026-01-09T00:00:00Z",
+                "schema:endTime": "2026-01-09T10:00:00Z"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

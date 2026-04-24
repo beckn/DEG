@@ -45,8 +45,8 @@ WORKDIR /workspace/deg-plugins
 # Build DEG ledger recorder plugin
 RUN go build -buildmode=plugin -o /workspace/beckn-onix/plugins/degledgerrecorder.so ./degledgerrecorder/cmd/plugin.go
 
-# # Build policy enforcer plugin
-# RUN go build -buildmode=plugin -o /workspace/beckn-onix/plugins/policyenforcer.so ./policyenforcer/cmd/plugin.go
+# Build DEG revenue flows plugin
+RUN go build -buildmode=plugin -o /workspace/beckn-onix/plugins/revenueflows.so ./revenueflows/cmd/plugin.go
 
 # Create minimal runtime image
 # Using debian-slim (glibc) for Go plugin (.so) compatibility with the bullseye builder.

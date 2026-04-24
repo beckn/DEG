@@ -1,15 +1,15 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://nfh-trust-labs.github.io/vc-schemas/energy-credentials/program-enrollment-vc/schema.json",
+    "$id": "https://github.com/beckn/DEG/blob/main/specification/energy-credentials/program-enrollment-vc/schema.json",
     "title": "Utility Program Enrollment Credential Schema",
-    "description": "JSON Schema for verifying Program Enrollment Credentials issued by electricity distribution utilities when consumers enroll in programs like P2P trading, demand flexibility, virtual power plants, etc.",
+    "description": "JSON Schema for verifying Program Enrollment Credentials issued by energy providers when consumers enroll in programs like P2P trading, demand flexibility, virtual power plants, etc.",
     "type": "object",
     "required": [
         "@context",
         "id",
         "type",
         "issuer",
-        "issuanceDate",
+        "validFrom",
         "credentialSubject"
     ],
     "properties": {
@@ -19,7 +19,7 @@
                 "type": "string"
             },
             "contains": {
-                "const": "https://www.w3.org/2018/credentials/v1"
+                "const": "https://www.w3.org/ns/credentials/v2"
             },
             "minItems": 2
         },
@@ -41,57 +41,91 @@
         },
         "issuer": {
             "type": "object",
-            "required": ["id", "name", "licenseNumber"],
+            "required": [
+                "id",
+                "name"
+            ],
             "properties": {
                 "id": {
                     "type": "string",
                     "format": "uri",
-                    "description": "DID of the issuing distribution utility"
+                    "description": "URL of the issuing provider"
                 },
                 "name": {
                     "type": "string",
                     "minLength": 1,
-                    "description": "Name of the distribution utility"
+                    "description": "Name of the provider"
                 },
-                "licenseNumber": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "Regulatory license number issued by the local energy regulator"
+                "idRef": {
+                    "type": "object",
+                    "description": "Reference to an identity issued by an external authority",
+                    "required": [
+                        "issuedBy",
+                        "subjectId"
+                    ],
+                    "properties": {
+                        "issuedBy": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "DID of the authority that issued the identity (e.g., did:web:kerc.karnataka.gov.in)"
+                        },
+                        "subjectId": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9._-]+:[A-Za-z0-9X_-]+$",
+                            "description": "Subject identifier in the format authority-domain:id-value (e.g., kerc.karnataka.gov.in:AABPC12345)"
+                        }
+                    }
                 }
             }
         },
-        "issuanceDate": {
+        "validFrom": {
             "type": "string",
             "format": "date-time",
-            "description": "Date and time when the credential was issued"
+            "description": "Date and time from which the credential is valid (W3C VC Data Model 2.0)"
         },
-        "expirationDate": {
+        "validUntil": {
             "type": "string",
             "format": "date-time",
-            "description": "Optional expiration date of the credential"
+            "description": "Date and time until which the credential is valid (W3C VC Data Model 2.0)"
         },
         "credentialStatus": {
             "type": "object",
-            "required": ["id", "type"],
+            "required": [
+                "id",
+                "type",
+                "statusPurpose",
+                "statusListCredential"
+            ],
             "description": "Revocation status information for the credential",
             "properties": {
                 "id": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL to query the revocation status of the credential via DeDi registry"
+                    "description": "URL to look up the revocation status of this specific credential via DeDi registry"
                 },
                 "type": {
                     "type": "string",
-                    "const": "dediregistry",
-                    "description": "Type of status check mechanism (DeDi Registry)"
+                    "const": "dedi",
+                    "description": "Type of status check mechanism (DeDi)"
+                },
+                "statusPurpose": {
+                    "type": "string",
+                    "enum": [
+                        "revocation",
+                        "suspension"
+                    ],
+                    "description": "Purpose of the credential status entry"
+                },
+                "statusListCredential": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to the issuer revocation registry on DeDi"
                 }
             }
         },
         "credentialSubject": {
             "type": "object",
             "required": [
-                "id",
-                "consumerNumber",
                 "programName",
                 "programCode",
                 "enrollmentDate"
@@ -100,18 +134,13 @@
                 "id": {
                     "type": "string",
                     "format": "uri",
-                    "description": "DID of the consumer/credential subject"
+                    "description": "Optional DID of the consumer/credential subject"
                 },
-                "consumerNumber": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "Unique consumer/customer account number assigned by the utility"
+                "customerProfile": {
+                    "$ref": "#/$defs/CustomerProfile"
                 },
-                "fullName": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 200,
-                    "description": "Consumer name (optional)"
+                "customerDetails": {
+                    "$ref": "#/$defs/CustomerDetails"
                 },
                 "programName": {
                     "type": "string",
@@ -126,19 +155,25 @@
                 },
                 "enrollmentDate": {
                     "type": "string",
-                    "format": "date",
-                    "description": "Date when the consumer enrolled in the program"
+                    "format": "date-time",
+                    "description": "Date and time when the consumer enrolled in the program (with timezone offset)"
                 },
-                "validUntil": {
+                "enrollmentValidUntil": {
                     "type": "string",
-                    "format": "date",
-                    "description": "Optional end date when the enrollment expires"
+                    "format": "date-time",
+                    "description": "Optional end date and time when the enrollment expires (with timezone offset)"
                 }
             }
         },
         "proof": {
             "type": "object",
-            "required": ["type", "created", "verificationMethod", "proofPurpose", "proofValue"],
+            "required": [
+                "type",
+                "created",
+                "verificationMethod",
+                "proofPurpose",
+                "proofValue"
+            ],
             "properties": {
                 "type": {
                     "type": "string",
@@ -156,13 +191,161 @@
                 },
                 "proofPurpose": {
                     "type": "string",
-                    "enum": ["assertionMethod", "authentication"],
+                    "enum": [
+                        "assertionMethod",
+                        "authentication"
+                    ],
                     "description": "Purpose of the proof"
                 },
                 "proofValue": {
                     "type": "string",
                     "minLength": 1,
                     "description": "The cryptographic signature value"
+                }
+            }
+        }
+    },
+    "$defs": {
+        "CustomerProfile": {
+            "type": "object",
+            "description": "Core customer identity: customer number, meter number, external ID reference",
+            "required": [
+                "customerNumber"
+            ],
+            "properties": {
+                "customerNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Full customer account number assigned by the utility"
+                },
+                "meterNumber": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "description": "Unique meter serial number"
+                },
+                "meterType": {
+                    "type": "string",
+                    "description": "Type of electricity meter installed. Values derived from Green Button / ESPI meter kind classifications.",
+                    "enum": [
+                        "AMR",
+                        "AMI",
+                        "Electromechanical",
+                        "Forward",
+                        "Reverse",
+                        "Bidirectional",
+                        "Prepaid",
+                        "NetMeter",
+                        "Other"
+                    ]
+                },
+                "idRef": {
+                    "type": "object",
+                    "description": "Reference to an identity issued by an external authority",
+                    "required": [
+                        "issuedBy",
+                        "subjectId"
+                    ],
+                    "properties": {
+                        "issuedBy": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "DID of the authority that issued the identity (e.g., did:web:kerc.karnataka.gov.in)"
+                        },
+                        "subjectId": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9._-]+:[A-Za-z0-9X_-]+$",
+                            "description": "Subject identifier in the format authority-domain:id-value (e.g., kerc.karnataka.gov.in:AABPC12345)"
+                        }
+                    }
+                }
+            }
+        },
+        "CustomerDetails": {
+            "type": "object",
+            "description": "Customer personal and address information",
+            "required": [
+                "fullName"
+            ],
+            "properties": {
+                "fullName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Full name of the customer as per ID proof"
+                },
+                "installationAddress": {
+                    "type": "object",
+                    "required": [
+                        "fullAddress",
+                        "postalCode",
+                        "country"
+                    ],
+                    "properties": {
+                        "fullAddress": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 500,
+                            "description": "Complete street address of the installation"
+                        },
+                        "city": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "City name"
+                        },
+                        "district": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "District or county name"
+                        },
+                        "stateProvince": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "State, province, or region name"
+                        },
+                        "postalCode": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Postal or ZIP code (format varies by country)"
+                        },
+                        "country": {
+                            "type": "string",
+                            "pattern": "^[A-Z]{2}$",
+                            "description": "ISO 3166-1 alpha-2 country code"
+                        },
+                        "geo": {
+                            "type": "object",
+                            "description": "Geographic coordinates of the installation",
+                            "properties": {
+                                "latitude": {
+                                    "type": "number",
+                                    "minimum": -90,
+                                    "maximum": 90,
+                                    "description": "Latitude in decimal degrees (WGS84)"
+                                },
+                                "longitude": {
+                                    "type": "number",
+                                    "minimum": -180,
+                                    "maximum": 180,
+                                    "description": "Longitude in decimal degrees (WGS84)"
+                                }
+                            },
+                            "required": [
+                                "latitude",
+                                "longitude"
+                            ]
+                        },
+                        "openLocationCode": {
+                            "type": "string",
+                            "pattern": "^[23456789CFGHJMPQRVWX]{4,8}\\+[23456789CFGHJMPQRVWX]{0,4}$",
+                            "description": "Open Location Code (OLC) for the installation location"
+                        }
+                    }
+                },
+                "serviceConnectionDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Date and time when the electricity connection was activated (with timezone offset)"
                 }
             }
         }

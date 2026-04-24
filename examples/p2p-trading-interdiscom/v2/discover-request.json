@@ -22,7 +22,7 @@
       }
     },
     "schema_context": [
-      "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.0/specification/schema/EnergyTrade/v0.3/context.jsonld"
+      "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld"
     ]
   },
   "message": {

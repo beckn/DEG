@@ -1,0 +1,30 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/DemandFlexBuyOffer/v2.0/",
+    "DemandFlexBuyOffer": "deg:DemandFlexBuyOffer",
+    "DemandFlexProvider": "deg:DemandFlexProvider",
+    "incentivePerKwh": "deg:incentivePerKwh",
+    "currency": "deg:currency",
+    "maxEventsPerMonth": "deg:maxEventsPerMonth",
+    "baselineMethodology": "deg:baselineMethodology",
+    "bestOf": "deg:bestOf",
+    "outOf": "deg:outOf",
+    "penaltyRate": "deg:penaltyRate",
+    "premiumForGuaranteed": "deg:premiumForGuaranteed",
+    "optOutDefault": "deg:optOutDefault",
+    "taker": "deg:taker",
+    "policy": "deg:policy",
+    "url": "deg:url",
+    "queryPath": "deg:queryPath",
+    "bundleUrl": "deg:bundleUrl",
+    "plannedDemandChange": "deg:plannedDemandChange",
+    "participatingMeters": "deg:participatingMeters"
+  },
+  "@graph": []
+}

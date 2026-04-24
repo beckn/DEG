@@ -1,0 +1,48 @@
+{
+	"credential": {
+		"id": "did:rcw:8dd3e419-1f34-4323-afec-c11cdd55df5e",
+		"type": [
+			"VerifiableCredential",
+			"GenerationProfileCredential"
+		],
+		"proof": {
+			"type": "Ed25519Signature2020",
+			"created": "2026-03-17T16:01:39Z",
+			"proofValue": "z5GUUSg8mtmhcj725x6MnCoLrscDH5VnNEcY76syePVXYYMjSyVoaoX5PZqUe5n2ekVGzYMLH7MjG3znzwbseW4gv",
+			"proofPurpose": "assertionMethod",
+			"verificationMethod": "did:rcw:73636c24-ca16-4fdf-9996-bc05069f7ebb#key-0"
+		},
+		"issuer": "did:rcw:73636c24-ca16-4fdf-9996-bc05069f7ebb",
+		"@context": [
+			"https://www.w3.org/2018/credentials/v1",
+			"https://anusree-j.github.io/vc_context/energy/generation-profile-context.json",
+			"https://w3id.org/security/suites/ed25519-2020/v1"
+		],
+		"issuanceDate": "2026-01-18T00:00:00.000Z",
+		"expirationDate": "2027-01-18T23:59:59.000Z",
+		"credentialSubject": {
+			"id": "did:rcw:prosumer-solar-alice",
+			"type": "GenerationProfileCredential",
+			"assetId": "SOLAR-ASSET-001",
+			"fullName": "Alice Solar",
+			"capacityKW": "20",
+			"issuerName": "TEST_DISCOM_SELLER",
+			"meterNumber": "TEST_METER_SELLER",
+			"modelNumber": "Maxeon 6 AC",
+			"manufacturer": "SunPower",
+			"consumerNumber": "TEST_CUSTID_SELLER",
+			"generationType": "Solar",
+			"commissioningDate": "2024-03-15"
+		}
+	},
+	"credentialSchemaId": "did:schema:bd037549-0614-4c4b-84a5-4038321e1623",
+	"createdAt": "2026-03-17T16:01:40.315Z",
+	"updatedAt": "2026-03-17T16:01:40.315Z",
+	"createdBy": "",
+	"updatedBy": "",
+	"tags": [
+		"energy",
+		"generation",
+		"solar"
+	]
+}

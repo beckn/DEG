@@ -1,0 +1,201 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://schema.org/",
+    "https://schema.beckn.io/EnergyBillingSummary/v1.0/context.jsonld"
+  ],
+  "id": "urn:uuid:b2c3d4e5-6789-01ab-cdef-234567890123",
+  "type": [
+    "VerifiableCredential",
+    "EnergyBillingSummaryCredential"
+  ],
+  "issuer": {
+    "id": "did:web:pge.com",
+    "type": "idRef",
+    "name": "Pacific Gas and Electric Company",
+    "issuedBy": "did:web:pge.com",
+    "subjectId": "CPUC-U-39-E",
+    "licenseNumber": "CPUC-U-39-E"
+  },
+  "validFrom": "2026-03-13T06:00:00Z",
+  "credentialStatus": {
+    "id": "https://dedi.global/dedi/query/did:web:pge.com/VC_revocation_registry",
+    "type": "dediregistry",
+    "statusPurpose": "revocation",
+    "statusListCredential": "https://dedi.global/dedi/lookup/did:web:pge.com/VC_revocation_registry"
+  },
+  "credentialSubject": {
+    "id": "did:example:consumer:pge-5230743477",
+    "customerProfile": {
+      "customerNumber": "5230743477",
+      "meterNumber": "PGE-MTR-001",
+      "meterType": "AMI"
+    },
+    "billingSummary": {
+      "ServiceCategory": {
+        "kind": "electricity"
+      },
+      "timeZone": "America/Los_Angeles",
+      "currency": "INR",
+      "UsageSummary": [
+        {
+          "billingPeriod": {
+            "start": "2025-07-01T07:00:00Z",
+            "duration": 2592000
+          },
+          "billLastPeriod": 1422300000,
+          "overallConsumptionLastPeriod": {
+            "value": 326979,
+            "uom": "Wh",
+            "powerOfTenMultiplier": 3
+          },
+          "costAdditionalLastPeriod": 0,
+          "qualityOfReading": "valid",
+          "costAdditionalDetailLastPeriod": [
+            {
+              "itemKind": "energyGenerationFee",
+              "amount": 853400000,
+              "note": "Generation charge",
+              "unitCost": 2612000
+            },
+            {
+              "itemKind": "energyDeliveryFee",
+              "amount": 326700000,
+              "note": "Transmission and distribution"
+            },
+            {
+              "itemKind": "energyUsageFee",
+              "amount": 171100000,
+              "note": "Demand charge \u2014 peak period"
+            },
+            {
+              "itemKind": "tax",
+              "amount": 71100000,
+              "note": "State and local taxes"
+            }
+          ],
+          "statusTimeStamp": "2025-07-01T07:00:00Z"
+        },
+        {
+          "billingPeriod": {
+            "start": "2025-08-01T07:00:00Z",
+            "duration": 2764800
+          },
+          "billLastPeriod": 2156900000,
+          "overallConsumptionLastPeriod": {
+            "value": 475940,
+            "uom": "Wh",
+            "powerOfTenMultiplier": 3
+          },
+          "costAdditionalLastPeriod": 12500000,
+          "qualityOfReading": "valid",
+          "costAdditionalDetailLastPeriod": [
+            {
+              "itemKind": "energyGenerationFee",
+              "amount": 1243200000,
+              "note": "Generation charge"
+            },
+            {
+              "itemKind": "energyDeliveryFee",
+              "amount": 475900000,
+              "note": "Transmission and distribution"
+            },
+            {
+              "itemKind": "energyUsageFee",
+              "amount": 285400000,
+              "note": "Demand charge \u2014 peak period"
+            },
+            {
+              "itemKind": "tax",
+              "amount": 102400000,
+              "note": "State and local taxes"
+            },
+            {
+              "itemKind": "energyGenerationCredit",
+              "amount": -37500000,
+              "note": "P2P solar energy trade credit \u2014 150 kWh exported"
+            },
+            {
+              "itemKind": "administrativeFee",
+              "amount": 12500000,
+              "note": "Late payment penalty"
+            },
+            {
+              "itemKind": "information",
+              "amount": 0,
+              "note": "Net metering settlement period: Jul 15 \u2013 Aug 14"
+            }
+          ],
+          "statusTimeStamp": "2025-08-01T07:00:00Z"
+        },
+        {
+          "billingPeriod": {
+            "start": "2025-09-01T07:00:00Z",
+            "duration": 2505600
+          },
+          "billLastPeriod": 1410800000,
+          "overallConsumptionLastPeriod": {
+            "value": 451595,
+            "uom": "Wh",
+            "powerOfTenMultiplier": 3
+          },
+          "costAdditionalLastPeriod": 0,
+          "qualityOfReading": "valid",
+          "statusTimeStamp": "2025-09-01T07:00:00Z"
+        },
+        {
+          "billingPeriod": {
+            "start": "2025-10-01T07:00:00Z",
+            "duration": 2592000
+          },
+          "billLastPeriod": 1097300000,
+          "overallConsumptionLastPeriod": {
+            "value": 290118,
+            "uom": "Wh",
+            "powerOfTenMultiplier": 3
+          },
+          "costAdditionalLastPeriod": 0,
+          "qualityOfReading": "valid",
+          "statusTimeStamp": "2025-10-01T07:00:00Z"
+        },
+        {
+          "billingPeriod": {
+            "start": "2025-11-01T07:00:00Z",
+            "duration": 2764800
+          },
+          "billLastPeriod": 1364700000,
+          "overallConsumptionLastPeriod": {
+            "value": 349186,
+            "uom": "Wh",
+            "powerOfTenMultiplier": 3
+          },
+          "costAdditionalLastPeriod": 0,
+          "qualityOfReading": "valid",
+          "statusTimeStamp": "2025-11-01T07:00:00Z"
+        },
+        {
+          "billingPeriod": {
+            "start": "2025-12-01T08:00:00Z",
+            "duration": 2592000
+          },
+          "billLastPeriod": 1050100000,
+          "overallConsumptionLastPeriod": {
+            "value": 276577,
+            "uom": "Wh",
+            "powerOfTenMultiplier": 3
+          },
+          "costAdditionalLastPeriod": 0,
+          "qualityOfReading": "valid",
+          "statusTimeStamp": "2025-12-01T08:00:00Z"
+        }
+      ]
+    }
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2026-03-13T06:00:00Z",
+    "verificationMethod": "did:web:pge.com#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z8RqNdYsB5LwQgr2Tn3vXkZmHcF7j..."
+  }
+}

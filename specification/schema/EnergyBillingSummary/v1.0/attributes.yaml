@@ -1,0 +1,53 @@
+openapi: 3.1.1
+info:
+  title: EnergyBillingSummary
+  version: 1.0.0
+  description: ESPI/Green Button billing summary data for a single meter. Uses native ESPI types and enum codes.
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+servers:
+  - url: https://schema.beckn.io
+    description: Canonical schema registry
+paths: {}
+components:
+  schemas:
+    EnergyBillingSummary:
+      $id: https://schema.beckn.io/EnergyBillingSummary/v1.0
+      title: BillingSummary
+      description: ESPI/Green Button billing summary data for a single meter. Uses native ESPI types and enum codes.
+      x-tags: [energy, billing, green-button, espi, deg]
+      type: object
+      required:
+        - ServiceCategory
+        - timeZone
+        - currency
+        - UsageSummary
+      properties:
+        ServiceCategory:
+          type: object
+          required: [kind]
+          properties:
+            kind:
+              oneOf:
+                - type: integer
+                  enum: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                - type: string
+                  enum: [electricity, gas, water, time, heat, refuse, sewerage, rates, tvLicense, internet]
+              description: "ESPI ServiceKind. 0=electricity, 1=gas, 2=water."
+        timeZone:
+          type: string
+          description: IANA time-zone identifier. Not an ESPI property.
+          examples: [Asia/Kolkata, America/Los_Angeles]
+        currency:
+          oneOf:
+            - type: integer
+              enum: [0, 36, 124, 156, 208, 356, 392, 578, 643, 752, 756, 826, 840, 978]
+            - type: string
+              enum: [other, AUD, CAD, CNY, DKK, INR, JPY, NOK, RUB, SEK, CHF, GBP, USD, EUR]
+          description: "ISO 4217 numeric currency code for all monetary values. 840=USD, 978=EUR, 356=INR."
+        UsageSummary:
+          type: array
+          minItems: 1
+          items:
+            $ref: "../../../external/schema/espiGreenButton/attributes.yaml#/components/schemas/UsageSummary"
+          description: Array of ESPI UsageSummary entries — one per billing period.
+      additionalProperties: false

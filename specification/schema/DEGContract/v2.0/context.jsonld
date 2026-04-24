@@ -1,0 +1,20 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/DEGContract/v2.0/",
+    "DEGContract": "deg:DEGContract",
+    "roles": "deg:roles",
+    "role": { "@id": "deg:role", "@type": "@id" },
+    "participantId": "deg:participantId",
+    "policy": "deg:policy",
+    "url": "deg:url",
+    "queryPath": "deg:queryPath",
+    "revenueFlows": "deg:revenueFlows",
+    "value": "deg:value",
+    "currency": "deg:currency",
+    "buyer": "deg:RoleBuyer",
+    "seller": "deg:RoleSeller"
+  },
+  "@graph": []
+}

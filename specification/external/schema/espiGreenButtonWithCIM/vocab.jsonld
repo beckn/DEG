@@ -1,0 +1,171 @@
+{
+    "@context": {
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "cim": "http://iec.ch/TC57/CIM#",
+        "espi": "http://naesb.org/espi#"
+    },
+    "@graph": [
+        {
+            "@id": "cim:IdentifiedObject",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Identified Object",
+            "rdfs:comment": "CIM root class providing common identification (IEC 61970 Core::IdentifiedObject).",
+            "skos:exactMatch": { "@id": "http://iec.ch/TC57/CIM#IdentifiedObject" }
+        },
+        {
+            "@id": "cim:EndDevice",
+            "@type": "rdfs:Class",
+            "rdfs:label": "End Device",
+            "rdfs:comment": "Asset container performing end device functions. A meter is one type of EndDevice (IEC 61968 Metering::EndDevice).",
+            "skos:exactMatch": { "@id": "http://iec.ch/TC57/CIM#EndDevice" }
+        },
+        {
+            "@id": "cim:Meter",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Meter",
+            "rdfs:comment": "Physical metering asset. Extends EndDevice (IEC 61968 Metering::Meter).",
+            "rdfs:subClassOf": { "@id": "cim:EndDevice" },
+            "skos:exactMatch": { "@id": "http://iec.ch/TC57/CIM#Meter" }
+        },
+        {
+            "@id": "cim:EndDeviceInfo",
+            "@type": "rdfs:Class",
+            "rdfs:label": "End Device Info",
+            "rdfs:comment": "Nameplate/datasheet data for a class of meters (IEC 61968 Metering::EndDeviceInfo)."
+        },
+        {
+            "@id": "cim:EndDeviceCapability",
+            "@type": "rdfs:Class",
+            "rdfs:label": "End Device Capability",
+            "rdfs:comment": "Boolean flags describing inherent capabilities of an end device (IEC 61968 Metering::EndDeviceCapability)."
+        },
+        {
+            "@id": "cim:MeterMultiplier",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Meter Multiplier",
+            "rdfs:comment": "CT/PT ratio or other multiplier applied at the meter (IEC 61968 Metering::MeterMultiplier)."
+        },
+        {
+            "@id": "cim:Channel",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Channel",
+            "rdfs:comment": "Data channel within a meter for collecting register values (IEC 61968 Metering::Channel)."
+        },
+        {
+            "@id": "cim:Register",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Register",
+            "rdfs:comment": "Physical register on a meter (IEC 61968 Metering::Register)."
+        },
+        {
+            "@id": "cim:EndDeviceEvent",
+            "@type": "rdfs:Class",
+            "rdfs:label": "End Device Event",
+            "rdfs:comment": "Event detected by a device function — outage, tamper, firmware, diagnostic, DR events (IEC 61968 Metering::EndDeviceEvent)."
+        },
+        {
+            "@id": "cim:EndDeviceEventType",
+            "@type": "rdfs:Class",
+            "rdfs:label": "End Device Event Type",
+            "rdfs:comment": "Structured event classification: type.domain.subDomain.eventOrAction (IEC 61968-9 Annex E)."
+        },
+        {
+            "@id": "cim:UsagePoint",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Usage Point (CIM)",
+            "rdfs:comment": "CIM-enriched usage point with grid context — voltage level, phase, connection state (IEC 61968 Metering::UsagePoint)."
+        },
+        {
+            "@id": "cim:Measurement",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Measurement",
+            "rdfs:comment": "Base type for measured, calculated, or non-measured quantities at a network point (IEC 61970 Meas::Measurement)."
+        },
+        {
+            "@id": "cim:Analog",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Analog",
+            "rdfs:comment": "Continuous-valued measurement — voltage, current, power (IEC 61970 Meas::Analog).",
+            "rdfs:subClassOf": { "@id": "cim:Measurement" }
+        },
+        {
+            "@id": "cim:Discrete",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Discrete",
+            "rdfs:comment": "Integer-valued measurement — breaker position, tap step (IEC 61970 Meas::Discrete).",
+            "rdfs:subClassOf": { "@id": "cim:Measurement" }
+        },
+        {
+            "@id": "cim:AnalogValue",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Analog Value",
+            "rdfs:comment": "Timestamped analog measurement value (IEC 61970 Meas::AnalogValue)."
+        },
+        {
+            "@id": "cim:DiscreteValue",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Discrete Value",
+            "rdfs:comment": "Timestamped discrete state value (IEC 61970 Meas::DiscreteValue)."
+        },
+        {
+            "@id": "cim:AccumulatorValue",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Accumulator Value",
+            "rdfs:comment": "Timestamped cumulative counter value — energy register readings (IEC 61970 Meas::AccumulatorValue)."
+        },
+        {
+            "@id": "cim:MeasurementValueQuality",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Measurement Value Quality",
+            "rdfs:comment": "Quality flags for a measurement value — validity, source, accuracy (IEC 61970 Meas::MeasurementValueQuality)."
+        },
+        {
+            "@id": "cim:CurrentTransformerInfo",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Current Transformer Info",
+            "rdfs:comment": "CT nameplate data — accuracy, ratio, burden (IEC 61968 Assets)."
+        },
+        {
+            "@id": "cim:PotentialTransformerInfo",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Potential Transformer Info",
+            "rdfs:comment": "PT/VT nameplate data — accuracy, ratio, type (IEC 61968 Assets)."
+        },
+        {
+            "@id": "cim:PowerTransformerInfo",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Power Transformer Info",
+            "rdfs:comment": "Power transformer identification and characteristics (IEC 61970 Wires::PowerTransformer)."
+        },
+        {
+            "@id": "cim:PowerTransformerEnd",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Power Transformer End",
+            "rdfs:comment": "One winding/end of a power transformer with electrical characteristics (IEC 61970 Wires::PowerTransformerEnd)."
+        },
+        {
+            "@id": "cim:MeterTelemetryReading",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Meter Telemetry Reading",
+            "rdfs:comment": "Composite type extending ESPI MeterReading with CIM meter context — device, usage point, channels, SCADA telemetry."
+        },
+
+        {
+            "@id": "cim:mRID",
+            "@type": "rdf:Property",
+            "rdfs:label": "mRID",
+            "rdfs:comment": "Master Resource Identifier — globally unique UUID.",
+            "rdfs:range": { "@id": "xsd:string" }
+        },
+        {
+            "@id": "cim:timeStamp",
+            "@type": "rdf:Property",
+            "rdfs:label": "timestamp",
+            "rdfs:comment": "Time when a measurement value was last updated.",
+            "rdfs:range": { "@id": "xsd:dateTime" }
+        }
+    ]
+}

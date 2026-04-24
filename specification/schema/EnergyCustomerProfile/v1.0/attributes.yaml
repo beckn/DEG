@@ -1,0 +1,61 @@
+openapi: 3.1.1
+info:
+  title: EnergyCustomerProfile
+  version: 1.0.0
+  description: Core customer identity for energy credentials — links a utility account to a physical meter.
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+servers:
+  - url: https://schema.beckn.io
+    description: Canonical schema registry
+paths: {}
+components:
+  schemas:
+    EnergyCustomerProfile:
+      $id: https://schema.beckn.io/EnergyCustomerProfile/v1.0
+      title: CustomerProfile
+      description: Core customer identity for energy credentials — links a utility account to a physical meter.
+      x-tags: [energy, identity, deg]
+      type: object
+      required:
+        - customerNumber
+        - meterNumber
+        - meterType
+      properties:
+        customerNumber:
+          type: string
+          minLength: 1
+          description: Utility account number assigned by the distribution company.
+        meterNumber:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Unique meter serial number.
+        meterType:
+          type: string
+          enum:
+            - AMR
+            - AMI
+            - Electromechanical
+            - Forward
+            - Reverse
+            - Bidirectional
+            - Prepaid
+            - NetMeter
+            - Other
+          description: Type of electricity meter installed.
+        idRef:
+          type: object
+          description: Reusable identity reference linking an issuing authority (DID) to a subject identifier.
+          required:
+            - issuedBy
+            - subjectId
+          properties:
+            issuedBy:
+              type: string
+              format: uri
+              description: DID or URI of the issuing authority.
+            subjectId:
+              type: string
+              minLength: 1
+              description: Identifier within the authority's system (e.g., regulatory registration number).
+      additionalProperties: false

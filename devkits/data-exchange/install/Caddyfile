@@ -1,0 +1,21 @@
+# Plain-HTTP reverse proxy on :9000. TLS is expected to be terminated
+# upstream (ngrok tunnel, host reverse proxy, or managed edge — see README
+# "Hosting the site"). auto_https off keeps Caddy from probing :80 or
+# attempting Let's Encrypt issuance for the bare-port site address.
+# To let Caddy itself do TLS in production, drop this block and change
+# `:9000` below to your real hostname.
+{
+    auto_https off
+}
+
+:9000 {
+    handle /bap/* {
+        reverse_proxy onix-bap:8081
+    }
+    handle /bpp/* {
+        reverse_proxy onix-bpp:8082
+    }
+    handle {
+        respond "beckn-router ok" 200
+    }
+}

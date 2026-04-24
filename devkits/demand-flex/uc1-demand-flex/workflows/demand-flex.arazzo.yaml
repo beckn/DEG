@@ -1,0 +1,158 @@
+arazzo: 1.0.1
+info:
+  title: Demand Flex Workflow
+  version: 1.0.0
+  description: >
+    End-to-end Beckn 2.0 workflow for behavioral demand response.
+    Scenario: TPDDL (utility) publishes a 500 kW curtailment need,
+    GreenFlex (aggregator) discovers, commits, and delivers demand
+    flexibility, followed by baseline/actuals/settlement.
+
+    Run with Redocly respect (from demand-flex/):
+
+      Run all workflows:
+        npx @redocly/cli respect workflows/demand-flex.arazzo.yaml \
+          --severity 'SCHEMA_CHECK=off' -v
+
+      Run a single workflow:
+        npx @redocly/cli respect workflows/demand-flex.arazzo.yaml \
+          -w select-through-settlement --severity 'SCHEMA_CHECK=off' -v
+
+      Available workflows: publish-catalog, discover,
+        select-through-settlement, demand-flex-update
+
+      Override server URLs (optional, defaults in x-serverUrl):
+        -S beckn-bap-caller=http://localhost:8081/bap/caller \
+        -S beckn-bpp-caller=http://localhost:8082/bpp/caller
+
+sourceDescriptions:
+  - name: beckn-bap-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8081/bap/caller
+
+  - name: beckn-bpp-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8082/bpp/caller
+
+workflows:
+  # ── Catalog & Discovery ──
+
+  - workflowId: publish-catalog
+    summary: Utility publishes demand flex catalog with curtailment needs and incentive offers
+    steps:
+      - stepId: publish-catalog
+        description: BPP publishes DemandFlexNeed + DemandFlexBuyOffer catalog
+        operationId: beckn-bpp-caller.catalogPublish
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/publish-catalog.json"
+
+  - workflowId: discover
+    summary: Aggregator discovers available flex opportunities via discover service
+    steps:
+      - stepId: discover
+        description: BAP discovers CURTAILMENT + REDUCE offers on the network
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/discover-request.json"
+
+  # ── Contract Lifecycle: select → confirm → baselines → actuals → settlement ──
+
+  - workflowId: select-through-settlement
+    summary: Aggregator selects, negotiates, confirms, and receives settlement
+    steps:
+      - stepId: select
+        description: Aggregator selects 150 kW of the 500 kW curtailment offer
+        operationId: beckn-bap-caller.select
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/select-request.json"
+
+      - stepId: on-select
+        description: Utility returns DRAFT contract with incentive terms
+        operationId: beckn-bpp-caller.onSelect
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-select-response.json"
+
+      - stepId: init
+        description: Aggregator provides identity and 2 participating meters
+        operationId: beckn-bap-caller.init
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/init-request.json"
+
+      - stepId: on-init
+        description: Utility acknowledges identity (DRAFT)
+        operationId: beckn-bpp-caller.onInit
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-init-response.json"
+
+      - stepId: confirm
+        description: Aggregator confirms the demand flex contract (ACTIVE)
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/confirm-request.json"
+
+      - stepId: on-confirm
+        description: Utility confirms contract is ACTIVE
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-confirm-response.json"
+
+      - stepId: on-status-baselines
+        description: >
+          Utility publishes baseline values per meter (pre-event).
+          Uses bestOf5outOf10 methodology.
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-status-response-baselines.json"
+
+      - stepId: on-status-actuals
+        description: >
+          Utility publishes measured actuals (post-event).
+          Compares actual consumption against baselines.
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-status-response-actuals.json"
+
+      - stepId: on-status-settled
+        description: >
+          Utility computes settlement based on policy evaluation.
+          Revenue flows: 150 kWh x 3.5 INR/kWh = 525 INR payable to aggregator.
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-status-response-settled.json"
+
+  # ── Update: opt-in additional meters ──
+
+  - workflowId: demand-flex-update
+    summary: Aggregator updates participating meters and capacity
+    steps:
+      - stepId: update
+        description: Aggregator opts in meter 003, adjusts commitment to 120 kW
+        operationId: beckn-bap-caller.update
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/update-request-opt-in.json"

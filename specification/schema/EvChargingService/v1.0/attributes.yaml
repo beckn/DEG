@@ -81,7 +81,7 @@ components:
               x-jsonld: { "@id": "beckn:id" }
             serviceLocation:
               allOf:
-                - $ref: "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/attributes.yaml#/components/schemas/Location"
+                - $ref: "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/attributes.yaml#/components/schemas/Location"
                 - type: object
                   description: Location of the charging site (reuses Beckn Location).
                   x-jsonld: { "@id": serviceLocation }

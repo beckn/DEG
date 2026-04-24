@@ -16,7 +16,7 @@ info:
     - If no record exists for this key, `/ledger/put` creates it and allocates `recordId` + `creationTime`.
     - If a record exists, `/ledger/put` performs a partial merge of the supplied fields (policy-controlled).
 
-    **Discoms MUST NOT use `/ledger/put`.** Discoms record actuals/status only via `/ledger/record`.
+    **Discoms MUST NOT use `/ledger/put`.** Discoms record actuals/status via `/ledger/record` or `/ledger/allocate`.
 
     ### 2) Discom Record actuals / status: `POST /ledger/record`
     Use this endpoint **only for discoms** to record:
@@ -31,6 +31,16 @@ info:
     The service applies policy-based access control to:
     - which records can be returned, and
     - which fields are visible within each record.
+
+    ### 4) Meter-based allocation: `POST /ledger/allocate`
+    Use this endpoint **only for discoms** as a simplified alternative to `/ledger/record`.
+    Instead of identifying a specific trade by `transactionId + orderItemId`, the discom provides:
+    - `meterId` (matched against `buyerId` / `sellerId`)
+    - `deliveryStartTime` + `deliveryEndTime` (exact match)
+    - `actualImported` (signed: positive = import from grid, negative = export to grid)
+
+    The ledger automatically looks up matching ENERGY trades, verifies discom authorization,
+    and allocates the meter actual pro-rata across trades by `tradeQty`.
 
 servers:
   - url: https://ledger.example.org
@@ -266,20 +276,24 @@ paths:
                   role: BUYER_DISCOM
                   transactionId: "tx-123"
                   orderItemId: "item-1"
+                  discomIdBuyer: "DISCOM_A"
                   buyerFulfillmentValidationMetrics:
                     - validationMetricType: ACTUAL_PULLED
                       validationMetricValue: 11.9
                   statusBuyerDiscom: COMPLETED
                   clientReference: "bd-actuals-0007"
-              sellerDiscomCancelOutage:
-                summary: Seller discom cancels due to outage
+              sellerDiscomCompleted:
+                summary: Seller discom records actual pushed and marks completed
                 value:
                   role: SELLER_DISCOM
                   transactionId: "tx-123"
                   orderItemId: "item-1"
-                  statusSellerDiscom: CANCELLED_OUTAGE
-                  note: "Feeder outage at substation SS-19"
-                  clientReference: "sd-cancel-0021"
+                  discomIdSeller: "DISCOM_B"
+                  sellerFulfillmentValidationMetrics:
+                    - validationMetricType: ACTUAL_PUSHED
+                      validationMetricValue: 12.3
+                  statusSellerDiscom: COMPLETED
+                  clientReference: "sd-complete-0021"
       responses:
         "200":
           description: Update accepted and applied
@@ -317,6 +331,162 @@ paths:
                     code: NOT_FOUND
                     message: "No ledger record found for transactionId=tx-123 and orderItemId=item-1"
 
+  /ledger/allocate:
+    post:
+      tags: [Ledger]
+      summary: Allocate meter actuals across matching trades (discom-only)
+      description: |
+        Simplified discom endpoint that allocates meter-level actuals to trades
+        by looking up trades matching the meter ID and delivery window.
+
+        **Who should use this**
+        - Discoms ONLY (as an alternative to `/ledger/record`).
+        - Platforms MUST NOT use this endpoint.
+
+        **How it works**
+        1. Finds all ENERGY trades where `buyerId` or `sellerId` matches `meterId`
+           and `deliveryStartTime` + `deliveryEndTime` match exactly.
+        2. Verifies the calling discom (`discomId`) appears as `discomIdBuyer` or
+           `discomIdSeller` on matched trades.
+        3. Computes net position: `net = sum(buy tradeQty) - sum(sell tradeQty)`.
+        4. Allocates `actualImported` across trades using allocation rules.
+
+        **`actualImported` semantics**
+        - Signed meter reading for the delivery window (in KWH).
+        - Positive = energy imported from grid (meter is consuming / pulling).
+        - Negative = energy exported to grid (meter is generating / pushing).
+
+        **Allocation rules**
+        - `ratio = clamp(actualImported / net, 0, 1)` (special case: if `net = 0`, `ratio = 1`).
+        - Each trade: `allocatedQty = tradeQty * ratio`, clamped to `[0, tradeQty]`.
+        - Overdrawal (`net > 0`, `actualImported >= net`) or Overpush (`net < 0`, `actualImported <= net`):
+          ratio caps at 1 — all trades fully allocated at `tradeQty`.
+        - Underdrawal or Underpush: ratio < 1 — pro-rata reduction.
+        - Wrong direction (`net > 0` and `actualImported < 0`, or vice versa):
+          ratio clamps to 0 — all trades get 0.
+
+        **What gets written**
+        - For trades where `meterId = buyerId`: writes `buyerFulfillmentValidationMetrics`
+          with `ACTUAL_PULLED = allocatedQty`.
+        - For trades where `meterId = sellerId`: writes `sellerFulfillmentValidationMetrics`
+          with `ACTUAL_PUSHED = allocatedQty`.
+        - Final settlement quantity = `min(buyer allocation, seller allocation)`,
+          computed once both sides report.
+      operationId: allocateMeterActuals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ledgerAllocateRequest"
+            examples:
+              netBuyerOverdrawal:
+                summary: Net buyer meter — overdrawal (all trades fully allocated)
+                value:
+                  meterId: "CA-0000123"
+                  discomId: "DISCOM_A"
+                  deliveryStartTime: "2026-01-15T11:00:00Z"
+                  deliveryEndTime: "2026-01-15T11:30:00Z"
+                  actualImported: 12.5
+              netSellerUnderpush:
+                summary: Net seller meter — underpush (pro-rata allocation)
+                value:
+                  meterId: "DER-9981"
+                  discomId: "DISCOM_B"
+                  deliveryStartTime: "2026-01-15T11:00:00Z"
+                  deliveryEndTime: "2026-01-15T11:30:00Z"
+                  actualImported: -8.0
+                  status: COMPLETED
+                  clientReference: "alloc-0042"
+      responses:
+        "200":
+          description: Allocation applied successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ledgerAllocateResponse"
+              examples:
+                overdrawalFullAllocation:
+                  summary: All trades fully allocated (overdrawal)
+                  value:
+                    success: true
+                    allocations:
+                      - recordId: "rec-9f8a2c"
+                        transactionId: "tx-123"
+                        orderItemId: "item-1"
+                        tradeQty: 7.0
+                        allocatedQty: 7.0
+                        side: BUYER
+                        metricType: ACTUAL_PULLED
+                        rowDigest: "sha256:6d7a...f09c"
+                      - recordId: "rec-b7c3d1"
+                        transactionId: "tx-456"
+                        orderItemId: "item-2"
+                        tradeQty: 3.0
+                        allocatedQty: 3.0
+                        side: BUYER
+                        metricType: ACTUAL_PULLED
+                        rowDigest: "sha256:a1b2...c3d4"
+                    totalMatched: 2
+                    totalAllocated: 10.0
+                underpushProRata:
+                  summary: Pro-rata allocation (underpush, ratio = 8/10 = 0.8)
+                  value:
+                    success: true
+                    allocations:
+                      - recordId: "rec-c4d5e6"
+                        transactionId: "tx-789"
+                        orderItemId: "item-3"
+                        tradeQty: 6.0
+                        allocatedQty: 4.8
+                        side: SELLER
+                        metricType: ACTUAL_PUSHED
+                        rowDigest: "sha256:b2c3...d4e5"
+                      - recordId: "rec-f7g8h9"
+                        transactionId: "tx-012"
+                        orderItemId: "item-4"
+                        tradeQty: 4.0
+                        allocatedQty: 3.2
+                        side: SELLER
+                        metricType: ACTUAL_PUSHED
+                        rowDigest: "sha256:e5f6...g7h8"
+                    totalMatched: 2
+                    totalAllocated: 8.0
+        "400":
+          description: Invalid request (schema/validation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "401":
+          description: Authentication/signature failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "403":
+          description: Discom not authorized for any matched trades
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              examples:
+                notAuthorized:
+                  value:
+                    code: AUT_NOT_AUTHORIZED
+                    message: "Discom DISCOM_X is not buyer or seller discom on any matched trades"
+        "404":
+          description: No trades found for the given meter and delivery window
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              examples:
+                notFound:
+                  value:
+                    code: PRC_NOT_FOUND
+                    message: "No ENERGY trades found for meterId=CA-0000123 in delivery window 2026-01-15T11:00:00Z to 2026-01-15T11:30:00Z"
+
 components:
   securitySchemes:
     BecknHttpSignature:
@@ -353,6 +523,10 @@ components:
     role:
       type: string
       enum: [BUYER, SELLER, BUYER_DISCOM, SELLER_DISCOM]
+
+    platformRole:
+      type: string
+      enum: [BUYER, SELLER]
 
     discomRole:
       type: string
@@ -511,9 +685,13 @@ components:
         - Clients SHOULD only include fields they intend to write in this call.
         - Server enforces role-based write permissions.
         - Discoms MUST NOT call this endpoint (use /ledger/record).
+
+        Role-based required fields:
+        - BUYER: `platformIdBuyer` is required (must match caller identity).
+        - SELLER: `platformIdSeller` is required (must match caller identity).
       properties:
         role:
-          $ref: "#/components/schemas/role"
+          $ref: "#/components/schemas/platformRole"
         transactionId:
           type: string
         orderItemId:
@@ -549,6 +727,19 @@ components:
         clientReference:
           type: string
           description: Optional idempotency token generated by the platform for safe retries.
+      allOf:
+        - if:
+            properties:
+              role:
+                const: BUYER
+          then:
+            required: [platformIdBuyer]
+        - if:
+            properties:
+              role:
+                const: SELLER
+          then:
+            required: [platformIdSeller]
 
     ledgerGetRequest:
       type: object
@@ -635,13 +826,23 @@ components:
     ledgerRecordRequest:
       type: object
       additionalProperties: false
-      required: [role]
+      required: [role, transactionId, orderItemId]
       description: |
         Discom recording request for an existing record.
 
         Targeting:
-        - Provide either (transactionId + orderItemId) OR recordId.
-        - At least one recordable field SHOULD be present.
+        - Identified by `transactionId + orderItemId` (required).
+        - `recordId` may also be provided as an alternate reference.
+
+        Role-based required fields:
+        - BUYER_DISCOM: `discomIdBuyer` and `buyerFulfillmentValidationMetrics`
+          (must contain at least one metric with validationMetricType = ACTUAL_PULLED) are required.
+        - SELLER_DISCOM: `discomIdSeller` and `sellerFulfillmentValidationMetrics`
+          (must contain at least one metric with validationMetricType = ACTUAL_PUSHED) are required.
+
+        Write-scope restrictions:
+        - BUYER_DISCOM may only write `buyerFulfillmentValidationMetrics` and `statusBuyerDiscom`.
+        - SELLER_DISCOM may only write `sellerFulfillmentValidationMetrics` and `statusSellerDiscom`.
 
         Notes:
         - Server enforces role-based write permissions.
@@ -655,6 +856,12 @@ components:
           type: string
         recordId:
           type: string
+        discomIdBuyer:
+          type: string
+          description: Buyer-side discom identifier (required when role is BUYER_DISCOM)
+        discomIdSeller:
+          type: string
+          description: Seller-side discom identifier (required when role is SELLER_DISCOM)
         buyerFulfillmentValidationMetrics:
           type: array
           items:
@@ -672,6 +879,41 @@ components:
         clientReference:
           type: string
           description: Optional idempotency token generated by the discom for safe retries.
+      allOf:
+        - if:
+            properties:
+              role:
+                const: BUYER_DISCOM
+          then:
+            required: [discomIdBuyer, buyerFulfillmentValidationMetrics]
+            properties:
+              buyerFulfillmentValidationMetrics:
+                minItems: 1
+                contains:
+                  type: object
+                  required: [validationMetricType]
+                  properties:
+                    validationMetricType:
+                      const: ACTUAL_PULLED
+              sellerFulfillmentValidationMetrics: false
+              statusSellerDiscom: false
+        - if:
+            properties:
+              role:
+                const: SELLER_DISCOM
+          then:
+            required: [discomIdSeller, sellerFulfillmentValidationMetrics]
+            properties:
+              sellerFulfillmentValidationMetrics:
+                minItems: 1
+                contains:
+                  type: object
+                  required: [validationMetricType]
+                  properties:
+                    validationMetricType:
+                      const: ACTUAL_PUSHED
+              buyerFulfillmentValidationMetrics: false
+              statusBuyerDiscom: false
 
     ledgerWriteResponse:
       type: object
@@ -688,6 +930,95 @@ components:
         rowDigest:
           type: string
           description: Digest of the canonical row state after applying this write
+        message:
+          type: string
+
+    # -------------------------
+    # Allocate request / response
+    # -------------------------
+    ledgerAllocateRequest:
+      type: object
+      additionalProperties: false
+      required: [meterId, discomId, deliveryStartTime, deliveryEndTime, actualImported]
+      description: |
+        Meter-based allocation request. The ledger looks up ENERGY trades matching
+        the meter ID and delivery window, verifies discom authorization, and
+        allocates the meter actual across matching trades pro-rata by tradeQty.
+
+        `actualImported` is a signed number:
+        - Positive = energy imported from grid (meter is consuming).
+        - Negative = energy exported to grid (meter is generating).
+      properties:
+        meterId:
+          type: string
+          description: Meter identifier — matched against buyerId or sellerId in existing trade records.
+        discomId:
+          type: string
+          description: Calling discom's identifier — verified against discomIdBuyer or discomIdSeller on matched trades.
+        deliveryStartTime:
+          type: string
+          format: date-time
+          description: Delivery window start — must match trade records exactly.
+        deliveryEndTime:
+          type: string
+          format: date-time
+          description: Delivery window end — must match trade records exactly.
+        actualImported:
+          type: number
+          description: |
+            Signed meter reading for the delivery window (in KWH).
+            Positive = imported from grid. Negative = exported to grid.
+        status:
+          $ref: "#/components/schemas/tradeStatus"
+        clientReference:
+          type: string
+          description: Optional idempotency token for safe retries.
+
+    allocationDetail:
+      type: object
+      additionalProperties: false
+      required: [recordId, transactionId, orderItemId, tradeQty, allocatedQty, side, metricType, rowDigest]
+      properties:
+        recordId:
+          type: string
+          description: Ledger record identifier
+        transactionId:
+          type: string
+        orderItemId:
+          type: string
+        tradeQty:
+          type: number
+          description: Contracted trade quantity for this item
+        allocatedQty:
+          type: number
+          description: Allocated actual quantity, clamped to [0, tradeQty]
+        side:
+          type: string
+          enum: [BUYER, SELLER]
+          description: Which side of the trade this meter is on
+        metricType:
+          $ref: "#/components/schemas/metricType"
+        rowDigest:
+          type: string
+          description: Digest of the row state after applying the allocation
+
+    ledgerAllocateResponse:
+      type: object
+      additionalProperties: false
+      required: [success, allocations, totalMatched, totalAllocated]
+      properties:
+        success:
+          type: boolean
+        allocations:
+          type: array
+          items:
+            $ref: "#/components/schemas/allocationDetail"
+        totalMatched:
+          type: integer
+          description: Number of trades matched and allocated
+        totalAllocated:
+          type: number
+          description: Sum of allocatedQty across all trades
         message:
           type: string
 

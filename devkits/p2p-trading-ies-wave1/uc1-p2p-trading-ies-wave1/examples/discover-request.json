@@ -1,0 +1,40 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "discover",
+    "timestamp": "2024-10-04T10:00:00Z",
+    "message_id": "msg-discover-001",
+    "transaction_id": "txn-energy-001",
+    "bap_id": "p2p-trading-sandbox1.com",
+    "bap_uri": "https://p2p-trading-sandbox1.com",
+    "bpp_id": "p2p-trading-sandbox2.com",
+    "bpp_uri": "https://p2p-trading-sandbox2.com",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0",
+    "location": {
+      "city": {
+        "code": "BLR",
+        "name": "Bangalore"
+      },
+      "country": {
+        "code": "IND",
+        "name": "India"
+      }
+    },
+    "schema_context": [
+      "https://raw.githubusercontent.com/beckn/DEG/tags/deg-1.0.1/specification/schema/EnergyTrade/v0.3/context.jsonld"
+    ]
+  },
+  "message": {
+    "filters": {
+      "type": "jsonpath",
+      "expression": "$.catalogs[*] ? (@.beckn:items[*].beckn:networkId[*] == 'p2p-interdiscom-trading-test-network' && @.beckn:offers[*].beckn:isActive == true && @.beckn:offers[*].beckn:offerAttributes.validityWindow.schema:endTime >= '2024-10-04T09:00:00Z' && @.beckn:offers[*].beckn:price.schema:price >= 7 && @.beckn:offers[*].beckn:price.schema:price <= 750 && @.beckn:offers[*].beckn:price.schema:priceCurrency == 'INR' && @.beckn:offers[*].beckn:price.applicableQuantity.unitQuantity >= 1 && @.beckn:offers[*].beckn:price.applicableQuantity.unitQuantity <= 300 && @.beckn:offers[*].beckn:price.applicableQuantity.unitText == 'kWh')",
+      "example_expressions_remove_in_discover_calls": [
+        "$.catalogs[*].beckn:offers[*] ? (@.beckn:price.schema:price >= 700 && @.beckn:price.schema:price <= 750 && @.beckn:price.schema:priceCurrency == 'INR')",
+        "$.catalogs[*].beckn:offers[*] ? (@.beckn:offerAttributes.deliveryWindow.schema:endTime <= '2026-02-05' && @.beckn:offerAttributes.deliveryWindow.schema:startTime >='2026-02-04')",
+        "$.catalogs[*].beckn:offers[*] ? (@.beckn:offerAttributes.deliveryWindow.schema:startTime >= '2024-02-03T12:00:00Z' && exists($.catalogs[*] ? (@.beckn:items[*].beckn:networkId[*] == 'p2p-interdiscom-trading-test-network' && @.beckn:items[*].beckn:provider.beckn:providerAttributes.utilityId == 'TPDDL-DL')))",
+        "$.catalogs[*] ? (@.beckn:items[*].beckn:networkId[*] == 'p2p-interdiscom-trading-test-network' && @.beckn:offers[*].beckn:price.schema:price >= 7 && @.beckn:offers[*].beckn:price.schema:price <= 750 && @.beckn:offers[*].beckn:price.schema:priceCurrency == 'INR' && @.beckn:offers[*].beckn:price.applicableQuantity.unitQuantity >= 1 && @.beckn:offers[*].beckn:price.applicableQuantity.unitQuantity <= 300 && @.beckn:offers[*].beckn:price.applicableQuantity.unitText == 'kWh')"
+      ]
+    }
+  }
+}

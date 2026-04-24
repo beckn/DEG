@@ -1,0 +1,56 @@
+openapi: 3.1.1
+info:
+  title: EnergyMeterDataGB
+  version: 1.0.0
+  description: ESPI/Green Button meter reading data for a single meter. Uses native ESPI types and enum codes.
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+servers:
+  - url: https://schema.beckn.io
+    description: Canonical schema registry
+paths: {}
+components:
+  schemas:
+    EnergyMeterDataGB:
+      $id: https://schema.beckn.io/EnergyMeterDataGB/v1.0
+      title: MeterDataGB
+      description: ESPI/Green Button meter reading data for a single meter. Uses native ESPI types and enum codes.
+      x-tags: [energy, metering, green-button, espi, deg]
+      type: object
+      required:
+        - ServiceCategory
+        - timeZone
+        - ReadingType
+        - IntervalBlock
+      properties:
+        ServiceCategory:
+          type: object
+          required: [kind]
+          properties:
+            kind:
+              oneOf:
+                - type: integer
+                  enum: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                - type: string
+                  enum: [electricity, gas, water, time, heat, refuse, sewerage, rates, tvLicense, internet]
+              description: "ESPI ServiceKind. 0=electricity, 1=gas, 2=water."
+        timeZone:
+          type: string
+          description: IANA time-zone identifier (e.g., Asia/Kolkata). Not an ESPI property.
+          examples: [Asia/Kolkata, America/New_York]
+        ReadingType:
+          $ref: "../../../external/schema/espiGreenButton/attributes.yaml#/components/schemas/ReadingType"
+          description: ESPI ReadingType — commodity, flowDirection, uom, accumulationBehaviour, intervalLength, currency, kind, phase.
+        qualityOfReading:
+          oneOf:
+            - type: integer
+              enum: [0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+            - type: string
+              enum: [valid, manuallyEdited, estimatedUsingReferenceDay, estimatedUsingLinearInterpolation, questionable, derived, projected, mixed, raw, normalizedForWeather, other, validated, verified, billingApproved]
+          description: "ESPI QualityOfReading. 0=valid, 17=validated."
+        IntervalBlock:
+          type: array
+          minItems: 1
+          items:
+            $ref: "../../../external/schema/espiGreenButton/attributes.yaml#/components/schemas/IntervalBlock"
+          description: Array of ESPI IntervalBlocks containing interval + IntervalReading[].
+      additionalProperties: false

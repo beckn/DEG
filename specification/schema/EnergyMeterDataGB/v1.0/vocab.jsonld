@@ -1,0 +1,30 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "deg": "https://schema.beckn.io/deg/",
+        "espi": "http://naesb.org/espi#",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#"
+    },
+    "@graph": [
+        {
+            "@id": "deg:MeterDataGB",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Meter Data GB",
+            "rdfs:comment": "ESPI/Green Button meter reading data for a single meter. Contains ServiceCategory, ReadingType, IntervalBlock, and qualityOfReading."
+        },
+        {
+            "@id": "deg:meterDataGB",
+            "@type": "rdf:Property",
+            "rdfs:label": "meter Data GB",
+            "rdfs:comment": "Container for ESPI/Green Button meter reading data within a credential subject."
+        },
+        {
+            "@id": "deg:timeZone",
+            "@type": "rdf:Property",
+            "rdfs:label": "time Zone",
+            "rdfs:comment": "IANA time-zone identifier for the meter location. Not an ESPI property — added for demand-forecasting models that need local solar time."
+        }
+    ]
+}
