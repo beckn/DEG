@@ -7,8 +7,8 @@
     "bapUri": "https://bap.example.com/beckn",
     "bppId": "bpp.example.com",
     "bppUri": "https://bpp.example.com/beckn",
-    "transactionId": "txn-p2p-001",
-    "messageId": "msg-on-init-001",
+    "transactionId": "c3d4e5f6-1234-4abc-8def-ef3344556677",
+    "messageId": "a7b8c9d0-1234-4abc-8def-ef7788990011",
     "timestamp": "2026-04-25T10:05:05Z",
     "schemaContext": [
       "https://schema.beckn.io/EnergyTradeOffer/v2.0/context.jsonld",

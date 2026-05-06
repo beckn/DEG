@@ -5,16 +5,13 @@
     "action": "discover",
     "bapId": "bap.example.com",
     "bapUri": "https://bap.example.com/beckn",
-    "transactionId": "txn-p2p-001",
-    "messageId": "msg-discover-001",
+    "transactionId": "11369454-9ccb-4d4e-9f32-6d4fa07c5c0f",
+    "messageId": "c71d02a2-bd08-428b-a730-eecdfaccbd74",
     "timestamp": "2026-04-25T09:00:00Z"
   },
   "message": {
     "intent": {
-      "filters": {
-        "type": "jsonpath",
-        "expression": "$.catalogs[*].offers[*][?(@.offerAttributes['@type']=='EnergyTradeOffer')]"
-      }
+      "textSearch": "EnergyTradeOffer"
     }
   }
 }

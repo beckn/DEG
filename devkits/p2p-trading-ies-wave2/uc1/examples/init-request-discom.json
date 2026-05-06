@@ -7,8 +7,8 @@
     "bapUri": "https://bap.example.com/beckn",
     "bppId": "bpp.example.com",
     "bppUri": "https://bpp.example.com/beckn",
-    "transactionId": "txn-p2p-001-discom-check",
-    "messageId": "msg-discom-init-001",
+    "transactionId": "e1f2a3b4-1234-4abc-8def-ef1122334455",
+    "messageId": "f2a3b4c5-1234-4abc-8def-ef2233445566",
     "timestamp": "2026-04-25T10:06:00Z",
     "schemaContext": [
       "https://schema.beckn.io/DEGContract/v2.0/context.jsonld",

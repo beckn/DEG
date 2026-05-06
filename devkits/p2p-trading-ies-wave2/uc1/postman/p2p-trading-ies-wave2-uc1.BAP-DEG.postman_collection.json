@@ -1,7 +1,7 @@
 {
   "info": {
-    "_postman_id": "0bdc895b-6bfa-4e01-a4f3-0d5fdeb480ff",
-    "name": "p2p-trading-ies-wave2.BAP-DEG",
+    "_postman_id": "29954708-24d4-4a1c-8ff7-de576cb84da8",
+    "name": "p2p-trading-ies-wave2-uc1.BAP-DEG",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Postman collection for Buyer Application Platform implementing p2p-trading-ies-wave2 APIs based on Beckn Protocol v2"
   },
@@ -48,7 +48,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"discover\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"filters\": {\n        \"type\": \"jsonpath\",\n        \"expression\": \"$.catalogs[*].offers[*] ? (@.offerAttributes.pricingModel == 'PER_KWH' && @.offerAttributes['@type'] == 'EnergyTradeOffer')\"\n      }\n    }\n  }\n}",
+              "raw": "{\n  \"context\": {\n    \"networkId\": \"nfh.global/testnet-deg\",\n    \"version\": \"{{version}}\",\n    \"action\": \"discover\",\n    \"bapId\": \"{{bap_id}}\",\n    \"bapUri\": \"{{bap_host_root}}/bap/receiver\",\n    \"transactionId\": \"{{transaction_id}}\",\n    \"messageId\": \"{{$guid}}\",\n    \"timestamp\": \"{{iso_date}}\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"textSearch\": \"EnergyTradeOffer\"\n    }\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
