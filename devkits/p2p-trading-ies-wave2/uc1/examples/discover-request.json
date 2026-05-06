@@ -11,7 +11,10 @@
   },
   "message": {
     "intent": {
-      "textSearch": "EnergyTradeOffer"
+      "filters": {
+        "type": "jsonpath",
+        "expression": "$.catalogs[*].offers[*][?(@.offerAttributes['@type']=='EnergyTradeOffer')]"
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "b1703ccf-2225-4510-ab8c-afedc4db54a0",
+    "_postman_id": "3c311a48-4905-4c91-afc8-9c1a700709f6",
     "name": "p2p-trading-ies-wave2-uc1.BPP-DEG",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Postman collection for Buyer Provider Platform implementing p2p-trading-ies-wave2 APIs based on Beckn Protocol v2"

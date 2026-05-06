@@ -55,6 +55,13 @@ workflows:
 
   - workflowId: discover
     summary: Buyer TP discovers available P2P solar offers via discover service
+    # NOTE: This workflow currently fails under `npx @redocly/cli respect` due to a
+    # Redocly Respect bug (https://github.com/Redocly/redocly-cli/issues/2798).
+    # Any $-prefixed string in a request body payload is misidentified as an Arazzo
+    # runtime expression; Arazzo 1.0.1 defines no escape mechanism. The JSONPath
+    # filter in examples/discover-request.json is correct and works when called
+    # directly (curl / Postman). This workflow will pass automatically once Redocly
+    # ships a fix.
     steps:
       - stepId: discover
         description: BAP discovers PER_KWH EnergyTradeOffer entries on the network
