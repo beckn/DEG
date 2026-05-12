@@ -4,14 +4,15 @@
     "version": "2.0.0",
     "action": "init",
     "bapId": "bap.example.com",
-    "bapUri": "https://bap.example.com/beckn",
+    "bapUri": "http://beckn-router:9000/bap/receiver",
     "bppId": "bpp.example.com",
-    "bppUri": "https://bpp.example.com/beckn",
+    "bppUri": "http://beckn-router:9000/bpp/receiver",
     "transactionId": "txn-p2p-001-discom-check",
     "messageId": "msg-discom-init-001",
     "timestamp": "2026-04-25T10:06:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/DEGContract/v2.0/context.jsonld"
+      "https://schema.beckn.io/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/DiscomLimitCheck/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -42,40 +43,34 @@
             "resourceIds": [
               "energy-resource-solar-001"
             ]
-          }
-        }
-      ],
-      "performance": [
-        {
-          "id": "perf-discom-limit-check",
-          "status": {
-            "code": "DISCOM_LIMIT_CHECK_REQUESTED",
-            "name": "Optional discom-ledger limit check (Phase 2)"
           },
-          "commitmentIds": [
-            "commitment-p2p-001"
-          ],
-          "performanceAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/DiscomLimitCheck/v2.0/context.jsonld",
-            "@type": "DiscomLimitCheck",
-            "subject": "buyer",
-            "subjectMeterId": "der://meter/buyer-001",
-            "discomParticipantId": "buyer-discom-ledger",
-            "deliveryWindow": {
-              "@type": "beckn:TimePeriod",
-              "schema:startTime": "2026-04-26T04:30:00Z",
-              "schema:endTime": "2026-04-26T05:30:00Z"
+          "commitmentAttributes": {
+            "@context": "https://schema.beckn.io/BecknTimeSeries/v1.0/context.jsonld",
+            "@type": "TimeSeries",
+            "intervalPeriod": {
+              "start": "2026-04-26T04:30:00Z",
+              "duration": "PT1H"
             },
-            "tradeQuantity": {
-              "@type": "Quantity",
-              "unitCode": "KWH",
-              "unitQuantity": 20.0
-            }
+            "payloadDescriptors": [
+              {
+                "objectType": "EVENT_PAYLOAD_DESCRIPTOR",
+                "payloadType": "REQUESTED_QTY",
+                "units": "KWH"
+              }
+            ],
+            "intervals": [
+              {
+                "id": 0,
+                "payloads": [
+                  {"type": "REQUESTED_QTY", "values": [20.5]}
+                ]
+              }
+            ]
           }
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://schema.beckn.io/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {

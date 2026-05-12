@@ -1,0 +1,21 @@
+{
+    "@context": [
+        "https://schema.beckn.io/espiGreenButton/v1.0/context.jsonld",
+        {
+            "@version": 1.1,
+            "@protected": true,
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "deg": "https://schema.beckn.io/deg/",
+
+            "BillingSummary": "deg:BillingSummary",
+            "billingSummary": {
+                "@id": "deg:billingSummary",
+                "@type": "@id"
+            },
+            "timeZone": {
+                "@id": "deg:timeZone",
+                "@type": "xsd:string"
+            }
+        }
+    ]
+}

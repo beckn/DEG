@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "action": "discover",
     "bapId": "bap.example.com",
-    "bapUri": "https://bap.example.com/beckn",
+    "bapUri": "http://beckn-router:9000/bap/receiver",
     "transactionId": "txn-p2p-001",
     "messageId": "msg-discover-001",
     "timestamp": "2026-04-25T09:00:00Z"
@@ -13,7 +13,7 @@
     "intent": {
       "filters": {
         "type": "jsonpath",
-        "expression": "$.catalogs[*].offers[*] ? (@.offerAttributes.pricingModel == 'PER_KWH' && @.offerAttributes['@type'] == 'EnergyTradeOffer')"
+        "expression": "$.catalogs[*].offers[*][?(@.offerAttributes['@type']=='EnergyTradeOffer')]"
       }
     }
   }

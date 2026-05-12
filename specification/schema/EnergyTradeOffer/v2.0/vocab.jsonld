@@ -16,12 +16,10 @@
       "rdfs:comment": "Offer attributes for P2P energy trading, attached to Offer.offerAttributes."
     },
     {
-      "@id": "deg:pricingModel",
-      "@type": "rdf:Property",
-      "rdfs:label": "Pricing model",
-      "rdfs:comment": "Pricing model classification (PER_KWH, TIME_OF_DAY, SUBSCRIPTION, FIXED).",
-      "rdfs:domain": "deg:EnergyTradeOffer",
-      "schema:rangeIncludes": "deg:PricingModel"
+      "@id": "deg:RoleInputs",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Role Inputs",
+      "rdfs:comment": "Per-role declaration within an EnergyTradeOffer. Carries either payloadDescriptors (intent-only) or payload (actual BecknTimeSeries contribution). Mutually exclusive: seller MUST use payload from catalog publish onwards."
     },
     {
       "@id": "deg:validityWindow",
@@ -32,50 +30,57 @@
       "schema:rangeIncludes": "schema:TimePeriod"
     },
     {
-      "@id": "deg:deliveryWindow",
+      "@id": "deg:contractTerms",
       "@type": "rdf:Property",
-      "rdfs:label": "Delivery window",
-      "rdfs:comment": "Specific time period when energy delivery occurs.",
+      "rdfs:label": "Contract terms",
+      "rdfs:comment": "JSON-LD container for contract terms (DEGContract) published at catalog time.",
       "rdfs:domain": "deg:EnergyTradeOffer",
-      "schema:rangeIncludes": "schema:TimePeriod"
+      "schema:rangeIncludes": { "@id": "https://schema.beckn.io/deg/DEGContract/v2.0/DEGContract" }
     },
     {
-      "@id": "deg:gift",
+      "@id": "deg:commitmentAttributes",
       "@type": "rdf:Property",
-      "rdfs:label": "Gift",
-      "rdfs:comment": "Optional gift parameters for energy gifting on this offer.",
+      "rdfs:label": "Commitment attributes",
+      "rdfs:comment": "Seller's initial BecknTimeSeries at catalog time (PRICE_PER_KWH + AVAILABLE_QTY intervals). Seed of Commitment.commitmentAttributes; other roles append as lifecycle progresses.",
       "rdfs:domain": "deg:EnergyTradeOffer",
-      "schema:rangeIncludes": { "@id": "https://schema.beckn.io/deg/EnergyGift/v2.0/EnergyGift" }
+      "schema:rangeIncludes": { "@id": "https://schema.beckn.io/deg/BecknTimeSeries/v1.0/TimeSeries" }
     },
     {
-      "@id": "deg:PricingModel",
-      "@type": "schema:Enumeration",
-      "schema:name": "Pricing Model",
-      "rdfs:comment": "Enumeration of supported pricing models for energy trade offers."
+      "@id": "deg:inputs",
+      "@type": "rdf:Property",
+      "rdfs:label": "Inputs",
+      "rdfs:comment": "Per-role declarations (seller, buyer, buyerDiscom, sellerDiscom). Each entry carries either payload or payloadDescriptors.",
+      "rdfs:domain": "deg:EnergyTradeOffer",
+      "schema:rangeIncludes": "deg:RoleInputs"
     },
     {
-      "@id": "deg:PricingModelPerKwh",
-      "@type": "deg:PricingModel",
-      "schema:name": "PER_KWH",
-      "schema:identifier": "PER_KWH"
+      "@id": "deg:role",
+      "@type": "rdf:Property",
+      "rdfs:label": "Role",
+      "rdfs:comment": "Role this entry applies to: buyer, seller, buyerDiscom, or sellerDiscom.",
+      "rdfs:domain": "deg:RoleInputs"
     },
     {
-      "@id": "deg:PricingModelTimeOfDay",
-      "@type": "deg:PricingModel",
-      "schema:name": "TIME_OF_DAY",
-      "schema:identifier": "TIME_OF_DAY"
+      "@id": "deg:participantId",
+      "@type": "rdf:Property",
+      "rdfs:label": "Participant ID",
+      "rdfs:comment": "Beckn participant ID of the role-holder once bound. Null at catalog publish for buyer and discom roles.",
+      "rdfs:domain": "deg:RoleInputs"
     },
     {
-      "@id": "deg:PricingModelSubscription",
-      "@type": "deg:PricingModel",
-      "schema:name": "SUBSCRIPTION",
-      "schema:identifier": "SUBSCRIPTION"
+      "@id": "deg:payload",
+      "@type": "rdf:Property",
+      "rdfs:label": "Payload",
+      "rdfs:comment": "The role's actual BecknTimeSeries contribution to Commitment.commitmentAttributes. Mutually exclusive with payloadDescriptors (oneOf). Seller MUST use this form.",
+      "rdfs:domain": "deg:RoleInputs",
+      "schema:rangeIncludes": { "@id": "https://schema.beckn.io/deg/BecknTimeSeries/v1.0/TimeSeries" }
     },
     {
-      "@id": "deg:PricingModelFixed",
-      "@type": "deg:PricingModel",
-      "schema:name": "FIXED",
-      "schema:identifier": "FIXED"
+      "@id": "deg:payloadDescriptors",
+      "@type": "rdf:Property",
+      "rdfs:label": "Payload descriptors",
+      "rdfs:comment": "Metadata-only declaration of signal types this role will contribute. Mutually exclusive with payload (oneOf). Used by roles that have not yet written interval data.",
+      "rdfs:domain": "deg:RoleInputs"
     }
   ]
 }

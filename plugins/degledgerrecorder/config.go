@@ -22,12 +22,53 @@ const (
 const (
 	ActionOnConfirm = "on_confirm"
 	ActionOnStatus  = "on_status"
+	ActionStatus    = "status"
+)
+
+// Supported payload shapes — selects which mapper parses the on_confirm body.
+const (
+	PayloadShapeWave1 = "wave1" // beckn:Order / beckn:orderItems (p2p-trading-ies-wave1)
+	PayloadShapeWave2 = "wave2" // message.contract.commitments (p2p-trading-ies-wave2)
+)
+
+// Sources for the target ledger URI.
+const (
+	LedgerUriSourceConfig  = "config"  // use plugin config ledgerHost
+	LedgerUriSourcePayload = "payload" // read participants[role=*Discom].participantAttributes.ledgerUri from payload
+)
+
+// Ledger API styles the plugin can speak to.
+const (
+	LedgerApiLegacyLedger = "legacy_ledger" // POST <uri>/ledger/put with custom JSON body
+	LedgerApiBeckn        = "beckn"         // POST verbatim on_confirm to <uri>/on_confirm with rewritten context
 )
 
 // Config holds the configuration for the DEG Ledger Recorder plugin.
 type Config struct {
-	// LedgerHost is the base URL of the DEG Ledger service (e.g., "https://ledger.example.org")
+	// PayloadShape selects which on_confirm body the mapper expects.
+	// Required. One of: "wave1", "wave2".
+	PayloadShape string
+
+	// LedgerUriSource determines where the target ledger URI comes from.
+	// Required. One of: "config" (uses LedgerHost), "payload" (reads
+	// participants[role=*Discom].participantAttributes.ledgerUri).
+	LedgerUriSource string
+
+	// LedgerApi selects which API style the plugin speaks.
+	// Required. One of: "legacy_ledger" (POST <uri>/ledger/put with custom
+	// JSON), "beckn" (POST verbatim on_confirm to <uri>/on_confirm).
+	LedgerApi string
+
+	// LedgerHost is the base URL of the DEG Ledger service.
+	// Required only when LedgerUriSource == "config".
 	LedgerHost string
+
+	// SenderHost is the base URL (scheme + host[:port]) the plugin advertises
+	// when forwarding a beckn on_confirm to a ledger TSP. Used only when
+	// LedgerApi == "beckn" to rewrite context.bppUri to "<SenderHost>/bpp/caller".
+	// Optional — falls back to the host of context.bapUri (BUYER role) or
+	// context.bppUri (SELLER role) extracted from the incoming payload.
+	SenderHost string
 
 	// Role is the ledger role for this platform (BUYER, SELLER, BUYER_DISCOM, SELLER_DISCOM)
 	Role string
@@ -79,9 +120,16 @@ type Config struct {
 }
 
 // DefaultConfig returns a Config with sensible defaults.
+// Note: PayloadShape, LedgerUriSource, and LedgerApi have no defaults — the
+// caller must set them in YAML so the active behavior is always visible there
+// instead of hidden in code.
 func DefaultConfig() *Config {
 	return &Config{
+		PayloadShape:             "",
+		LedgerUriSource:          "",
+		LedgerApi:                "",
 		LedgerHost:               "",
+		SenderHost:               "",
 		Role:                     "BUYER",
 		Actions:                  []string{ActionOnConfirm}, // Default: only on_confirm
 		Enabled:                  true,
@@ -101,11 +149,47 @@ func DefaultConfig() *Config {
 func ParseConfig(cfg map[string]string) (*Config, error) {
 	config := DefaultConfig()
 
+	// payloadShape — required, no default
+	shape, ok := cfg["payloadShape"]
+	if !ok || shape == "" {
+		return nil, fmt.Errorf("payloadShape is required (one of: %s, %s)", PayloadShapeWave1, PayloadShapeWave2)
+	}
+	if !isValidPayloadShape(shape) {
+		return nil, fmt.Errorf("invalid payloadShape: %s (must be %s or %s)", shape, PayloadShapeWave1, PayloadShapeWave2)
+	}
+	config.PayloadShape = shape
+
+	// ledgerUriSource — required, no default
+	source, ok := cfg["ledgerUriSource"]
+	if !ok || source == "" {
+		return nil, fmt.Errorf("ledgerUriSource is required (one of: %s, %s)", LedgerUriSourceConfig, LedgerUriSourcePayload)
+	}
+	if !isValidLedgerUriSource(source) {
+		return nil, fmt.Errorf("invalid ledgerUriSource: %s (must be %s or %s)", source, LedgerUriSourceConfig, LedgerUriSourcePayload)
+	}
+	config.LedgerUriSource = source
+
+	// ledgerApi — required, no default
+	api, ok := cfg["ledgerApi"]
+	if !ok || api == "" {
+		return nil, fmt.Errorf("ledgerApi is required (one of: %s, %s)", LedgerApiLegacyLedger, LedgerApiBeckn)
+	}
+	if !isValidLedgerApi(api) {
+		return nil, fmt.Errorf("invalid ledgerApi: %s (must be %s or %s)", api, LedgerApiLegacyLedger, LedgerApiBeckn)
+	}
+	config.LedgerApi = api
+
+	// ledgerHost — required only when ledgerUriSource = config
 	if host, ok := cfg["ledgerHost"]; ok && host != "" {
 		config.LedgerHost = host
 	}
-	if config.LedgerHost == "" {
-		return nil, fmt.Errorf("ledgerHost is required")
+	if config.LedgerUriSource == LedgerUriSourceConfig && config.LedgerHost == "" {
+		return nil, fmt.Errorf("ledgerHost is required when ledgerUriSource=%s", LedgerUriSourceConfig)
+	}
+
+	// senderHost — optional; only consulted when ledgerApi=beckn
+	if sh, ok := cfg["senderHost"]; ok && sh != "" {
+		config.SenderHost = sh
 	}
 
 	if role, ok := cfg["role"]; ok && role != "" {
@@ -256,8 +340,24 @@ func isValidAction(action string) bool {
 	validActions := map[string]bool{
 		ActionOnConfirm: true,
 		ActionOnStatus:  true,
+		ActionStatus:    true,
 	}
 	return validActions[action]
+}
+
+// isValidPayloadShape checks if the provided payload shape is supported.
+func isValidPayloadShape(shape string) bool {
+	return shape == PayloadShapeWave1 || shape == PayloadShapeWave2
+}
+
+// isValidLedgerUriSource checks if the provided ledger URI source is supported.
+func isValidLedgerUriSource(source string) bool {
+	return source == LedgerUriSourceConfig || source == LedgerUriSourcePayload
+}
+
+// isValidLedgerApi checks if the provided ledger API style is supported.
+func isValidLedgerApi(api string) bool {
+	return api == LedgerApiLegacyLedger || api == LedgerApiBeckn
 }
 
 // IsActionEnabled checks if the given action is enabled in the config.

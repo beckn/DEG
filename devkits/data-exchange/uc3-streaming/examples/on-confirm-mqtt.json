@@ -1,0 +1,135 @@
+{
+  "context": {
+    "networkId": "nfh.global/testnet-deg",
+    "version": "2.0.0",
+    "action": "on_confirm",
+    "bapId": "bap.example.com",
+    "bapUri": "http://beckn-router:9000/bap/receiver",
+    "bppId": "bpp.example.com",
+    "bppUri": "http://beckn-router:9000/bpp/receiver",
+    "transactionId": "c3d4e5f6-a7b8-9012-cdef-012345678910",
+    "messageId": "c3d4e5f6-a7b8-9012-cdef-012345678915",
+    "timestamp": "2026-05-07T09:03:05Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetFulfillment/v1.1/context.jsonld"
+    ]
+  },
+  "message": {
+    "contract": {
+      "id": "d4e5f6a7-b8c9-0123-def0-123456789012",
+      "descriptor": {
+        "name": "AMI Smart Meter Stream — Bengaluru Zone A (MQTT)",
+        "shortDesc": "Monthly MQTT stream — credentials active"
+      },
+      "status": { "code": "ACTIVE" },
+      "commitments": [
+        {
+          "id": "commitment-stream-mqtt-001",
+          "status": { "descriptor": { "code": "ACTIVE" } },
+          "resources": [
+            {
+              "id": "stream-ami-mqtt-blr-zone-a",
+              "descriptor": { "name": "AMI Smart Meter Stream — Bengaluru Zone A" },
+              "quantity": { "unitText": "stream", "unitCode": "EA", "value": "1" }
+            }
+          ],
+          "offer": {
+            "id": "offer-ami-mqtt-monthly",
+            "descriptor": { "name": "Monthly MQTT stream subscription" },
+            "resourceIds": ["stream-ami-mqtt-blr-zone-a"],
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1.1/context.jsonld",
+              "@type": "DatasetItem",
+              "schema:identifier": "stream-ami-mqtt-blr-zone-a",
+              "schema:name": "AMI Smart Meter Stream — Bengaluru Zone A",
+              "schema:temporalCoverage": "2026-05-07/..",
+              "dataset:accessMethod": "MQTT",
+              "dataset:streamMeta": {
+                "dataset:streamProtocol": "MQTT",
+                "dataset:messageFormat": "JSON",
+                "dataset:updateFrequency": "PT15M",
+                "dataset:messageSchemaUrl": "https://raw.githubusercontent.com/beckn/DEG/main/specification/schema/BecknTimeSeries/v1.0/attributes.yaml"
+              }
+            }
+          }
+        }
+      ],
+      "consideration": [
+        {
+          "id": "consideration-stream-001",
+          "status": { "code": "ACTIVE" },
+          "considerationAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
+            "@type": "PriceSpecification",
+            "currency": "INR",
+            "value": 12000.00
+          }
+        }
+      ],
+      "participants": [
+        {
+          "id": "intelligrid-amisp-001",
+          "descriptor": { "name": "IntelliGrid AMI Services" },
+          "participantAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
+            "@type": "Organization",
+            "id": "intelligrid-amisp-001",
+            "name": "IntelliGrid AMI Services"
+          }
+        },
+        {
+          "id": "bescom-analytics-001",
+          "descriptor": { "name": "BESCOM Analytics Team" },
+          "participantAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
+            "@type": "Organization",
+            "id": "bescom-analytics-001",
+            "name": "BESCOM Analytics Team"
+          }
+        }
+      ],
+      "performance": [
+        {
+          "id": "ffl-ami-mqtt-20260507-001",
+          "status": { "code": "ACTIVE" },
+          "commitmentIds": ["commitment-stream-mqtt-001"],
+          "performanceAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetFulfillment/v1.1/context.jsonld",
+            "@type": "DatasetFulfillment",
+            "fulfillment:accessMethod": "MQTT",
+            "fulfillment:accessStart": "2026-05-07T09:03:05Z",
+            "fulfillment:accessEnd": "2026-06-07T09:03:05Z",
+            "fulfillment:format": "JSON",
+            "fulfillment:supportEmail": "datasupport@intelligrid.example.in",
+            "fulfillment:streamConnection": {
+              "@type": "MQTTConnection",
+              "fulfillment:brokerUri": "mqtts://iotcore.intelligrid.example.in:8883",
+              "fulfillment:topic": "bescom/ami/zone-a/meter-readings/#",
+              "fulfillment:qos": 1,
+              "fulfillment:clientId": "bescom-analytics-001-sub",
+              "fulfillment:username": "bescom-analytics-001",
+              "fulfillment:password": "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJiZXNjb20tYW5hbHl0aWNzLTAwMSIsImV4cCI6MTc1MDI0MDU4NX0.SIGNATURE",
+              "fulfillment:tlsCaCert": "-----BEGIN CERTIFICATE-----\nMIIBxTCCAW...truncated...-----END CERTIFICATE-----",
+              "fulfillment:sessionExpiry": "PT24H",
+              "fulfillment:credentialExpiresAt": "2026-06-07T09:03:05Z"
+            }
+          }
+        }
+      ],
+      "settlements": [
+        {
+          "id": "settlement-stream-001",
+          "considerationId": "consideration-stream-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:paymentStatus": "COMPLETED",
+            "beckn:amount": { "currency": "INR", "value": 12000.00 },
+            "beckn:txnRef": "UPI-TXN-2026-050709031122"
+          }
+        }
+      ]
+    }
+  }
+}

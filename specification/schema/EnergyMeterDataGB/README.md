@@ -33,5 +33,5 @@ ESPI/Green Button meter reading data for a single meter. Contains ServiceCategor
 | JSON Schema (latest) | `https://schema.beckn.io/EnergyMeterDataGB/v1.0` |
 | context.jsonld (latest) | `https://schema.beckn.io/EnergyMeterDataGB/v1.0/context.jsonld` |
 | vocab.jsonld (latest) | `https://schema.beckn.io/EnergyMeterDataGB/v1.0/vocab.jsonld` |
-| ESPI context (imported) | `https://schema.beckn.io/external/espi/context.jsonld` |
+| ESPI context (imported) | `https://schema.beckn.io/espiGreenButton/v1.0/context.jsonld` |
 | CustomerProfile (imported) | `https://schema.beckn.io/EnergyCustomerProfile/v1.0/context.jsonld` |

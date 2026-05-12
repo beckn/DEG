@@ -1,0 +1,188 @@
+openapi: 3.1.1
+info:
+  title: OpenADR 3.1.0 — Time-Series Primitives
+  version: 3.1.0
+  description: >
+    OpenADR 3.1.0 time-series primitive types used by DEG schemas. Extracted
+    from the OpenADR 3.1.0 OpenAPI specification published by the OpenADR
+    Alliance. Only the subset of schemas referenced by BecknTimeSeries and
+    BecknReportDescriptors is included; the full OpenADR REST API is omitted.
+
+    Upstream: https://www.openadr.org/
+    License: Apache 2.0
+
+components:
+  schemas:
+
+    interval:
+      type: object
+      description: >
+        A temporal window with an integer id and a list of valuesMap payloads.
+        If intervalPeriod is present it overrides the series-level intervalPeriod
+        for this window only.
+      required: [id, payloads]
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Client-assigned interval index. Not required to be sequential.
+          example: 0
+        intervalPeriod:
+          $ref: "#/components/schemas/intervalPeriod"
+        payloads:
+          type: array
+          description: One valuesMap row per signal type carried by this interval.
+          items:
+            $ref: "#/components/schemas/valuesMap"
+
+    intervalPeriod:
+      type: object
+      description: >
+        Defines temporal bounds of an interval series or a single interval.
+        start uses RFC 3339 datetime format. duration uses ISO 8601 duration
+        format (e.g. PT1H for one hour). randomizeStart indicates a random
+        offset range that may be applied to start by the client.
+      properties:
+        start:
+          $ref: "#/components/schemas/dateTime"
+        duration:
+          $ref: "#/components/schemas/duration"
+        randomizeStart:
+          $ref: "#/components/schemas/duration"
+
+    valuesMap:
+      type: object
+      description: >
+        A typed payload row. type names the signal (e.g. PRICE_PER_KWH,
+        AVAILABLE_QTY, REQUESTED_QTY). values carries one or more data points
+        — most often a single scalar. See enumerations in Definitions for
+        standardised type strings, or use privately defined strings.
+      required: [type, values]
+      properties:
+        type:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: Signal type identifier.
+          example: PRICE
+        values:
+          type: array
+          description: Data points for this payload type.
+          example: [0.17]
+          items:
+            anyOf:
+              - type: number
+              - type: integer
+              - type: string
+              - type: boolean
+              - $ref: "#/components/schemas/point"
+
+    point:
+      type: object
+      description: An (x, y) float pair, typically a 2-D grid coordinate.
+      required: [x, y]
+      properties:
+        x:
+          type: number
+          format: float
+          description: Value on the x axis.
+          example: 1.0
+        y:
+          type: number
+          format: float
+          description: Value on the y axis.
+          example: 2.0
+
+    eventPayloadDescriptor:
+      type: object
+      description: >
+        Sidecar metadata for a signal carried in an event or offer
+        (objectType: EVENT_PAYLOAD_DESCRIPTOR). Provides units and currency
+        context for a payloadType string referenced in valuesMap rows.
+      required: [objectType, payloadType]
+      properties:
+        objectType:
+          type: string
+          description: Discriminator — always EVENT_PAYLOAD_DESCRIPTOR.
+          enum: [EVENT_PAYLOAD_DESCRIPTOR]
+        payloadType:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: Signal type name matching the type field in valuesMap rows.
+          example: PRICE
+        units:
+          $ref: "#/components/schemas/units"
+        currency:
+          type: ["string", "null"]
+          description: ISO 4217 currency code for price-type payloads (e.g. INR, USD).
+          example: INR
+          default: null
+
+    reportPayloadDescriptor:
+      type: object
+      description: >
+        Sidecar metadata for a telemetry signal in a report
+        (objectType: REPORT_PAYLOAD_DESCRIPTOR). Provides units, reading type,
+        accuracy, and confidence context for a payloadType.
+      required: [objectType, payloadType]
+      properties:
+        objectType:
+          type: string
+          description: Discriminator — always REPORT_PAYLOAD_DESCRIPTOR.
+          enum: [REPORT_PAYLOAD_DESCRIPTOR]
+        payloadType:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: Signal type name matching the type field in valuesMap rows.
+          example: USAGE
+        readingType:
+          $ref: "#/components/schemas/readingType"
+        units:
+          $ref: "#/components/schemas/units"
+        accuracy:
+          type: ["number", "null"]
+          format: float
+          description: Quantification of payload accuracy.
+          example: 0.0
+          default: null
+        confidence:
+          type: ["integer", "null"]
+          format: int32
+          minimum: 0
+          maximum: 100
+          description: Confidence percentage (0–100) for this payload set.
+          example: 100
+          default: null
+
+    dateTime:
+      type: string
+      format: date-time
+      description: RFC 3339 datetime string.
+      example: "2026-04-26T04:30:00Z"
+
+    duration:
+      type: string
+      pattern: "^(-?)P(?:\\d+Y)?(?:\\d+M)?(?:\\d+[DW])?(?:T(?:\\d+H)?(?:\\d+M)?(?:\\d+(?:\\.\\d+)?S)?)?$"
+      description: ISO 8601 duration string.
+      example: PT1H
+      default: PT0S
+
+    units:
+      type: ["string", "null"]
+      minLength: 1
+      maxLength: 128
+      description: Unit of measure label (e.g. KWH, KW, STRING, DEGREES).
+      example: KWH
+      default: null
+
+    readingType:
+      type: ["string", "null"]
+      minLength: 1
+      maxLength: 128
+      description: >
+        Reading type qualifier (e.g. DIRECT_READ for real-time meter data).
+        See OpenADR 3.1.0 Definitions for standardised values.
+      example: DIRECT_READ
+      default: null

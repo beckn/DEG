@@ -73,5 +73,5 @@ components:
                 / units / cardinality table (USAGE, POWER, SOC_END,
                 GPS_LAT, GPS_LON, …).
               oneOf:
-                - $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/BecknReportDescriptors/v1.0/attributes.yaml#/components/schemas/BecknReportDescriptors"
+                - $ref: "https://schema.beckn.io/BecknReportDescriptors/v1.0#/components/schemas/BecknReportDescriptors"
                 - type: "null"

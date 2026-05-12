@@ -1,0 +1,164 @@
+arazzo: 1.0.1
+info:
+  title: Energy Data Exchange — UC3 (Streaming Transports)
+  version: 1.0.0
+  description: >
+    Minimal Beckn 2.0 workflow for real-time data stream access using
+    DatasetItem/v1.1 and DatasetFulfillment/v1.1. Covers MQTT, Kafka,
+    REST API, and S3 Data Lake as delivery transports.
+
+    The key difference from UC1/UC2: credentials are delivered directly
+    in on_confirm.performance[].performanceAttributes as a DatasetFulfillment
+    with fulfillment:streamConnection — no status polling needed.
+
+    Credential rotation is handled via update/on_update before
+    fulfillment:credentialExpiresAt.
+
+    Run (from uc3-streaming/workflows/):
+      docker compose up -d          # in install/
+      ./run-arazzo.sh               # publish → discover
+      ./run-arazzo.sh -w confirm-mqtt -v
+      ./run-arazzo.sh -w confirm-kafka -v
+      ./run-arazzo.sh -w confirm-api -v
+      ./run-arazzo.sh -w confirm-datalake -v
+      ./run-arazzo.sh -w credential-rotation -v
+
+    Override server URLs:
+      -S beckn-bap-caller=http://localhost:8081/bap/caller \
+      -S beckn-bpp-caller=http://localhost:8082/bpp/caller
+
+sourceDescriptions:
+  - name: beckn-bap-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8081/bap/caller
+
+  - name: beckn-bpp-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8082/bpp/caller
+
+workflows:
+  - workflowId: publish-catalog
+    summary: IntelliGrid publishes streaming dataset catalog (MQTT, Kafka, API, Data Lake)
+    steps:
+      - stepId: publish-catalog
+        description: BPP publishes four stream offerings with DatasetItem/v1.1 streamMeta
+        operationId: beckn-bpp-caller.catalogPublish
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/publish-catalog.json"
+
+  - workflowId: discover
+    summary: Buyer discovers available real-time stream datasets
+    steps:
+      - stepId: discover
+        description: BAP searches for datasets with accessMethod in [MQTT, KAFKA, API, DATA_LAKE]
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/discover-request.json"
+
+  - workflowId: confirm-mqtt
+    summary: MQTT — confirm and receive broker credentials in on_confirm
+    steps:
+      - stepId: confirm
+        description: BAP confirms monthly MQTT stream subscription with payment
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/confirm-request.json"
+
+      - stepId: on-confirm
+        description: >
+          BPP provisions MQTT broker ACL and client credentials, delivers
+          MQTTConnection in performance[].performanceAttributes.
+          Buyer connects directly to broker; no status polling required.
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-confirm-mqtt.json"
+
+  - workflowId: confirm-kafka
+    summary: Kafka — confirm and receive consumer credentials in on_confirm
+    steps:
+      - stepId: confirm
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/confirm-request.json"
+
+      - stepId: on-confirm
+        description: >
+          BPP provisions Kafka consumer group and SASL credentials, delivers
+          KafkaConsumerCredentials in performance[].performanceAttributes.
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-confirm-kafka.json"
+
+  - workflowId: confirm-api
+    summary: REST API — confirm and receive bearer token + OpenAPI doc URL in on_confirm
+    steps:
+      - stepId: confirm
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/confirm-request.json"
+
+      - stepId: on-confirm
+        description: >
+          BPP provisions API key/bearer token, delivers ApiCredential with
+          apiDocUrl in performance[].performanceAttributes.
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-confirm-api.json"
+
+  - workflowId: confirm-datalake
+    summary: Data Lake — confirm and receive S3 STS credentials in on_confirm
+    steps:
+      - stepId: confirm
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/confirm-request.json"
+
+      - stepId: on-confirm
+        description: >
+          BPP provisions scoped STS credentials for buyer's S3 prefix, delivers
+          DataLakeCredential in performance[].performanceAttributes.
+          STS credentials expire after 12h; use credential-rotation workflow to refresh.
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-confirm-datalake.json"
+
+  - workflowId: credential-rotation
+    summary: Rotate expiring stream credentials before fulfillment:credentialExpiresAt
+    steps:
+      - stepId: update
+        description: BAP requests fresh credentials before current ones expire
+        operationId: beckn-bap-caller.update
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/update-request.json"
+
+      - stepId: on-update
+        description: BPP issues new credentials; buyer swaps without interrupting stream
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-update-response.json"

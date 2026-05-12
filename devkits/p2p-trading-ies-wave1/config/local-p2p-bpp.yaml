@@ -135,10 +135,16 @@ modules:
         steps:
           - id: degledgerrecorder
             config:
+              # Wave1 mode flags — explicit so behavior is visible in YAML, not
+              # buried as code defaults. Wave1 keeps ledgerHost from config and
+              # the legacy_ledger JSON shape; bit-identical to prior behavior.
+              payloadShape: wave1
+              ledgerUriSource: config
+              ledgerApi: legacy_ledger
               # ledgerHost: "https://34.93.166.38.sslip.io" # OLD URL
               ledgerHost: "https://ies-p2p-energy-ledger.beckn.io"
               role: "SELLER"
-              actions: "on_confirm,on_status"  # Handle both actions 
+              actions: "on_confirm,on_status"  # Handle both actions
               enabled: "true"
               asyncTimeout: "30000"
               # Signing config (same keys as simplekeymanager)

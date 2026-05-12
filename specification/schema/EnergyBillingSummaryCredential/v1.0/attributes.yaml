@@ -60,7 +60,7 @@ components:
               x-jsonld:
                 "@id": deg:customerProfile
             billingSummary:
-              $ref: "../../EnergyBillingSummary/v1.0/attributes.yaml#/components/schemas/EnergyBillingSummary"
+              $ref: "../../EnergyBillingSummaryGB/v1.0/attributes.yaml#/components/schemas/EnergyBillingSummaryGB"
               description: ESPI/Green Button billing summary data for the meter.
               x-jsonld:
                 "@id": deg:billingSummary

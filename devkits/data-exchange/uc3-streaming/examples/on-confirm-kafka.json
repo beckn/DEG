@@ -1,0 +1,137 @@
+{
+  "context": {
+    "networkId": "nfh.global/testnet-deg",
+    "version": "2.0.0",
+    "action": "on_confirm",
+    "bapId": "bap.example.com",
+    "bapUri": "http://beckn-router:9000/bap/receiver",
+    "bppId": "bpp.example.com",
+    "bppUri": "http://beckn-router:9000/bpp/receiver",
+    "transactionId": "d4e5f6a7-b8c9-0123-def0-234567890123",
+    "messageId": "d4e5f6a7-b8c9-0123-def0-234567890124",
+    "timestamp": "2026-05-07T09:03:05Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetFulfillment/v1.1/context.jsonld"
+    ]
+  },
+  "message": {
+    "contract": {
+      "id": "e5f6a7b8-c9d0-1234-ef01-345678901234",
+      "descriptor": {
+        "name": "Grid Event Stream — India (Kafka)",
+        "shortDesc": "Monthly Kafka consumer subscription — credentials active"
+      },
+      "status": { "code": "ACTIVE" },
+      "commitments": [
+        {
+          "id": "commitment-stream-kafka-001",
+          "status": { "descriptor": { "code": "ACTIVE" } },
+          "resources": [
+            {
+              "id": "stream-grid-events-kafka-india",
+              "descriptor": { "name": "Grid Event Stream — India" },
+              "quantity": { "unitText": "stream", "unitCode": "EA", "value": "1" }
+            }
+          ],
+          "offer": {
+            "id": "offer-grid-events-kafka-monthly",
+            "descriptor": { "name": "Monthly Kafka consumer subscription" },
+            "resourceIds": ["stream-grid-events-kafka-india"],
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1.1/context.jsonld",
+              "@type": "DatasetItem",
+              "schema:identifier": "stream-grid-events-kafka-india",
+              "schema:name": "Grid Event Stream — India",
+              "schema:temporalCoverage": "2026-05-07/..",
+              "dataset:accessMethod": "KAFKA",
+              "dataset:streamMeta": {
+                "dataset:streamProtocol": "KAFKA",
+                "dataset:messageFormat": "Avro",
+                "dataset:updateFrequency": "REAL_TIME",
+                "dataset:messageSchemaUrl": "https://schema-registry.intelligrid.in/subjects/grid-events-value/versions/latest"
+              }
+            }
+          }
+        }
+      ],
+      "consideration": [
+        {
+          "id": "consideration-stream-kafka-001",
+          "status": { "code": "ACTIVE" },
+          "considerationAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
+            "@type": "PriceSpecification",
+            "currency": "INR",
+            "value": 25000.00
+          }
+        }
+      ],
+      "participants": [
+        {
+          "id": "intelligrid-amisp-001",
+          "descriptor": { "name": "IntelliGrid AMI Services" },
+          "participantAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
+            "@type": "Organization",
+            "id": "intelligrid-amisp-001",
+            "name": "IntelliGrid AMI Services"
+          }
+        },
+        {
+          "id": "posoco-analytics-001",
+          "descriptor": { "name": "POSOCO Grid Analytics" },
+          "participantAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
+            "@type": "Organization",
+            "id": "posoco-analytics-001",
+            "name": "POSOCO Grid Analytics"
+          }
+        }
+      ],
+      "performance": [
+        {
+          "id": "ffl-grid-kafka-20260507-001",
+          "status": { "code": "ACTIVE" },
+          "commitmentIds": ["commitment-stream-kafka-001"],
+          "performanceAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetFulfillment/v1.1/context.jsonld",
+            "@type": "DatasetFulfillment",
+            "fulfillment:accessMethod": "KAFKA",
+            "fulfillment:accessStart": "2026-05-07T09:03:05Z",
+            "fulfillment:accessEnd": "2026-06-07T09:03:05Z",
+            "fulfillment:format": "Avro",
+            "fulfillment:supportEmail": "datasupport@intelligrid.example.in",
+            "fulfillment:streamConnection": {
+              "@type": "KafkaConsumerCredentials",
+              "fulfillment:bootstrapServers": "pkc-xyz12.ap-south1.gcp.confluent.cloud:9092",
+              "fulfillment:topicName": "deg.grid-events.india.v1",
+              "fulfillment:consumerGroupId": "posoco-analytics-001-cg",
+              "fulfillment:saslMechanism": "PLAIN",
+              "fulfillment:saslUsername": "ABCDEF1234567890",
+              "fulfillment:saslPassword": "abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
+              "fulfillment:schemaRegistryUrl": "https://psrc-xyz12.ap-south1.gcp.confluent.cloud",
+              "fulfillment:schemaRegistryUsername": "SRKEY1234567890",
+              "fulfillment:schemaRegistryPassword": "sr-secret-abc123def456",
+              "fulfillment:startOffset": "latest",
+              "fulfillment:credentialExpiresAt": "2026-06-07T09:03:05Z"
+            }
+          }
+        }
+      ],
+      "settlements": [
+        {
+          "id": "settlement-stream-kafka-001",
+          "considerationId": "consideration-stream-kafka-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:paymentStatus": "COMPLETED",
+            "beckn:amount": { "currency": "INR", "value": 25000.00 },
+            "beckn:txnRef": "UPI-TXN-2026-050709031234"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -109,7 +109,7 @@ The `cost` field accepts both integer and float values. JSON has a single `numbe
 
 ## Green Button Alignment
 
-This credential uses Green Button / ESPI numeric enum codes directly. The full ESPI schema and enum reference is at `external/schema/espiGreenButton/attributes.yaml`. See `external/schema/espiGreenButton/README.md` for the enum lookup tables.
+This credential uses Green Button / ESPI numeric enum codes directly. The full ESPI schema and enum reference is at `schema/espiGreenButton/v1.0/attributes.yaml`. See `schema/espiGreenButton/README.md` for the enum lookup tables.
 
 | JSON Property | Green Button Source | ESPI Element |
 |---|---|---|

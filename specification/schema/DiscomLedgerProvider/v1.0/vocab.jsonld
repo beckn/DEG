@@ -1,0 +1,35 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.beckn.io/core/v2.0/",
+    "deg": "https://schema.beckn.io/deg/DiscomLedgerProvider/v1.0/",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "deg:DiscomLedgerProvider",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Discom Ledger Provider",
+      "rdfs:comment": "Identity attributes for a regulated discom ledger Technical Service Provider (TSP), attached to Contract.participants[*].participantAttributes for buyerDiscom/sellerDiscom roles."
+    },
+    {
+      "@id": "deg:utilityId",
+      "@type": "rdf:Property",
+      "rdfs:label": "Utility ID",
+      "rdfs:comment": "Utility/DISCOM identifier the ledger TSP serves.",
+      "rdfs:domain": "deg:DiscomLedgerProvider",
+      "rdfs:range": "xsd:string"
+    },
+    {
+      "@id": "deg:ledgerUri",
+      "@type": "rdf:Property",
+      "rdfs:label": "Ledger URI",
+      "rdfs:comment": "Base URL of the discom ledger TSP.",
+      "rdfs:domain": "deg:DiscomLedgerProvider",
+      "rdfs:range": "xsd:anyURI"
+    }
+  ]
+}

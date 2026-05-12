@@ -53,7 +53,7 @@ components:
             inline `$ref` from the parent schema.
 
         intervalPeriod:
-          $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/external/openadr/3.1.0/openadr3.yaml#/components/schemas/intervalPeriod"
+          $ref: "https://schema.beckn.io/openadr/v3.1.0#/components/schemas/intervalPeriod"
           description: >
             Default temporal bounds of the series — ISO 8601 `start` and
             `duration`. An individual interval may override these.
@@ -66,8 +66,19 @@ components:
             (units, currency, reading type, accuracy/confidence). Every
             `intervals[*].payloads[*].type` SHOULD appear here; consumer
             profiles enforce that as a cross-field constraint.
+            Each descriptor must be either an OpenADR3 eventPayloadDescriptor
+            (objectType: EVENT_PAYLOAD_DESCRIPTOR — for offer/bid signals) or
+            a reportPayloadDescriptor (objectType: REPORT_PAYLOAD_DESCRIPTOR
+            — for telemetry/meter readings). The objectType field is the discriminator.
           items:
-            $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/external/openadr/3.1.0/openadr3.yaml#/components/schemas/reportPayloadDescriptor"
+            oneOf:
+              - $ref: "https://schema.beckn.io/openadr/v3.1.0#/components/schemas/eventPayloadDescriptor"
+              - $ref: "https://schema.beckn.io/openadr/v3.1.0#/components/schemas/reportPayloadDescriptor"
+            discriminator:
+              propertyName: objectType
+              mapping:
+                EVENT_PAYLOAD_DESCRIPTOR: "https://schema.beckn.io/openadr/v3.1.0#/components/schemas/eventPayloadDescriptor"
+                REPORT_PAYLOAD_DESCRIPTOR: "https://schema.beckn.io/openadr/v3.1.0#/components/schemas/reportPayloadDescriptor"
 
         intervals:
           type: array
@@ -77,4 +88,4 @@ components:
             typed `payloads` (valuesMap). Per-row `intervalPeriod` is
             optional and overrides the default.
           items:
-            $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/external/openadr/3.1.0/openadr3.yaml#/components/schemas/interval"
+            $ref: "https://schema.beckn.io/openadr/v3.1.0#/components/schemas/interval"

@@ -1,0 +1,253 @@
+openapi: 3.1.1
+info:
+  title: ElectricityCredential
+  version: 1.0.0
+  description: >
+    Unified W3C Verifiable Credential (VC Data Model 2.0) issued per meter by
+    electricity distribution utilities. Combines customer identity with optional
+    consumption, generation, and storage profiles in a single credential subject.
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+servers:
+  - url: https://schema.beckn.io
+    description: Canonical schema registry
+paths: {}
+components:
+  schemas:
+    ElectricityCredential:
+      $id: https://schema.beckn.io/ElectricityCredential/v1.0
+      title: ElectricityCredential
+      description: >
+        Unified W3C Verifiable Credential issued per meter by electricity
+        distribution utilities. Combines customer identity, consumption,
+        generation, and storage profiles in a single credentialSubject.
+      x-tags:
+        - energy
+        - credential
+        - verifiable-credential
+        - electricity
+        - customer
+        - deg
+      type: object
+      additionalProperties: true
+      allOf:
+        - $ref: "https://schema.beckn.io/EnergyCredential/v2.0"
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": ElectricityCredential
+      properties:
+        credentialSubject:
+          description: >
+            The credential subject containing customer identity and optional
+            consumptionProfiles, generationProfiles, and storageProfiles arrays.
+          x-jsonld:
+            "@id": deg:credentialSubject
+          type: object
+          required:
+            - customerProfile
+          properties:
+            id:
+              type: string
+              format: uri
+              description: Optional DID of the customer/credential subject.
+              x-jsonld:
+                "@id": "@id"
+            customerProfile:
+              description: Core customer identity — customer number, meter number, meter type, identity reference.
+              x-jsonld:
+                "@id": deg:customerProfile
+              type: object
+              required:
+                - customerNumber
+                - meterNumber
+                - meterType
+              properties:
+                customerNumber:
+                  type: string
+                  description: Full customer account number assigned by the utility.
+                meterNumber:
+                  type: string
+                  description: Unique meter serial number.
+                meterType:
+                  type: string
+                  description: Type of electricity meter. Values derived from Green Button / ESPI meter kind classifications.
+                  enum:
+                    - AMR
+                    - AMI
+                    - Electromechanical
+                    - Forward
+                    - Reverse
+                    - Bidirectional
+                    - Prepaid
+                    - NetMeter
+                    - Other
+                idRef:
+                  $ref: "#/components/schemas/IdRef"
+            customerDetails:
+              description: Customer personal and address information.
+              x-jsonld:
+                "@id": deg:customerDetails
+              type: object
+              required:
+                - fullName
+                - installationAddress
+                - serviceConnectionDate
+              properties:
+                fullName:
+                  type: string
+                  description: Full name of the customer as per ID proof.
+                installationAddress:
+                  type: object
+                  description: Physical location of the installation. Follows the beckn Location schema.
+                  required:
+                    - address
+                    - area_code
+                    - country
+                  properties:
+                    address:
+                      type: string
+                    city:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        code: { type: string }
+                    district:
+                      type: string
+                    state:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        code: { type: string }
+                    country:
+                      type: object
+                      required: [code]
+                      properties:
+                        name: { type: string }
+                        code:
+                          type: string
+                          pattern: "^[A-Z]{2}$"
+                          description: ISO 3166-1 alpha-2 country code.
+                    area_code:
+                      type: string
+                    gps:
+                      type: string
+                      description: "GPS coordinates as 'lat,lng' string."
+                    openLocationCode:
+                      type: string
+                      description: Open Location Code (OLC) for the installation.
+                serviceConnectionDate:
+                  type: string
+                  format: date-time
+                  description: Date and time the electricity connection was activated (with timezone offset).
+            consumptionProfiles:
+              description: >
+                Connection and consumption characteristics for load management and tariff purposes.
+                Array to support customers with multiple meters or tariff categories.
+              x-jsonld:
+                "@id": deg:consumptionProfiles
+              type: array
+              minItems: 1
+              items:
+                $ref: "#/components/schemas/ConsumptionProfile"
+            generationProfiles:
+              description: >
+                DER generation assets. Array to support customers with multiple generation units
+                (e.g., rooftop solar + wind turbine).
+              x-jsonld:
+                "@id": deg:generationProfiles
+              type: array
+              minItems: 1
+              items:
+                $ref: "#/components/schemas/GenerationProfile"
+            storageProfiles:
+              description: >
+                Energy storage assets. Array to support customers with multiple batteries.
+              x-jsonld:
+                "@id": deg:storageProfiles
+              type: array
+              minItems: 1
+              items:
+                $ref: "#/components/schemas/StorageProfile"
+
+    ConsumptionProfile:
+      description: Connection and consumption characteristics for load management and tariff purposes.
+      type: object
+      required:
+        - premisesType
+        - connectionType
+        - sanctionedLoadKW
+        - tariffCategoryCode
+      properties:
+        premisesType:
+          type: string
+          enum: [Residential, Commercial, Industrial, Agricultural]
+        connectionType:
+          type: string
+          enum: [Single-phase, Three-phase]
+        sanctionedLoadKW:
+          type: number
+          description: Sanctioned electrical load in kW.
+        tariffCategoryCode:
+          type: string
+          description: Billing/tariff category code assigned by the utility.
+
+    GenerationProfile:
+      description: DER generation capability.
+      type: object
+      required:
+        - generationType
+        - capacityKW
+        - commissioningDate
+      properties:
+        assetId:
+          type: string
+        generationType:
+          type: string
+          enum: [Solar, Wind, MicroHydro, Other]
+        capacityKW:
+          type: number
+          description: Installed generation capacity in kW.
+        commissioningDate:
+          type: string
+          format: date-time
+        manufacturer:
+          type: string
+        modelNumber:
+          type: string
+
+    StorageProfile:
+      description: Battery/energy storage capability.
+      type: object
+      required:
+        - storageCapacityKWh
+        - powerRatingKW
+        - commissioningDate
+      properties:
+        assetId:
+          type: string
+        storageCapacityKWh:
+          type: number
+          description: Storage capacity in kWh.
+        powerRatingKW:
+          type: number
+          description: Charge/discharge power rating in kW.
+        commissioningDate:
+          type: string
+          format: date-time
+        storageType:
+          type: string
+          enum: [LithiumIon, LeadAcid, FlowBattery, Other]
+
+    IdRef:
+      description: Reusable identity reference — an identity issued by an external authority.
+      type: object
+      required:
+        - issuedBy
+        - subjectId
+      properties:
+        issuedBy:
+          type: string
+          format: uri
+          description: DID of the authority that issued the identity.
+        subjectId:
+          type: string
+          description: "Identifier in the format authority-domain:id-value."

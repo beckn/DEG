@@ -211,63 +211,42 @@
       document.getElementById('refreshBtn').classList.add('opacity-50');
 
       const records = [];
-      let offset = 0;
       const limit = 500;
 
       try {
-        // Build request body with date range if set
-        const buildBody = () => {
+        for (let offset = 0; ; offset += limit) {
           const body = { limit, offset, sort: 'tradeTime', sortOrder: 'desc' };
           if (tradeTimeStart) body.tradeTimeFrom = new Date(tradeTimeStart).toISOString();
           if (tradeTimeEnd) body.tradeTimeTo = new Date(tradeTimeEnd).toISOString();
-          return body;
-        };
 
-        while (true) {
-          const reqBody = buildBody();
-          reqBody.offset = offset;
           const res = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(reqBody)
+            body: JSON.stringify(body)
           });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json();
-          records.push(...(data.records || []));
-          if ((data.count || 0) < limit) break;
-          offset += limit;
+          const page = data.records || [];
+          records.push(...page);
+          if (page.length < limit) break;
         }
 
         allRecords = records;
-        
-        // Initialize all discoms list
+
         const discomSet = new Set();
         records.forEach(r => {
           if (r.discomIdBuyer) discomSet.add(r.discomIdBuyer);
           if (r.discomIdSeller) discomSet.add(r.discomIdSeller);
         });
         allDiscoms = Array.from(discomSet).sort();
-        
-        // Select all non-TEST discoms by default
+
         if (selectedDiscoms.length === 0) {
           selectedDiscoms = allDiscoms.filter(d => !d.startsWith('TEST'));
         }
-        
+
         filteredRecords = null;
         selectedPair = null;
-        
-        // Initialize time range to last 10 days if not already set
-        if (!tradeTimeStart || !tradeTimeEnd) {
-          // setLastNDays() will call applyFilters() internally
-          setLastNDays(2);
-        } else {
-          // Update the input fields with current values
-          document.getElementById('tradeTimeStart').value = tradeTimeStart;
-          document.getElementById('tradeTimeEnd').value = tradeTimeEnd;
-          // Apply filters with current settings
-          applyFilters();
-        }
-        
+        applyFilters();
         updateUI();
         updatePollTime();
         resetCountdown();
@@ -1282,17 +1261,10 @@
     // ── Init ──
     updateAutoRefreshButton();
     renderTableHeader();
+    setDefaultDateRange();
 
-    // Initialize time range to last 2 days
-    setLastNDays(2);
-
-    // Add event listeners for time range inputs
     document.getElementById('tradeTimeStart').addEventListener('change', applyTimeRangeFilters);
     document.getElementById('tradeTimeEnd').addEventListener('change', applyTimeRangeFilters);
-
-    // Fetch config then records
-    // Set default date range (1 month ago to 2 days from now) before first fetch
-    setDefaultDateRange();
 
     fetch('/api/config')
       .then(res => res.json())
@@ -1300,7 +1272,7 @@
         showParticipantIds = cfg.showParticipantIds || false;
         renderTableHeader();
       })
-      .catch(() => {}) // keep default (off)
+      .catch(() => {})
       .finally(() => fetchAllRecords());
   </script>
 </body>

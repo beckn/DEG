@@ -1,4 +1,4 @@
-# DEG Contract Policy — P2P Trading Revenue Flows (wave2, multi-window)
+# DEG Contract Policy — P2P Trading Revenue Flows (wave2, timeseries)
 #
 # Computes the net revenue flow between the four roles in an inter-discom
 # P2P energy trade and emits signed revenueFlows that sum to zero.
@@ -8,40 +8,31 @@
 #   buyerDiscom  (regulated LP for buyer's discom)    → receives → positive (wheeling)
 #   sellerDiscom (regulated LP for seller's discom)   → receives → positive (wheeling + penalty)
 #
-# Multi-window: a single contract may span multiple delivery windows. The
-# seller's inputs.offers[] carries one tuple per window
-# {pricePerKwh, availableQuantity, deliveryWindow}; the contract's
-# performance[] carries one settlement entry per delivered window
-# {deliveryWindow, settledQuantityKwh, …}. Per-window value is settled_kwh
-# × pricePerKwh of the matching seller offer slot (matched by
-# deliveryWindow.schema:startTime). Trade value is the sum across all
-# performance entries.
+# Multi-window: a single contract spans multiple delivery slots, each
+# represented as an interval in two BecknTimeSeries:
 #
-# Inputs read from the contract payload:
-#   commitments[0].offer.offerAttributes.inputs[seller].inputs.offers[*]
-#                                                — pricePerKwh per delivery
-#                                                  window (matched by
-#                                                  startTime)
-#   commitments[0].offer.offerAttributes.inputs[seller].inputs.currency
-#                                                — single currency for all
-#                                                  windows
-#   contract.performance[*].performanceAttributes.{deliveryWindow,
-#                                                  settledQuantityKwh}
-#                                                — per-window settlement
-#   contractAttributes.roles                     — must include all four roles
+#   commitments[0].offer.offerAttributes.inputs[seller].inputs.offerTimeseries
+#       — PRICE_PER_KWH (currency: INR) and AVAILABLE_QTY (units: KWH)
+#         one interval per slot; interval id is the slot key
 #
-# Wheeling and penalty placeholders are 0 today; the structure is in place
-# so a future rule (e.g. tariff lookup, default-event detection) can plug
-# real values into the same revenueFlows shape without re-shaping callers.
+#   contract.performance[0].performanceAttributes.performanceTimeseries
+#       — BUYER_ALLOCATION, SELLER_INJECTION, SETTLED_QTY (all KWH)
+#         interval ids match the offerTimeseries ids
+#
+# Per-slot trade value = SETTLED_QTY × PRICE_PER_KWH (matched by interval id).
+# Total trade value = sum across all performance intervals.
+#
+# Wheeling and penalty placeholders are 0 today.
 #
 # Exported rules:
-#   revenue_flows           — [{role, value, currency, description}]
-#   trade_value             — sum over windows of (settled_kwh × price_per_kwh)
-#   wheeling_charge_buyer   — 0 placeholder
-#   wheeling_charge_seller  — 0 placeholder
-#   penalty_charge          — 0 placeholder
-#   net_zero_ok             — bool: sum of revenue_flows == 0
-#   violations              — set of error strings
+#   revenue_flows          — [{role, value, currency, description}]
+#   trade_value            — total INR value across all intervals
+#   total_settled_kwh      — total kWh settled across all intervals
+#   wheeling_charge_buyer  — 0 placeholder
+#   wheeling_charge_seller — 0 placeholder
+#   penalty_charge         — 0 placeholder
+#   net_zero_ok            — bool: sum of revenue_flows == 0
+#   violations             — set of error strings
 
 package deg.contracts.p2p_trading
 
@@ -59,65 +50,61 @@ _inputs := _offer_attrs.inputs
 
 _seller_inputs := [i.inputs | some i in _inputs; i.role == "seller"][0]
 
-# Seller's per-window slots: [{pricePerKwh, availableQuantity, deliveryWindow}, …]
-_seller_offers := _seller_inputs.offers
+_offer_ts := _seller_inputs.offerTimeseries
 
 _currency := _seller_inputs.currency
 
-# Settlement performance entries — one per delivered window.
-_perf := _contract.performance
+_perf_ts := _contract.performance[0].performanceAttributes.performanceTimeseries
 
 # ---------------------------------------------------------------------------
-# Per-window helpers
+# Timeseries helpers
 # ---------------------------------------------------------------------------
 
-# Price for a delivery window, matched by the schema:startTime of the
-# seller offer slot. Falls back to 0 when no slot matches (a violation is
-# emitted separately so callers know the policy didn't find a price).
-_price_for_window(start_time) := price if {
-	some s in _seller_offers
-	s.deliveryWindow["schema:startTime"] == start_time
-	price := s.pricePerKwh
-} else := 0
-
-# Per-performance-entry value: settled_kwh × matched_price_per_kwh.
-_window_value(p) := value if {
-	settled := p.performanceAttributes.settledQuantityKwh
-	start_time := p.performanceAttributes.deliveryWindow["schema:startTime"]
-	price := _price_for_window(start_time)
-	value := settled * price
+# Scalar value of a typed payload within an interval.
+_payload_val(interval, ptype) := v if {
+	some p in interval.payloads
+	p.type == ptype
+	v := p.values[0]
 }
 
-# Per-window settled quantity (used for human-readable description).
-_window_settled(p) := q if {
-	q := p.performanceAttributes.settledQuantityKwh
+# Seller offer interval id → price per kWh.
+_price_by_id := {i.id: _payload_val(i, "PRICE_PER_KWH") | some i in _offer_ts.intervals}
+
+# Set of offer interval ids (used for subset validation in violations).
+_offer_interval_ids := {i.id | some i in _offer_ts.intervals}
+
+# ---------------------------------------------------------------------------
+# Per-interval value
+# ---------------------------------------------------------------------------
+
+_interval_value(pi) := v if {
+	settled := _payload_val(pi, "SETTLED_QTY")
+	price := _price_by_id[pi.id]
+	v := settled * price
 }
 
 # ---------------------------------------------------------------------------
-# Aggregate trade value across windows
+# Aggregate trade value across intervals
 # ---------------------------------------------------------------------------
 
-trade_value := sum([_window_value(p) | some p in _perf])
+trade_value := sum([_interval_value(pi) | some pi in _perf_ts.intervals])
 
-total_settled_kwh := sum([_window_settled(p) | some p in _perf])
+total_settled_kwh := sum([_payload_val(pi, "SETTLED_QTY") | some pi in _perf_ts.intervals])
 
-# Per-window human-readable breakdown, used inside revenueFlows descriptions.
 _window_breakdown := concat("; ", [s |
-	some p in _perf
-	settled := p.performanceAttributes.settledQuantityKwh
-	start_time := p.performanceAttributes.deliveryWindow["schema:startTime"]
-	price := _price_for_window(start_time)
+	some pi in _perf_ts.intervals
+	settled := _payload_val(pi, "SETTLED_QTY")
+	price := _price_by_id[pi.id]
 	value := settled * price
-	s := sprintf("%v kWh @ %v %s = %v %s [%v]", [settled, price, _currency, value, _currency, start_time])
+	s := sprintf("%v kWh @ %v %s = %v %s [interval %v]", [
+		settled, price, _currency, value, _currency, pi.id,
+	])
 ])
 
 # ---------------------------------------------------------------------------
-# Charge placeholders (sum across all windows)
+# Charge placeholders
 # ---------------------------------------------------------------------------
 
-# Wheeling charges and penalty default to zero. Wire real tariff/penalty
-# rules here when the network policy defines them — revenueFlows callers
-# do not need to change.
 default wheeling_charge_buyer := 0
 
 default wheeling_charge_seller := 0
@@ -125,13 +112,7 @@ default wheeling_charge_seller := 0
 default penalty_charge := 0
 
 # ---------------------------------------------------------------------------
-# Revenue flows by role (the core output)
-#
-#   buyer pays trade_value + buyer-side wheeling
-#   seller receives trade_value − seller-side wheeling − penalty
-#   buyerDiscom receives buyer-side wheeling
-#   sellerDiscom receives seller-side wheeling + penalty
-#   sum = 0
+# Revenue flows by role
 # ---------------------------------------------------------------------------
 
 _buyer_payable := trade_value + wheeling_charge_buyer
@@ -145,8 +126,8 @@ _buyer_flow := {
 	"value": _buyer_payable * -1,
 	"currency": _currency,
 	"description": sprintf(
-		"Pays %v %s across %v window(s): [%s]; buyer-side wheeling %v",
-		[_buyer_payable, _currency, count(_perf), _window_breakdown, wheeling_charge_buyer],
+		"Pays %v %s across %v interval(s): [%s]; buyer-side wheeling %v",
+		[_buyer_payable, _currency, count(_perf_ts.intervals), _window_breakdown, wheeling_charge_buyer],
 	),
 }
 
@@ -155,8 +136,8 @@ _seller_flow := {
 	"value": _seller_receivable,
 	"currency": _currency,
 	"description": sprintf(
-		"Receives %v %s across %v window(s): [%s]; seller-side wheeling %v, penalty %v",
-		[_seller_receivable, _currency, count(_perf), _window_breakdown, wheeling_charge_seller, penalty_charge],
+		"Receives %v %s across %v interval(s): [%s]; seller-side wheeling %v, penalty %v",
+		[_seller_receivable, _currency, count(_perf_ts.intervals), _window_breakdown, wheeling_charge_seller, penalty_charge],
 	),
 }
 
@@ -164,14 +145,14 @@ _buyer_discom_flow := {
 	"role": "buyerDiscom",
 	"value": wheeling_charge_buyer,
 	"currency": _currency,
-	"description": "Buyer-side wheeling charge across all windows (placeholder — currently 0)",
+	"description": "Buyer-side wheeling charge across all intervals (placeholder — currently 0)",
 }
 
 _seller_discom_flow := {
 	"role": "sellerDiscom",
 	"value": _seller_discom_value,
 	"currency": _currency,
-	"description": "Seller-side wheeling charge + any penalty across all windows (placeholders — currently 0)",
+	"description": "Seller-side wheeling charge + any penalty across all intervals (placeholders — currently 0)",
 }
 
 revenue_flows := [_buyer_flow, _seller_flow, _buyer_discom_flow, _seller_discom_flow]
@@ -181,7 +162,7 @@ _revenue_sum := sum([f.value | some f in revenue_flows])
 net_zero_ok if _revenue_sum == 0
 
 # ---------------------------------------------------------------------------
-# Roles — extracted from contractAttributes (DEGContract)
+# Roles — extracted from contractAttributes
 # ---------------------------------------------------------------------------
 
 _contract_attrs := _contract.contractAttributes
@@ -201,34 +182,29 @@ violations contains msg if {
 }
 
 violations contains msg if {
-	count(_perf) == 0
+	count(_contract.performance) == 0
 	msg := "no performance entries — cannot compute revenue flows"
 }
 
-# Per-window: settledQuantityKwh must be present.
 violations contains msg if {
-	some p in _perf
-	not p.performanceAttributes.settledQuantityKwh
-	msg := sprintf(
-		"missing settledQuantityKwh on performance entry %q",
-		[p.id],
-	)
+	count(_contract.performance) > 0
+	not _contract.performance[0].performanceAttributes.performanceTimeseries
+	msg := "performance[0].performanceAttributes.performanceTimeseries is missing"
 }
 
-# Per-window: a seller offer slot must match the performance deliveryWindow.
 violations contains msg if {
-	some p in _perf
-	start_time := p.performanceAttributes.deliveryWindow["schema:startTime"]
-	not _matched_seller_offer(start_time)
-	msg := sprintf(
-		"no seller offer slot matches performance deliveryWindow.schema:startTime %q (entry %q)",
-		[start_time, p.id],
-	)
+	some pi in _perf_ts.intervals
+	not _payload_val(pi, "SETTLED_QTY")
+	msg := sprintf("performance interval %v is missing SETTLED_QTY payload", [pi.id])
 }
 
-_matched_seller_offer(start_time) if {
-	some s in _seller_offers
-	s.deliveryWindow["schema:startTime"] == start_time
+violations contains msg if {
+	some pi in _perf_ts.intervals
+	not pi.id in _offer_interval_ids
+	msg := sprintf(
+		"performance interval %v has no matching seller offer interval (available ids: %v)",
+		[pi.id, _offer_interval_ids],
+	)
 }
 
 violations contains msg if {

@@ -802,6 +802,18 @@ components:
           type: integer
           minimum: 0
           default: 0
+        statusBuyerDiscom:
+          anyOf:
+            - $ref: "#/components/schemas/tradeStatus"
+            - type: string
+              maxLength: 0
+          description: Filter by buyer discom status; pass empty string to skip this filter
+        statusSellerDiscom:
+          anyOf:
+            - $ref: "#/components/schemas/tradeStatus"
+            - type: string
+              maxLength: 0
+          description: Filter by seller discom status; pass empty string to skip this filter
         sort:
           type: string
           enum: [creationTime, tradeTime, deliveryStartTime, deliveryEndTime]

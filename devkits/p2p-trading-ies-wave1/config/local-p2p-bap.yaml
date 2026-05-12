@@ -78,6 +78,12 @@ modules:
               policyUrls: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/policies/p2p-trading-interdiscom.rego"
           - id: degledgerrecorder
             config:
+              # Wave1 mode flags — explicit so behavior is visible in YAML, not
+              # buried as code defaults. Wave1 keeps ledgerHost from config and
+              # the legacy_ledger JSON shape; bit-identical to prior behavior.
+              payloadShape: wave1
+              ledgerUriSource: config
+              ledgerApi: legacy_ledger
               # ledgerHost: "https://34.93.166.38.sslip.io" OLD URL
               ledgerHost: "https://ies-p2p-energy-ledger.beckn.io"
               role: "BUYER"

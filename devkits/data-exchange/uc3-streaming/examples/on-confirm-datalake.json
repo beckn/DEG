@@ -1,0 +1,137 @@
+{
+  "context": {
+    "networkId": "nfh.global/testnet-deg",
+    "version": "2.0.0",
+    "action": "on_confirm",
+    "bapId": "bap.example.com",
+    "bapUri": "http://beckn-router:9000/bap/receiver",
+    "bppId": "bpp.example.com",
+    "bppUri": "http://beckn-router:9000/bpp/receiver",
+    "transactionId": "f7a8b9c0-d1e2-3456-f123-567890123456",
+    "messageId": "f7a8b9c0-d1e2-3456-f123-567890123457",
+    "timestamp": "2026-05-07T09:03:05Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetFulfillment/v1.1/context.jsonld"
+    ]
+  },
+  "message": {
+    "contract": {
+      "id": "a8b9c0d1-e2f3-4567-a234-678901234567",
+      "descriptor": {
+        "name": "Meter History Data Lake — S3",
+        "shortDesc": "Monthly S3 live-append subscription — STS credentials active"
+      },
+      "status": { "code": "ACTIVE" },
+      "commitments": [
+        {
+          "id": "commitment-stream-datalake-001",
+          "status": { "descriptor": { "code": "ACTIVE" } },
+          "resources": [
+            {
+              "id": "stream-meter-history-datalake-s3",
+              "descriptor": { "name": "Meter History Data Lake — S3" },
+              "quantity": { "unitText": "stream", "unitCode": "EA", "value": "1" }
+            }
+          ],
+          "offer": {
+            "id": "offer-meter-datalake-monthly",
+            "descriptor": { "name": "Monthly S3 live-append subscription" },
+            "resourceIds": ["stream-meter-history-datalake-s3"],
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1.1/context.jsonld",
+              "@type": "DatasetItem",
+              "schema:identifier": "stream-meter-history-datalake-s3",
+              "schema:name": "Meter History Data Lake — S3",
+              "schema:temporalCoverage": "2023-01-01/..",
+              "dataset:accessMethod": "DATA_LAKE",
+              "dataset:streamMeta": {
+                "dataset:streamProtocol": "DATA_LAKE",
+                "dataset:messageFormat": "Parquet",
+                "dataset:updateFrequency": "PT15M",
+                "dataset:messageSchemaUrl": "https://intelligrid.in/schemas/meter-history-parquet-v2.json"
+              }
+            }
+          }
+        }
+      ],
+      "consideration": [
+        {
+          "id": "consideration-stream-datalake-001",
+          "status": { "code": "ACTIVE" },
+          "considerationAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
+            "@type": "PriceSpecification",
+            "currency": "INR",
+            "value": 18000.00
+          }
+        }
+      ],
+      "participants": [
+        {
+          "id": "intelligrid-amisp-001",
+          "descriptor": { "name": "IntelliGrid AMI Services" },
+          "participantAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
+            "@type": "Organization",
+            "id": "intelligrid-amisp-001",
+            "name": "IntelliGrid AMI Services"
+          }
+        },
+        {
+          "id": "bescom-analytics-001",
+          "descriptor": { "name": "BESCOM Analytics Team" },
+          "participantAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
+            "@type": "Organization",
+            "id": "bescom-analytics-001",
+            "name": "BESCOM Analytics Team"
+          }
+        }
+      ],
+      "performance": [
+        {
+          "id": "ffl-meter-datalake-20260507-001",
+          "status": { "code": "ACTIVE" },
+          "commitmentIds": ["commitment-stream-datalake-001"],
+          "performanceAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetFulfillment/v1.1/context.jsonld",
+            "@type": "DatasetFulfillment",
+            "fulfillment:accessMethod": "DATA_LAKE",
+            "fulfillment:accessStart": "2026-05-07T09:03:05Z",
+            "fulfillment:accessEnd": "2026-06-07T09:03:05Z",
+            "fulfillment:format": "Parquet",
+            "fulfillment:supportEmail": "datasupport@intelligrid.example.in",
+            "fulfillment:streamConnection": {
+              "@type": "DataLakeCredential",
+              "fulfillment:cloudProvider": "AWS_S3",
+              "fulfillment:accessType": "STS_CREDENTIALS",
+              "fulfillment:accessKeyId": "ASIAIOSFODNN7EXAMPLE",
+              "fulfillment:secretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+              "fulfillment:sessionToken": "AQoDYXdzEJr...truncated-for-example...==",
+              "fulfillment:bucket": "deg-ami-live-ap-south-1",
+              "fulfillment:storagePrefix": "bescom-analytics-001/blr-zone-a/",
+              "fulfillment:storageRegion": "ap-south-1",
+              "fulfillment:fileFormat": "Parquet",
+              "fulfillment:partitionPattern": "year={yyyy}/month={MM}/day={dd}/",
+              "fulfillment:credentialExpiresAt": "2026-05-07T21:03:05Z"
+            }
+          }
+        }
+      ],
+      "settlements": [
+        {
+          "id": "settlement-stream-datalake-001",
+          "considerationId": "consideration-stream-datalake-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:paymentStatus": "COMPLETED",
+            "beckn:amount": { "currency": "INR", "value": 18000.00 },
+            "beckn:txnRef": "UPI-TXN-2026-050709031456"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -10,19 +10,15 @@
     "startTime": "schema:startTime",
     "endTime": "schema:endTime",
     "EnergyTradeOffer": "deg:EnergyTradeOffer",
-    "pricingModel": {
-      "@id": "deg:pricingModel",
-      "@type": "@id"
-    },
+    "RoleInputs": "deg:RoleInputs",
     "validityWindow": "deg:validityWindow",
-    "deliveryWindow": "deg:deliveryWindow",
-    "gift": "deg:gift",
-    "PER_KWH": "deg:PricingModelPerKwh",
-    "PER-KWH": "deg:PricingModelPerKwh",
-    "TIME_OF_DAY": "deg:PricingModelTimeOfDay",
-    "TIME-OF-DAY": "deg:PricingModelTimeOfDay",
-    "SUBSCRIPTION": "deg:PricingModelSubscription",
-    "FIXED": "deg:PricingModelFixed"
+    "contractTerms": "deg:contractTerms",
+    "commitmentAttributes": "deg:commitmentAttributes",
+    "inputs": "deg:inputs",
+    "role": "deg:role",
+    "participantId": "deg:participantId",
+    "payload": "deg:payload",
+    "payloadDescriptors": "deg:payloadDescriptors"
   },
   "@graph": []
 }

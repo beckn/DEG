@@ -35,7 +35,11 @@ plugins:
   steps:
     - id: degledgerrecorder
       config:
-        ledgerHost: "https://ledger.example.org"
+        # Required mode flags — no code defaults; behavior must be visible here.
+        payloadShape: wave2          # wave1 | wave2
+        ledgerUriSource: payload     # config | payload
+        ledgerApi: legacy_ledger     # legacy_ledger | beckn
+        # ledgerHost: "https://ledger.example.org"  # required only when ledgerUriSource=config
         role: "BUYER"        # BUYER, SELLER, BUYER_DISCOM, or SELLER_DISCOM
         enabled: "true"      # Enable/disable the plugin
         asyncTimeout: "5000" # Timeout in milliseconds
@@ -49,17 +53,65 @@ steps:
 
 ### Configuration Options
 
+#### Mode Flags (all required, no code defaults)
+
+| Option | Values | Description |
+|--------|--------|-------------|
+| `payloadShape` | `wave1`, `wave2` | Which on_confirm body the mapper expects. `wave1` = `beckn:Order`/`orderItems` (p2p-trading-ies-wave1). `wave2` = `message.contract.commitments` (p2p-trading-ies-wave2, P2PTrade/v2.0). |
+| `ledgerUriSource` | `config`, `payload` | Where to find the target ledger base URL. `config` reads `ledgerHost`. `payload` reads `participants[role=buyerDiscom\|sellerDiscom].participantAttributes.ledgerUri` from the on_confirm body — required for wave2 since the URI varies per discom. |
+| `ledgerApi` | `legacy_ledger`, `beckn` | API style. `legacy_ledger` POSTs to `<uri>/ledger/put` with the custom JSON body. `beckn` POSTs the original on_confirm verbatim (with rewritten context) to `<uri>/on_confirm` and expects a beckn ACK envelope wrapping the legacy ledger response. |
+
 #### Core Settings
 
 | Option | Required | Default | Description |
 |--------|----------|---------|-------------|
-| `ledgerHost` | Yes | - | Base URL of the DEG Ledger service |
+| `ledgerHost` | When `ledgerUriSource=config` | - | Base URL of the DEG Ledger service |
 | `role` | No | `BUYER` | Role for ledger records (see below) |
 | `actions` | No | `on_confirm` | Comma-separated list of actions to trigger recording |
 | `enabled` | No | `true` | Enable/disable plugin |
 | `asyncTimeout` | No | `5000` | API call timeout (ms) |
 | `retryCount` | No | `0` | Retry count for failed calls |
 | `debugLogging` | No | `false` | Enable verbose request/response logging |
+
+#### Per-call ledger URI from payload
+
+When `ledgerUriSource=payload`, the plugin picks the URI based on `role`:
+- `BUYER` → `participants[role=buyerDiscom].participantAttributes.ledgerUri`
+- `SELLER` → `participants[role=sellerDiscom].participantAttributes.ledgerUri`
+
+A platform instance (BAP or BPP) only writes to its own side's discom ledger. The same trade is logged in two ledgers (one per discom) at the system level, with each platform contacting only its own; if the two discoms share a TSP, both calls land at the same URL.
+
+The discom `ledgerUri` is carried via the [`DiscomLedgerProvider/v1.0`](../../specification/schema/DiscomLedgerProvider/v1.0/) schema.
+
+#### `ledgerApi: beckn` mode
+
+In beckn mode the plugin forwards the original `on_confirm` body verbatim — except for the `context` block, which is rewritten so the ledger TSP receives it as a BPP→BAP call:
+
+| Field | Rewritten to |
+|-------|--------------|
+| `context.bppUri` | `<senderHost>/bpp/caller` |
+| `context.bapUri` | `<discomLedgerUri>/bap/receiver` |
+
+`senderHost` resolution order:
+1. `senderHost` config option (e.g., `https://bap.example.com`).
+2. Falls back to the host portion of `context.bapUri` (BUYER role) or `context.bppUri` (SELLER role) from the incoming payload.
+
+The plugin then POSTs the rewritten body to `<discomLedgerUri>/on_confirm` and expects a beckn ACK envelope back:
+
+```json
+{
+  "message": {
+    "ack":    { "status": "ACK" },
+    "ledger": { "success": true, "recordId": "rec-...", "creationTime": "...", "rowDigest": "sha256:..." }
+  }
+}
+```
+
+The inner `message.ledger` block carries the same fields the legacy `/ledger/put` API used to return; the plugin surfaces it identically so call-site logging stays uniform across the two modes.
+
+| Option | Required | Default | Description |
+|--------|----------|---------|-------------|
+| `senderHost` | When `ledgerApi=beckn` and you want to override the derived value | derived from incoming context | Base URL (`scheme://host[:port]`) advertised as the BPP-side caller in the rewritten context |
 
 #### Actions and Roles
 
@@ -117,6 +169,9 @@ plugins:
   steps:
     - id: degledgerrecorder
       config:
+        payloadShape: wave1
+        ledgerUriSource: config
+        ledgerApi: legacy_ledger
         ledgerHost: "https://ledger.example.org"
         role: "BUYER"
         # Signing config automatically loaded from env vars
@@ -136,12 +191,50 @@ plugins:
   steps:
     - id: degledgerrecorder
       config:
+        payloadShape: wave1
+        ledgerUriSource: config
+        ledgerApi: legacy_ledger
         ledgerHost: "https://ledger.example.org"
         role: "BUYER"                    # Platform role
         actions: "on_confirm"            # Default, records trade agreements
         signingPrivateKey: "${SIGNING_PRIVATE_KEY}"
         networkParticipant: "bap.example.org"
         keyId: "bap.example.org.k1"
+```
+
+### Example 2a: Wave 2 — payload-sourced ledger URI
+
+For p2p-trading-ies-wave2 the ledger URL is read per-call from the on_confirm payload:
+
+```yaml
+plugins:
+  steps:
+    - id: degledgerrecorder
+      config:
+        payloadShape: wave2
+        ledgerUriSource: payload         # read from participants[role=*Discom].participantAttributes.ledgerUri
+        ledgerApi: legacy_ledger         # flip to "beckn" once the TSP is upgraded
+        # ledgerHost intentionally omitted — the URI comes from the payload
+        role: "BUYER"                    # BUYER on BAP side reads buyerDiscom; SELLER on BPP reads sellerDiscom
+        actions: "on_confirm"
+        signingPrivateKey: "${SIGNING_PRIVATE_KEY}"
+        networkParticipant: "bap.example.com"
+        keyId: "bap.example.com.k1"
+```
+
+The on_confirm payload must carry, in `message.contract.participants`:
+
+```json
+{
+  "role": "buyerDiscom",
+  "participantId": "buyer-discom-ledger",
+  "participantAttributes": {
+    "@context": ".../specification/schema/DiscomLedgerProvider/v1.0/context.jsonld",
+    "@type": "DiscomLedgerProvider",
+    "utilityId": "BRPL-DL",
+    "ledgerUri": "https://ies-p2p-energy-ledger.beckn.io"
+  }
+}
 ```
 
 ### Example 3: Discom Recording (on_status with meter readings)
@@ -151,6 +244,9 @@ plugins:
   steps:
     - id: degledgerrecorder
       config:
+        payloadShape: wave1
+        ledgerUriSource: config
+        ledgerApi: legacy_ledger
         ledgerHost: "https://ledger.example.org"
         role: "BUYER_DISCOM"             # Discom role for validation metrics
         actions: "on_status"             # Record meter readings
@@ -166,6 +262,9 @@ plugins:
   steps:
     - id: degledgerrecorder
       config:
+        payloadShape: wave1
+        ledgerUriSource: config
+        ledgerApi: legacy_ledger
         ledgerHost: "https://ledger.example.org"
         role: "BUYER_DISCOM"             # Use discom role if handling both
         actions: "on_confirm,on_status"  # Handle both actions

@@ -16,6 +16,9 @@
     handle /bpp/* {
         reverse_proxy onix-bpp:8082
     }
+    handle /ledger/* {
+        reverse_proxy onix-ledger:8083
+    }
     handle {
         respond "beckn-router ok" 200
     }

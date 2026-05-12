@@ -1,6 +1,6 @@
 {
     "@context": [
-        "https://schema.beckn.io/external/espi/context.jsonld",
+        "https://schema.beckn.io/espiGreenButton/v1.0/context.jsonld",
         "https://schema.beckn.io/EnergyCustomerProfile/context.jsonld",
         {
             "@version": 1.1,

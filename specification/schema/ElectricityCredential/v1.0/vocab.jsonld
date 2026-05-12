@@ -1,0 +1,49 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "deg": "https://schema.beckn.io/deg/",
+        "energyCred": "https://schema.beckn.io/deg/EnergyCredential/v2.0/",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#"
+    },
+    "@graph": [
+        {
+            "@id": "deg:ElectricityCredential",
+            "@type": "rdfs:Class",
+            "rdfs:label": "Electricity Credential",
+            "rdfs:comment": "A W3C Verifiable Credential issued per meter by electricity distribution utilities. Combines customer identity with optional consumption, generation, and storage profiles in a single credential subject.",
+            "rdfs:subClassOf": { "@id": "energyCred:EnergyCredential" }
+        },
+        {
+            "@id": "deg:customerProfile",
+            "@type": "rdf:Property",
+            "rdfs:label": "Customer Profile",
+            "rdfs:comment": "Core customer identity: customer number, meter number, meter type, and external identity reference."
+        },
+        {
+            "@id": "deg:customerDetails",
+            "@type": "rdf:Property",
+            "rdfs:label": "Customer Details",
+            "rdfs:comment": "Customer personal and address information: full name, installation address, service connection date."
+        },
+        {
+            "@id": "deg:consumptionProfile",
+            "@type": "rdf:Property",
+            "rdfs:label": "Consumption Profile",
+            "rdfs:comment": "Connection and consumption characteristics: premises type, connection type, sanctioned load, tariff category."
+        },
+        {
+            "@id": "deg:generationProfile",
+            "@type": "rdf:Property",
+            "rdfs:label": "Generation Profile",
+            "rdfs:comment": "DER generation capability: type, capacity, commissioning date, manufacturer."
+        },
+        {
+            "@id": "deg:storageProfile",
+            "@type": "rdf:Property",
+            "rdfs:label": "Storage Profile",
+            "rdfs:comment": "Battery/energy storage capability: capacity, power rating, commissioning date, storage type."
+        }
+    ]
+}

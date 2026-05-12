@@ -193,8 +193,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(err)
 
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
+        super().end_headers()
+
     def log_message(self, fmt, *args):
-        # Compact logging
         print(f"[{self.log_date_time_string()}] {fmt % args}")
 
 

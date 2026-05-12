@@ -37,7 +37,7 @@ services:
       retries: 5
 
   onix-bap:
-    image: fidedocker/onix-adapter-deg:w-deg-plugins-v1.1
+    image: fidedocker/onix-adapter-deg:w-deg-plugins-v1
     container_name: onix-bap
     ports:
       - "8081:8081"
@@ -89,7 +89,7 @@ services:
       retries: 5
 
   onix-bpp:
-    image: fidedocker/onix-adapter-deg:w-deg-plugins-v1.1
+    image: fidedocker/onix-adapter-deg:w-deg-plugins-v1
     container_name: onix-bpp
     ports:
       - "8082:8082"
@@ -126,6 +126,64 @@ services:
       retries: 5
       start_period: 10s
     networks:
+      - bpp_side
+
+  # ---------- Ledger side (mock ledger TSP — bridges both networks) ----------
+  redis-ledger:
+    image: redis:alpine
+    hostname: redis-ledger
+    container_name: redis-ledger
+    networks:
+      - bap_side
+      - bpp_side
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  onix-ledger:
+    image: fidedocker/onix-adapter-deg:w-deg-plugins-v1
+    container_name: onix-ledger
+    ports:
+      - "8083:8083"
+    environment:
+      CONFIG_FILE: "/app/config/local-p2p-trading-ledger.yaml"
+    volumes:
+      - ../config:/app/config
+      - ../schemas:/app/schemas
+      - ../policies:/app/policies
+    command: ["./server", "--config=/app/config/local-p2p-trading-ledger.yaml"]
+    networks:
+      - bap_side
+      - bpp_side
+    depends_on:
+      redis-ledger:
+        condition: service_healthy
+
+  sandbox-ledger:
+    container_name: sandbox-ledger
+    image: fidedocker/sandbox-2.0:latest
+    platform: linux/amd64
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - PERSONA=ledger
+      # Route on_status callback through onix-ledger's caller so it is signed
+      # with the ledger identity before being forwarded to the BAP receiver.
+      - BPP_CALLBACK_ENDPOINT=http://onix-ledger:8083/ledger/caller
+    ports:
+      - "3003:3003"
+    volumes:
+      - ../ledger-fixtures:/app/dist/webhook/jsons/nfh.global/testnet-deg/response/ledger
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3003/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - bap_side
       - bpp_side
 
   # ---------- Path router (only container on both sides) ----------

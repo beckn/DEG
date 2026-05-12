@@ -9,13 +9,19 @@
       "schema": "https://schema.org/",
       "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
       "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-      "xsd": "http://www.w3.org/2001/XMLSchema#"
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+      "espi": "http://naesb.org/espi#",
+      "cim": "http://iec.ch/TC57/CIM#",
+      "oadr": "https://www.openadr.org/oadr3#"
     },
     "./EnergyEnrollment/v2.0/context.jsonld",
     "./EnergyTrade/v2.0/context.jsonld",
     "./EvChargingOffer/v2.0/context.jsonld",
     "./EvChargingPointOperator/v2.0/context.jsonld",
     "./EvChargingService/v2.0/context.jsonld",
-    "./EvChargingSession/v2.0/context.jsonld"
+    "./EvChargingSession/v2.0/context.jsonld",
+    "./espiGreenButton/v1.0/context.jsonld",
+    "./espiGreenButtonWithCIM/v1.0/context.jsonld",
+    "./openadr/v3.1.0/context.jsonld"
   ]
 }

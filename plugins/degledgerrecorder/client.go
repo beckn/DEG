@@ -40,6 +40,18 @@ type LedgerErrorResponse struct {
 	Details map[string]interface{} `json:"details,omitempty"`
 }
 
+// BecknAckEnvelope is the response shape the ledger TSP returns when called
+// over beckn `on_confirm`. The legacy ledger record metadata is wrapped inside
+// `message.ledger` so callers can unwrap it back into a `LedgerPutResponse`.
+type BecknAckEnvelope struct {
+	Message struct {
+		Ack struct {
+			Status string `json:"status"`
+		} `json:"ack"`
+		Ledger LedgerPutResponse `json:"ledger"`
+	} `json:"message"`
+}
+
 // RequestLog captures details of an HTTP request for logging.
 type RequestLog struct {
 	RequestID   string            `json:"request_id"`
@@ -75,8 +87,14 @@ func NewLedgerClient(baseURL string, timeout time.Duration, retryCount int, apiK
 	}
 }
 
-// PutRecord sends a record to the ledger PUT API.
-func (c *LedgerClient) PutRecord(ctx context.Context, record LedgerPutRequest) (*LedgerPutResponse, error) {
+// PutRecord sends a record to the ledger PUT API at the given baseURL. The
+// baseURL is supplied per-call (rather than taken from the client) so the same
+// client can target different discom ledger TSPs based on payload-extracted
+// URIs.
+func (c *LedgerClient) PutRecord(ctx context.Context, baseURL string, record LedgerPutRequest) (*LedgerPutResponse, error) {
+	if baseURL == "" {
+		return nil, fmt.Errorf("baseURL is required for PutRecord")
+	}
 	var lastErr error
 
 	for attempt := 0; attempt <= c.retryCount; attempt++ {
@@ -85,7 +103,7 @@ func (c *LedgerClient) PutRecord(ctx context.Context, record LedgerPutRequest) (
 				attempt, c.retryCount, record.OrderItemID)
 		}
 
-		resp, err := c.doPutRequest(ctx, record, attempt)
+		resp, err := c.doPutRequest(ctx, baseURL, record, attempt)
 		if err == nil {
 			return resp, nil
 		}
@@ -106,6 +124,286 @@ func (c *LedgerClient) PutRecord(ctx context.Context, record LedgerPutRequest) (
 	}
 
 	return nil, lastErr
+}
+
+// PostBecknOnConfirm forwards a beckn on_confirm body verbatim to a ledger TSP
+// at <baseURL>/on_confirm. The caller must have already rewritten context.bapUri
+// and context.bppUri appropriately. The TSP is expected to return a
+// BecknAckEnvelope; the inner `message.ledger` block is returned as a
+// LedgerPutResponse so call sites can be uniform with the legacy_ledger path.
+func (c *LedgerClient) PostBecknOnConfirm(ctx context.Context, baseURL string, body []byte) (*LedgerPutResponse, error) {
+	if baseURL == "" {
+		return nil, fmt.Errorf("baseURL is required for PostBecknOnConfirm")
+	}
+	var lastErr error
+	for attempt := 0; attempt <= c.retryCount; attempt++ {
+		if attempt > 0 {
+			fmt.Printf("[DEGLedgerRecorder] Retry attempt %d/%d for beckn on_confirm\n",
+				attempt, c.retryCount)
+		}
+		resp, err := c.doBecknOnConfirmRequest(ctx, baseURL, body, attempt)
+		if err == nil {
+			return resp, nil
+		}
+		lastErr = err
+		if ctx.Err() != nil {
+			return nil, fmt.Errorf("context cancelled: %w", ctx.Err())
+		}
+		if attempt < c.retryCount {
+			backoff := time.Duration(attempt+1) * 100 * time.Millisecond
+			time.Sleep(backoff)
+		}
+	}
+	return nil, lastErr
+}
+
+// PostBecknStatus forwards a beckn status body to <baseURL>/status. The ledger
+// TSP is expected to respond with ACK and later call back with on_status.
+func (c *LedgerClient) PostBecknStatus(ctx context.Context, baseURL string, body []byte) error {
+	if baseURL == "" {
+		return fmt.Errorf("baseURL is required for PostBecknStatus")
+	}
+	var lastErr error
+	for attempt := 0; attempt <= c.retryCount; attempt++ {
+		if attempt > 0 {
+			fmt.Printf("[DEGLedgerRecorder] Retry attempt %d/%d for beckn status\n", attempt, c.retryCount)
+		}
+		if err := c.doBecknStatusRequest(ctx, baseURL, body, attempt); err == nil {
+			return nil
+		} else {
+			lastErr = err
+		}
+		if ctx.Err() != nil {
+			return fmt.Errorf("context cancelled: %w", ctx.Err())
+		}
+		if attempt < c.retryCount {
+			time.Sleep(time.Duration(attempt+1) * 100 * time.Millisecond)
+		}
+	}
+	return lastErr
+}
+
+// PostBecknOnStatus forwards a beckn on_status body to <baseURL>/on_status.
+// Used by the buyer-side plugin to relay performance data to the buyer ledger.
+func (c *LedgerClient) PostBecknOnStatus(ctx context.Context, baseURL string, body []byte) (*LedgerPutResponse, error) {
+	if baseURL == "" {
+		return nil, fmt.Errorf("baseURL is required for PostBecknOnStatus")
+	}
+	var lastErr error
+	for attempt := 0; attempt <= c.retryCount; attempt++ {
+		if attempt > 0 {
+			fmt.Printf("[DEGLedgerRecorder] Retry attempt %d/%d for beckn on_status\n", attempt, c.retryCount)
+		}
+		resp, err := c.doBecknOnStatusRequest(ctx, baseURL, body, attempt)
+		if err == nil {
+			return resp, nil
+		}
+		lastErr = err
+		if ctx.Err() != nil {
+			return nil, fmt.Errorf("context cancelled: %w", ctx.Err())
+		}
+		if attempt < c.retryCount {
+			time.Sleep(time.Duration(attempt+1) * 100 * time.Millisecond)
+		}
+	}
+	return nil, lastErr
+}
+
+// doBecknStatusRequest performs a single beckn status POST and expects ACK.
+func (c *LedgerClient) doBecknStatusRequest(ctx context.Context, baseURL string, body []byte, attempt int) error {
+	requestID := uuid.New().String()[:8]
+	startTime := time.Now()
+
+	targetURL := fmt.Sprintf("%s/status", strings.TrimRight(baseURL, "/"))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetURL, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("X-Request-ID", requestID)
+	c.setAuthHeader(req, body)
+	c.logSimpleRequest(requestID, req, body, "BECKN status", attempt)
+
+	resp, err := c.httpClient.Do(req)
+	duration := time.Since(startTime)
+	if err != nil {
+		c.logError(requestID, "HTTP request failed", err, duration)
+		return fmt.Errorf("ledger beckn status request failed: %w", err)
+	}
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+	c.logResponse(requestID, resp, respBody, duration)
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(respBody))
+	}
+	return nil
+}
+
+// doBecknOnStatusRequest performs a single beckn on_status POST.
+func (c *LedgerClient) doBecknOnStatusRequest(ctx context.Context, baseURL string, body []byte, attempt int) (*LedgerPutResponse, error) {
+	requestID := uuid.New().String()[:8]
+	startTime := time.Now()
+
+	targetURL := fmt.Sprintf("%s/on_status", strings.TrimRight(baseURL, "/"))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetURL, bytes.NewReader(body))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("X-Request-ID", requestID)
+	c.setAuthHeader(req, body)
+	c.logSimpleRequest(requestID, req, body, "BECKN on_status", attempt)
+
+	resp, err := c.httpClient.Do(req)
+	duration := time.Since(startTime)
+	if err != nil {
+		c.logError(requestID, "HTTP request failed", err, duration)
+		return nil, fmt.Errorf("ledger beckn on_status request failed: %w", err)
+	}
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+	c.logResponse(requestID, resp, respBody, duration)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(respBody))
+	}
+	var envelope BecknAckEnvelope
+	if err := json.Unmarshal(respBody, &envelope); err != nil {
+		// Non-fatal: ledger ACK'd but response shape unknown; return empty record.
+		return &LedgerPutResponse{}, nil
+	}
+	ledger := envelope.Message.Ledger
+	return &ledger, nil
+}
+
+// setAuthHeader applies signing or API-key auth to req, factored out so all
+// beckn request helpers share the same logic.
+func (c *LedgerClient) setAuthHeader(req *http.Request, body []byte) {
+	if c.signer != nil && c.signer.IsConfigured() {
+		if authHeader, err := c.signer.GenerateAuthHeader(body); err == nil {
+			req.Header.Set("Authorization", authHeader)
+		}
+	} else if c.apiKey != "" {
+		req.Header.Set(c.authHeader, c.apiKey)
+	}
+}
+
+// logSimpleRequest logs an outgoing beckn request with action label, used by
+// the status/on_status paths that don't have a structured request body type.
+func (c *LedgerClient) logSimpleRequest(requestID string, req *http.Request, body []byte, label string, attempt int) {
+	fmt.Println("")
+	fmt.Printf("╔═══════════════════════════════════════════════════════════════════╗\n")
+	fmt.Printf("║  DEGLedgerRecorder - OUTGOING REQUEST (%s)\n", label)
+	fmt.Printf("╠═══════════════════════════════════════════════════════════════════╣\n")
+	fmt.Printf("║ Request ID: %s  Attempt: %d/%d\n", requestID, attempt+1, c.retryCount+1)
+	fmt.Printf("║ %s %s\n", req.Method, req.URL.String())
+	fmt.Printf("╠═══════════════════════════════════════════════════════════════════╣\n")
+	fmt.Printf("║   %s\n", string(body))
+	fmt.Printf("╚═══════════════════════════════════════════════════════════════════╝\n")
+}
+
+// doBecknOnConfirmRequest performs a single beckn on_confirm POST.
+func (c *LedgerClient) doBecknOnConfirmRequest(ctx context.Context, baseURL string, body []byte, attempt int) (*LedgerPutResponse, error) {
+	requestID := uuid.New().String()[:8]
+	startTime := time.Now()
+
+	url := fmt.Sprintf("%s/on_confirm", strings.TrimRight(baseURL, "/"))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("X-Request-ID", requestID)
+
+	if c.signer != nil && c.signer.IsConfigured() {
+		authHeader, err := c.signer.GenerateAuthHeader(body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to generate Authorization header: %w", err)
+		}
+		req.Header.Set("Authorization", authHeader)
+	} else if c.apiKey != "" {
+		req.Header.Set(c.authHeader, c.apiKey)
+	}
+
+	c.logBecknRequest(requestID, req, body, attempt)
+
+	resp, err := c.httpClient.Do(req)
+	duration := time.Since(startTime)
+	if err != nil {
+		c.logError(requestID, "HTTP request failed", err, duration)
+		return nil, fmt.Errorf("ledger beckn on_confirm request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.logError(requestID, "Failed to read response body", err, duration)
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+	c.logResponse(requestID, resp, respBody, duration)
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		var envelope BecknAckEnvelope
+		if err := json.Unmarshal(respBody, &envelope); err != nil {
+			return nil, fmt.Errorf("failed to parse beckn ack envelope: %w", err)
+		}
+		// Surface the inner ledger response so call sites are uniform.
+		ledger := envelope.Message.Ledger
+		return &ledger, nil
+	case http.StatusBadRequest, http.StatusUnauthorized, http.StatusForbidden, http.StatusConflict:
+		var errResp LedgerErrorResponse
+		if err := json.Unmarshal(respBody, &errResp); err != nil {
+			return nil, fmt.Errorf("ledger TSP error (status %d): %s", resp.StatusCode, string(respBody))
+		}
+		return nil, fmt.Errorf("ledger TSP error (status %d, code %s): %s", resp.StatusCode, errResp.Code, errResp.Message)
+	default:
+		return nil, fmt.Errorf("unexpected status code %d: %s", resp.StatusCode, string(respBody))
+	}
+}
+
+// logBecknRequest renders the outgoing beckn on_confirm body in the same
+// boxed-banner style as the legacy ledger logger.
+func (c *LedgerClient) logBecknRequest(requestID string, req *http.Request, body []byte, attempt int) {
+	headers := make(map[string]string)
+	for key, values := range req.Header {
+		value := strings.Join(values, ", ")
+		if strings.Contains(strings.ToLower(key), "auth") ||
+			strings.Contains(strings.ToLower(key), "api-key") ||
+			strings.Contains(strings.ToLower(key), "x-api-key") ||
+			key == c.authHeader {
+			if len(value) > 8 {
+				headers[key] = value[:4] + "****" + value[len(value)-4:]
+			} else {
+				headers[key] = "****"
+			}
+		} else {
+			headers[key] = value
+		}
+	}
+
+	fmt.Println("")
+	fmt.Println("╔════════════════════════════════════════════════════════════════════╗")
+	fmt.Println("║       DEGLedgerRecorder - OUTGOING REQUEST (BECKN on_confirm)      ║")
+	fmt.Println("╠════════════════════════════════════════════════════════════════════╣")
+	fmt.Printf("║ Request ID:     %s\n", requestID)
+	fmt.Printf("║ Timestamp:      %s\n", time.Now().UTC().Format(time.RFC3339))
+	fmt.Printf("║ Attempt:        %d/%d\n", attempt+1, c.retryCount+1)
+	fmt.Printf("║ Method:         %s\n", req.Method)
+	fmt.Printf("║ URL:            %s\n", req.URL.String())
+	fmt.Println("╠════════════════════════════════════════════════════════════════════╣")
+	fmt.Println("║ HEADERS:")
+	for k, v := range headers {
+		fmt.Printf("║   %s: %s\n", k, v)
+	}
+	fmt.Println("╠════════════════════════════════════════════════════════════════════╣")
+	fmt.Println("║ REQUEST BODY (JSON):")
+	fmt.Printf("║   %s\n", string(body))
+	fmt.Println("╚════════════════════════════════════════════════════════════════════╝")
 }
 
 // RecordActuals sends meter readings/validation metrics to the ledger RECORD API.
@@ -230,7 +528,7 @@ func (c *LedgerClient) doRecordRequest(ctx context.Context, record LedgerRecordR
 }
 
 // doPutRequest performs a single PUT request to the ledger API.
-func (c *LedgerClient) doPutRequest(ctx context.Context, record LedgerPutRequest, attempt int) (*LedgerPutResponse, error) {
+func (c *LedgerClient) doPutRequest(ctx context.Context, baseURL string, record LedgerPutRequest, attempt int) (*LedgerPutResponse, error) {
 	// Generate unique request ID for correlation
 	requestID := uuid.New().String()[:8]
 	startTime := time.Now()
@@ -242,7 +540,7 @@ func (c *LedgerClient) doPutRequest(ctx context.Context, record LedgerPutRequest
 	}
 
 	// Create the HTTP request
-	url := fmt.Sprintf("%s/ledger/put", c.baseURL)
+	url := fmt.Sprintf("%s/ledger/put", baseURL)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
@@ -349,15 +647,11 @@ func (c *LedgerClient) logRequest(requestID string, req *http.Request, record Le
 	fmt.Println("╠════════════════════════════════════════════════════════════════════╣")
 	fmt.Println("║ REQUEST BODY (JSON):")
 
-	// Pretty print the request body
-	prettyBody, err := json.MarshalIndent(record, "║   ", "  ")
+	compactBody, err := json.Marshal(record)
 	if err != nil {
 		fmt.Printf("║   (error formatting body: %v)\n", err)
 	} else {
-		lines := strings.Split(string(prettyBody), "\n")
-		for _, line := range lines {
-			fmt.Printf("║   %s\n", line)
-		}
+		fmt.Printf("║   %s\n", string(compactBody))
 	}
 	fmt.Println("╚════════════════════════════════════════════════════════════════════╝")
 }
@@ -400,15 +694,11 @@ func (c *LedgerClient) logRecordRequest(requestID string, req *http.Request, rec
 	fmt.Println("╠════════════════════════════════════════════════════════════════════╣")
 	fmt.Println("║ REQUEST BODY (JSON):")
 
-	// Pretty print the request body
-	prettyBody, err := json.MarshalIndent(record, "║   ", "  ")
+	compactBody, err := json.Marshal(record)
 	if err != nil {
 		fmt.Printf("║   (error formatting body: %v)\n", err)
 	} else {
-		lines := strings.Split(string(prettyBody), "\n")
-		for _, line := range lines {
-			fmt.Printf("║   %s\n", line)
-		}
+		fmt.Printf("║   %s\n", string(compactBody))
 	}
 	fmt.Println("╚════════════════════════════════════════════════════════════════════╝")
 }
@@ -443,21 +733,11 @@ func (c *LedgerClient) logResponse(requestID string, resp *http.Response, body [
 	fmt.Println("╠════════════════════════════════════════════════════════════════════╣")
 	fmt.Println("║ RESPONSE BODY:")
 
-	// Try to pretty print JSON, fall back to raw if not valid JSON
-	var prettyBody bytes.Buffer
-	if err := json.Indent(&prettyBody, body, "║   ", "  "); err == nil {
-		lines := strings.Split(prettyBody.String(), "\n")
-		for _, line := range lines {
-			fmt.Printf("║   %s\n", line)
-		}
-	} else {
-		// Not JSON or invalid JSON, print raw (truncated if too long)
-		bodyStr := string(body)
-		if len(bodyStr) > 2000 {
-			bodyStr = bodyStr[:2000] + "... (truncated)"
-		}
-		fmt.Printf("║   %s\n", bodyStr)
+	bodyStr := string(body)
+	if len(bodyStr) > 2000 {
+		bodyStr = bodyStr[:2000] + "... (truncated)"
 	}
+	fmt.Printf("║   %s\n", bodyStr)
 	fmt.Println("╚════════════════════════════════════════════════════════════════════╝")
 }
 

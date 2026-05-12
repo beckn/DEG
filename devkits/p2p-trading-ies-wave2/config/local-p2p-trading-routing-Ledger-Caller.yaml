@@ -1,0 +1,7 @@
+# Ledger Caller routing: outgoing on_* callbacks from ledger → BAP/BPP adapters
+routingRules:
+  - version: "2.0.0"
+    targetType: "bap"
+    endpoints:
+      - on_status
+      - on_confirm

@@ -1,0 +1,249 @@
+{
+    "@context": [
+        "https://schema.beckn.io/espiGreenButton/v1.0/context.jsonld",
+        {
+            "@version": 1.1,
+            "@protected": true,
+            "id": "@id",
+            "type": "@type",
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "cim": "http://iec.ch/TC57/CIM#",
+
+            "IdentifiedObject": {
+                "@id": "cim:IdentifiedObject",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "mRID": { "@id": "cim:mRID", "@type": "xsd:string" },
+                    "name": { "@id": "cim:name", "@type": "xsd:string" },
+                    "description": { "@id": "cim:description", "@type": "xsd:string" },
+                    "aliasName": { "@id": "cim:aliasName", "@type": "xsd:string" }
+                }
+            },
+
+            "mRID": { "@id": "cim:mRID", "@type": "xsd:string" },
+            "serialNumber": { "@id": "cim:serialNumber", "@type": "xsd:string" },
+
+            "EndDevice": {
+                "@id": "cim:EndDevice",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "amrSystem": { "@id": "cim:amrSystem", "@type": "xsd:string" },
+                    "isPan": { "@id": "cim:isPan", "@type": "xsd:boolean" },
+                    "isSmartInverter": { "@id": "cim:isSmartInverter", "@type": "xsd:boolean" },
+                    "isVirtual": { "@id": "cim:isVirtual", "@type": "xsd:boolean" },
+                    "timeZoneOffset": { "@id": "cim:timeZoneOffset", "@type": "xsd:integer" },
+                    "comTechnology": { "@id": "cim:comTechnology", "@type": "xsd:string" },
+                    "comDirection": { "@id": "cim:comDirection", "@type": "xsd:string" },
+                    "endDeviceInfo": { "@id": "cim:endDeviceInfo", "@type": "@id" }
+                }
+            },
+
+            "Meter": { "@id": "cim:Meter" },
+
+            "EndDeviceInfo": {
+                "@id": "cim:EndDeviceInfo",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "isSolidState": { "@id": "cim:isSolidState", "@type": "xsd:boolean" },
+                    "phaseCount": { "@id": "cim:phaseCount", "@type": "xsd:integer" },
+                    "ratedCurrent": { "@id": "cim:ratedCurrent", "@type": "xsd:decimal" },
+                    "ratedVoltage": { "@id": "cim:ratedVoltage", "@type": "xsd:decimal" },
+                    "capability": { "@id": "cim:capability", "@type": "@id" }
+                }
+            },
+
+            "EndDeviceCapability": { "@id": "cim:EndDeviceCapability" },
+
+            "MeterMultiplier": {
+                "@id": "cim:MeterMultiplier",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "kind": { "@id": "cim:kind", "@type": "xsd:string" }
+                }
+            },
+
+            "Channel": {
+                "@id": "cim:Channel",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "isVirtual": { "@id": "cim:isVirtual", "@type": "xsd:boolean" },
+                    "readingType": { "@id": "cim:readingType", "@type": "xsd:string" }
+                }
+            },
+
+            "Register": {
+                "@id": "cim:Register",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "isVirtual": { "@id": "cim:isVirtual", "@type": "xsd:boolean" },
+                    "leftDigitCount": { "@id": "cim:leftDigitCount", "@type": "xsd:integer" },
+                    "rightDigitCount": { "@id": "cim:rightDigitCount", "@type": "xsd:integer" },
+                    "touTierName": { "@id": "cim:touTierName", "@type": "xsd:string" },
+                    "channels": { "@id": "cim:channels", "@type": "@id", "@container": "@set" }
+                }
+            },
+
+            "EndDeviceEvent": {
+                "@id": "cim:EndDeviceEvent",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "createdDateTime": { "@id": "cim:createdDateTime", "@type": "xsd:dateTime" },
+                    "issuerID": { "@id": "cim:issuerID", "@type": "xsd:string" },
+                    "issuerTrackingID": { "@id": "cim:issuerTrackingID", "@type": "xsd:string" },
+                    "userID": { "@id": "cim:userID", "@type": "xsd:string" },
+                    "severity": { "@id": "cim:severity", "@type": "xsd:integer" },
+                    "reason": { "@id": "cim:reason", "@type": "xsd:string" },
+                    "endDeviceEventType": { "@id": "cim:endDeviceEventType", "@type": "@id" },
+                    "details": { "@id": "cim:details", "@type": "@id", "@container": "@set" },
+                    "endDeviceMRID": { "@id": "cim:endDeviceMRID", "@type": "xsd:string" },
+                    "usagePointMRID": { "@id": "cim:usagePointMRID", "@type": "xsd:string" }
+                }
+            },
+
+            "EndDeviceEventType": {
+                "@id": "cim:EndDeviceEventType",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "domain": { "@id": "cim:domain", "@type": "xsd:string" },
+                    "subDomain": { "@id": "cim:subDomain", "@type": "xsd:string" },
+                    "eventOrAction": { "@id": "cim:eventOrAction", "@type": "xsd:string" }
+                }
+            },
+
+            "UsagePointCIM": { "@id": "cim:UsagePoint" },
+
+            "connectionState": { "@id": "cim:connectionState", "@type": "xsd:string" },
+            "amiBillingReady": { "@id": "cim:amiBillingReady", "@type": "xsd:string" },
+            "phaseCode": { "@id": "cim:phaseCode", "@type": "xsd:string" },
+            "nominalServiceVoltage": { "@id": "cim:nominalServiceVoltage", "@type": "xsd:decimal" },
+            "ratedCurrent": { "@id": "cim:ratedCurrent", "@type": "xsd:decimal" },
+            "ratedPower": { "@id": "cim:ratedPower", "@type": "xsd:decimal" },
+
+            "Measurement": { "@id": "cim:Measurement" },
+            "Analog": { "@id": "cim:Analog" },
+            "Discrete": { "@id": "cim:Discrete" },
+
+            "AnalogValue": {
+                "@id": "cim:AnalogValue",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "timeStamp": { "@id": "cim:timeStamp", "@type": "xsd:dateTime" },
+                    "analogMRID": { "@id": "cim:analogMRID", "@type": "xsd:string" }
+                }
+            },
+
+            "DiscreteValue": {
+                "@id": "cim:DiscreteValue",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "timeStamp": { "@id": "cim:timeStamp", "@type": "xsd:dateTime" },
+                    "discreteMRID": { "@id": "cim:discreteMRID", "@type": "xsd:string" }
+                }
+            },
+
+            "AccumulatorValue": {
+                "@id": "cim:AccumulatorValue",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "timeStamp": { "@id": "cim:timeStamp", "@type": "xsd:dateTime" },
+                    "accumulatorMRID": { "@id": "cim:accumulatorMRID", "@type": "xsd:string" }
+                }
+            },
+
+            "MeasurementValueQuality": {
+                "@id": "cim:MeasurementValueQuality",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "validity": { "@id": "cim:validity", "@type": "xsd:string" },
+                    "source": { "@id": "cim:source", "@type": "xsd:string" },
+                    "sensorAccuracy": { "@id": "cim:sensorAccuracy", "@type": "xsd:decimal" }
+                }
+            },
+
+            "CurrentTransformerInfo": {
+                "@id": "cim:CurrentTransformerInfo",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "accuracyClass": { "@id": "cim:accuracyClass", "@type": "xsd:string" },
+                    "primaryCurrent": { "@id": "cim:primaryCurrent", "@type": "xsd:decimal" },
+                    "secondaryCurrent": { "@id": "cim:secondaryCurrent", "@type": "xsd:decimal" },
+                    "ratio": { "@id": "cim:ratio", "@type": "xsd:decimal" }
+                }
+            },
+
+            "PotentialTransformerInfo": {
+                "@id": "cim:PotentialTransformerInfo",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "primaryVoltage": { "@id": "cim:primaryVoltage", "@type": "xsd:decimal" },
+                    "secondaryVoltage": { "@id": "cim:secondaryVoltage", "@type": "xsd:decimal" },
+                    "nominalRatio": { "@id": "cim:nominalRatio", "@type": "xsd:decimal" }
+                }
+            },
+
+            "PowerTransformerInfo": {
+                "@id": "cim:PowerTransformerInfo",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "vectorGroup": { "@id": "cim:vectorGroup", "@type": "xsd:string" },
+                    "ends": { "@id": "cim:ends", "@type": "@id", "@container": "@set" }
+                }
+            },
+
+            "PowerTransformerEnd": {
+                "@id": "cim:PowerTransformerEnd",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "endNumber": { "@id": "cim:endNumber", "@type": "xsd:integer" },
+                    "connectionKind": { "@id": "cim:connectionKind", "@type": "xsd:string" },
+                    "ratedS": { "@id": "cim:ratedS", "@type": "xsd:decimal" },
+                    "ratedU": { "@id": "cim:ratedU", "@type": "xsd:decimal" },
+                    "r": { "@id": "cim:r", "@type": "xsd:decimal" },
+                    "x": { "@id": "cim:x", "@type": "xsd:decimal" },
+                    "phaseAngleClock": { "@id": "cim:phaseAngleClock", "@type": "xsd:integer" },
+                    "grounded": { "@id": "cim:grounded", "@type": "xsd:boolean" }
+                }
+            },
+
+            "MeterTelemetryReading": {
+                "@id": "cim:MeterTelemetryReading",
+                "@context": {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "readingReason": { "@id": "cim:readingReason", "@type": "xsd:string" },
+                    "macroPeriod": { "@id": "cim:macroPeriod", "@type": "xsd:string" },
+                    "measuringPeriod": { "@id": "cim:measuringPeriod", "@type": "xsd:string" },
+                    "aggregate": { "@id": "cim:aggregate", "@type": "xsd:string" },
+                    "meter": { "@id": "cim:meter", "@type": "@id" },
+                    "usagePoint": { "@id": "cim:usagePoint", "@type": "@id" },
+                    "powerTransformer": { "@id": "cim:powerTransformer", "@type": "@id" },
+                    "currentTransformer": { "@id": "cim:currentTransformer", "@type": "@id" },
+                    "potentialTransformer": { "@id": "cim:potentialTransformer", "@type": "@id" },
+                    "registers": { "@id": "cim:registers", "@type": "@id", "@container": "@set" },
+                    "endDeviceEvents": { "@id": "cim:endDeviceEvents", "@type": "@id", "@container": "@set" },
+                    "analogMeasurements": { "@id": "cim:analogMeasurements", "@type": "@id", "@container": "@set" },
+                    "analogValues": { "@id": "cim:analogValues", "@type": "@id", "@container": "@set" },
+                    "discreteMeasurements": { "@id": "cim:discreteMeasurements", "@type": "@id", "@container": "@set" },
+                    "discreteValues": { "@id": "cim:discreteValues", "@type": "@id", "@container": "@set" },
+                    "accumulatorValues": { "@id": "cim:accumulatorValues", "@type": "@id", "@container": "@set" }
+                }
+            }
+        }
+    ]
+}

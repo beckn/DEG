@@ -31,7 +31,7 @@ The credential is issued by energy providers. The issuer object contains:
 |-------|------|----------|-------------|
 | `id` | URI | Yes | DID or URL of the issuing provider |
 | `name` | string | Yes | Name of the provider |
-| `idRef` | object | No | Regulatory identity reference — see [idRef](../electricity-credential/readme.md#idref) |
+| `idRef` | object | No | Regulatory identity reference — see [idRef](../../schema/ElectricityCredential/v1.0/README.md#idref) |
 
 ## Validity Period
 
@@ -50,18 +50,18 @@ Credential revocation is managed via DeDi. See [credentialStatus](../readme.md#c
 
 ### customerProfile (optional)
 
-Core customer identity fields — same structure as [Customer Credential](../electricity-credential/readme.md#customerprofile):
+Core customer identity fields — same structure as [Customer Credential](../../schema/ElectricityCredential/v1.0/README.md#customerprofile):
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `customerNumber` | string | Yes | Full customer account number assigned by the utility |
 | `meterNumber` | string | No | Unique meter serial number |
-| `meterType` | enum | No | Type of meter — see [meterType enum](../electricity-credential/readme.md#metertype-enum) |
-| `idRef` | object | No | External identity reference — see [idRef](../electricity-credential/readme.md#idref) |
+| `meterType` | enum | No | Type of meter — see [meterType enum](../../schema/ElectricityCredential/v1.0/README.md#metertype-enum) |
+| `idRef` | object | No | External identity reference — see [idRef](../../schema/ElectricityCredential/v1.0/README.md#idref) |
 
 ### customerDetails (optional)
 
-Personal and address information — same structure as [Customer Credential](../electricity-credential/readme.md#customerdetails):
+Personal and address information — same structure as [Customer Credential](../../schema/ElectricityCredential/v1.0/README.md#customerdetails):
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|

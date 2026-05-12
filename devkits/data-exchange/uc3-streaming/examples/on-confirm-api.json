@@ -1,0 +1,132 @@
+{
+  "context": {
+    "networkId": "nfh.global/testnet-deg",
+    "version": "2.0.0",
+    "action": "on_confirm",
+    "bapId": "bap.example.com",
+    "bapUri": "http://beckn-router:9000/bap/receiver",
+    "bppId": "bpp.example.com",
+    "bppUri": "http://beckn-router:9000/bpp/receiver",
+    "transactionId": "e5f6a7b8-c9d0-1234-ef01-345678901234",
+    "messageId": "e5f6a7b8-c9d0-1234-ef01-345678901235",
+    "timestamp": "2026-05-07T09:03:05Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetFulfillment/v1.1/context.jsonld"
+    ]
+  },
+  "message": {
+    "contract": {
+      "id": "f6a7b8c9-d0e1-2345-f012-456789012345",
+      "descriptor": {
+        "name": "Solar Generation Forecast API",
+        "shortDesc": "Monthly API subscription — bearer token and doc URL active"
+      },
+      "status": { "code": "ACTIVE" },
+      "commitments": [
+        {
+          "id": "commitment-stream-api-001",
+          "status": { "descriptor": { "code": "ACTIVE" } },
+          "resources": [
+            {
+              "id": "stream-solar-forecast-api",
+              "descriptor": { "name": "Solar Generation Forecast API" },
+              "quantity": { "unitText": "stream", "unitCode": "EA", "value": "1" }
+            }
+          ],
+          "offer": {
+            "id": "offer-solar-forecast-api-monthly",
+            "descriptor": { "name": "Monthly API subscription — 60 req/min" },
+            "resourceIds": ["stream-solar-forecast-api"],
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1.1/context.jsonld",
+              "@type": "DatasetItem",
+              "schema:identifier": "stream-solar-forecast-api",
+              "schema:name": "Solar Generation Forecast API",
+              "schema:temporalCoverage": "2026-05-07/..",
+              "dataset:accessMethod": "API",
+              "dataset:streamMeta": {
+                "dataset:streamProtocol": "API",
+                "dataset:messageFormat": "JSON",
+                "dataset:updateFrequency": "PT15M",
+                "dataset:messageSchemaUrl": "https://api.intelligrid.in/v1/openapi.yaml"
+              }
+            }
+          }
+        }
+      ],
+      "consideration": [
+        {
+          "id": "consideration-stream-api-001",
+          "status": { "code": "ACTIVE" },
+          "considerationAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
+            "@type": "PriceSpecification",
+            "currency": "INR",
+            "value": 8000.00
+          }
+        }
+      ],
+      "participants": [
+        {
+          "id": "intelligrid-amisp-001",
+          "descriptor": { "name": "IntelliGrid AMI Services" },
+          "participantAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
+            "@type": "Organization",
+            "id": "intelligrid-amisp-001",
+            "name": "IntelliGrid AMI Services"
+          }
+        },
+        {
+          "id": "renewco-forecasting-001",
+          "descriptor": { "name": "RenewCo Forecasting Team" },
+          "participantAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Organization/v2.0/context.jsonld",
+            "@type": "Organization",
+            "id": "renewco-forecasting-001",
+            "name": "RenewCo Forecasting Team"
+          }
+        }
+      ],
+      "performance": [
+        {
+          "id": "ffl-solar-api-20260507-001",
+          "status": { "code": "ACTIVE" },
+          "commitmentIds": ["commitment-stream-api-001"],
+          "performanceAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetFulfillment/v1.1/context.jsonld",
+            "@type": "DatasetFulfillment",
+            "fulfillment:accessMethod": "API",
+            "fulfillment:accessStart": "2026-05-07T09:03:05Z",
+            "fulfillment:accessEnd": "2026-06-07T09:03:05Z",
+            "fulfillment:format": "JSON",
+            "fulfillment:supportEmail": "datasupport@intelligrid.example.in",
+            "fulfillment:streamConnection": {
+              "@type": "ApiCredential",
+              "fulfillment:apiEndpoint": "https://api.intelligrid.example.in/v1",
+              "fulfillment:apiDocUrl": "https://api.intelligrid.example.in/v1/openapi.yaml",
+              "fulfillment:authScheme": "BEARER",
+              "fulfillment:bearerToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZW5ld2NvLWZvcmVjYXN0aW5nLTAwMSIsImlzcyI6ImludGVsbGlncmlkLmV4YW1wbGUuaW4iLCJleHAiOjE3NTAyNDA1ODUsInNjb3BlIjoic29sYXI6Zm9yZWNhc3Q6cmVhZCJ9.SIGNATURE",
+              "fulfillment:rateLimitRpm": 60,
+              "fulfillment:credentialExpiresAt": "2026-06-07T09:03:05Z"
+            }
+          }
+        }
+      ],
+      "settlements": [
+        {
+          "id": "settlement-stream-api-001",
+          "considerationId": "consideration-stream-api-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:paymentStatus": "COMPLETED",
+            "beckn:amount": { "currency": "INR", "value": 8000.00 },
+            "beckn:txnRef": "UPI-TXN-2026-050709031345"
+          }
+        }
+      ]
+    }
+  }
+}

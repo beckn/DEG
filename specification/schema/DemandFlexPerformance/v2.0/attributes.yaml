@@ -56,7 +56,7 @@ components:
                 description: Meter identifier.
                 example: "der://meter/001"
               telemetry:
-                $ref: "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/BecknTimeSeries/v1.0/attributes.yaml#/components/schemas/BecknTimeSeries"
+                $ref: "https://schema.beckn.io/BecknTimeSeries/v1.0#/components/schemas/BecknTimeSeries"
                 description: >
                   BecknTimeSeries carrying BASELINE (always) and — once the
                   event has completed — USAGE payloads, aligned to the same

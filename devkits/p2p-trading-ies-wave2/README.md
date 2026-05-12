@@ -34,6 +34,7 @@ The contract names four conceptual actors. Only buyer and seller speak Beckn dir
 | [EnergyTradeOffer](../../specification/schema/EnergyTradeOffer/v2.0/) | `offerAttributes` | Pricing model, validity / delivery window |
 | [EnergyTradeDelivery](../../specification/schema/EnergyTradeDelivery/v2.0/) | `performance.performanceAttributes` | Delivery status, meter readings, settled qty |
 | [DEGContract](../../specification/schema/DEGContract/v2.0/) | `contractAttributes` | Roles, policy reference, computed revenueFlows |
+| [DiscomLedgerProvider](../../specification/schema/DiscomLedgerProvider/v1.0/) | `participants[role=buyerDiscom\|sellerDiscom].participantAttributes` | Discom ledger TSP identity — `utilityId` + `ledgerUri` so the `degledgerrecorder` plugin can pick the right ledger URL per discom from the payload |
 
 ## Postman
 
@@ -43,10 +44,20 @@ The contract names four conceptual actors. Only buyer and seller speak Beckn dir
 
 Two layers, both via the `opapolicychecker` plugin:
 
-- **Network policy** — declared in [`config/opa-network-policies.yaml`](./config/opa-network-policies.yaml) and loaded from [`policies/p2p_trading_network.rego`](./policies/p2p_trading_network.rego) (no-op placeholder mirroring [`specification/policies/p2p_trading_network.rego`](../../specification/policies/p2p_trading_network.rego)). Both BAP and BPP use a single `default:` entry — every message evaluates against the same rules regardless of `context.networkId`. Add per-networkId entries as the network matures.
+- **Network policy** — declared in [`config/opa-network-policies.yaml`](./config/opa-network-policies.yaml) and loaded from [`policies/p2p-trading-ies-wave2_network.rego`](./policies/p2p-trading-ies-wave2_network.rego) (mirrors [`specification/policies/p2p-trading-ies-wave2_network.rego`](../../specification/policies/p2p-trading-ies-wave2_network.rego)). Both BAP and BPP use a single `default:` entry — every message evaluates against the same rules regardless of `context.networkId`. Add per-networkId entries as the network matures.
 - **Contract policy** — every payload's `contractAttributes.policy.url` points to [`specification/policies/p2p_trading_ies_wave2_revenue.rego`](../../specification/policies/p2p_trading_ies_wave2_revenue.rego). The rego computes a four-role `revenueFlows` array from the seller's `inputs.offers[0].pricePerKwh` and the settled quantity. The on-status payload carries the result at `message.contract.consideration[0].considerationAttributes` (RevenueFlow JSON-LD, Beckn-native). Wheeling and penalty charges are `0` placeholders in the rego today — flip them to real expressions when the tariff/penalty rules land; no payload changes needed. (The legacy BPP-side `revenueflows` middleware that auto-injected into `contractAttributes` is currently disabled — see `config/local-p2p-trading-bpp.yaml` — until it can target the consideration block.)
 
 Signature/registry lookups currently target `nfh.global/testnet-deg` via the `allowedNetworkIDs` key on the `dediregistry` plugin. Subscriber IDs are placeholders (`bap.example.com` / `bpp.example.com`) with signing keys borrowed from the p2p-trading devkit, so arazzo flows will NACK on lookup until real subscribers are registered on testnet-deg.
+
+## Ledger recording
+
+On `on_confirm` both platforms write a trade record to their own discom's ledger TSP via the [`degledgerrecorder`](../../plugins/degledgerrecorder/) plugin:
+- BAP-Receiver runs the plugin with `role: BUYER` and reads `participants[role=buyerDiscom].participantAttributes.ledgerUri` from the payload.
+- BPP-Caller runs the plugin with `role: SELLER` and reads `participants[role=sellerDiscom].participantAttributes.ledgerUri` from the payload.
+
+Both URIs are wired in the example payloads to the IES ledger service (`https://ies-p2p-energy-ledger.beckn.io`); two discoms MAY share a TSP — each platform still writes only to its own side.
+
+Mode flags in the [BAP](./config/local-p2p-trading-bap.yaml) and [BPP](./config/local-p2p-trading-bpp.yaml) configs: `payloadShape: wave2`, `ledgerUriSource: payload`, `ledgerApi: legacy_ledger`. Flip `ledgerApi` to `beckn` once the ledger TSP is upgraded to accept beckn `on_confirm`.
 
 ## Related
 

@@ -14,7 +14,7 @@ Part of the [DEG Specification](../../../../README.md) · [MeterDataGB](../READM
 
 ## Dependencies
 
-- [`espiGreenButton`](../../../external/schema/espiGreenButton/) — ESPI types (IntervalBlock, ReadingType, etc.)
+- [`espiGreenButton`](../../espiGreenButton/) — ESPI types (IntervalBlock, ReadingType, etc.)
 - [`CustomerProfile`](../../CustomerProfile/) — shared customer identity (customerNumber, meterNumber, meterType, idRef)
 
 ## Properties

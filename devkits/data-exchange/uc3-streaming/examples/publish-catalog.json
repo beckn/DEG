@@ -1,0 +1,233 @@
+{
+  "context": {
+    "networkId": "nfh.global/testnet-deg",
+    "version": "2.0.0",
+    "action": "catalog/publish",
+    "bppId": "bpp.example.com",
+    "bppUri": "http://beckn-router:9000/bpp/receiver",
+    "transactionId": "c3d4e5f6-a7b8-9012-cdef-012345678901",
+    "messageId": "c3d4e5f6-a7b8-9012-cdef-012345678902",
+    "timestamp": "2026-05-07T06:00:00Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1.1/context.jsonld"
+    ]
+  },
+  "message": {
+    "catalogs": [
+      {
+        "id": "catalog-intelligrid-streaming-001",
+        "descriptor": {
+          "name": "IntelliGrid Real-Time Data Streams",
+          "shortDesc": "Live energy and grid data via MQTT, Kafka, REST API, and S3 Data Lake"
+        },
+        "bppId": "bpp.example.com",
+        "bppUri": "http://beckn-router:9000/bpp/receiver",
+        "provider": {
+          "id": "intelligrid-amisp-001",
+          "descriptor": {
+            "name": "IntelliGrid AMI Services"
+          }
+        },
+        "resources": [
+          {
+            "id": "stream-ami-mqtt-blr-zone-a",
+            "descriptor": {
+              "name": "AMI Smart Meter Stream — Bengaluru Zone A",
+              "shortDesc": "Real-time 15-min interval kWh readings via MQTT 5.0"
+            },
+            "resourceAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1.1/context.jsonld",
+              "@type": "DatasetItem",
+              "schema:identifier": "stream-ami-mqtt-blr-zone-a",
+              "schema:name": "AMI Smart Meter Stream — Bengaluru Zone A",
+              "schema:description": "Real-time MQTT 5.0 stream of 15-minute interval kWh readings from ~4,200 BESCOM smart meters in Bengaluru Zone A.",
+              "schema:temporalCoverage": "2026-05-07/..",
+              "schema:spatialCoverage": "Bengaluru Zone A, Karnataka, India",
+              "dataset:refreshType": "REAL_TIME",
+              "dataset:accessMethod": "MQTT",
+              "dataset:sensitivityLevel": "CONFIDENTIAL",
+              "dataset:streamMeta": {
+                "dataset:streamProtocol": "MQTT",
+                "dataset:messageFormat": "JSON",
+                "dataset:updateFrequency": "PT15M",
+                "dataset:messageSchemaUrl": "https://raw.githubusercontent.com/beckn/DEG/main/specification/schema/BecknTimeSeries/v1.0/attributes.yaml"
+              }
+            }
+          },
+          {
+            "id": "stream-grid-events-kafka-india",
+            "descriptor": {
+              "name": "Grid Event Stream — India",
+              "shortDesc": "Real-time grid frequency, voltage, and fault events via Kafka"
+            },
+            "resourceAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1.1/context.jsonld",
+              "@type": "DatasetItem",
+              "schema:identifier": "stream-grid-events-kafka-india",
+              "schema:name": "Grid Event Stream — India",
+              "schema:description": "Apache Kafka stream of real-time grid events: frequency deviations, voltage anomalies, and fault notifications. Avro-encoded; Schema Registry provided on confirm.",
+              "schema:temporalCoverage": "2026-05-07/..",
+              "schema:spatialCoverage": "India",
+              "dataset:refreshType": "REAL_TIME",
+              "dataset:accessMethod": "KAFKA",
+              "dataset:sensitivityLevel": "INTERNAL",
+              "dataset:streamMeta": {
+                "dataset:streamProtocol": "KAFKA",
+                "dataset:messageFormat": "Avro",
+                "dataset:updateFrequency": "REAL_TIME",
+                "dataset:messageSchemaUrl": "https://schema-registry.intelligrid.in/subjects/grid-events-value/versions/latest"
+              }
+            }
+          },
+          {
+            "id": "stream-solar-forecast-api",
+            "descriptor": {
+              "name": "Solar Generation Forecast API",
+              "shortDesc": "72-hour ahead solar forecasts updated every 15 min via REST API"
+            },
+            "resourceAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1.1/context.jsonld",
+              "@type": "DatasetItem",
+              "schema:identifier": "stream-solar-forecast-api",
+              "schema:name": "Solar Generation Forecast API",
+              "schema:description": "REST API providing 72-hour ahead solar generation forecasts per plant, updated every 15 minutes. OpenAPI spec and bearer token delivered on confirm.",
+              "schema:temporalCoverage": "2026-05-07/..",
+              "dataset:refreshType": "RECURRING",
+              "dataset:accessMethod": "API",
+              "dataset:sensitivityLevel": "INTERNAL",
+              "dataset:streamMeta": {
+                "dataset:streamProtocol": "API",
+                "dataset:messageFormat": "JSON",
+                "dataset:updateFrequency": "PT15M",
+                "dataset:messageSchemaUrl": "https://api.intelligrid.in/v1/openapi.yaml"
+              }
+            }
+          },
+          {
+            "id": "stream-meter-history-datalake-s3",
+            "descriptor": {
+              "name": "Meter History Data Lake — S3",
+              "shortDesc": "3-year history + live-append Parquet files on AWS S3"
+            },
+            "resourceAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/DDM/main/specification/schema/DatasetItem/v1.1/context.jsonld",
+              "@type": "DatasetItem",
+              "schema:identifier": "stream-meter-history-datalake-s3",
+              "schema:name": "Meter History Data Lake — S3",
+              "schema:description": "AWS S3 live-append Parquet dataset partitioned by date. Covers January 2023 onwards with new files every 15 minutes. STS credentials scoped to buyer prefix delivered on confirm.",
+              "schema:temporalCoverage": "2023-01-01/..",
+              "schema:spatialCoverage": "Bengaluru Zone A, Karnataka, India",
+              "dataset:refreshType": "REAL_TIME",
+              "dataset:accessMethod": "DATA_LAKE",
+              "dataset:sensitivityLevel": "CONFIDENTIAL",
+              "dataset:streamMeta": {
+                "dataset:streamProtocol": "DATA_LAKE",
+                "dataset:messageFormat": "Parquet",
+                "dataset:updateFrequency": "PT15M",
+                "dataset:messageSchemaUrl": "https://intelligrid.in/schemas/meter-history-parquet-v2.json"
+              }
+            }
+          }
+        ],
+        "offers": [
+          {
+            "id": "offer-ami-mqtt-monthly",
+            "descriptor": {
+              "name": "AMI MQTT Stream — Monthly Subscription",
+              "shortDesc": "Monthly MQTT access to Bengaluru Zone A meter readings"
+            },
+            "resourceIds": ["stream-ami-mqtt-blr-zone-a"],
+            "validity": {
+              "startDate": "2026-05-07T00:00:00Z",
+              "endDate": "2027-05-07T00:00:00Z"
+            },
+            "considerations": [
+              {
+                "id": "consideration-mqtt-monthly",
+                "status": { "code": "ACTIVE" },
+                "considerationAttributes": {
+                  "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
+                  "@type": "PriceSpecification",
+                  "currency": "INR",
+                  "value": 12000
+                }
+              }
+            ]
+          },
+          {
+            "id": "offer-kafka-grid-events-monthly",
+            "descriptor": {
+              "name": "Grid Event Kafka Stream — Monthly Subscription",
+              "shortDesc": "Monthly Kafka consumer access to India grid events"
+            },
+            "resourceIds": ["stream-grid-events-kafka-india"],
+            "validity": {
+              "startDate": "2026-05-07T00:00:00Z",
+              "endDate": "2027-05-07T00:00:00Z"
+            },
+            "considerations": [
+              {
+                "id": "consideration-kafka-monthly",
+                "status": { "code": "ACTIVE" },
+                "considerationAttributes": {
+                  "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
+                  "@type": "PriceSpecification",
+                  "currency": "INR",
+                  "value": 25000
+                }
+              }
+            ]
+          },
+          {
+            "id": "offer-solar-forecast-api-monthly",
+            "descriptor": {
+              "name": "Monthly API subscription — 60 req/min",
+              "shortDesc": "Monthly bearer-token API access to solar generation forecasts"
+            },
+            "resourceIds": ["stream-solar-forecast-api"],
+            "validity": {
+              "startDate": "2026-05-07T00:00:00Z",
+              "endDate": "2027-05-07T00:00:00Z"
+            },
+            "considerations": [
+              {
+                "id": "consideration-api-monthly",
+                "status": { "code": "ACTIVE" },
+                "considerationAttributes": {
+                  "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
+                  "@type": "PriceSpecification",
+                  "currency": "INR",
+                  "value": 8000
+                }
+              }
+            ]
+          },
+          {
+            "id": "offer-meter-datalake-monthly",
+            "descriptor": {
+              "name": "Monthly S3 live-append subscription",
+              "shortDesc": "Monthly STS-credential access to meter history S3 data lake"
+            },
+            "resourceIds": ["stream-meter-history-datalake-s3"],
+            "validity": {
+              "startDate": "2026-05-07T00:00:00Z",
+              "endDate": "2027-05-07T00:00:00Z"
+            },
+            "considerations": [
+              {
+                "id": "consideration-datalake-monthly",
+                "status": { "code": "ACTIVE" },
+                "considerationAttributes": {
+                  "@context": "https://raw.githubusercontent.com/beckn/schemas/refs/heads/main/schema/PriceSpecification/v2.1/context.jsonld",
+                  "@type": "PriceSpecification",
+                  "currency": "INR",
+                  "value": 18000
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

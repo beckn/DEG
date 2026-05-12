@@ -12,5 +12,5 @@
 networkPolicies:
   default:
     type: file
-    location: ./policies/p2p_trading_network.rego
+    location: ./policies/p2p-trading-ies-wave2_network.rego
     query: data.deg.policy.p2p_trading_network.violations

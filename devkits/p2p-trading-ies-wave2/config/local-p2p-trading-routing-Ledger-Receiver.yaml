@@ -1,0 +1,19 @@
+# Ledger Receiver routing: incoming beckn calls → sandbox-ledger
+#
+# status → /api/webhook/status  (BPP-persona: ACK + async on_status callback)
+# on_confirm/on_status → /api/bap-webhook/on_* (BAP-persona: ACK only)
+routingRules:
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "http://sandbox-ledger:3003/api/webhook"
+    endpoints:
+      - status
+
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "http://sandbox-ledger:3003/api/bap-webhook"
+    endpoints:
+      - on_confirm
+      - on_status

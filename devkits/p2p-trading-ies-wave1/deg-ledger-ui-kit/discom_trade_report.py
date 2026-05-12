@@ -9,11 +9,14 @@ trades by delivery day.
 
 Usage:
     python3 discom_trade_report.py
+    python3 discom_trade_report.py --csv trades.csv
 
 Credentials and LEDGER_URL are read from .env (same as server.py).
 """
 
+import argparse
 import base64
+import csv
 import hashlib
 import json
 import os
@@ -125,7 +128,119 @@ def _delivery_date_key(trade):
         return ("9999-99-99", "Unknown")
 
 
-def generate_report():
+def _fmt_ist(raw):
+    """Convert an ISO timestamp string to a human-readable IST string."""
+    if not raw:
+        return ""
+    try:
+        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        return dt.astimezone(IST).strftime("%Y-%m-%d %H:%M:%S")
+    except (ValueError, TypeError):
+        return raw
+
+
+def _get_energy(trade):
+    details = trade.get("tradeDetails") or []
+    return sum(d.get("tradeQty", 0) for d in details if d.get("tradeUnit") == "KWH")
+
+
+def _get_trade_type(trade):
+    details = trade.get("tradeDetails") or []
+    return ", ".join(d["tradeType"] for d in details if d.get("tradeType"))
+
+
+def _get_delivery_start(trade):
+    details = trade.get("tradeDetails") or []
+    if details:
+        for key in ("deliveryStartTime", "deliveryStart"):
+            v = details[0].get(key)
+            if v:
+                return v
+    for key in ("deliveryStartTime", "deliveryStart"):
+        v = trade.get(key)
+        if v:
+            return v
+    return ""
+
+
+def _get_delivery_end(trade):
+    details = trade.get("tradeDetails") or []
+    if details:
+        for key in ("deliveryEndTime", "deliveryEnd"):
+            v = details[0].get(key)
+            if v:
+                return v
+    for key in ("deliveryEndTime", "deliveryEnd"):
+        v = trade.get(key)
+        if v:
+            return v
+    return ""
+
+
+def _duration_hours(start_raw, end_raw):
+    if not start_raw or not end_raw:
+        return ""
+    try:
+        start = datetime.fromisoformat(start_raw.replace("Z", "+00:00"))
+        end = datetime.fromisoformat(end_raw.replace("Z", "+00:00"))
+        hours = (end - start).total_seconds() / 3600
+        return f"{hours:.2f}"
+    except (ValueError, TypeError):
+        return ""
+
+
+CSV_COLUMNS = [
+    "Trade Time (IST)",
+    "Delivery Start (IST)",
+    "Duration (h)",
+    "Qty (KWH)",
+    "Buyer Alloc",
+    "Seller Alloc",
+    "Buyer Status",
+    "Seller Status",
+    "Buyer Discom",
+    "Seller Discom",
+    "Buyer ID",
+    "Seller ID",
+    "Buyer App",
+    "Seller App",
+    "Trade Type",
+    "Transaction ID",
+    "Record ID",
+]
+
+
+def write_csv(trades, path):
+    """Write all trades to a CSV file with the same columns as the UI table."""
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
+        writer.writeheader()
+        for r in trades:
+            start_raw = _get_delivery_start(r)
+            end_raw = _get_delivery_end(r)
+            writer.writerow({
+                "Trade Time (IST)": _fmt_ist(r.get("tradeTime", "")),
+                "Delivery Start (IST)": _fmt_ist(start_raw),
+                "Duration (h)": _duration_hours(start_raw, end_raw),
+                "Qty (KWH)": f"{_get_energy(r):.2f}",
+                "Buyer Alloc": r.get("buyerDiscomAllocation", ""),
+                "Seller Alloc": r.get("sellerDiscomAllocation", ""),
+                "Buyer Status": r.get("statusBuyerDiscom", ""),
+                "Seller Status": r.get("statusSellerDiscom", ""),
+                "Buyer Discom": r.get("discomIdBuyer", ""),
+                "Seller Discom": r.get("discomIdSeller", ""),
+                "Buyer ID": r.get("buyerId", ""),
+                "Seller ID": r.get("sellerId", ""),
+                "Buyer App": r.get("platformIdBuyer", ""),
+                "Seller App": r.get("platformIdSeller", ""),
+                "Trade Type": _get_trade_type(r),
+                "Transaction ID": r.get("transactionId", ""),
+                "Record ID": r.get("recordId", ""),
+            })
+    print(f"CSV written: {path} ({len(trades)} rows)", file=sys.stderr)
+
+
+def generate_report(csv_path=None):
     """Fetch trades from ledger and print a WhatsApp-friendly DISCOM trade report."""
     if not LEDGER_URL:
         print("Error: LEDGER_URL not set in .env or environment", file=sys.stderr)
@@ -234,8 +349,15 @@ def generate_report():
 
     report = "\n".join(lines)
     print(report)
+
+    if csv_path:
+        write_csv(all_trades, csv_path)
+
     return report
 
 
 if __name__ == "__main__":
-    generate_report()
+    parser = argparse.ArgumentParser(description="DISCOM Trade Report")
+    parser.add_argument("--csv", metavar="FILE", help="Optional path to write all trades as a CSV file")
+    args = parser.parse_args()
+    generate_report(csv_path=args.csv)

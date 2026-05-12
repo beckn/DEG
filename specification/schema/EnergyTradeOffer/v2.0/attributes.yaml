@@ -3,11 +3,26 @@ info:
   title: EnergyTradeOffer — Offer Attributes (v2.0)
   version: 2.0.0
   description: >
-    Offer attributes for P2P energy trading. Attached to Offer.offerAttributes
-    to provide validity windows, role-tagged inputs, and an embedded list of
-    delivery slots ("offers"). Each slot in inputs[*].inputs.offers is a
-    {pricePerKwh, availableQuantity, deliveryWindow[, requestedQuantity]}
-    tuple, allowing a single contract to span multiple time windows.
+    Offer attributes for P2P energy trading. Attached to Offer.offerAttributes.
+
+    Role declarations live in `inputs[]` — one entry per role. Each role
+    declares its `payloadDescriptors` (the signal types it contributes) but
+    carries no interval data. Actual slot-level data lives in a single
+    BecknTimeSeries at Commitment.commitmentAttributes, which grows across
+    the contract lifecycle:
+
+      publish / on_select  — seller adds PRICE_PER_KWH + AVAILABLE_QTY
+      init / confirm       — buyer adds REQUESTED_QTY (to same intervals)
+      post-delivery        — discoms add BUYER_DISCOM_ALLOC, BUYER_DISCOM_STATUS,
+                             SELLER_DISCOM_ALLOC, SELLER_DISCOM_STATUS, FINAL_ALLOC
+
+    Consistency rule: every payloadType in
+    commitmentAttributes.intervals[*].payloads[*].type MUST appear in
+    commitmentAttributes.payloadDescriptors, and every payloadDescriptor type
+    MUST appear in at least one interval payload.
+
+    This replaces the v2.0 offerTimeseries / bidTimeseries design. A developer
+    touches one commitmentAttributes block instead of three separate timeseries.
 
 components:
   schemas:
@@ -30,29 +45,50 @@ components:
           description: >
             Time window during which this offer can be selected/accepted.
             Typically set to expire before the earliest delivery starts.
-            After this window closes, the offer is no longer available.
           x-jsonld:
             "@id": validityWindow
 
         inputs:
           type: array
           description: >
-            Per-role inputs to the offer. Each entry binds a role
-            (seller / buyer) to a participantId and to a list of delivery
-            slots (offers[]). Seller slots specify pricePerKwh,
-            availableQuantity and deliveryWindow; buyer slots additionally
-            specify requestedQuantity for that window.
+            Per-role declarations. Each entry binds a role to a participantId
+            (null until bound at init/confirm) and a payloadDescriptors array
+            that declares which signal types this role contributes to the shared
+            Commitment.commitmentAttributes BecknTimeSeries.
+
+            Four roles are defined for P2P inter-discom trading:
+              seller       — PRICE_PER_KWH + AVAILABLE_QTY (EVENT_PAYLOAD_DESCRIPTOR)
+              buyer        — REQUESTED_QTY (EVENT_PAYLOAD_DESCRIPTOR)
+              buyerDiscom  — BUYER_DISCOM_ALLOC + BUYER_DISCOM_STATUS (REPORT_PAYLOAD_DESCRIPTOR)
+              sellerDiscom — SELLER_DISCOM_ALLOC + SELLER_DISCOM_STATUS (REPORT_PAYLOAD_DESCRIPTOR)
           items:
             $ref: "#/components/schemas/RoleInputs"
+
+        commitmentAttributes:
+          type: object
+          additionalProperties: true
+          description: >
+            Seller's initial BecknTimeSeries published at catalog time. Contains
+            PRICE_PER_KWH and AVAILABLE_QTY intervals for each offered delivery
+            slot. MUST carry @context (BecknTimeSeries/v1.0/context.jsonld) and
+            @type: TimeSeries.
+          required: ["@context", "@type"]
+          properties:
+            "@context":
+              type: string
+              format: uri
+            "@type":
+              type: string
+              enum: ["TimeSeries"]
+          x-jsonld:
+            "@id": commitmentAttributes
 
         contractTerms:
           type: object
           additionalProperties: true
           description: >
-            JSON-LD-aware container for the contract terms attached to this
-            offer at catalog/publish time. MUST carry @context and @type
-            (typically pointing at DEGContract). Validated separately by the
-            extended-schema chain via @context.
+            JSON-LD container for contract terms attached at catalog publish time.
+            MUST carry @context and @type (typically DEGContract).
           required: ["@context", "@type"]
           properties:
             "@context":
@@ -62,14 +98,6 @@ components:
               type: string
           x-jsonld:
             "@id": contractTerms
-
-        gift:
-          type: object
-          additionalProperties: true
-          description: >
-            Optional gift parameters for energy gifting.
-          x-jsonld:
-            "@id": gift
 
     # ── shared sub-schemas ─────────────────────────────────────────────────
 
@@ -85,134 +113,141 @@ components:
           type: string
           format: date-time
           pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$'
-          description: Start time in UTC (ISO 8601 with Z suffix).
           example: "2026-04-26T04:30:00Z"
         "schema:endTime":
           type: string
           format: date-time
           pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$'
-          description: End time in UTC (ISO 8601 with Z suffix).
           example: "2026-04-26T05:30:00Z"
-
-    Quantity:
-      type: object
-      additionalProperties: false
-      required: ["@type", unitCode, unitQuantity]
-      properties:
-        "@type":
-          type: string
-          enum: [Quantity]
-        unitCode:
-          type: string
-          enum: [KWH, MWH, WH]
-          description: Quantity unit code.
-        unitQuantity:
-          type: number
-          minimum: 0
-          description: Numeric quantity in the given unit.
 
     RoleInputs:
       type: object
       additionalProperties: false
       required: [role]
+      description: >
+        A role declaration within an EnergyTradeOffer.
+
+        participantId is null at catalog publish for buyer/discom roles and is
+        bound at select/init time.
+
+        Each role carries exactly one of:
+          payload         — the role's actual BecknTimeSeries contribution.
+                            Sellers MUST use this form from catalog publish
+                            onwards; it carries PRICE_PER_KWH + AVAILABLE_QTY
+                            intervals. Other roles may also use payload once
+                            they have data to contribute.
+          payloadDescriptors — metadata-only declaration of the signal types the
+                            role will contribute to the shared
+                            Commitment.commitmentAttributes. Roles that have not
+                            yet written data use this form (e.g. buyer at
+                            init time when only declaring REQUESTED_QTY intent,
+                            discom roles before post-delivery reconciliation).
+
+        The seller's payload IS the seed of Commitment.commitmentAttributes;
+        other roles append to commitmentAttributes as the lifecycle progresses.
       properties:
         role:
           type: string
-          enum: [buyer, seller]
-          description: Role this inputs entry applies to within the offer.
+          enum: [buyer, seller, buyerDiscom, sellerDiscom]
+          description: Role this entry applies to within the P2P trade.
         participantId:
-          type: string
+          type: ["string", "null"]
           description: >
-            Beckn participant id of the role-holder. Bound at select/init;
-            omitted at catalog publish for the buyer side.
-        inputs:
-          $ref: "#/components/schemas/InputBag"
-      # Buyer slots additionally require requestedQuantity. Seller slots
-      # leave it absent.
-      if:
-        properties:
-          role:
-            const: buyer
-      then:
-        properties:
-          inputs:
-            properties:
-              offers:
-                items:
-                  required:
-                    - pricePerKwh
-                    - availableQuantity
-                    - deliveryWindow
-                    - requestedQuantity
-
-    InputBag:
-      type: object
-      additionalProperties: false
-      required: [offers]
-      description: >
-        Role-specific inputs bag. Single-valued, role-stable attributes
-        (currency, sourceType) live flat at the top of this bag; the
-        time-varying tuples (price, available qty, delivery window, and —
-        for buyers — requestedQuantity) live in the offers[] array, one
-        entry per delivery slot.
-      properties:
-
-        currency:
-          type: string
-          minLength: 3
-          maxLength: 3
-          description: ISO-4217 currency code (e.g., INR, USD). Applies to all entries in offers[].
-          example: "INR"
-
-        sourceType:
-          type: string
-          enum: [SOLAR, BATTERY, GRID, HYBRID, RENEWABLE]
-          description: >
-            Energy source type for this side. Seller side typically declares
-            generation source (e.g., SOLAR); buyer side may declare
-            consumption-side context (e.g., GRID). Applies to all entries
-            in offers[].
-
-        offers:
+            Beckn participant id of the role-holder once bound. Null at catalog
+            publish for buyer, buyerDiscom, and sellerDiscom roles.
+        payloadDescriptors:
           type: array
           minItems: 1
           description: >
-            One entry per delivery time window. For seller role:
-            {pricePerKwh, availableQuantity, deliveryWindow}. For buyer
-            role: same three plus requestedQuantity. Multiple entries let
-            a single contract span multiple time windows (e.g. several
-            consecutive hours), avoiding duplication of currency /
-            sourceType / role identity.
+            Metadata-only declaration of signal types this role will contribute.
+            Mutually exclusive with payload — use this when the role has declared
+            intent but not yet written interval data.
+            Must use EVENT_PAYLOAD_DESCRIPTOR for offer/bid signals (seller,
+            buyer) and REPORT_PAYLOAD_DESCRIPTOR for telemetry/allocation
+            signals (buyerDiscom, sellerDiscom).
           items:
-            $ref: "#/components/schemas/OfferSlot"
+            oneOf:
+              - $ref: "https://schema.beckn.io/openadr/v3.1.0#/components/schemas/eventPayloadDescriptor"
+              - $ref: "https://schema.beckn.io/openadr/v3.1.0#/components/schemas/reportPayloadDescriptor"
+            discriminator:
+              propertyName: objectType
+              mapping:
+                EVENT_PAYLOAD_DESCRIPTOR: "https://schema.beckn.io/openadr/v3.1.0#/components/schemas/eventPayloadDescriptor"
+                REPORT_PAYLOAD_DESCRIPTOR: "https://schema.beckn.io/openadr/v3.1.0#/components/schemas/reportPayloadDescriptor"
+        payload:
+          type: object
+          additionalProperties: true
+          description: >
+            The role's actual BecknTimeSeries contribution to the shared
+            Commitment.commitmentAttributes. Mutually exclusive with
+            payloadDescriptors. MUST carry @context and @type: TimeSeries.
+            Sellers MUST use this form from catalog publish onwards, carrying
+            PRICE_PER_KWH and AVAILABLE_QTY intervals.
+          required: ["@context", "@type"]
+          properties:
+            "@context":
+              type: string
+              format: uri
+              example: "https://schema.beckn.io/BecknTimeSeries/v1.0/context.jsonld"
+            "@type":
+              type: string
+              enum: ["TimeSeries"]
+          x-jsonld:
+            "@id": payload
 
-    OfferSlot:
-      type: object
-      additionalProperties: false
-      required: [pricePerKwh, availableQuantity, deliveryWindow]
-      description: >
-        A single trade slot — one delivery window with its price and
-        available quantity. requestedQuantity is added when this slot is
-        carried under a buyer-role inputs entry (enforced via the if/then
-        on RoleInputs above).
-      properties:
-        pricePerKwh:
-          type: number
-          minimum: 0
-          description: Per-kWh price for this delivery window.
-        availableQuantity:
-          allOf:
-            - $ref: "#/components/schemas/Quantity"
-          description: Energy quantity the seller has on offer for this window.
-        deliveryWindow:
-          allOf:
-            - $ref: "#/components/schemas/TimePeriod"
-          description: >
-            Specific time period (UTC, ISO 8601 with Z suffix) when energy
-            delivery occurs for this slot.
-        requestedQuantity:
-          allOf:
-            - $ref: "#/components/schemas/Quantity"
-          description: >
-            Energy quantity the buyer is requesting for this window.
-            Required only when the parent RoleInputs.role is "buyer".
+      # Exactly one of payloadDescriptors or payload must be present
+      oneOf:
+        - required: [payloadDescriptors]
+          not: { required: [payload] }
+        - required: [payload]
+          not: { required: [payloadDescriptors] }
+
+      # Role-specific constraints on payloadDescriptors
+      if:
+        properties:
+          role:
+            const: seller
+      then:
+        properties:
+          payloadDescriptors:
+            description: >
+              Seller MUST declare EVENT_PAYLOAD_DESCRIPTOR entries for:
+                PRICE_PER_KWH  with currency: INR
+                AVAILABLE_QTY  with units: KWH
+            contains:
+              properties:
+                payloadType:
+                  const: PRICE_PER_KWH
+      else:
+        if:
+          properties:
+            role:
+              const: buyer
+        then:
+          properties:
+            payloadDescriptors:
+              description: >
+                Buyer MUST declare an EVENT_PAYLOAD_DESCRIPTOR for:
+                  REQUESTED_QTY  with units: KWH
+                Interval ids in commitmentAttributes MUST be a subset of the
+                seller's ids. The network policy enforces the subset constraint
+                and validates REQUESTED_QTY ≤ AVAILABLE_QTY per matched id.
+        else:
+          if:
+            properties:
+              role:
+                const: buyerDiscom
+          then:
+            properties:
+              payloadDescriptors:
+                description: >
+                  BuyerDiscom MUST declare REPORT_PAYLOAD_DESCRIPTOR entries for:
+                    BUYER_DISCOM_ALLOC   with units: KWH
+                    BUYER_DISCOM_STATUS  with units: STRING
+          else:
+            properties:
+              payloadDescriptors:
+                description: >
+                  SellerDiscom MUST declare REPORT_PAYLOAD_DESCRIPTOR entries for:
+                    SELLER_DISCOM_ALLOC   with units: KWH
+                    SELLER_DISCOM_STATUS  with units: STRING

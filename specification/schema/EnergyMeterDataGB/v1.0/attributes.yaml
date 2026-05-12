@@ -38,7 +38,7 @@ components:
           description: IANA time-zone identifier (e.g., Asia/Kolkata). Not an ESPI property.
           examples: [Asia/Kolkata, America/New_York]
         ReadingType:
-          $ref: "../../../external/schema/espiGreenButton/attributes.yaml#/components/schemas/ReadingType"
+          $ref: "../../espiGreenButton/v1.0/attributes.yaml#/components/schemas/ReadingType"
           description: ESPI ReadingType — commodity, flowDirection, uom, accumulationBehaviour, intervalLength, currency, kind, phase.
         qualityOfReading:
           oneOf:
@@ -51,6 +51,6 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: "../../../external/schema/espiGreenButton/attributes.yaml#/components/schemas/IntervalBlock"
+            $ref: "../../espiGreenButton/v1.0/attributes.yaml#/components/schemas/IntervalBlock"
           description: Array of ESPI IntervalBlocks containing interval + IntervalReading[].
       additionalProperties: false

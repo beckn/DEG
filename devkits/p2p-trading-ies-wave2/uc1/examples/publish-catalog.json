@@ -4,14 +4,16 @@
     "version": "2.0.0",
     "action": "catalog/publish",
     "bppId": "bpp.example.com",
-    "bppUri": "https://bpp.example.com/beckn",
+    "bppUri": "http://beckn-router:9000/bpp/receiver",
     "transactionId": "a1b2c3d4-e5f6-7890-abcd-ef1122334455",
     "messageId": "b1c2d3e4-f5a6-7890-abcd-ef2233445566",
     "timestamp": "2026-04-25T06:00:00Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/EnergyTradeOffer/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/EnergyResource/v2.0/context.jsonld",
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/EnergyCustomer/v2.0/context.jsonld"
+      "https://schema.beckn.io/EnergyTradeOffer/v2.0/context.jsonld",
+      "https://schema.beckn.io/EnergyResource/v2.0/context.jsonld",
+      "https://schema.beckn.io/EnergyCustomer/v2.0/context.jsonld",
+      "https://schema.beckn.io/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/BecknTimeSeries/v1.0/context.jsonld"
     ]
   },
   "message": {
@@ -25,7 +27,7 @@
         "bppId": "bpp.example.com",
         "bppUri": "http://bpp.example.com/bpp/receiver",
         "provider": {
-          "id": "TPDDL-DL-seller-001",
+          "id": "TEST_SELLER_001",
           "descriptor": {
             "name": "Prosumer Solar Farm \u2014 North Delhi"
           }
@@ -34,14 +36,14 @@
           {
             "id": "energy-resource-solar-001",
             "descriptor": {
-              "name": "Solar energy slot \u2014 2026-04-26 10:00\u201311:00 IST",
-              "shortDesc": "Up to 30 kWh of rooftop solar, 1-hour delivery slot"
+              "name": "Solar energy \u2014 2026-04-26 10:00\u201312:00 IST (2 hourly slots)",
+              "shortDesc": "Up to 30 kWh @ 12 INR/kWh (slot 0) and 25 kWh @ 14 INR/kWh (slot 1)"
             },
             "resourceAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/EnergyResource/v2.0/context.jsonld",
+              "@context": "https://schema.beckn.io/EnergyResource/v2.0/context.jsonld",
               "@type": "EnergyResource",
               "sourceType": "SOLAR",
-              "meterId": "der://meter/seller-001"
+              "meterId": "TEST_METER_SELLER_001"
             }
           }
         ],
@@ -49,8 +51,8 @@
           {
             "id": "offer-p2p-001",
             "descriptor": {
-              "name": "Morning Solar @ 12 INR/kWh",
-              "shortDesc": "Up to 30 kWh of rooftop solar for 2026-04-26 10:00\u201311:00 IST"
+              "name": "Morning Solar \u2014 2 hourly slots from 10:00 IST",
+              "shortDesc": "12 INR/kWh (slot 0) and 14 INR/kWh (slot 1)"
             },
             "resourceIds": [
               "energy-resource-solar-001"
@@ -61,7 +63,7 @@
             },
             "availableTo": [],
             "offerAttributes": {
-              "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/EnergyTradeOffer/v2.0/context.jsonld",
+              "@context": "https://schema.beckn.io/EnergyTradeOffer/v2.0/context.jsonld",
               "@type": "EnergyTradeOffer",
               "validityWindow": {
                 "@type": "beckn:TimePeriod",
@@ -69,7 +71,7 @@
                 "schema:endTime": "2026-04-26T00:30:00Z"
               },
               "contractTerms": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/DEGContract/v2.0/context.jsonld",
+                "@context": "https://schema.beckn.io/DEGContract/v2.0/context.jsonld",
                 "@type": "DEGContract",
                 "roles": [
                   {
@@ -78,7 +80,7 @@
                   },
                   {
                     "role": "seller",
-                    "participantId": "TPDDL-DL-seller-001"
+                    "participantId": "TEST_SELLER_001"
                   },
                   {
                     "role": "buyerDiscom",
@@ -97,53 +99,100 @@
               "inputs": [
                 {
                   "role": "seller",
-                  "participantId": "TPDDL-DL-seller-001",
-                  "inputs": {
-                    "currency": "INR",
-                    "sourceType": "SOLAR",
-                    "offers": [
+                  "participantId": "TEST_SELLER_001",
+                  "payload": {
+                    "@context": "https://schema.beckn.io/BecknTimeSeries/v1.0/context.jsonld",
+                    "@type": "TimeSeries",
+                    "intervalPeriod": {
+                      "start": "2026-04-26T04:30:00Z",
+                      "duration": "PT1H"
+                    },
+                    "payloadDescriptors": [
                       {
-                        "pricePerKwh": 12,
-                        "availableQuantity": {
-                          "@type": "Quantity",
-                          "unitCode": "KWH",
-                          "unitQuantity": 30.0
-                        },
-                        "deliveryWindow": {
-                          "@type": "beckn:TimePeriod",
-                          "schema:startTime": "2026-04-26T04:30:00Z",
-                          "schema:endTime": "2026-04-26T05:30:00Z"
-                        }
+                        "objectType": "EVENT_PAYLOAD_DESCRIPTOR",
+                        "payloadType": "PRICE_PER_KWH",
+                        "currency": "INR"
                       },
                       {
-                        "pricePerKwh": 14,
-                        "availableQuantity": {
-                          "@type": "Quantity",
-                          "unitCode": "KWH",
-                          "unitQuantity": 25.0
-                        },
-                        "deliveryWindow": {
-                          "@type": "beckn:TimePeriod",
-                          "schema:startTime": "2026-04-26T05:30:00Z",
-                          "schema:endTime": "2026-04-26T06:30:00Z"
-                        }
+                        "objectType": "EVENT_PAYLOAD_DESCRIPTOR",
+                        "payloadType": "AVAILABLE_QTY",
+                        "units": "KWH"
+                      }
+                    ],
+                    "intervals": [
+                      {
+                        "id": 0,
+                        "payloads": [
+                          {"type": "PRICE_PER_KWH", "values": [12.5]},
+                          {"type": "AVAILABLE_QTY", "values": [30.5]}
+                        ]
+                      },
+                      {
+                        "id": 1,
+                        "payloads": [
+                          {"type": "PRICE_PER_KWH", "values": [14.5]},
+                          {"type": "AVAILABLE_QTY", "values": [25.5]}
+                        ]
                       }
                     ]
                   }
+                },
+                {
+                  "role": "buyer",
+                  "participantId": null,
+                  "payloadDescriptors": [
+                    {
+                      "objectType": "EVENT_PAYLOAD_DESCRIPTOR",
+                      "payloadType": "REQUESTED_QTY",
+                      "units": "KWH"
+                    }
+                  ]
+                },
+                {
+                  "role": "buyerDiscom",
+                  "participantId": null,
+                  "payloadDescriptors": [
+                    {
+                      "objectType": "REPORT_PAYLOAD_DESCRIPTOR",
+                      "payloadType": "BUYER_DISCOM_ALLOC",
+                      "units": "KWH"
+                    },
+                    {
+                      "objectType": "REPORT_PAYLOAD_DESCRIPTOR",
+                      "payloadType": "BUYER_DISCOM_STATUS",
+                      "units": "STRING"
+                    }
+                  ]
+                },
+                {
+                  "role": "sellerDiscom",
+                  "participantId": "seller-discom-ledger",
+                  "payloadDescriptors": [
+                    {
+                      "objectType": "REPORT_PAYLOAD_DESCRIPTOR",
+                      "payloadType": "SELLER_DISCOM_ALLOC",
+                      "units": "KWH"
+                    },
+                    {
+                      "objectType": "REPORT_PAYLOAD_DESCRIPTOR",
+                      "payloadType": "SELLER_DISCOM_STATUS",
+                      "units": "STRING"
+                    }
+                  ]
                 }
               ]
             },
             "provider": {
-              "id": "TPDDL-DL-seller-001",
+              "id": "TEST_SELLER_001",
               "descriptor": {
                 "name": "Prosumer Solar Farm \u2014 North Delhi"
               },
               "providerAttributes": {
-                "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/EnergyCustomer/v2.0/context.jsonld",
+                "@context": "https://schema.beckn.io/EnergyCustomer/v2.0/context.jsonld",
                 "@type": "EnergyCustomer",
-                "meterId": "der://meter/seller-001",
-                "utilityId": "TPDDL-DL",
-                "utilityCustomerId": "TPDDL-CUST-S-001"
+                "meterId": "TEST_METER_SELLER_001",
+                "utilityId": "TEST_DISCOM_SELLER",
+                "utilityCustomerId": "TEST_CUST_SELLER_001"
               }
             }
           }

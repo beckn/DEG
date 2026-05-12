@@ -4,14 +4,15 @@
     "version": "2.0.0",
     "action": "on_init",
     "bapId": "bap.example.com",
-    "bapUri": "https://bap.example.com/beckn",
+    "bapUri": "http://beckn-router:9000/bap/receiver",
     "bppId": "bpp.example.com",
-    "bppUri": "https://bpp.example.com/beckn",
+    "bppUri": "http://beckn-router:9000/bpp/receiver",
     "transactionId": "txn-p2p-001-discom-check",
     "messageId": "msg-discom-on-init-001",
     "timestamp": "2026-04-25T10:06:05Z",
     "schemaContext": [
-      "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/DEGContract/v2.0/context.jsonld"
+      "https://schema.beckn.io/DEGContract/v2.0/context.jsonld",
+      "https://schema.beckn.io/DiscomLimitCheck/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -42,21 +43,9 @@
             "resourceIds": [
               "energy-resource-solar-001"
             ]
-          }
-        }
-      ],
-      "performance": [
-        {
-          "id": "perf-discom-limit-check",
-          "status": {
-            "code": "DISCOM_LIMIT_CHECK_OK",
-            "name": "Discom-ledger limit check passed for both sides"
           },
-          "commitmentIds": [
-            "commitment-p2p-001"
-          ],
-          "performanceAttributes": {
-            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/DiscomLimitCheck/v2.0/context.jsonld",
+          "commitmentAttributes": {
+            "@context": "https://schema.beckn.io/DiscomLimitCheck/v2.0/context.jsonld",
             "@type": "DiscomLimitCheck",
             "deliveryWindow": {
               "@type": "beckn:TimePeriod",
@@ -82,7 +71,7 @@
         }
       ],
       "contractAttributes": {
-        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/DEGContract/v2.0/context.jsonld",
+        "@context": "https://schema.beckn.io/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {

@@ -1,0 +1,101 @@
+{
+    "@context": {
+        "@version": 1.1,
+        "@protected": true,
+        "id": "@id",
+        "type": "@type",
+        "oadr": "https://www.openadr.org/oadr3#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+        "interval": {
+            "@id": "oadr:interval"
+        },
+        "intervalPeriod": {
+            "@id": "oadr:intervalPeriod"
+        },
+        "valuesMap": {
+            "@id": "oadr:valuesMap"
+        },
+        "point": {
+            "@id": "oadr:point"
+        },
+        "eventPayloadDescriptor": {
+            "@id": "oadr:eventPayloadDescriptor"
+        },
+        "reportPayloadDescriptor": {
+            "@id": "oadr:reportPayloadDescriptor"
+        },
+
+        "id": {
+            "@id": "oadr:id",
+            "@type": "xsd:integer"
+        },
+        "payloads": {
+            "@id": "oadr:payloads",
+            "@type": "@id",
+            "@container": "@set"
+        },
+        "start": {
+            "@id": "oadr:start",
+            "@type": "xsd:dateTime"
+        },
+        "duration": {
+            "@id": "oadr:duration",
+            "@type": "xsd:string"
+        },
+        "randomizeStart": {
+            "@id": "oadr:randomizeStart",
+            "@type": "xsd:string"
+        },
+        "payloadDescriptors": {
+            "@id": "oadr:payloadDescriptors",
+            "@type": "@id",
+            "@container": "@set"
+        },
+        "intervals": {
+            "@id": "oadr:intervals",
+            "@type": "@id",
+            "@container": "@set"
+        },
+        "objectType": {
+            "@id": "oadr:objectType",
+            "@type": "xsd:string"
+        },
+        "payloadType": {
+            "@id": "oadr:payloadType",
+            "@type": "xsd:string"
+        },
+        "units": {
+            "@id": "oadr:units",
+            "@type": "xsd:string"
+        },
+        "currency": {
+            "@id": "oadr:currency",
+            "@type": "xsd:string"
+        },
+        "readingType": {
+            "@id": "oadr:readingType",
+            "@type": "xsd:string"
+        },
+        "accuracy": {
+            "@id": "oadr:accuracy",
+            "@type": "xsd:decimal"
+        },
+        "confidence": {
+            "@id": "oadr:confidence",
+            "@type": "xsd:integer"
+        },
+        "values": {
+            "@id": "oadr:values",
+            "@container": "@list"
+        },
+        "x": {
+            "@id": "oadr:x",
+            "@type": "xsd:decimal"
+        },
+        "y": {
+            "@id": "oadr:y",
+            "@type": "xsd:decimal"
+        }
+    }
+}

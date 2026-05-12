@@ -1,0 +1,17 @@
+{
+  "context": {
+    "networkId": "nfh.global/testnet-deg",
+    "version": "2.0.0",
+    "action": "on_confirm",
+    "bapId": "bpp.example.com",
+    "bapUri": "http://beckn-router:9000/bpp",
+    "bppId": "seller-discom-ledger",
+    "bppUri": "http://beckn-router:9000/ledger",
+    "transactionId": "txn-p2p-001",
+    "messageId": "msg-ledger-on-confirm-001",
+    "timestamp": "2026-04-25T10:10:10Z"
+  },
+  "message": {
+    "ack": { "status": "ACK" }
+  }
+}

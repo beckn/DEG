@@ -1,0 +1,1217 @@
+# ESPI + CIM Meter Telemetry Extension
+# Extends Green Button (NAESB ESPI) with CIM (IEC 61968-9 / IEC 61970) types
+# for meter telemetry across consumer, distribution, and transmission levels.
+#
+# All extension types are OPTIONAL — they augment, not replace, the base ESPI
+# schema in attributes.yaml.  The base ESPI types (IntervalBlock, ReadingType,
+# IntervalReading, etc.) remain the canonical consumer-facing data model.
+#
+# Sources:
+#   - IEC 61968-9  (Metering — end device, events, channels, registers)
+#   - IEC 61970    (Base/Meas — SCADA telemetry: Analog, Discrete, Accumulator)
+#   - IEC 61968    (Assets — instrument transformers, multipliers)
+#   - Balijepalli & Khaparde, IEEE Systems Journal 2013 (CIM ↔ Green Button integration)
+
+openapi: 3.1.1
+info:
+  title: ESPI + CIM Meter Telemetry Extension
+  version: 0.1.0
+  description: >
+    Optional CIM extension types for Green Button / ESPI, covering meter
+    telemetry at consumer (AMI), distribution-transformer, and transmission
+    levels.  All schemas here are additive — the base ESPI types in
+    attributes.yaml are unchanged.
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+servers:
+  - url: https://schema.beckn.io/espiGreenButtonWithCIM
+    description: Canonical schema registry
+
+components:
+  schemas:
+
+    # ════════════════════════════════════════════════════════════════
+    #  COMMON BASE
+    # ════════════════════════════════════════════════════════════════
+
+    IdentifiedObject:
+      type: object
+      description: >
+        CIM root class providing common identification for all classes
+        (IEC 61970 Core::IdentifiedObject).
+      properties:
+        mRID:
+          type: string
+          format: uuid
+          description: Master Resource Identifier — globally unique UUID.
+        name:
+          type: string
+          description: Human-readable name.
+        description:
+          type: string
+          description: Free-text description.
+        aliasName:
+          type: string
+          description: Alternative name.
+
+    # ════════════════════════════════════════════════════════════════
+    #  ENUMERATIONS (CIM additions beyond ESPI)
+    # ════════════════════════════════════════════════════════════════
+
+    PhaseCode:
+      type: string
+      description: >
+        Phase code indicating number and type of wires
+        (IEC 61970 Core::PhaseCode).
+      enum:
+        - ABC
+        - AB
+        - AC
+        - BC
+        - A
+        - B
+        - C
+        - N
+        - ABN
+        - ACN
+        - BCN
+        - ABCN
+        - AN
+        - BN
+        - CN
+        - s1
+        - s2
+        - s12
+        - s1N
+        - s2N
+        - s12N
+        - none
+
+    UsagePointConnectedKind:
+      type: string
+      description: >
+        State of a UsagePoint with respect to physical/logical connection
+        to the network (IEC 61968 Metering).
+      enum:
+        - connected
+        - logicallyDisconnected
+        - physicallyDisconnected
+
+    AmiBillingReadyKind:
+      type: string
+      description: >
+        Lifecycle state of the metering installation with respect to AMI
+        billing readiness (IEC 61968 Metering).
+      enum:
+        - amiCapable
+        - amiDisabled
+        - billingApproved
+        - enabled
+        - nonAmi
+        - nonMetered
+        - operable
+
+    MeterMultiplierKind:
+      type: string
+      description: >
+        Kind of meter multiplier (IEC 61968 Metering).
+      enum:
+        - ctRatio
+        - ptRatio
+        - transformerRatio
+        - kH
+        - kR
+        - kE
+
+    WindingConnection:
+      type: string
+      description: >
+        Winding connection type for a transformer end
+        (IEC 61970 Wires).
+      enum:
+        - D
+        - Y
+        - Z
+        - Yn
+        - Zn
+        - A
+        - I
+
+    MeasurementValueSourceKind:
+      type: string
+      description: >
+        Source that provided a measurement value.
+      enum:
+        - SCADA
+        - estimator
+        - manualEntry
+        - calculated
+        - defaultValue
+
+    EndDeviceEventDomain:
+      type: string
+      description: >
+        Domain component of an end-device event code
+        (IEC 61968-9 Annex E).
+      enum:
+        - endDeviceEvent
+        - demandResponse
+        - loadControl
+        - messaging
+        - pricing
+        - registration
+        - relayControl
+
+    ComTechnologyKind:
+      type: string
+      description: >
+        Communication technology used by end devices
+        (IEC 61968 Metering::ComFunction.technology).
+      enum:
+        - cellular
+        - ethernet
+        - homePlug
+        - pager
+        - phone
+        - plc
+        - rf
+        - rfMesh
+        - zigbee
+
+    ComDirectionKind:
+      type: string
+      description: >
+        Communication direction capability of an end device
+        (IEC 61968 Metering::ComFunction.direction).
+        biDirectional = two-way AMI; fromDevice = one-way AMR.
+      enum:
+        - biDirectional
+        - fromDevice
+        - toDevice
+
+    ReadingReasonKind:
+      type: string
+      description: >
+        Reason for a meter reading
+        (IEC 61968 Metering::ReadingReasonKind).
+      enum:
+        - billing
+        - demandReset
+        - inquiry
+        - installation
+        - loadManagement
+        - loadResearch
+        - moveIn
+        - moveOut
+        - other
+        - removal
+        - serviceConnect
+        - serviceDisconnect
+
+    MacroPeriodKind:
+      type: string
+      description: >
+        Overall period of interest for a reading type
+        (IEC 61968 Metering::MacroPeriodKind).
+      enum:
+        - none
+        - billingPeriod
+        - daily
+        - monthly
+        - seasonal
+        - weekly
+        - specifiedPeriod
+
+    MeasuringPeriodKind:
+      type: string
+      description: >
+        Time attribute of the base measurement interval
+        (IEC 61968 Metering::MeasuringPeriodKind).
+        Includes simple intervals, fixed blocks, and rolling blocks.
+      enum:
+        # Simple intervals
+        - none
+        - oneMinute
+        - twoMinute
+        - threeMinute
+        - fiveMinute
+        - tenMinute
+        - fifteenMinute
+        - twentyMinute
+        - thirtyMinute
+        - sixtyMinute
+        - twentyfourHour
+        - present
+        - previous
+        # Fixed blocks
+        - fixedBlock1Min
+        - fixedBlock5Min
+        - fixedBlock10Min
+        - fixedBlock15Min
+        - fixedBlock20Min
+        - fixedBlock30Min
+        - fixedBlock60Min
+        # Rolling blocks (60-min)
+        - rollingBlock60MinIntvl5MinSubIntvl
+        - rollingBlock60MinIntvl10MinSubIntvl
+        - rollingBlock60MinIntvl12MinSubIntvl
+        - rollingBlock60MinIntvl15MinSubIntvl
+        - rollingBlock60MinIntvl20MinSubIntvl
+        - rollingBlock60MinIntvl30MinSubIntvl
+        # Rolling blocks (30-min)
+        - rollingBlock30MinIntvl2MinSubIntvl
+        - rollingBlock30MinIntvl3MinSubIntvl
+        - rollingBlock30MinIntvl5MinSubIntvl
+        - rollingBlock30MinIntvl6MinSubIntvl
+        - rollingBlock30MinIntvl10MinSubIntvl
+        - rollingBlock30MinIntvl15MinSubIntvl
+        # Rolling blocks (15-min)
+        - rollingBlock15MinIntvl1MinSubIntvl
+        - rollingBlock15MinIntvl3MinSubIntvl
+        - rollingBlock15MinIntvl5MinSubIntvl
+        # Rolling blocks (10-min)
+        - rollingBlock10MinIntvl1MinSubIntvl
+        - rollingBlock10MinIntvl2MinSubIntvl
+        - rollingBlock10MinIntvl5MinSubIntvl
+        # Rolling blocks (5-min)
+        - rollingBlock5MinIntvl1MinSubIntvl
+
+    AggregateKind:
+      type: string
+      description: >
+        Aggregation operation applied to a reading type
+        (IEC 61968 Metering::AggregateKind).
+      enum:
+        - none
+        - average
+        - excess
+        - fifthMaximum
+        - fourthMaximum
+        - highThreshold
+        - lowThreshold
+        - maximum
+        - minimum
+        - nominal
+        - normal
+        - secondMaximum
+        - secondMinimum
+        - sum
+        - thirdMaximum
+
+    ReadingQualityType:
+      type: string
+      description: >
+        Quality classification for a reading value (IEC 61968-9).
+        Format: system.category.subcategory
+      enum:
+        - valid
+        - manuallyEdited
+        - estimated
+        - interpolated
+        - failed
+        - calculated
+        - projected
+        - mixed
+        - unvalidated
+        - weatherAdjusted
+        - other
+        - validatedEdited
+        - questionableAccepted
+        - billingApproved
+
+    # ════════════════════════════════════════════════════════════════
+    #  END DEVICE / METER  (IEC 61968 Metering)
+    # ════════════════════════════════════════════════════════════════
+
+    EndDeviceCapability:
+      type: object
+      description: >
+        Boolean flags describing inherent capabilities of an end device
+        (IEC 61968 Metering::EndDeviceCapability).
+      properties:
+        autonomousDst:
+          type: boolean
+          description: Supports autonomous daylight saving time.
+        communication:
+          type: boolean
+          description: Has communication capability.
+        connectDisconnect:
+          type: boolean
+          description: Supports connect/disconnect.
+        demandResponse:
+          type: boolean
+          description: Supports demand response.
+        electricMetering:
+          type: boolean
+          description: Supports electric metering.
+        gasMetering:
+          type: boolean
+          description: Supports gas metering.
+        waterMetering:
+          type: boolean
+          description: Supports water metering.
+        metrology:
+          type: boolean
+          description: Supports metrology functions.
+        onRequestRead:
+          type: boolean
+          description: Supports on-request reading.
+        outageHistory:
+          type: boolean
+          description: Supports outage history.
+        pressureCompensation:
+          type: boolean
+          description: Supports pressure compensation.
+        pricingInfo:
+          type: boolean
+          description: Supports pricing information display.
+        pulseOutput:
+          type: boolean
+          description: Has pulse output.
+        relaysProgramming:
+          type: boolean
+          description: Supports relay programming.
+        reverseFlow:
+          type: boolean
+          description: Supports reverse flow detection.
+        superCompressibilityCompensation:
+          type: boolean
+          description: Supports super-compressibility compensation.
+        temperatureCompensation:
+          type: boolean
+          description: Supports temperature compensation.
+        textMessage:
+          type: boolean
+          description: Supports text messaging.
+
+    EndDeviceInfo:
+      type: object
+      description: >
+        End device nameplate / datasheet data — represents typical
+        information for a class of meters (IEC 61968 Metering::EndDeviceInfo).
+      properties:
+        mRID:
+          type: string
+          format: uuid
+        name:
+          type: string
+        isSolidState:
+          type: boolean
+          description: If true, solid-state device (vs. mechanical/electromechanical).
+        phaseCount:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Number of potential phases the end device supports (0, 1, or 3).
+        ratedCurrent:
+          type: number
+          description: Rated current in amperes.
+        ratedVoltage:
+          type: number
+          description: Rated voltage in volts.
+        capability:
+          $ref: '#/components/schemas/EndDeviceCapability'
+
+    EndDevice:
+      type: object
+      description: >
+        Asset container that performs one or more end device functions.
+        A meter is one type of EndDevice
+        (IEC 61968 Metering::EndDevice).
+      required:
+        - mRID
+      properties:
+        mRID:
+          type: string
+          format: uuid
+          description: Master Resource Identifier.
+        name:
+          type: string
+          description: Human-readable name.
+        description:
+          type: string
+        serialNumber:
+          type: string
+          description: Serial number assigned by manufacturer.
+        type:
+          type: string
+          description: Utility-specific classification.
+        amrSystem:
+          type: string
+          description: >
+            Automated meter reading (AMR) or other communication system
+            responsible for communications to this end device.
+        installCode:
+          type: string
+          description: Installation code.
+        isPan:
+          type: boolean
+          description: If true, this is a premises area network (PAN) device.
+        isSmartInverter:
+          type: boolean
+          description: If true, the device is a smart inverter.
+        isVirtual:
+          type: boolean
+          description: >
+            If true, there is no physical device (e.g., a virtual meter
+            aggregating consumption for two or more physical meters).
+        timeZoneOffset:
+          type: integer
+          description: Time zone offset relative to GMT in minutes.
+        status:
+          type: string
+          description: Current operational state.
+        comTechnology:
+          $ref: '#/components/schemas/ComTechnologyKind'
+          description: >
+            Communication technology used by this device
+            (from CIM ComFunction).
+        comDirection:
+          $ref: '#/components/schemas/ComDirectionKind'
+          description: >
+            Communication direction capability.
+            biDirectional = two-way AMI; fromDevice = one-way AMR.
+        endDeviceInfo:
+          $ref: '#/components/schemas/EndDeviceInfo'
+
+    Meter:
+      type: object
+      description: >
+        Physical asset that performs the metering role of a usage point.
+        Extends EndDevice with meter-specific attributes
+        (IEC 61968 Metering::Meter).
+      allOf:
+        - $ref: '#/components/schemas/EndDevice'
+        - type: object
+          properties:
+            formNumber:
+              type: string
+              description: >
+                Meter form designation per ANSI C12.10 or other applicable
+                standard. Describes physical configuration (e.g., 2S, 9S, 12S, 16S).
+            connectionCategory:
+              type: string
+              description: >
+                Code specifying connection type (e.g., low voltage, low pressure).
+            meterMultipliers:
+              type: array
+              items:
+                $ref: '#/components/schemas/MeterMultiplier'
+              description: CT/PT ratios and other multipliers applied at this meter.
+
+    MeterMultiplier:
+      type: object
+      description: >
+        Multiplier applied at the meter, typically for instrument transformer
+        ratios (IEC 61968 Metering::MeterMultiplier).
+      required:
+        - kind
+        - value
+      properties:
+        kind:
+          $ref: '#/components/schemas/MeterMultiplierKind'
+        value:
+          type: number
+          description: Multiplier numeric value.
+
+    # ════════════════════════════════════════════════════════════════
+    #  CHANNEL & REGISTER  (IEC 61968 Metering)
+    # ════════════════════════════════════════════════════════════════
+
+    Channel:
+      type: object
+      description: >
+        A single path for the collection or reporting of register values
+        over a period of time (IEC 61968 Metering::Channel).
+      properties:
+        mRID:
+          type: string
+          format: uuid
+        name:
+          type: string
+        isVirtual:
+          type: boolean
+          description: >
+            If true, data is calculated by an enterprise system rather
+            than metered directly.
+        readingType:
+          type: string
+          description: >
+            Reference to the ReadingType for values on this channel.
+            Format: 18-part CIM ReadingType code string, or a $ref to
+            the ESPI ReadingType schema.
+
+    Register:
+      type: object
+      description: >
+        A device that indicates or records units of the commodity or
+        other quantity measured (IEC 61968 Metering::Register).
+      properties:
+        mRID:
+          type: string
+          format: uuid
+        name:
+          type: string
+        isVirtual:
+          type: boolean
+          description: >
+            If true, the data is calculated or measured by a device other
+            than a physical end device.
+        leftDigitCount:
+          type: integer
+          default: 5
+          description: >
+            Number of digits (dials on a mechanical meter) to the left
+            of the decimal place.
+        rightDigitCount:
+          type: integer
+          default: 0
+          description: >
+            Number of digits (dials on a mechanical meter) to the right
+            of the decimal place.
+        touTierName:
+          type: string
+          description: >
+            Name for the time-of-use tier
+            (e.g., "peak", "off-peak", "TOU Category A").
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Channel'
+          description: Channels collecting/reporting values for this register.
+
+    # ════════════════════════════════════════════════════════════════
+    #  END DEVICE EVENTS  (IEC 61968 Metering)
+    # ════════════════════════════════════════════════════════════════
+
+    EndDeviceEventType:
+      type: object
+      description: >
+        Structured event classification for end-device events.
+        Codes follow the format: type.domain.subDomain.eventOrAction
+        (IEC 61968-9 Annex E).
+      required:
+        - type
+        - domain
+        - subDomain
+        - eventOrAction
+      properties:
+        type:
+          type: string
+          description: Type component of the event code.
+        domain:
+          type: string
+          description: Domain component of the event code.
+        subDomain:
+          type: string
+          description: Sub-domain component of the event code.
+        eventOrAction:
+          type: string
+          description: Event or action component of the event code.
+
+    EndDeviceEventDetail:
+      type: object
+      description: >
+        Name-value pair providing additional detail for an end-device
+        event (IEC 61968 Metering::EndDeviceEventDetail).
+      required:
+        - name
+        - value
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+
+    EndDeviceEvent:
+      type: object
+      description: >
+        Event detected by a device function associated with an end device
+        (IEC 61968 Metering::EndDeviceEvent).  Covers outage, tamper,
+        firmware, diagnostic, and demand-response events.
+      required:
+        - createdDateTime
+        - endDeviceEventType
+      properties:
+        mRID:
+          type: string
+          format: uuid
+        createdDateTime:
+          type: string
+          format: date-time
+          description: When the event record was created.
+        issuerID:
+          type: string
+          description: >
+            Unique identifier of the business entity originating the event.
+        issuerTrackingID:
+          type: string
+          description: Identifier assigned by initiator for tracking.
+        userID:
+          type: string
+          description: ID of user who initiated this event (if user-initiated).
+        severity:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Severity level (1 = low, 10 = critical).
+        reason:
+          type: string
+          description: Reason for the event.
+        status:
+          type: string
+          description: Current event status.
+        endDeviceEventType:
+          $ref: '#/components/schemas/EndDeviceEventType'
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndDeviceEventDetail'
+          description: Additional name-value detail pairs.
+        endDeviceMRID:
+          type: string
+          format: uuid
+          description: Reference to the EndDevice that reported this event.
+        usagePointMRID:
+          type: string
+          format: uuid
+          description: Reference to the UsagePoint for which this event is reported.
+
+    # ════════════════════════════════════════════════════════════════
+    #  USAGE POINT — CIM ENRICHED  (IEC 61968 Metering)
+    # ════════════════════════════════════════════════════════════════
+
+    UsagePointCIM:
+      type: object
+      description: >
+        CIM-enriched UsagePoint with attributes beyond what ESPI provides.
+        Represents a logical or physical point in the network to which
+        readings or events may be attributed
+        (IEC 61968 Metering::UsagePoint).
+      required:
+        - mRID
+      properties:
+        mRID:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        connectionState:
+          $ref: '#/components/schemas/UsagePointConnectedKind'
+        amiBillingReady:
+          $ref: '#/components/schemas/AmiBillingReadyKind'
+        phaseCode:
+          $ref: '#/components/schemas/PhaseCode'
+        phaseCount:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Number of potential phases (typically 0, 1, or 3).
+        nominalServiceVoltage:
+          type: number
+          description: Standard service voltage level in volts.
+        ratedCurrent:
+          type: number
+          description: Configured current delivery capacity in amperes.
+        ratedPower:
+          type: number
+          description: Configured active power delivery capacity in watts.
+        estimatedLoad:
+          type: number
+          description: Expected power demand in watts.
+        connectionCategory:
+          type: string
+          description: Code specifying connection type (e.g., low voltage).
+        disconnectionMethod:
+          type: string
+          description: Physical connection/disconnection method indicator.
+        grounded:
+          type: boolean
+          description: Electrical grounding status.
+        isSdp:
+          type: boolean
+          description: >
+            If true, this is a service delivery point — ownership of
+            service changes hands here.
+        isVirtual:
+          type: boolean
+          description: >
+            If true, no physical location exists in the network for a meter.
+        minimalUsageExpected:
+          type: boolean
+          description: >
+            If true, minimal or zero usage expected
+            (premises vacancy, disconnect, etc.).
+        outageRegion:
+          type: string
+          description: Geographic outage zone identifier.
+        readCycle:
+          type: string
+          description: Scheduled meter reading day, typically aligned with billing.
+        readRoute:
+          type: string
+          description: Meter reading route assignment.
+        servicePriority:
+          type: string
+          description: Service restoration priority level.
+
+    # ════════════════════════════════════════════════════════════════
+    #  SCADA / TRANSMISSION TELEMETRY  (IEC 61970 Base/Meas)
+    # ════════════════════════════════════════════════════════════════
+
+    MeasurementValueQuality:
+      type: object
+      description: >
+        Quality flags for a measurement value
+        (IEC 61970 Meas::MeasurementValueQuality).
+      properties:
+        validity:
+          type: string
+          enum:
+            - good
+            - questionable
+            - invalid
+          description: Validity of the value.
+        source:
+          $ref: '#/components/schemas/MeasurementValueSourceKind'
+        sensorAccuracy:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Sensor accuracy as a percentage.
+
+    Measurement:
+      type: object
+      description: >
+        Base type for any measured, calculated, or non-measured quantity
+        at a point in the network.  Subtyped as Analog, Discrete, or
+        Accumulator (IEC 61970 Meas::Measurement).
+      required:
+        - mRID
+        - measurementType
+        - unitSymbol
+      properties:
+        mRID:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        measurementType:
+          type: string
+          description: >
+            Specifies the type of measurement
+            (e.g., "LineMW", "BusVoltage", "XfmrMVA", "Frequency").
+        unitSymbol:
+          type: string
+          description: >
+            Unit of measure. Uses the same UOM codes as ESPI
+            (W, Wh, V, A, Hz, VA, VAr, etc.).
+        unitMultiplier:
+          type: string
+          enum:
+            - p    # pico   10^-12
+            - n    # nano   10^-9
+            - micro # micro 10^-6
+            - m    # milli  10^-3
+            - c    # centi  10^-2
+            - d    # deci   10^-1
+            - none # 10^0
+            - da   # deca   10^1
+            - h    # hecto  10^2
+            - k    # kilo   10^3
+            - M    # mega   10^6
+            - G    # giga   10^9
+            - T    # tera   10^12
+          description: >
+            Scaling factor applied to the unit
+            (IEC 61970 Domain::UnitMultiplier).
+        phases:
+          $ref: '#/components/schemas/PhaseCode'
+        powerSystemResourceMRID:
+          type: string
+          format: uuid
+          description: >
+            Reference to the PowerSystemResource containing this measurement
+            (e.g., a PowerTransformer, ACLineSegment, BusbarSection).
+        terminalMRID:
+          type: string
+          format: uuid
+          description: >
+            Reference to the ACDCTerminal where the measurement is taken
+            (defines sensor placement in network topology).
+
+    Analog:
+      type: object
+      description: >
+        A continuous-valued measurement — e.g., bus voltage, line MW,
+        transformer loading (IEC 61970 Meas::Analog).
+      allOf:
+        - $ref: '#/components/schemas/Measurement'
+        - type: object
+          properties:
+            positiveFlowIn:
+              type: boolean
+              description: >
+                If true, positive flow (power/current) is into the terminal
+                from the ConductingEquipment.
+            normalValue:
+              type: number
+              description: Normal measurement value, used for percentage calculations.
+            minValue:
+              type: number
+              description: Normal value range minimum for scaling.
+            maxValue:
+              type: number
+              description: Normal value range maximum for scaling.
+
+    AnalogValue:
+      type: object
+      description: >
+        A single timestamped analog measurement value
+        (IEC 61970 Meas::AnalogValue).
+      required:
+        - timeStamp
+        - value
+      properties:
+        timeStamp:
+          type: string
+          format: date-time
+          description: Time when the value was last updated.
+        value:
+          type: number
+          description: The measured value.
+        quality:
+          $ref: '#/components/schemas/MeasurementValueQuality'
+        analogMRID:
+          type: string
+          format: uuid
+          description: Reference to the Analog measurement definition.
+
+    Discrete:
+      type: object
+      description: >
+        An integer-valued measurement — e.g., breaker position,
+        tap changer step (IEC 61970 Meas::Discrete).
+      allOf:
+        - $ref: '#/components/schemas/Measurement'
+        - type: object
+          properties:
+            normalValue:
+              type: integer
+              description: Normal measurement value.
+            minValue:
+              type: integer
+              description: Normal value range minimum.
+            maxValue:
+              type: integer
+              description: Normal value range maximum.
+            valueAliasSet:
+              type: object
+              description: >
+                Translation aliases mapping integer values to strings
+                (e.g., 0 = "open", 1 = "closed").
+              additionalProperties:
+                type: string
+
+    DiscreteValue:
+      type: object
+      description: >
+        A single timestamped discrete measurement value
+        (IEC 61970 Meas::DiscreteValue).
+      required:
+        - timeStamp
+        - value
+      properties:
+        timeStamp:
+          type: string
+          format: date-time
+          description: Time when the value was last updated.
+        value:
+          type: integer
+          description: The discrete measured value.
+        quality:
+          $ref: '#/components/schemas/MeasurementValueQuality'
+        discreteMRID:
+          type: string
+          format: uuid
+          description: Reference to the Discrete measurement definition.
+
+    AccumulatorValue:
+      type: object
+      description: >
+        A single timestamped accumulator (counter) value — e.g., energy
+        register reading (IEC 61970 Meas::AccumulatorValue).
+      required:
+        - timeStamp
+        - value
+      properties:
+        timeStamp:
+          type: string
+          format: date-time
+          description: Time when the value was last updated.
+        value:
+          type: integer
+          minimum: 0
+          description: The accumulated count value.
+        quality:
+          $ref: '#/components/schemas/MeasurementValueQuality'
+        accumulatorMRID:
+          type: string
+          format: uuid
+          description: Reference to the Accumulator measurement definition.
+
+    # ════════════════════════════════════════════════════════════════
+    #  INSTRUMENT TRANSFORMERS  (IEC 61970 / IEC 61968 Assets)
+    # ════════════════════════════════════════════════════════════════
+
+    CurrentTransformerInfo:
+      type: object
+      description: >
+        Current transformer (CT) nameplate data
+        (IEC 61968 Assets / IEC 61970 Meas::CurrentTransformer).
+      properties:
+        mRID:
+          type: string
+          format: uuid
+        name:
+          type: string
+        accuracyClass:
+          type: string
+          description: CT accuracy class (e.g., "0.3", "0.6", "1.2").
+        accuracyLimit:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Accuracy limit as percentage.
+        ctClass:
+          type: string
+          description: CT classification string.
+        coreBurden:
+          type: number
+          description: Power burden on the CT core in watts.
+        usage:
+          type: string
+          enum:
+            - metering
+            - protection
+            - both
+          description: Intended usage.
+        primaryCurrent:
+          type: number
+          description: Primary winding rated current in amperes.
+        secondaryCurrent:
+          type: number
+          default: 5
+          description: Secondary winding rated current in amperes (typically 5A).
+        ratio:
+          type: number
+          description: Turns ratio (primary / secondary).
+
+    PotentialTransformerInfo:
+      type: object
+      description: >
+        Potential / voltage transformer (PT/VT) nameplate data
+        (IEC 61968 Assets / IEC 61970 Meas::PotentialTransformer).
+      properties:
+        mRID:
+          type: string
+          format: uuid
+        name:
+          type: string
+        accuracyClass:
+          type: string
+          description: PT accuracy class.
+        ptClass:
+          type: string
+          description: PT classification string.
+        primaryVoltage:
+          type: number
+          description: Primary winding rated voltage in volts.
+        secondaryVoltage:
+          type: number
+          default: 120
+          description: Secondary winding rated voltage in volts (typically 120V).
+        nominalRatio:
+          type: number
+          description: Rated transformation ratio (primary / secondary).
+        type:
+          type: string
+          enum:
+            - inductive
+            - capacitiveCoupling
+          description: Kind of potential transformer.
+
+    # ════════════════════════════════════════════════════════════════
+    #  POWER TRANSFORMER — BASIC INFO  (IEC 61970 Wires)
+    #  (enough to identify and contextualize transformer-level metering)
+    # ════════════════════════════════════════════════════════════════
+
+    PowerTransformerEnd:
+      type: object
+      description: >
+        One winding/end of a power transformer, with electrical
+        characteristics (IEC 61970 Wires::PowerTransformerEnd).
+      properties:
+        endNumber:
+          type: integer
+          minimum: 1
+          description: Winding number.
+        connectionKind:
+          $ref: '#/components/schemas/WindingConnection'
+        ratedS:
+          type: number
+          description: Rated apparent power in VA.
+        ratedU:
+          type: number
+          description: >
+            Rated voltage in volts — phase-to-phase for 3-phase,
+            phase-to-neutral for single-phase.
+        r:
+          type: number
+          description: Positive-sequence series resistance in ohms.
+        x:
+          type: number
+          description: Positive-sequence series reactance in ohms.
+        phaseAngleClock:
+          type: integer
+          minimum: 0
+          maximum: 11
+          description: Terminal voltage phase angle displacement (0–11 clock hours).
+        grounded:
+          type: boolean
+          description: >
+            For Yn and Zn connections — true if the neutral is solidly grounded.
+
+    PowerTransformerInfo:
+      type: object
+      description: >
+        Basic identification and characteristics of a power transformer,
+        sufficient to contextualize transformer-level meter readings
+        (IEC 61970 Wires::PowerTransformer).
+      properties:
+        mRID:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        vectorGroup:
+          type: string
+          description: Vector group designation (e.g., "Dyn11", "YNyn0").
+        ends:
+          type: array
+          items:
+            $ref: '#/components/schemas/PowerTransformerEnd'
+          description: Winding endpoints of the transformer.
+
+    # ════════════════════════════════════════════════════════════════
+    #  COMPOSITE / INTEGRATION TYPES
+    #  (bring ESPI and CIM telemetry together)
+    # ════════════════════════════════════════════════════════════════
+
+    MeterTelemetryReading:
+      type: object
+      description: >
+        A composite type that extends the ESPI MeterReading concept with
+        CIM meter context.  Wraps ESPI IntervalBlocks with optional CIM
+        metadata about the device, usage point, and measurement channels.
+        Consumer, distribution-transformer, and transmission meters can
+        all be represented.
+      required:
+        - mRID
+      properties:
+        mRID:
+          type: string
+          format: uuid
+          description: Unique identifier for this reading set.
+        readingReason:
+          $ref: '#/components/schemas/ReadingReasonKind'
+          description: >
+            (Optional) Why this reading was taken (billing, inquiry, moveIn, etc.).
+        macroPeriod:
+          $ref: '#/components/schemas/MacroPeriodKind'
+          description: >
+            (Optional) Overall period of interest (billing, daily, monthly, etc.).
+        measuringPeriod:
+          $ref: '#/components/schemas/MeasuringPeriodKind'
+          description: >
+            (Optional) Base measurement interval (fifteenMinute, sixtyMinute,
+            rollingBlock, etc.).
+        aggregate:
+          $ref: '#/components/schemas/AggregateKind'
+          description: >
+            (Optional) Aggregation applied (average, maximum, sum, etc.).
+        meter:
+          $ref: '#/components/schemas/Meter'
+          description: >
+            (Optional) The physical meter that produced these readings.
+        usagePoint:
+          $ref: '#/components/schemas/UsagePointCIM'
+          description: >
+            (Optional) CIM-enriched usage point — provides grid context
+            (voltage level, phase, connection state, etc.).
+        powerTransformer:
+          $ref: '#/components/schemas/PowerTransformerInfo'
+          description: >
+            (Optional) Transformer being metered, if this is a
+            distribution-transformer or power-transformer meter.
+        currentTransformer:
+          $ref: '#/components/schemas/CurrentTransformerInfo'
+          description: >
+            (Optional) CT in the metering circuit — provides ratio and
+            accuracy class.
+        potentialTransformer:
+          $ref: '#/components/schemas/PotentialTransformerInfo'
+          description: >
+            (Optional) PT/VT in the metering circuit — provides ratio
+            and accuracy class.
+        registers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Register'
+          description: >
+            (Optional) Meter registers and their channels.
+        endDeviceEvents:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndDeviceEvent'
+          description: >
+            (Optional) Events reported by the device during the reading
+            period (outage, tamper, diagnostic, DR, etc.).
+        analogMeasurements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Analog'
+          description: >
+            (Optional) SCADA analog measurement definitions for this
+            metering point — used for transmission-level telemetry.
+        analogValues:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalogValue'
+          description: >
+            (Optional) Time-series analog values — the SCADA equivalent
+            of ESPI IntervalReadings.
+        discreteMeasurements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Discrete'
+          description: >
+            (Optional) Discrete measurement definitions
+            (breaker position, tap step, etc.).
+        discreteValues:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiscreteValue'
+          description: >
+            (Optional) Time-series discrete values.
+        accumulatorValues:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccumulatorValue'
+          description: >
+            (Optional) Accumulated counter values (energy registers, etc.).

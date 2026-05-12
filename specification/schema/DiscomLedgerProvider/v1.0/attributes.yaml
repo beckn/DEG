@@ -1,0 +1,50 @@
+openapi: 3.1.1
+info:
+  title: DiscomLedgerProvider — Discom Ledger TSP Attributes (v1.0)
+  version: 1.0.0
+  description: >
+    Identity attributes for a regulated discom ledger Technical Service
+    Provider (TSP). Attached to Contract.participants[*].participantAttributes
+    for entries with role buyerDiscom or sellerDiscom, and carries the
+    `ledgerUri` that platforms use to write trade records to that discom's
+    ledger after on_confirm.
+
+    Two discoms MAY point at the same `ledgerUri` if they share a TSP; each
+    platform still calls only its own side's discom URI (BAP -> buyerDiscom,
+    BPP -> sellerDiscom).
+
+components:
+  schemas:
+    DiscomLedgerProvider:
+      type: object
+      additionalProperties: false
+      required: [ledgerUri]
+      x-tags:
+        - p2p-trading
+        - discom-ledger
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": DiscomLedgerProvider
+      properties:
+
+        utilityId:
+          type: string
+          description: >
+            Utility/DISCOM identifier the ledger TSP serves (e.g.,
+            "TPDDL-DL", "BRPL-DL"). Mirrors EnergyCustomer.utilityId on
+            buyer/seller participants for cross-reference.
+          example: "BRPL-DL"
+          x-jsonld:
+            "@id": utilityId
+
+        ledgerUri:
+          type: string
+          format: uri
+          description: >
+            Base URL of the discom ledger TSP. Platforms POST trade records
+            to `<ledgerUri>/ledger/put` (legacy_ledger mode) or beckn
+            `on_confirm` to `<ledgerUri>/on_confirm` (beckn mode), depending
+            on the platform's `degledgerrecorder` plugin configuration.
+          example: "https://ies-p2p-energy-ledger.beckn.io"
+          x-jsonld:
+            "@id": ledgerUri

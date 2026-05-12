@@ -159,7 +159,7 @@ The script bundles `attributes.yaml` with `@redocly/cli` (dereferencing cross-sc
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
     "https://schema.org/",
-    "https://schema.beckn.io/EnergyBillingSummary/v1.0/context.jsonld"
+    "https://schema.beckn.io/EnergyBillingSummaryGB/v1.0/context.jsonld"
   ],
   "type": ["VerifiableCredential", "EnergyBillingSummaryCredential"],
   "issuer": {

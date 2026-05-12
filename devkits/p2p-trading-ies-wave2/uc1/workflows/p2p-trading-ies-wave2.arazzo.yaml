@@ -12,6 +12,16 @@ info:
     are placeholder zeros today; the structure is ready for real tariff
     rules).
 
+    Two ledger round-trip workflows are included:
+
+      status-roundtrip-via-seller: BAP sends status → BPP forwards to seller
+        ledger (auto) → ledger returns on_status with performance columns →
+        BPP routes on_status to BAP → BAP forwards on_status to buyer ledger (auto).
+
+      status-roundtrip-direct-buyer-ledger: BAP sends status directly to
+        buyer ledger (symmetric path A) → ledger returns on_status with
+        performance columns → BAP receives on_status.
+
     Run with Redocly respect (from p2p-trading-ies-wave2/):
 
       Run all workflows:
@@ -20,13 +30,15 @@ info:
 
       Run a single workflow:
         npx @redocly/cli respect workflows/p2p-trading-ies-wave2.arazzo.yaml \
-          -w select-through-settlement --severity 'SCHEMA_CHECK=off' -v
+          -w status-roundtrip-via-seller --severity 'SCHEMA_CHECK=off' -v
 
-      Available workflows: publish-catalog, discover, select-through-settlement
+      Available workflows: publish-catalog, select-through-settlement,
+        status-roundtrip-via-seller, status-roundtrip-direct-buyer-ledger
 
       Override server URLs (optional, defaults in x-serverUrl):
         -S beckn-bap-caller=http://localhost:8081/bap/caller \
-        -S beckn-bpp-caller=http://localhost:8082/bpp/caller
+        -S beckn-bpp-caller=http://localhost:8082/bpp/caller \
+        -S beckn-ledger-caller=http://localhost:8083/ledger/caller
 
 sourceDescriptions:
   - name: beckn-bap-caller
@@ -38,6 +50,11 @@ sourceDescriptions:
     type: openapi
     url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
     x-serverUrl: http://localhost:8082/bpp/caller
+
+  - name: beckn-ledger-caller
+    type: openapi
+    url: https://raw.githubusercontent.com/beckn/protocol-specifications-v2/refs/tags/core-v2.0.0-lts/api/v2.0.0/beckn.yaml
+    x-serverUrl: http://localhost:8083/ledger/caller
 
 workflows:
   # ── Catalog & Discovery ──
@@ -69,22 +86,6 @@ workflows:
   - workflowId: select-through-settlement
     summary: Buyer selects, optionally pre-checks discom headroom, confirms, and settles
     steps:
-      - stepId: select
-        description: Buyer TP selects 20 kWh from the 30 kWh offer
-        operationId: beckn-bap-caller.select
-        requestBody:
-          contentType: application/json
-          payload:
-            $ref: "../examples/select-request.json"
-
-      - stepId: on-select
-        description: Seller TP returns DRAFT contract with seller-side terms bound
-        operationId: beckn-bpp-caller.onSelect
-        requestBody:
-          contentType: application/json
-          payload:
-            $ref: "../examples/on-select-response.json"
-
       - stepId: init
         description: Buyer TP provides buyer-side identity (meter, utility, customer ID)
         operationId: beckn-bap-caller.init
@@ -150,3 +151,67 @@ workflows:
           contentType: application/json
           payload:
             $ref: "../examples/on-status-response-settled.json"
+
+  # ── Ledger round-trip: status raised by buyer, flows to seller ledger, back to buyer ledger ──
+
+  - workflowId: status-roundtrip-via-seller
+    summary: >
+      Buyer requests fulfillment status → seller ledger responds with
+      performance columns → on_status propagates back to buyer ledger.
+      Tests the full automation chain: BPP degledgerrecorder forwards status
+      to seller ledger; BAP degledgerrecorder forwards on_status (with
+      performance data) to buyer ledger.
+    steps:
+      - stepId: buyer-sends-status
+        description: >
+          BAP sends status with full contract participants (including
+          sellerDiscom.ledgerUri and buyerDiscom.ledgerUri pointing to the
+          local mock onix-ledger). BPP degledgerrecorder will auto-forward to
+          seller ledger on receipt.
+        operationId: beckn-bap-caller.status
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/status-request.json"
+
+      - stepId: seller-ledger-responds-on-status
+        description: >
+          Mock seller ledger (sandbox-ledger PERSONA=ledger) returns on_status
+          with all five performance columns populated: BUYER_DISCOM_ALLOC,
+          SELLER_DISCOM_ALLOC, BUYER_DISCOM_STATUS, SELLER_DISCOM_STATUS,
+          FINAL_ALLOC. BPP routes this to BAP; BAP degledgerrecorder then
+          auto-forwards on_status to buyer ledger.
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-status-response-with-performance.json"
+
+  # ── Ledger round-trip (symmetric path A): buyer sends status directly to buyer ledger ──
+
+  - workflowId: status-roundtrip-direct-buyer-ledger
+    summary: >
+      BAP sends status directly to buyer ledger (symmetric path A, bypassing
+      seller). Buyer ledger returns on_status with performance columns. Tests
+      the BAP bapTxnCaller degledgerrecorder forwarding status to buyerDiscom
+      ledger.
+    steps:
+      - stepId: buyer-sends-status-to-buyer-ledger
+        description: >
+          BAP sends status via bap/caller. degledgerrecorder (BUYER role,
+          action=status) intercepts and forwards to buyerDiscom.ledgerUri.
+        operationId: beckn-bap-caller.status
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/status-request.json"
+
+      - stepId: buyer-ledger-responds-on-status
+        description: >
+          Mock buyer ledger returns on_status with performance data. Confirms
+          the direct buyer → buyer-ledger path is operational.
+        operationId: beckn-ledger-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/on-status-response-with-performance.json"
