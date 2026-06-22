@@ -2,8 +2,7 @@ services:
   # ============================================
   # Core Infrastructure Services
   # ============================================
-  
-  # Redis - Caching Service
+
   redis:
     image: redis:alpine
     container_name: redis
@@ -16,77 +15,103 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-  
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${AWS_REGION}"
+        awslogs-group: "/docker/p2p-trading"
+        awslogs-stream: "redis"
+        awslogs-create-group: "true"
+
   onix-bap:
-    image: fidedocker/onix-adapter-deg:p2p-multiarch-v4
+    image: fidedocker/onix-adapter-deg:p2p-multiarch-v6
     container_name: onix-bap
     networks:
       - beckn_network
     ports:
       - "8081:8081"
-    environment:
-      CONFIG_FILE: "/app/config/local-simple.yaml"
-      VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN: root
-      REDIS_ADDR: redis:6379
-      RABBITMQ_ADDR: rabbitmq:5672
-      RABBITMQ_USER: admin
-      RABBITMQ_PASS: admin123
+    env_file: .secrets/onix.env
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8081 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
     volumes:
       - ../config:/app/config
       - ../schemas:/app/schemas
     command: ["./server", "--config=/app/config/local-p2p-bap.yaml"]
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${AWS_REGION}"
+        awslogs-group: "/docker/p2p-trading"
+        awslogs-stream: "onix-bap"
+        awslogs-create-group: "true"
 
   onix-bpp:
-    image: fidedocker/onix-adapter-deg:p2p-multiarch-v4
+    image: fidedocker/onix-adapter-deg:p2p-multiarch-v6
     container_name: onix-bpp
     networks:
       - beckn_network
     ports:
       - "8082:8082"
-    environment:
-      CONFIG_FILE: "/app/config/local-simple.yaml"
-      VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN: root
-      REDIS_ADDR: redis:6379
-      RABBITMQ_ADDR: rabbitmq:5672
-      RABBITMQ_USER: admin
-      RABBITMQ_PASS: admin123
+    env_file: .secrets/onix.env
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8082 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
     volumes:
       - ../config:/app/config
       - ../schemas:/app/schemas
     command: ["./server", "--config=/app/config/local-p2p-bpp.yaml"]
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${AWS_REGION}"
+        awslogs-group: "/docker/p2p-trading"
+        awslogs-stream: "onix-bpp"
+        awslogs-create-group: "true"
 
   onix-utilitybpp:
     image: fidedocker/onix-adapter-deg:p2p-multiarch-v4
-    pull_policy: never 
+    pull_policy: never
     container_name: onix-utilitybpp
     networks:
       - beckn_network
     ports:
       - "8083:8083"
-    environment:
-      CONFIG_FILE: "/app/config/local-simple.yaml"
-      VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN: root
-      REDIS_ADDR: redis:6379
-      RABBITMQ_ADDR: rabbitmq:5672
-      RABBITMQ_USER: admin
-      RABBITMQ_PASS: admin123
+    env_file: .secrets/onix.env
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8083 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
     volumes:
       - ../config:/app/config
       - ../schemas:/app/schemas
     command: ["./server", "--config=/app/config/local-p2p-utilitybpp.yaml"]
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${AWS_REGION}"
+        awslogs-group: "/docker/p2p-trading"
+        awslogs-stream: "onix-utilitybpp"
+        awslogs-create-group: "true"
 
   sandbox-bap:
     container_name: sandbox-bap
-    
-    image: fidedocker/sandbox-2.0:latest
-    platform: linux/amd64
-
-    environment:
-      - NODE_ENV=production
-      - PORT=3001
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile
+    # Mounted as the app's .env (loaded by dotenv at startup) rather than
+    # Compose `env_file:`, whose parser cannot read multi-line PEM JWT keys.
+    volumes:
+      - ./.secrets/sandbox-bap.env:/app/.env:ro
+      - /opt/app/firebase:/app/firebase:ro
     ports:
       - "3001:3001"
     healthcheck:
@@ -97,17 +122,24 @@ services:
       start_period: 10s
     networks:
       - beckn_network
-    
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${AWS_REGION}"
+        awslogs-group: "/docker/p2p-trading"
+        awslogs-stream: "sandbox-bap"
+        awslogs-create-group: "true"
+
   sandbox-bpp:
     container_name: sandbox-bpp
-
-    image: fidedocker/sandbox-2.0:latest
-    platform: linux/amd64
-
-    environment:
-      - NODE_ENV=production
-      - PORT=3002
-      - PERSONA=bpp  # bpp persona
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile
+    # Mounted as the app's .env (loaded by dotenv at startup) rather than
+    # Compose `env_file:`, whose parser cannot read multi-line PEM JWT keys.
+    volumes:
+      - ./.secrets/sandbox-bpp.env:/app/.env:ro
+      - /opt/app/firebase:/app/firebase:ro
     ports:
       - "3002:3002"
     healthcheck:
@@ -118,17 +150,23 @@ services:
       start_period: 10s
     networks:
       - beckn_network
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${AWS_REGION}"
+        awslogs-group: "/docker/p2p-trading"
+        awslogs-stream: "sandbox-bpp"
+        awslogs-create-group: "true"
 
   sandbox-utilitybpp:
     container_name: sandbox-utilitybpp
-    
-    image: fidedocker/sandbox-2.0:latest
-    platform: linux/amd64
-
-    environment:
-      - NODE_ENV=production
-      - PORT=3003
-      - PERSONA=utility-bpp  # utility-bpp persona
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile
+    # Mounted as the app's .env (loaded by dotenv at startup) rather than
+    # Compose `env_file:`, whose parser cannot read multi-line PEM JWT keys.
+    volumes:
+      - ./.secrets/sandbox-utilitybpp.env:/app/.env:ro
     ports:
       - "3003:3003"
     healthcheck:
@@ -139,8 +177,14 @@ services:
       start_period: 10s
     networks:
       - beckn_network
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "${AWS_REGION}"
+        awslogs-group: "/docker/p2p-trading"
+        awslogs-stream: "sandbox-utilitybpp"
+        awslogs-create-group: "true"
 
 networks:
   beckn_network:
-    name: beckn_network
     driver: bridge

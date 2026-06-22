@@ -1,0 +1,3 @@
+# Generated at deploy time — never commit
+.env
+.secrets/
