@@ -35,13 +35,14 @@ common:
       context.messageId:     {var: "$guid"}
       context.timestamp:     {var: iso_date}
 
-  # publishDirectives.visibleTo[0] mirrors context.networkId — same {{domain}} variable.
-  # NOTE: the generator sets the whole visibleTo key to the string "{{domain}}"; the
-  # generated body must be kept as ["{{domain}}"] (array) by post-processing or by
-  # treating this rule as documentation until the generator supports list-element paths.
+  # publishDirectives.visibleTo[0] mirrors context.networkId — same {{domain}}
+  # variable. The [0] index keeps visibleTo an ARRAY (["{{domain}}"]): the
+  # beckn core schema requires an array, and substituting the bare key used to
+  # collapse it to a string, which the schema validator NACKs
+  # ("message/publishDirectives/0/visibleTo: value must be an array").
   - match: "publish-catalog.json"
     paths:
-      message.publishDirectives[catalogId=catalog-p2p-energy-2026-04].visibleTo: {var: domain, required: false}
+      message.publishDirectives[catalogId=catalog-p2p-energy-2026-04].visibleTo[0]: {var: domain, required: false}
 
 roles:
   # ── BUYER (BAP) ──────────────────────────────────────────────────────────
