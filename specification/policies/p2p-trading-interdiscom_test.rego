@@ -101,3 +101,67 @@ test_t1_mixed_buyer_utility_fail if {
 	contains(msg, "buyer utilityId")
 	contains(msg, "TEST_DISCOM_BUYER")
 }
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Delivery slot duration toggle (O3 / P3b)
+# ──────────────────────────────────────────────────────────────────────────────
+
+_input_order_duration_two_hours := {
+	"context": {
+		"version": "2.0.0",
+		"action": "confirm",
+		"timestamp": "2024-10-04T10:00:00Z",
+		"domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0",
+	},
+	"message": {"order": {
+		"beckn:orderItems": [{
+			"beckn:acceptedOffer": {"beckn:offerAttributes": {
+				"deliveryWindow": {
+					"schema:startTime": "2024-10-04T14:00:00Z",
+					"schema:endTime": "2024-10-04T16:00:00Z",
+				},
+			}},
+		}],
+	}},
+}
+
+_input_publish_duration_half_hour := {
+	"context": {
+		"version": "2.0.0",
+		"action": "catalog_publish",
+		"timestamp": "2024-10-04T10:00:00Z",
+		"domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0",
+	},
+	"message": {
+		"catalogs": [{
+			"beckn:offers": [{
+				"beckn:offerAttributes": {
+					"deliveryWindow": {
+						"schema:startTime": "2024-10-04T10:00:00Z",
+						"schema:endTime": "2024-10-04T10:30:00Z",
+					},
+				},
+			}],
+		}],
+	},
+}
+
+test_delivery_slot_duration_disabled_by_default_order if {
+	not some msg in _order_violations with input as _input_order_duration_two_hours
+	contains(msg, "delivery window (")
+}
+
+test_delivery_slot_duration_disabled_by_default_publish if {
+	not some msg in _publish_violations with input as _input_publish_duration_half_hour
+	contains(msg, "delivery window (")
+}
+
+test_delivery_slot_duration_enabled_order if {
+	some msg in _order_violations with input as _input_order_duration_two_hours with data.config as {"validateDeliverySlotDuration": true}
+	contains(msg, "must be exactly 1 hour")
+}
+
+test_delivery_slot_duration_enabled_publish if {
+	some msg in _publish_violations with input as _input_publish_duration_half_hour with data.config as {"validateDeliverySlotDuration": true}
+	contains(msg, "must be exactly 1 hour")
+}

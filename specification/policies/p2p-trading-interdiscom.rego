@@ -68,6 +68,7 @@ import rego.v1
 #
 # Config:
 #   data.config.minDeliveryLeadHours  - minimum hours of lead time (default: 4)
+#   data.config.validateDeliverySlotDuration - enforce exactly 1 hour slot (default: false)
 
 default min_lead_hours := 4
 
@@ -76,6 +77,12 @@ min_lead_hours := to_number(data.config.minDeliveryLeadHours) if {
 }
 
 ns_per_hour := 1000 * 1000 * 1000 * 60 * 60
+
+default validate_delivery_slot_duration := false
+
+validate_delivery_slot_duration := true if {
+	data.config.validateDeliverySlotDuration == true
+}
 
 # Parse the trade timestamp from context
 trade_time := time.parse_rfc3339_ns(input.context.timestamp)
@@ -175,6 +182,8 @@ _order_violations contains msg if {
 
 # Rule 3 – Delivery window must be exactly 1 hour
 _order_violations contains msg if {
+	validate_delivery_slot_duration
+
 	item := input.message.order["beckn:orderItems"][i]
 	offer_attrs := item["beckn:acceptedOffer"]["beckn:offerAttributes"]
 
@@ -679,6 +688,8 @@ _publish_violations contains msg if {
 
 # Publish Rule 5b — Delivery window must be exactly 1 hour (mirrors O3)
 _publish_violations contains msg if {
+	validate_delivery_slot_duration
+
 	offer := input.message.catalogs[_]["beckn:offers"][j]
 	offer_attrs := offer["beckn:offerAttributes"]
 
