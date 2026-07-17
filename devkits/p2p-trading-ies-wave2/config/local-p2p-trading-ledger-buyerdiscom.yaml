@@ -175,7 +175,34 @@ modules:
             config:
               uuidKeys: transaction_id,message_id
               role: bpp
+        steps:
+          # Settlement injection at the emitter. This discom finalizes the
+          # trade (inserts FINAL_ALLOC) and emits the settled /on_status here,
+          # so it is the authority that computes and signs the revenue split
+          # from its own linked policy (contractAttributes.policy). The trade
+          # platforms only forward this callback on their /bap/receiver (Rule
+          # 2a/2b via degledgerrecorder) — never through a /bpp/caller — so the
+          # app-side injectors never see it; this is the only hop that can
+          # enrich it. Injection-only (violationActions empty): a missing or
+          # unfetchable policy logs and skips rather than NACKing settlement.
+          # Runs first so validateSchema/sign see the enriched payload.
+          - id: contractpolicyenforcer
+            config:
+              actions: "on_status"
+              violationActions: ""
+              cacheTTL: "172800"
+              debugLogging: "true"
+              # Only India Energy Stack policy records on DeDi are accepted.
+              allowedPolicyUrlPrefixes: "https://api.dedi.global/dedi/lookup/indiaenergystack.in"
+              fetchRetries: "2"
+              outputPath: "message.contract.consideration[id=auto-settlement-flows].considerationAttributes"
+              outputMode: "jsonld"
+              outputType: "RevenueFlow"
+              outputContextURL: "https://schema.nfh.global/RevenueFlow/2.0/context.jsonld"
+              outputArrayKey: "revenueFlows"
+              entryDefaults: '{"status":{"code":"SETTLED"}}'
       steps:
+        - contractpolicyenforcer
         - validateSchema
         - addRoute
         - sign
