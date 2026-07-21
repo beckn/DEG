@@ -11,8 +11,9 @@
 #
 # ── contract validation (when message.contract exists) ──
 #
-# N1.  Required roles: buyerPlatform, sellerPlatform, buyerDiscom, sellerDiscom
-#      must all be present in contractAttributes.roles; no unknown values allowed.
+# N1.  Required roles: when contractAttributes.roles is non-empty, it must declare
+#      buyerPlatform, sellerPlatform, buyerDiscom and sellerDiscom; no unknown
+#      values allowed. Skipped for discom-internal contracts that carry no roles.
 # N2.  Participant utilityIds: seller and buyer participants must each have a
 #      non-empty utilityId.
 # N3.  Inter-discom: buyer and seller must have different utilityIds.
@@ -150,6 +151,13 @@ _allowed_roles := {"buyerPlatform", "sellerPlatform", "buyerDiscom", "sellerDisc
 
 _contract_violations contains msg if {
 	roles_present := {r.role | some r in _contract.contractAttributes.roles}
+
+	# Only enforce role completeness once at least one role is declared. Discom-
+	# internal messages (e.g. buyerDiscom -> its own ledger on_status) carry a
+	# contract with no contractAttributes.roles and no participants; role
+	# completeness is a trade-scope concern and does not apply to them. Mirrors
+	# how N15 self-limits to contracts that carry a participants list.
+	count(roles_present) > 0
 	missing := _allowed_roles - roles_present
 	count(missing) > 0
 	msg := sprintf("missing required role(s) in contractAttributes.roles: %v", [missing])
@@ -200,7 +208,7 @@ _contract_violations contains msg if {
 _contract_violations contains "commitmentAttributes must have @type: TimeSeries" if {
 	ca := _commitment.commitmentAttributes
 	is_object(ca)
-	ca.intervals  # only enforce when timeseries interval data is present
+	ca.intervals # only enforce when timeseries interval data is present
 	ca["@type"] != "TimeSeries"
 }
 
