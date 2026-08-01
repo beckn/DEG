@@ -7,9 +7,9 @@
     "bapUri": "http://buyerapp.example.com:9000/bap/receiver",
     "bppId": "sellerapp.example.com",
     "bppUri": "http://sellerapp.example.com:9000/bpp/receiver",
-    "transactionId": "1268c204-675b-4adb-9321-b08231b147b2",
-    "messageId": "22e181e7-3050-44f8-8146-a107bb2ce940",
-    "timestamp": "2026-04-25T10:05:05Z",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2026",
+    "messageId": "3a374ce5-23e4-4eee-9d6b-551397c94b3f",
+    "timestamp": "",
     "schemaContext": [
       "https://schema.nfh.global/EnergyTradeOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/EnergyResource/v2.0/context.jsonld",
@@ -65,20 +65,20 @@
       "participants": [
         {"id": "sellerapp.example.com", "participantAttributes": {"@context": "https://schema.nfh.global/EnergyCustomer/v2.0/context.jsonld", "@type": "EnergyCustomer", "meterId": "TEST_METER_SELLER_001", "utilityCustomerId": "TEST_CUST_SELLER_001", "platformUrl": "http://sellerapp.example.com:9000"}},
         {"id": "buyerapp.example.com", "participantAttributes": {"@context": "https://schema.nfh.global/EnergyCustomer/v2.0/context.jsonld", "@type": "EnergyCustomer", "meterId": "TEST_METER_BUYER_001", "utilityCustomerId": "TEST_CUST_BUYER_001", "platformUrl": "http://buyerapp.example.com:9000"}},
-        {"id": "TEST_DISCOM_BUYER", "participantAttributes": {"@context": "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld", "@type": "DiscomLedgerProvider", "discomId": "buyer-discom.example.com", "discomUri": "http://buyer-discom.example.com:9000", "ledgerId": "buyer-discom-ledger.example.com", "ledgerUri": "http://buyer-discom-ledger.example.com:9000"}},
-        {"id": "TEST_DISCOM_SELLER", "participantAttributes": {"@context": "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld", "@type": "DiscomLedgerProvider", "discomId": "seller-discom.example.com", "discomUri": "http://seller-discom.example.com:9000", "ledgerId": "{{SELLER_LEDGER_ID:-seller-discom-ledger.example.com}}", "ledgerUri": "{{SELLER_LEDGER_URI:-http://seller-discom-ledger.example.com:9000}}"}}
+        {"id": "TEST_DISCOM_BUYER", "participantAttributes": {"@context": "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld", "@type": "DiscomLedgerProvider", "discomId": "buyer-discom.example.com", "discomUri": "http://buyer-discom.example.com:9000", "ledgerId": "ies-p2p-energy-ledger.beckn.io", "ledgerUri": "https://ies-p2p-energy-ledger.beckn.io"}},
+        {"id": "TEST_DISCOM_SELLER", "participantAttributes": {"@context": "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld", "@type": "DiscomLedgerProvider", "discomId": "seller-discom.example.com", "discomUri": "http://seller-discom.example.com:9000", "ledgerId": "ies-p2p-energy-ledger.beckn.io", "ledgerUri": "https://ies-p2p-energy-ledger.beckn.io"}}
       ],
-      "consideration": [
+      "settlements": [
         {
-          "id": "payment-term-p2p-001",
-          "considerationAttributes": {
+          "id": "settlement-p2p-001",
+          "status": "DRAFT",
+          "settlementAttributes": {
             "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
             "@type": "SettlementTerm",
-            "amount": {"currency": "INR", "value": 481.0},
-            "settlementStatus": "PENDING",
-            "paymentTrigger": "ON_FULFILLMENT",
             "payTo": {"accountHolderName": "Seller Platform Pvt Ltd", "accountNumber": "0012345678901", "branchCode": "HDFC0001234", "bankName": "HDFC Bank"},
-            "acceptedPaymentMethods": ["BANK_TRANSFER"]
+            "acceptedPaymentMethods": ["BANK_TRANSFER"],
+            "paymentTrigger": "ON_FULFILLMENT",
+            "settlementStatus": "PENDING"
           }
         }
       ]

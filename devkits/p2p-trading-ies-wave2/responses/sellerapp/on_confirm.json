@@ -7,9 +7,9 @@
     "bapUri": "http://buyerapp.example.com:9000/bap/receiver",
     "bppId": "sellerapp.example.com",
     "bppUri": "http://sellerapp.example.com:9000/bpp/receiver",
-    "transactionId": "1268c204-675b-4adb-9321-b08231b147b2",
-    "messageId": "42306920-2f41-44b4-bd0a-bb1b969b9b6b",
-    "timestamp": "2026-04-25T10:10:05Z",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2026",
+    "messageId": "61a2146a-0b6d-46c4-9917-77027172bca7",
+    "timestamp": "",
     "schemaContext": [
       "https://schema.nfh.global/EnergyTradeOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/EnergyResource/v2.0/context.jsonld",
@@ -65,30 +65,22 @@
       "participants": [
         {"id": "sellerapp.example.com", "participantAttributes": {"@context": "https://schema.nfh.global/EnergyCustomer/v2.0/context.jsonld", "@type": "EnergyCustomer", "meterId": "TEST_METER_SELLER_001", "utilityCustomerId": "TEST_CUST_SELLER_001", "platformUrl": "http://sellerapp.example.com:9000"}},
         {"id": "buyerapp.example.com", "participantAttributes": {"@context": "https://schema.nfh.global/EnergyCustomer/v2.0/context.jsonld", "@type": "EnergyCustomer", "meterId": "TEST_METER_BUYER_001", "utilityCustomerId": "TEST_CUST_BUYER_001", "platformUrl": "http://buyerapp.example.com:9000"}},
-        {"id": "TEST_DISCOM_BUYER", "participantAttributes": {"@context": "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld", "@type": "DiscomLedgerProvider", "discomId": "buyer-discom.example.com", "discomUri": "http://buyer-discom.example.com:9000", "ledgerId": "buyer-discom-ledger.example.com", "ledgerUri": "http://buyer-discom-ledger.example.com:9000"}},
-        {"id": "TEST_DISCOM_SELLER", "participantAttributes": {"@context": "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld", "@type": "DiscomLedgerProvider", "discomId": "seller-discom.example.com", "discomUri": "http://seller-discom.example.com:9000", "ledgerId": "{{SELLER_LEDGER_ID:-seller-discom-ledger.example.com}}", "ledgerUri": "{{SELLER_LEDGER_URI:-http://seller-discom-ledger.example.com:9000}}"}}
+        {"id": "TEST_DISCOM_BUYER", "participantAttributes": {"@context": "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld", "@type": "DiscomLedgerProvider", "discomId": "buyer-discom.example.com", "discomUri": "http://buyer-discom.example.com:9000", "ledgerId": "ies-p2p-energy-ledger.beckn.io", "ledgerUri": "https://ies-p2p-energy-ledger.beckn.io"}},
+        {"id": "TEST_DISCOM_SELLER", "participantAttributes": {"@context": "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld", "@type": "DiscomLedgerProvider", "discomId": "seller-discom.example.com", "discomUri": "http://seller-discom.example.com:9000", "ledgerId": "ies-p2p-energy-ledger.beckn.io", "ledgerUri": "https://ies-p2p-energy-ledger.beckn.io"}}
       ],
       "id": "contract-p2p-001",
-      "consideration": [
-        {
-          "id": "payment-term-p2p-001",
-          "considerationAttributes": {
-            "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
-            "@type": "SettlementTerm",
-            "amount": {"currency": "INR", "value": 481.0},
-            "settlementStatus": "PENDING",
-            "paymentTrigger": "ON_FULFILLMENT",
-            "payTo": {"accountHolderName": "Seller Platform Pvt Ltd", "accountNumber": "0012345678901", "branchCode": "HDFC0001234", "bankName": "HDFC Bank"},
-            "acceptedPaymentMethods": ["BANK_TRANSFER"]
-          }
-        }
-      ],
       "settlements": [
         {
           "id": "settlement-p2p-001",
-          "considerationId": "payment-term-p2p-001",
           "status": "COMMITTED",
-          "settlementAttributes": {"@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld", "@type": "SettlementTerm", "settlementFor": "Solar energy P2P trade: 35 kWh on 2026-04-26 10:00-12:00 IST"}
+          "settlementAttributes": {
+            "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+            "@type": "SettlementTerm",
+            "payTo": {"accountHolderName": "Seller Platform Pvt Ltd", "accountNumber": "0012345678901", "branchCode": "HDFC0001234", "bankName": "HDFC Bank"},
+            "acceptedPaymentMethods": ["BANK_TRANSFER"],
+            "paymentTrigger": "ON_FULFILLMENT",
+            "settlementStatus": "PENDING"
+          }
         }
       ]
     }
