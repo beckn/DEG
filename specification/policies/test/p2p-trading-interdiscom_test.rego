@@ -101,3 +101,39 @@ test_t1_mixed_buyer_utility_fail if {
 	contains(msg, "buyer utilityId")
 	contains(msg, "TEST_DISCOM_BUYER")
 }
+
+# ──────────────────────────────────────────────────────────────────────────────
+# O5 – ordered quantity must be strictly less than the offer cap
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Only the fields Rule 6b reads are populated; the other order rules are not
+# exercised here, so assertions look for the specific message rather than
+# counting the whole violation set.
+_input_with_quantities(qty, cap) := {"message": {"order": {"beckn:orderItems": [{
+	"beckn:quantity": {"unitQuantity": qty},
+	"beckn:acceptedOffer": {"beckn:price": {"applicableQuantity": {"unitQuantity": cap}}},
+}]}}}
+
+_has_cap_violation(msgs) if {
+	some msg in msgs
+	contains(msg, "applicableQuantity")
+}
+
+# Below the cap is the only accepted case.
+test_o5_quantity_below_cap_passes if {
+	msgs := _order_violations with input as _input_with_quantities(9, 10)
+	not _has_cap_violation(msgs)
+}
+
+# Equal to the cap must be rejected: O5 requires strictly less than, so an order
+# consuming the entire published cap is a violation rather than the boundary
+# being inclusive.
+test_o5_quantity_equal_to_cap_fails if {
+	msgs := _order_violations with input as _input_with_quantities(10, 10)
+	_has_cap_violation(msgs)
+}
+
+test_o5_quantity_above_cap_fails if {
+	msgs := _order_violations with input as _input_with_quantities(11, 10)
+	_has_cap_violation(msgs)
+}
