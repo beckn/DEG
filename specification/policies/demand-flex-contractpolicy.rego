@@ -53,8 +53,6 @@ _settlement_perf := perf if {
 
 _meters := _settlement_perf.performanceAttributes.meters
 
-_roles := {r.role | some r in input.message.contract.contractAttributes.roles}
-
 # --------------------------------------------------------------------------
 # Helpers
 # --------------------------------------------------------------------------
@@ -149,35 +147,30 @@ _revenue_sum := sum([f.value | some f in _revenue_flows])
 net_zero_ok if _revenue_sum == 0
 
 # --------------------------------------------------------------------------
-# Violations
+# Violations — SETTLEMENT ONLY
 # --------------------------------------------------------------------------
 #
-# `violations` is the NACK gate. Two families of rule live here, each
-# self-skipping when its data is absent so the same set is safe to evaluate
-# at every stage the contract enforcer runs (select → init → confirm; and
-# the settlement family additionally at the final settled status):
+# This rego owns SETTLEMENT correctness only. All universal structural
+# well-formedness — participant roles, column locks, CAPACITY_OFFERED
+# presence / completeness / grid alignment, meter-grid alignment, interval-id
+# sequence, type-coverage and cardinality — lives in the network policy
+# (demand-flex-networkpolicy.rego), which runs on every module at every stage
+# and is the single source of truth for structure. It is not duplicated here
+# (that only invited drift).
 #
-#   Formation (safe from init/confirm onward):
-#     V1  seller/buyer roles present
-#     V2  DemandFlexNeed columns == {CAPACITY_REQUESTED, PRICE, SHORTFALL_PENALTY}
-#     V3  commitment column == {CAPACITY_OFFERED}
-#     V3a CAPACITY_OFFERED column PRESENT (stage-gated) — backstop for the
-#         network policy's rule 3a; catches a fully-dropped commitmentAttributes
-#     V4  CAPACITY_OFFERED grid == need grid
-#     V5  every need slot carries a CAPACITY_OFFERED value
-#   Settlement (only meaningful once telemetry has arrived):
-#     V6  a settlement-eligible performance record exists
-#     V7  each meter's telemetry grid == need grid
-#     V8  every meter carries USAGE on every settled slot
-#     V9  revenue flows net to zero
+# The settlement family, each self-skipping when its data is absent:
+#     S1  a settlement-eligible performance record exists
+#     S2  every meter carries USAGE on every settled slot
+#     S3  revenue flows net to zero
 #
-# NOTE: V6/V8/V9 legitimately fire on an intermediate on_status (baseline-only
-# or resource-telemetry push), so the contract policy is NOT enforced on
-# on_status — the network policy owns structural enforcement at status; the
-# contract policy is enforced only where settlement is not yet claimed
-# (select/init/confirm) plus injected/validated on the final settled status.
+# S1/S2/S3 legitimately fire on an intermediate on_status (baseline-only or
+# resource-telemetry push), which is why the contract policy is enforced only
+# where settlement is not yet claimed (select/init/confirm — where these
+# self-skip and the fail-closed gate still guarantees a valid, checksummed
+# policy reference) and injected/validated on the final settled status —
+# never NACK-enforced on on_status.
 
-# V6 — a settlement-eligible performance record exists
+# S1 — a settlement-eligible performance record exists
 violations contains msg if {
 	count(input.message.contract.performance) > 0
 	not _settlement_perf
@@ -185,79 +178,7 @@ violations contains msg if {
 	msg := sprintf("no settlement-eligible performance record found — all records are non-settlement (methodologies: %v)", [ms])
 }
 
-# V1 — participant roles present
-violations contains msg if {
-	not "buyer" in _roles
-	msg := "no participant with role 'buyer' found"
-}
-
-violations contains msg if {
-	not "seller" in _roles
-	msg := "no participant with role 'seller' found"
-}
-
-# V2 — DemandFlexNeed column constant (uc1 demand_flex profile). The schema
-# leaves columns open; this rego is the hard lock. Self-skips when the series
-# is absent.
-violations contains msg if {
-	descs := _need.payloadDescriptors
-	cols := {d.payloadType | some d in descs}
-	cols != {"CAPACITY_REQUESTED", "PRICE", "SHORTFALL_PENALTY"}
-	msg := sprintf("DemandFlexNeed columns must be exactly {CAPACITY_REQUESTED, PRICE, SHORTFALL_PENALTY}, got %v", [cols])
-}
-
-# V3 — commitment column constant. Self-skips when commitmentAttributes is
-# absent (a dropped column is caught by V3a below, not here).
-violations contains msg if {
-	descs := _offered.payloadDescriptors
-	cols := {d.payloadType | some d in descs}
-	cols != {"CAPACITY_OFFERED"}
-	msg := sprintf("commitment column must be exactly {CAPACITY_OFFERED}, got %v", [cols])
-}
-
-# V3a — CAPACITY_OFFERED column PRESENCE (stage-gated). Settlement backstop
-# for the network policy's rule 3a: from init onward every committed
-# DemandFlexNeed MUST carry a CAPACITY_OFFERED column. V3/V4/V5 all key off
-# _offered and self-skip when commitmentAttributes is dropped wholesale;
-# reading the column straight off the commitment (via object.get) closes that
-# hole. `select`/`on_select` are excluded — no seller offer exists yet.
-_offer_required_actions := {
-	"init", "on_init",
-	"confirm", "on_confirm",
-	"status", "on_status",
-	"update", "on_update",
-}
-
-violations contains msg if {
-	input.context.action in _offer_required_actions
-	_need.intervals # a DemandFlexNeed is present
-	ca := object.get(_commitment, "commitmentAttributes", {})
-	declared := {d.payloadType | some d in object.get(ca, "payloadDescriptors", [])}
-	not "CAPACITY_OFFERED" in declared
-	msg := sprintf("action %q requires a CAPACITY_OFFERED column on commitmentAttributes, but none is declared", [input.context.action])
-}
-
-# V4 — shared intervalPeriod grid, CAPACITY_OFFERED series
-violations contains msg if {
-	_offered.intervalPeriod != _need.intervalPeriod
-	msg := "CAPACITY_OFFERED series intervalPeriod does not match the DemandFlexNeed grid"
-}
-
-# V7 — shared intervalPeriod grid, each meter's telemetry
-violations contains msg if {
-	some m in _meters
-	m.telemetry.intervalPeriod != _need.intervalPeriod
-	msg := sprintf("meter %s: telemetry intervalPeriod does not match the DemandFlexNeed grid", [m.meterId])
-}
-
-# V5 — every need slot carries a seller CAPACITY_OFFERED value
-violations contains msg if {
-	some iv in _need.intervals
-	not _val(_offered.intervals, iv.id, "CAPACITY_OFFERED")
-	msg := sprintf("interval %d: missing CAPACITY_OFFERED", [iv.id])
-}
-
-# V8 — every meter needs USAGE on every settled slot
+# S2 — every meter needs USAGE on every settled slot
 violations contains msg if {
 	some iv in _need.intervals
 	some m in _meters
@@ -265,7 +186,7 @@ violations contains msg if {
 	msg := sprintf("meter %s: missing USAGE at interval %d — cannot settle", [m.meterId, iv.id])
 }
 
-# V9 — buyer/seller revenue flows must net to zero
+# S3 — buyer/seller revenue flows must net to zero
 violations contains msg if {
 	not net_zero_ok
 	msg := sprintf("net-zero failed: revenue sum = %g (expected 0)", [_revenue_sum])

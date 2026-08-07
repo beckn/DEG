@@ -294,3 +294,67 @@ test_interval_ids_on_offered_series if {
 	some v in vs
 	contains(v, "CAPACITY_OFFERED series")
 }
+
+# ---------------------------------------------------------------------------
+# 5) column locks, roles & grid alignment (consolidated from the contract rego)
+# ---------------------------------------------------------------------------
+
+# 5a) roles — contractAttributes present but missing 'seller' → violation
+test_roles_missing_seller if {
+	inp := {"message": {"contract": {
+		"contractAttributes": {"roles": [{"role": "buyer"}]},
+		"commitments": [{"id": "cmt-1", "resources": [{"resourceAttributes": _need2}]}],
+	}}}
+	vs := violations with input as inp
+	some v in vs
+	contains(v, "role 'seller'")
+}
+
+# 5a) both roles present, well-formed offer → no violation
+test_roles_present_ok if {
+	inp := {"message": {"contract": {
+		"contractAttributes": {"roles": [{"role": "buyer"}, {"role": "seller"}]},
+		"commitments": [{"id": "cmt-1", "resources": [{"resourceAttributes": _need2}], "commitmentAttributes": _offered2}],
+	}}}
+	count(violations) == 0 with input as inp
+}
+
+# 5a) no contractAttributes (discover / catalog) → self-skips
+test_roles_self_skip_without_contract_attributes if {
+	count(violations) == 0 with input as _payload({
+		"meterId": "der://meter/001",
+		"telemetry": {"payloadDescriptors": [{"payloadType": "BASELINE"}], "intervals": [{"payloads": [{"type": "BASELINE", "values": [1]}]}]},
+	})
+}
+
+# 5b) DemandFlexNeed carrying an extra column → violation
+test_need_column_lock_violation if {
+	extra := json.patch(_need2, [{"op": "add", "path": "/payloadDescriptors/-", "value": {"payloadType": "EXTRA"}}])
+	vs := violations with input as _commit_input(extra, _offered2)
+	some v in vs
+	contains(v, "DemandFlexNeed columns must be exactly")
+}
+
+# 5c) commitment column declared as something other than CAPACITY_OFFERED → violation
+test_offered_column_lock_violation if {
+	bad := json.patch(_offered2, [{"op": "replace", "path": "/payloadDescriptors/0/payloadType", "value": "CAPACITY_PROMISED"}])
+	vs := violations with input as _commit_input(_need2, bad)
+	some v in vs
+	contains(v, "must be exactly {CAPACITY_OFFERED}")
+}
+
+# 5d) meter telemetry grid does not match the need grid → violation
+test_meter_grid_mismatch if {
+	meter := {"meterId": "m1", "telemetry": {
+		"intervalPeriod": {"start": "2026-04-01T08:30:00Z", "duration": "PT60M"},
+		"payloadDescriptors": [{"payloadType": "BASELINE"}, {"payloadType": "USAGE"}],
+		"intervals": [{"id": 0, "payloads": [{"type": "BASELINE", "values": [46]}, {"type": "USAGE", "values": [22]}]}],
+	}}
+	inp := {"message": {"contract": {
+		"commitments": [{"id": "cmt-1", "resources": [{"resourceAttributes": _need2}], "commitmentAttributes": _offered2}],
+		"performance": [{"performanceAttributes": {"meters": [meter]}}],
+	}}}
+	vs := violations with input as inp
+	some v in vs
+	contains(v, "telemetry intervalPeriod does not match")
+}

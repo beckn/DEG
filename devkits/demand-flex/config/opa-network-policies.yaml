@@ -4,17 +4,31 @@
 # fallback for any networkId without a dedicated entry.
 #
 # Both the dedicated `nfh.global/testnet-deg` entry and the fallback
-# query the same `violations` rule, which enforces:
+# query the same `violations` rule. This policy owns ALL universal
+# structural well-formedness for demand-flex (the contract policy is
+# settlement-only). Each rule self-skips when its series is absent:
 #
-#   - BecknTimeSeries cross-field type-coverage (every payload type
-#     used in intervals[*].payloads[*].type is declared in the
-#     meter's payloadDescriptors).
-#   - PER_EVENT / PER_INTERVAL cardinality against the seller's
-#     committed reportDescriptors[]. Self-skips when no offer block
-#     or no declared types are on the wire, so traffic without
-#     vendor reportDescriptors passes transparently.
+#   1/1b BecknTimeSeries cross-field type-coverage (every payload type used
+#        in intervals[*].payloads[*].type is declared in payloadDescriptors)
+#        — per-meter telemetry and the DemandFlexNeed series.
+#   2    PER_EVENT / PER_INTERVAL cardinality against the seller's committed
+#        reportDescriptors[]. Self-skips when no offer block or declared
+#        types are on the wire.
+#   3/3a CAPACITY_OFFERED completeness & presence — from init onward every
+#        need interval carries a value, the offered grid matches the need
+#        grid, and (3a) the column is declared at all (catches a dropped
+#        commitmentAttributes at confirm).
+#   4    BecknTimeSeries interval id sequence (0,1,2,…) on every series.
+#   5    Column locks, roles & grid alignment (consolidated from the contract
+#        rego): 5a participant roles, 5b DemandFlexNeed column lock, 5c
+#        commitment column lock, 5d meter telemetry grid == need grid.
 #
-# Plugin docs:
+# Canonical source (edit here, then regenerate this bundled copy):
+#   specification/policies/demand-flex-networkpolicy.rego
+#   ./specification/scripts/sync-network-policies.sh
+#
+# Plugin config reference:
+#   specification/policies/README.md (Two policy layers: network & contract)
 #   https://github.com/beckn/beckn-onix/blob/main/pkg/plugin/implementation/opapolicychecker/README.md
 
 networkPolicies:
