@@ -23,9 +23,12 @@
 #        rego): 5a participant roles, 5b DemandFlexNeed column lock, 5c
 #        commitment column lock, 5d meter telemetry grid == need grid.
 #
-# Canonical source (edit here, then regenerate this bundled copy):
-#   specification/policies/demand-flex-networkpolicy.rego
-#   ./specification/scripts/sync-network-policies.sh
+# The rego is fetched from the repository's main branch over HTTP (`type: file`
+# resolves both local paths and remote URLs). specification/policies/ is the
+# single source of truth — no bundled copy and no docker-compose mount. A local
+# network-rego edit takes effect once it merges to main; to test a branch first,
+# point `location` at that branch's raw URL. (This matches how the demand-flex
+# CONTRACT policy and the wave2 network policy are already resolved.)
 #
 # Plugin config reference:
 #   specification/policies/README.md (Two policy layers: network & contract)
@@ -34,10 +37,10 @@
 networkPolicies:
   default:
     type: file
-    location: ./policies/demand_flex_networkpolicy.rego
+    location: https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/policies/demand-flex-networkpolicy.rego
     query: data.deg.policy.demand_flex_network.violations
 
   nfh.global/testnet-deg:
     type: file
-    location: ./policies/demand_flex_networkpolicy.rego
+    location: https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/policies/demand-flex-networkpolicy.rego
     query: data.deg.policy.demand_flex_network.violations

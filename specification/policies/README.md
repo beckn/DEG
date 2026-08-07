@@ -1,6 +1,6 @@
 # IES Policies – Rego Rules & Tests
 
-The single source of truth for every policy in this repository. The `p2p-trading-ies-wave2` devkit mounts this directory into its containers (`/app/policies`); the demand-flex devkit still carries a local copy of its network policy.
+The single source of truth for every policy in this repository. Devkits resolve these regos straight from `specification/policies/` — `opapolicychecker` and `contractpolicyenforcer` fetch a `location`/`policy.url` that points at the raw `main` URL of the file here — so there are no per-devkit copies to keep in sync.
 
 ## Files
 
@@ -72,10 +72,7 @@ networkPolicies:
 
 The plugin passes the **whole envelope** (including `context.action`) to the rego, so action scoping lives in the rule bodies — there is no per-action plugin config. A non-empty `query` result on **any** module NACKs the message, so the network policy is enforced bilaterally regardless of which side is honest.
 
-> **Devkit copy & drift.** The `p2p-trading-ies-wave2` devkit mounts this `specification/policies/` directory into its containers. The **demand-flex** devkit instead bundles a local copy at `devkits/demand-flex/policies/demand_flex_networkpolicy.rego` (mounted at `/app/policies`). That copy MUST track the canonical here — regenerate it after any edit:
-> ```bash
-> ./specification/scripts/sync-network-policies.sh
-> ```
+> **Single source of truth.** `type: file` resolves remote URLs, so both devkits point `location` at the raw `main` URL of the canonical rego here — no per-devkit copy is bundled or mounted. Edit the canonical; a local change reaches a devkit once it merges to `main` (to test a branch first, point `location` at that branch's raw URL).
 
 ### Configuring the contract policy (`contractpolicyenforcer`)
 
