@@ -1,6 +1,6 @@
 # IES Policies – Rego Rules & Tests
 
-The single source of truth for every policy in this repository. The `p2p-trading-ies-wave2` devkit mounts this directory into its containers (`/app/policies`); the demand-flex devkit still carries a local copy of its network policy.
+The single source of truth for every policy in this repository. Devkits resolve these regos straight from `specification/policies/` — `opapolicychecker` and `contractpolicyenforcer` fetch a `location`/`policy.url` that points at the raw `main` URL of the file here — so there are no per-devkit copies to keep in sync.
 
 ## Files
 
@@ -19,6 +19,104 @@ Run each policy against its own test file (a whole-directory `opa test .` trips 
 cd specification/policies
 opa test p2p-trading-ies-wave2-contractpolicy.rego test/p2p-trading-ies-wave2-contractpolicy_test.rego -v
 ```
+
+## Two policy layers: network & contract
+
+DEG enforces policy through **two** ONIX pipeline plugins with different scopes. Getting the split right gives every rule exactly one home.
+
+| | **Network policy** — `opapolicychecker` | **Contract policy** — `contractpolicyenforcer` |
+|---|---|---|
+| Pipeline step | `checkPolicy` | `contractpolicyenforcer` |
+| Who owns it | Network operator — **one policy per `networkId`** | The contracting parties — **referenced per contract** |
+| How it's selected | Adapter config (`opa-network-policies.yaml`), same for all traffic | `…contractAttributes.policy.url` + `queryPath`, travels in the payload |
+| Where it runs | **Every module** (BAP+BPP, caller+receiver), every action | Only the pipelines it is wired into |
+| What it can do | **Gate only** — evaluate `violations`, NACK if non-empty | **Gate and inject** — NACK on `violations`, and/or write `revenue_flows` into the payload |
+| Action scoping | **Inside the rego** (`input.context.action`) — no per-action config | Per-action **plugin config** (`actions` / `violationActions`) |
+| Integrity | Operator-hosted file/bundle (optionally signed) | Fetched from URL/DeDi, **checksum-verified** against a registry record |
+| Owns | Universal **structural well-formedness** (schema-plus) | **Settlement** + party-agreed economic terms |
+
+Rule of thumb: a universal invariant every message on the network must satisfy (column locks, grid alignment, interval-id sequences, cardinality, required roles) belongs in the **network** policy — action-gated inside the rego. Anything that computes money or varies per agreement belongs in the **contract** policy. For a worked example of the split, compare the rule indexes in the headers of [`demand-flex-networkpolicy.rego`](./demand-flex-networkpolicy.rego) (structure, incl. section 5) and [`demand-flex-contractpolicy.rego`](./demand-flex-contractpolicy.rego) (settlement only).
+
+### Configuring the network policy (`opapolicychecker`)
+
+Wire the `checkPolicy` step in each module and point it at a config file:
+
+```yaml
+checkPolicy:
+  id: opapolicychecker
+  config:
+    networkPolicyConfig: ./config/opa-network-policies.yaml   # required
+    refreshInterval: "24h"                                    # recompile cadence
+```
+
+`opa-network-policies.yaml` maps each `networkId` (plus a `default` fallback) to one rego + query:
+
+```yaml
+networkPolicies:
+  default:
+    type: file                                                # file | bundle | dir | manifest
+    location: ./policies/demand_flex_networkpolicy.rego
+    query: data.deg.policy.demand_flex_network.violations
+  nfh.global/testnet-deg:
+    type: file
+    location: ./policies/demand_flex_networkpolicy.rego
+    query: data.deg.policy.demand_flex_network.violations
+```
+
+| Key | Meaning |
+|---|---|
+| `type` | `file` (single rego), `bundle` (signed `.tar.gz`), `dir` (folder), `manifest` (via manifest loader) |
+| `location` | Path or URL to the policy |
+| `query` | Rego query returning the violation set/array (empty ⇒ pass) |
+| `verification.*` | Optional signature check for `bundle` type: `verification.enabled`, `verification.publicKeyLookupUrl`, `verification.signatureLocation`, `verification.algorithm` |
+
+The plugin passes the **whole envelope** (including `context.action`) to the rego, so action scoping lives in the rule bodies — there is no per-action plugin config. A non-empty `query` result on **any** module NACKs the message, so the network policy is enforced bilaterally regardless of which side is honest.
+
+> **Single source of truth.** `type: file` resolves remote URLs, so both devkits point `location` at the raw `main` URL of the canonical rego here — no per-devkit copy is bundled or mounted. Edit the canonical; a local change reaches a devkit once it merges to `main` (to test a branch first, point `location` at that branch's raw URL).
+
+### Configuring the contract policy (`contractpolicyenforcer`)
+
+The policy reference travels in the payload:
+
+```json
+"contractAttributes": {
+  "policy": { "url": "https://…/my-policy.rego", "queryPath": "data.deg.contracts.demand_flex" }
+}
+```
+
+The step is wired per pipeline. **Injection and enforcement are independent**: a step activates when the action is in `actions` **or** `violationActions`.
+
+| Key | Meaning | Default |
+|---|---|---|
+| `actions` | **Injection** actions — write the policy's `revenue_flows` to `outputPath`. `""` = never inject | `on_status` |
+| `violationActions` | **Enforcement** actions — non-empty `violations` ⇒ 400 NACK (fail-closed). Need **not** be a subset of `actions` | *(empty)* |
+| `outputPath` | Destination path for injected output. **Required iff `actions` is non-empty** | *(none)* |
+| `outputMode` | `raw` (array at leaf) or `jsonld` (wrapped object). **Required iff `actions` is non-empty** | *(none)* |
+| `outputType` / `outputContextURL` / `outputArrayKey` | `@type` / `@context` / array key for `jsonld` mode | `RevenueFlow` / — / `revenueFlows` |
+| `entryDefaults` | JSON merged into newly-created array entries (e.g. `{"status":{"code":"SETTLED"}}`) | *(none)* |
+| `allowedPolicyUrlPrefixes` | Allowlist the payload's `policy.url` must start with | *(all)* |
+| `cacheTTL` | Compiled-policy cache TTL (minimum `24h`) | `24h` |
+| `debugLogging` / `enabled` | Verbose logging / on-off | `false` / `true` |
+
+Common wirings:
+
+```yaml
+# Enforce-only (receiver): NACK a malformed pre-settlement contract, inject nothing.
+- id: contractpolicyenforcer
+  config:
+    actions: ""
+    violationActions: "select,init,confirm"
+
+# Inject-on-settlement (BPP caller): write revenue flows on on_status; don't NACK.
+- id: contractpolicyenforcer
+  config:
+    actions: "on_status"
+    violationActions: ""
+    outputPath: "message.contract.consideration[id=auto-revenue-flows].considerationAttributes"
+    outputMode: "jsonld"
+```
+
+Enforcement is **fail-closed** on `violationActions`: a missing `policy.url`, a disallowed prefix, or a fetch/compile/eval failure also NACKs, so enforcement cannot be bypassed by stripping the policy reference. Authoring a contract/settlement policy is covered in depth in [`discom-policy-guide/`](./discom-policy-guide/).
 
 ## Prerequisites
 

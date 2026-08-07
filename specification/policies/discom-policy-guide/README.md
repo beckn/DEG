@@ -88,15 +88,31 @@ each trade end to end.
 
 ## 2. How the network enforces it
 
-The ONIX adapter's `contractpolicyenforcer` pipeline step resolves `policy.url`,
-compiles the rego, and evaluates it against the full message. Two modes,
-controlled per pipeline in the adapter YAML:
+The ONIX adapter's `contractpolicyenforcer` step resolves `policy.url` (verifying
+its checksum against the DeDi record), compiles the rego, and evaluates it against
+the full message. **Injection and enforcement are two independent switches**,
+configured per pipeline in the adapter YAML — the step activates when the action
+is in `actions` **or** `violationActions`:
 
-| Mode | Config | Behavior |
+| Config | Role | Behavior |
 |---|---|---|
-| Enforcement (trades) | `violationActions: "select,init,confirm"` (receiver) | Non-empty `violations` → synchronous **400 NACK**; fail-closed (missing/unfetchable policy also NACKs) |
-| Enforcement (publish) | `violationActions: "publish"` (caller; matches the compound `catalog/publish`) | Seller-side self-protection: every catalog offer's linked policy is evaluated (applicability, currency, network membership) and a violating catalog is NACKed **before it reaches the fabric** — catching a wrongly-linked policy at publish stops every downstream trade failing one by one |
-| Injection | `violationActions: ""` | On `on_status`, once settled intervals exist, `revenue_flows` is written into the payload; violations are only logged |
+| `violationActions: "select,init,confirm"` (receiver) | **Enforce** trades | Non-empty `violations` → synchronous **400 NACK**; fail-closed (a missing / unfetchable / checksum-mismatched policy also NACKs) |
+| `violationActions: "publish"` (caller; matches the compound `catalog/publish`) | **Enforce** publishes | Seller-side self-protection: every catalog offer's linked policy is evaluated (applicability, currency, network membership) and a violating catalog is NACKed **before it reaches the fabric** — catching a wrongly-linked policy at publish stops every downstream trade failing one by one |
+| `actions: "on_status"` + `outputPath` | **Inject** settlement | Once settled intervals exist, `revenue_flows` is written into the payload at `outputPath`. Set `violationActions: ""` here so intermediate baseline / telemetry pushes are never NACKed |
+
+`actions` selects the **injection** actions and requires `outputPath` / `outputMode`
+when non-empty; `violationActions` selects the **enforcement** actions and needs
+neither. They are independent — a step may enforce on `select,init,confirm` and
+inject only on `on_status` (the two lists need not overlap). Full config-key
+reference: [`../README.md` → Configuring the contract policy](../README.md#configuring-the-contract-policy-contractpolicyenforcer).
+
+> **Structure vs settlement — pick the right layer.** This guide covers the
+> **contract / settlement** policy: the economic terms a discom binds to a trade.
+> Universal *structural* well-formedness (required roles, column locks, grid
+> alignment, interval-id sequences) is the **network** policy's job
+> (`opapolicychecker`) — action-gated inside that rego and run on every module.
+> Keep your `violations` here scoped to settlement integrity and applicability;
+> don't re-implement structural checks that the network policy already owns.
 
 The policy is evaluated against **two message shapes** — trade contracts
 (`message.contract`) and catalog publishes (`message.catalogs[].offers[]`).

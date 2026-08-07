@@ -52,7 +52,6 @@ services:
     volumes:
       - ../config:/app/config
       - ../schemas:/app/schemas
-      - ../policies:/app/policies
     command: ["./server", "--config=/app/config/local-demand-flex-bap.yaml"]
     networks:
       - bap_side
@@ -104,7 +103,6 @@ services:
     volumes:
       - ../config:/app/config
       - ../schemas:/app/schemas
-      - ../policies:/app/policies
     command: ["./server", "--config=/app/config/local-demand-flex-bpp.yaml"]
     networks:
       - bpp_side

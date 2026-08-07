@@ -92,14 +92,6 @@ test_per_meter_aggregation if {
 	total_settlement == 436.25 with input as inp
 }
 
-# telemetry grid mismatch -> violation
-test_intervalperiod_mismatch if {
-	bad := json.patch(_meter("m1", 150, 10, 200, 95), [{"op": "replace", "path": "/telemetry/intervalPeriod/duration", "value": "PT1H"}])
-	vs := violations with input as _mk([bad], _offered_ts, "5of10")
-	some v in vs
-	contains(v, "intervalPeriod")
-}
-
 # missing USAGE on a settled slot -> violation
 test_missing_usage if {
 	m := {"meterId": "m1", "telemetry": {"intervalPeriod": _ip, "payloadDescriptors": [], "intervals": [
@@ -111,14 +103,6 @@ test_missing_usage if {
 	contains(v, "USAGE")
 }
 
-# missing CAPACITY_OFFERED for a slot -> violation
-test_missing_offered if {
-	off := json.patch(_offered_ts, [{"op": "remove", "path": "/intervals/1"}])
-	vs := violations with input as _mk([_meter("m1", 150, 10, 200, 95)], off, "5of10")
-	some v in vs
-	contains(v, "CAPACITY_OFFERED")
-}
-
 # RESOURCE_TELEMETRY-only payload -> excluded from settlement, explicit violation
 test_resource_telemetry_only_excluded if {
 	vs := violations with input as _mk([_meter("m1", 150, 10, 200, 95)], _offered_ts, "RESOURCE_TELEMETRY")
@@ -126,53 +110,9 @@ test_resource_telemetry_only_excluded if {
 	contains(v, "no settlement-eligible")
 }
 
-# hard column const (uc1 profile) enforced in-rego, not schema
-test_need_column_const_violation if {
-	bad := json.patch(_need_ts, [{"op": "add", "path": "/payloadDescriptors/-", "value": {"objectType": "EVENT_PAYLOAD_DESCRIPTOR", "payloadType": "EXTRA", "units": "KW", "insertedBy": "buyer"}}])
-	inp := json.patch(_std, [{"op": "replace", "path": "/message/contract/commitments/0/resources/0/resourceAttributes", "value": bad}])
-	vs := violations with input as inp
-	some v in vs
-	contains(v, "CAPACITY_REQUESTED")
-}
-
-test_offered_column_const_violation if {
-	bad := json.patch(_offered_ts, [{"op": "replace", "path": "/payloadDescriptors/0/payloadType", "value": "CAPACITY_PROMISED"}])
-	vs := violations with input as _mk([_meter("m1", 150, 10, 200, 95)], bad, "5of10")
-	some v in vs
-	contains(v, "CAPACITY_OFFERED")
-}
-
-test_std_no_column_violation if {
-	vs := violations with input as _std
-	every v in vs { not contains(v, "columns must be") }
-}
-
-# V3a — CAPACITY_OFFERED column presence (stage-gated).
-# Drop commitmentAttributes entirely and stamp a context.action.
-_std_no_column_at(action) := inp if {
-	dropped := json.patch(_std, [{"op": "remove", "path": "/message/contract/commitments/0/commitmentAttributes"}])
-	inp := object.union(dropped, {"context": {"action": action}})
-}
-
-# whole column dropped at confirm → presence violation (the reported bug)
-test_offer_column_dropped_at_confirm if {
-	vs := violations with input as _std_no_column_at("confirm")
-	some v in vs
-	contains(v, "requires a CAPACITY_OFFERED column")
-}
-
-# same drop at on_status → presence violation
-test_offer_column_dropped_at_status if {
-	vs := violations with input as _std_no_column_at("on_status")
-	some v in vs
-	contains(v, "requires a CAPACITY_OFFERED column")
-}
-
-# select carries no seller offer yet → presence rule self-skips
-test_offer_column_absent_at_select_ok if {
-	vs := violations with input as _std_no_column_at("select")
-	every v in vs { not contains(v, "requires a CAPACITY_OFFERED column") }
-}
+# Structural checks (column locks, CAPACITY_OFFERED presence/completeness/grid,
+# meter-grid, roles) moved to the network policy — see
+# test/demand-flex-networkpolicy_test.rego. This rego is settlement-only.
 
 # revenue_flows is exported ONLY when a settlement-eligible performance record
 # exists. This is what lets the contractpolicyenforcer step enforce `violations`
