@@ -71,16 +71,21 @@ TOP_PLATFORMS_N = 3
 # ── How far back the daily report fetches (override with --fetch-days) ──
 DEFAULT_FETCH_DAYS = 30
 
-# Short labels for the range-report platform tables. Subscriber IDs are too
-# long to stay aligned on a phone screen; anything not listed here is
-# truncated to PLATFORM_LABEL_WIDTH. Add entries as new platforms appear.
+# Display name per subscriber ID for the range-report platform tables.
+# Subscriber IDs sharing a name are summed into a single row, which is how a
+# platform running several subscribers (BAP/BPP pairs, staging and production,
+# rebranded hostnames) is reported as one platform.
+#
+# A subscriber ID that is not listed here is NOT dropped or shortened — it is
+# reported verbatim under its own row, so a newly onboarded platform shows up
+# as itself. Add it here once you know which platform it belongs to.
 PLATFORM_LABELS = {
-    "pulseenergy_interstate_p2p_test_bap.com": "PulseEnergy(tst)",
-    "pulseenergy_interstate_p2p_test_bpp.com": "PulseEnergy(tst)",
-    "bap.p2p.ies.kazam.energy": "Kazam",
-    "bpp.p2p.ies.kazam.energy": "Kazam",
+    "pulseenergy_interstate_p2p_test_bap.com": "PulseEnergy",
+    "pulseenergy_interstate_p2p_test_bpp.com": "PulseEnergy",
     "p2p-ies-bap-pulseenergy.io": "PulseEnergy",
     "p2p-ies-bpp-pulseenergy.io": "PulseEnergy",
+    "bap.p2p.ies.kazam.energy": "Kazam",
+    "bpp.p2p.ies.kazam.energy": "Kazam",
     "dev-deg-bap.powerxchange.io": "PowerXchange",
     "dev-deg-bpp.powerxchange.io": "PowerXchange",
     "p2p.terrarexenergy.com": "TerrareX",
@@ -89,7 +94,6 @@ PLATFORM_LABELS = {
     "clickpower.in": "ClickPower",
     "iris-cms.com": "Iris",
 }
-PLATFORM_LABEL_WIDTH = 16
 
 # ── IST timezone (UTC+05:30) ──
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -281,11 +285,8 @@ def write_csv(trades, path):
 
 
 def _platform_label(platform):
-    """Short, alignment-friendly label for a subscriber ID."""
-    label = PLATFORM_LABELS.get(platform, platform)
-    if len(label) > PLATFORM_LABEL_WIDTH:
-        label = label[: PLATFORM_LABEL_WIDTH - 1] + "…"
-    return label
+    """Display name for a subscriber ID, or the ID verbatim if it has no alias."""
+    return PLATFORM_LABELS.get(platform, platform)
 
 
 def _is_test_trade(trade):
@@ -369,22 +370,26 @@ def build_range_report(all_trades, start, end, discoms=None,
             discom_stats[seller_discom]["kwh"] += energy
             discom_stats[seller_discom]["pend"] += sell_pending
 
+        # Keyed by display name, so a platform trading under several
+        # subscriber IDs is summed into a single row.
         buyer_app = trade.get("platformIdBuyer")
         if buyer_app:
-            buyer_platforms[buyer_app]["trades"] += 1
-            buyer_platforms[buyer_app]["kwh"] += energy
-            buyer_platforms[buyer_app]["pend"] += buy_pending
+            label = _platform_label(buyer_app)
+            buyer_platforms[label]["trades"] += 1
+            buyer_platforms[label]["kwh"] += energy
+            buyer_platforms[label]["pend"] += buy_pending
 
         seller_app = trade.get("platformIdSeller")
         if seller_app:
-            seller_platforms[seller_app]["trades"] += 1
-            seller_platforms[seller_app]["kwh"] += energy
-            seller_platforms[seller_app]["pend"] += sell_pending
+            label = _platform_label(seller_app)
+            seller_platforms[label]["trades"] += 1
+            seller_platforms[label]["kwh"] += energy
+            seller_platforms[label]["pend"] += sell_pending
 
         if sell_pending and seller_app:
-            pending_cross[("sell", seller_discom, seller_app)] += 1
+            pending_cross[("sell", seller_discom, _platform_label(seller_app))] += 1
         if buy_pending and buyer_app:
-            pending_cross[("buy", buyer_discom, buyer_app)] += 1
+            pending_cross[("buy", buyer_discom, _platform_label(buyer_app))] += 1
 
     lines = ["IES P2P TRADE REPORT",
              f"Delivery: {start.strftime('%d %b %Y')} - {end.strftime('%d %b %Y')}"]
@@ -410,14 +415,16 @@ def build_range_report(all_trades, start, end, discoms=None,
     def _platform_table(title, stats):
         if not stats:
             return
+        # Widen to the longest name present, so an un-aliased subscriber ID
+        # prints in full without knocking the columns out of alignment.
+        width = max([len("Platform")] + [len(name) for name in stats])
         lines.append("")
         lines.append(title)
-        header = f"{'Platform':<{PLATFORM_LABEL_WIDTH}}{'Trades':>7}{'kWh':>6}{'Pend':>6}"
-        lines.append(header)
+        lines.append(f"{'Platform':<{width}}{'Trades':>7}{'kWh':>6}{'Pend':>6}")
         ordered = sorted(stats.items(),
                          key=lambda kv: (kv[1]["trades"], kv[1]["kwh"]), reverse=True)
-        for platform, ps in ordered:
-            lines.append(f"{_platform_label(platform):<{PLATFORM_LABEL_WIDTH}}"
+        for name, ps in ordered:
+            lines.append(f"{name:<{width}}"
                          f"{ps['trades']:>7}{ps['kwh']:>6.0f}{ps['pend']:>6}")
 
     _platform_table("SELLER PLATFORMS", seller_platforms)
@@ -441,9 +448,10 @@ def build_range_report(all_trades, start, end, discoms=None,
         lines.append("")
         lines.append("PENDING DETAIL (discom x platform)")
         ordered = sorted(pending_cross.items(), key=lambda kv: -kv[1])
-        for (side, discom, platform), count in ordered:
+        width = max(len(name) for _, _, name in pending_cross)
+        for (side, discom, name), count in ordered:
             tag = "sells" if side == "sell" else "buys "
-            lines.append(f"{discom:<7}{tag} {_platform_label(platform):<{PLATFORM_LABEL_WIDTH}}{count:>4}")
+            lines.append(f"{discom:<7}{tag} {name:<{width}}{count:>4}")
 
     lines.append("")
     lines.append("Note: DISCOM/platform rows count each")
