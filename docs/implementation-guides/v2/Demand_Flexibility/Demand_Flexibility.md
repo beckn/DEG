@@ -169,8 +169,8 @@ The utility publishes a flex catalog containing:
     "messageId": "msg-publish-001",
     "timestamp": "2026-03-28T06:00:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -241,10 +241,10 @@ The utility publishes a flex catalog containing:
             "validity": {"startDate": "2026-03-28T00:00:00Z", "endDate": "2026-04-01T08:30:00Z"},
             "availableTo": [{"type": "NETWORK", "id": "beckn.deg.india"}],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "contractTerms": {
-                "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+                "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
                 "@type": "DEGContract",
                 "roles": [{"role": "buyer"}, {"role": "seller"}],
                 "policy": {
@@ -313,8 +313,8 @@ The CDS returns matching catalogs. The offer carries the full `contractTerms` an
     "messageId": "msg-on-discover-001",
     "timestamp": "2026-03-30T09:55:05Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -384,10 +384,10 @@ The CDS returns matching catalogs. The offer carries the full `contractTerms` an
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "validity": {"startDate": "2026-03-28T00:00:00Z", "endDate": "2026-04-01T08:30:00Z"},
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "contractTerms": {
-                "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+                "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
                 "@type": "DEGContract",
                 "roles": [{"role": "buyer"}, {"role": "seller"}],
                 "policy": {
@@ -433,9 +433,9 @@ The aggregator selects an offer with a desired quantity. The `contractTerms` fro
     "messageId": "msg-select-001",
     "timestamp": "2026-03-30T10:00:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -500,7 +500,7 @@ The aggregator selects an offer with a desired quantity. The `contractTerms` fro
             "id": "offer-flex-001",
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -515,7 +515,7 @@ The aggregator selects an offer with a desired quantity. The `contractTerms` fro
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [{"role": "buyer"}, {"role": "seller"}],
         "policy": {
@@ -549,9 +549,9 @@ The BPP returns a DRAFT contract. The `contractAttributes` carries the `DEGContr
     "messageId": "msg-on-select-001",
     "timestamp": "2026-03-30T10:00:05Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -617,7 +617,7 @@ The BPP returns a DRAFT contract. The `contractAttributes` carries the `DEGContr
             "id": "offer-flex-001",
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -632,7 +632,7 @@ The BPP returns a DRAFT contract. The `contractAttributes` carries the `DEGContr
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [{"role": "buyer"}, {"role": "seller"}],
         "policy": {
@@ -666,9 +666,9 @@ The aggregator provides their identity. The seller role in `inputs` is now fille
     "messageId": "msg-init-001",
     "timestamp": "2026-03-30T10:05:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -734,7 +734,7 @@ The aggregator provides their identity. The seller role in `inputs` is now fille
             "id": "offer-flex-001",
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -770,7 +770,7 @@ The aggregator provides their identity. The seller role in `inputs` is now fille
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {"role": "buyer", "participantId": "tpddl-north-delhi"},
@@ -807,9 +807,9 @@ The BPP acknowledges the seller and populates the initial set of participating m
     "messageId": "msg-on-init-001",
     "timestamp": "2026-03-30T10:05:05Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -875,7 +875,7 @@ The BPP acknowledges the seller and populates the initial set of participating m
             "id": "offer-flex-001",
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -911,7 +911,7 @@ The BPP acknowledges the seller and populates the initial set of participating m
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {"role": "buyer", "participantId": "tpddl-north-delhi"},
@@ -948,9 +948,9 @@ The aggregator confirms the contract. Same structure as init.
     "messageId": "msg-confirm-001",
     "timestamp": "2026-03-30T10:10:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -1016,7 +1016,7 @@ The aggregator confirms the contract. Same structure as init.
             "id": "offer-flex-001",
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1052,7 +1052,7 @@ The aggregator confirms the contract. Same structure as init.
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {"role": "buyer", "participantId": "tpddl-north-delhi"},
@@ -1089,9 +1089,9 @@ The BPP activates the contract. Status changes to `ACTIVE`. The contract is now 
     "messageId": "msg-on-confirm-001",
     "timestamp": "2026-03-30T10:10:05Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -1158,7 +1158,7 @@ The BPP activates the contract. Status changes to `ACTIVE`. The contract is now 
             "id": "offer-flex-001",
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1194,7 +1194,7 @@ The BPP activates the contract. Status changes to `ACTIVE`. The contract is now 
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {"role": "buyer", "participantId": "tpddl-north-delhi"},
@@ -1231,9 +1231,9 @@ The aggregator updates the participating meters list before an event. The seller
     "messageId": "msg-update-optin-001",
     "timestamp": "2026-04-01T06:00:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -1298,7 +1298,7 @@ The aggregator updates the participating meters list before an event. The seller
             "id": "offer-flex-001",
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1334,7 +1334,7 @@ The aggregator updates the participating meters list before an event. The seller
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {"role": "buyer", "participantId": "tpddl-utility.example.com"},
@@ -1371,11 +1371,11 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
     "messageId": "msg-on-status-baselines-001",
     "timestamp": "2026-04-01T08:00:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexPerformance/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexPerformance/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld",
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld"
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -1440,7 +1440,7 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
             "id": "offer-flex-001",
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1481,7 +1481,7 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
           "status": {"code": "BASELINE_PUBLISHED", "name": "Baselines published for upcoming event"},
           "commitmentIds": ["commitment-flex-001"],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DemandFlexPerformance/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/DemandFlexPerformance/v2.0/context.jsonld",
             "@type": "DemandFlexPerformance",
             "eventId": "evt-2026-04-01-001",
             "methodology": "5of10",
@@ -1529,7 +1529,7 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {"role": "buyer", "participantId": "tpddl-north-delhi"},
@@ -1566,11 +1566,11 @@ After the event, the utility publishes actual load per meter alongside baselines
     "messageId": "msg-on-status-actuals-001",
     "timestamp": "2026-04-01T10:35:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexPerformance/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexPerformance/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld",
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld"
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -1635,7 +1635,7 @@ After the event, the utility publishes actual load per meter alongside baselines
             "id": "offer-flex-001",
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1676,7 +1676,7 @@ After the event, the utility publishes actual load per meter alongside baselines
           "status": {"code": "DELIVERY_COMPLETE", "name": "Event completed, actuals measured"},
           "commitmentIds": ["commitment-flex-001"],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DemandFlexPerformance/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/DemandFlexPerformance/v2.0/context.jsonld",
             "@type": "DemandFlexPerformance",
             "eventId": "evt-2026-04-01-001",
             "methodology": "5of10",
@@ -1724,7 +1724,7 @@ After the event, the utility publishes actual load per meter alongside baselines
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {"role": "buyer", "participantId": "tpddl-north-delhi"},
@@ -1761,10 +1761,10 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
     "messageId": "msg-on-status-settled-001",
     "timestamp": "2026-04-01T11:00:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexPerformance/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexPerformance/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -1830,7 +1830,7 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
             "id": "offer-flex-001",
             "resourceIds": ["flex-need-north-delhi-apr1"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -1871,7 +1871,7 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
           "status": {"code": "SETTLED", "name": "Settlement computed from policy evaluation"},
           "commitmentIds": ["commitment-flex-001"],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DemandFlexPerformance/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/DemandFlexPerformance/v2.0/context.jsonld",
             "@type": "DemandFlexPerformance",
             "eventId": "evt-2026-04-01-001",
             "methodology": "5of10",
@@ -1919,7 +1919,7 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {"role": "buyer", "participantId": "tpddl-north-delhi"},

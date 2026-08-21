@@ -11,8 +11,8 @@
     "messageId": "msg-subscribe-001",
     "timestamp": "2026-03-28T06:00:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -20,8 +20,8 @@
     "subscription": {
       "networkIds": ["beckn.one/testnet"],
       "schemaTypes": [
-        "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-        "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld"
+        "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+        "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld"
       ],
       "callbackUrl": "https://tpddl-utility.example.com/beckn/catalog/callback"
     }

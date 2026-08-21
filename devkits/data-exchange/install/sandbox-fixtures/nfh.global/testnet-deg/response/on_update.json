@@ -39,7 +39,7 @@
           "id": "consideration-stream-001",
           "status": { "code": "ACTIVE" },
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/PriceSpecification/2.1/context.jsonld",
+            "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
             "value": 0,
@@ -52,7 +52,7 @@
           "id": "intelligrid-amisp-001",
           "descriptor": { "name": "IntelliGrid AMI Services" },
           "participantAttributes": {
-            "@context": "https://schema.nfh.global/Organization/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/Organization/v2.0/context.jsonld",
             "@type": "Organization",
             "id": "intelligrid-amisp-001",
             "name": "IntelliGrid AMI Services"
@@ -62,7 +62,7 @@
           "id": "bescom-discom-001",
           "descriptor": { "name": "BESCOM - Distribution Company" },
           "participantAttributes": {
-            "@context": "https://schema.nfh.global/Organization/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/Organization/v2.0/context.jsonld",
             "@type": "Organization",
             "id": "bescom-discom-001",
             "name": "BESCOM - Distribution Company"
@@ -75,7 +75,7 @@
           "status": { "code": "ACTIVE" },
           "commitmentIds": ["commitment-stream-mqtt-001"],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DatasetFulfillment/1.1/context.jsonld",
+            "@context": "https://schema.nfh.global/DatasetFulfillment/v1.1/context.jsonld",
             "@type": "DatasetFulfillment",
             "fulfillment:accessMethod": "MQTT",
             "fulfillment:accessStart": "2026-06-06T09:05:00Z"
@@ -88,7 +88,7 @@
           "considerationId": "consideration-stream-001",
           "status": "COMPLETE",
           "settlementAttributes": {
-            "@context": "https://schema.nfh.global/Payment/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
             "@type": "Payment",
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": { "currency": "INR", "value": 0 }

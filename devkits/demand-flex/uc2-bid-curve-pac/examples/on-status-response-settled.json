@@ -18,7 +18,7 @@
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/BecknReportDescriptors/v1.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld",
-      "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+      "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld",
       "https://schema.nfh.global/RevenueFlow/v2.0/context.jsonld"
     ]
   },
@@ -140,7 +140,7 @@
         {
           "id": "payment-term-pac-001",
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld",
             "@type": "SettlementTerm",
             "amount": {"currency": "INR", "value": 332.5},
             "settlementStatus": "COMPLETE",
@@ -167,7 +167,7 @@
           "considerationId": "payment-term-pac-001",
           "status": "COMPLETE",
           "settlementAttributes": {
-            "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld",
             "@type": "SettlementTerm",
             "settlementFor": "Demand flex PAC event 2026-06-15: 95 kWh curtailed at 3.5 INR/kWh",
             "totalPayable": 332.5,

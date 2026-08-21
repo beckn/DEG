@@ -17,7 +17,7 @@
       "https://schema.nfh.global/RevenueFlow/v2.0/context.jsonld",
       "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld",
       "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld",
-      "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld"
+      "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -78,7 +78,7 @@
         {
           "id": "payment-term-p2p-001",
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld",
             "@type": "SettlementTerm",
             "amount": {"currency": "INR", "value": 450.26},
             "settlementStatus": "COMPLETE",
@@ -105,7 +105,7 @@
           "considerationId": "payment-term-p2p-001",
           "status": "COMPLETE",
           "settlementAttributes": {
-            "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld",
             "@type": "SettlementTerm",
             "settlementFor": "Solar energy P2P trade: 32.7 kWh delivered on 2026-04-26 10:00-12:00 IST",
             "energyValue": 437.15,

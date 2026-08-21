@@ -9,7 +9,7 @@
     "messageId": "1a2b3c4d-5e6f-7890-abcd-ef0987654321",
     "timestamp": "2026-04-01T06:00:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+      "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
       "https://india-energy-stack.github.io/ies-accelerator/schemas/MeterData/v0.6/context.jsonld",
       "https://india-energy-stack.github.io/ies-accelerator/schemas/MeterDataRequest/v0.6/context.jsonld",
       "https://india-energy-stack.github.io/ies-accelerator/schemas/MeterDataRequestCredential/v0.1/context.jsonld"
@@ -33,7 +33,7 @@
               "longDesc": "IES_Report-format AMI telemetry data from smart meters deployed across Bengaluru Zone A residential connections. Includes active energy (kWh) usage readings at 15-minute intervals, suitable for billing, load forecasting, and demand-response analytics."
             },
             "resourceAttributes": {
-              "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+              "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
               "@type": "DatasetItem",
               "schema:identifier": "ds-ami-meter-data-blr-zone-a-q1-2026",
               "schema:name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026",
@@ -73,7 +73,7 @@
                 "id": "consideration-ami-existing-contract",
                 "status": {"code": "ACTIVE"},
                 "considerationAttributes": {
-                  "@context": "https://schema.nfh.global/PriceSpecification/2.1/context.jsonld",
+                  "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
                   "@type": "PriceSpecification",
                   "currency": "INR",
                   "value": 0,

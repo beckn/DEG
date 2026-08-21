@@ -39,7 +39,7 @@
             "beckn:isActive": true,
             "beckn:provider": {"beckn:id": "ecopower-charging", "beckn:descriptor": {"@type": "beckn:Descriptor", "schema:name": "EcoPower Charging Pvt Ltd"}},
             "beckn:itemAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingService/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld",
               "@type": "ChargingService",
               "connectorType": "CCS2",
               "maxPowerKW": 60,
@@ -79,7 +79,7 @@
             "beckn:isActive": true,
             "beckn:provider": {"beckn:id": "GoGreen-charging", "beckn:descriptor": {"@type": "beckn:Descriptor", "schema:name": "GoGreen Charging Pvt Ltd"}},
             "beckn:itemAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingService/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld",
               "@type": "ChargingService",
               "connectorType": "CCS2",
               "maxPowerKW": 60,
@@ -114,7 +114,7 @@
             "beckn:validity": {"@type": "beckn:TimePeriod", "schema:startDate": "2025-10-10T00:00:00Z", "schema:endDate": "2026-04-10T23:59:59Z"},
             "beckn:acceptedPaymentMethod": ["UPI", "CREDIT_CARD", "WALLET"],
             "beckn:offerAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingOffer/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingOffer/v1.0/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {"currency": "INR", "value": 2, "applicableQuantity": {"unitCode": "MIN", "unitText": "minutes", "unitQuantity": 10}}
@@ -131,7 +131,7 @@
             "beckn:validity": {"@type": "beckn:TimePeriod", "schema:startDate": "2025-10-20T00:00:00Z", "schema:endDate": "2026-04-20T23:59:59Z"},
             "beckn:acceptedPaymentMethod": ["UPI", "CREDIT_CARD"],
             "beckn:offerAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingOffer/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingOffer/v1.0/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {"currency": "INR", "value": 2, "applicableQuantity": {"unitCode": "MIN", "unitText": "minutes", "unitQuantity": 10}}

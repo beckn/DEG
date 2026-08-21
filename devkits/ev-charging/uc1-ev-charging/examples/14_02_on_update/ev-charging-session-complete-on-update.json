@@ -47,7 +47,7 @@
         "@type": "beckn:Fulfillment",
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
-        "beckn:deliveryAttributes": {"@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld", "@type": "ChargingSession", "sessionStatus": "COMPLETED"}
+        "beckn:deliveryAttributes": {"@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld", "@type": "ChargingSession", "sessionStatus": "COMPLETED"}
       },
       "beckn:payment": {
         "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",

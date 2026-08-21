@@ -2,7 +2,7 @@
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
     "https://schema.org/",
-    "https://schema.nfh.global/Location/2.0/context.jsonld",
+    "https://schema.nfh.global/Location/v2.0/context.jsonld",
     "https://schema.nfh.global/ElectricityCredential/v1.1/context.jsonld",
     "https://schema.nfh.global/EnergyResource/v2.0/context.jsonld"
   ],

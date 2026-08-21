@@ -12,7 +12,7 @@
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schema_context": [
-      "https://schema.nfh.global/EvChargingService/1.0/context.jsonld"
+      "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld"
     ]
   },
   "message": {

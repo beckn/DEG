@@ -63,7 +63,7 @@
               }
             },
             "beckn:itemAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingService/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld",
               "@type": "ChargingService",
               "connectorType": "CCS2",
               "maxPowerKW": 60,
@@ -139,7 +139,7 @@
               }
             },
             "beckn:itemAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingService/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld",
               "@type": "ChargingService",
               "connectorType": "CCS2",
               "maxPowerKW": 60,
@@ -211,7 +211,7 @@
               "WALLET"
             ],
             "beckn:offerAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingOffer/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingOffer/v1.0/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {
@@ -256,7 +256,7 @@
               "CREDIT_CARD"
             ],
             "beckn:offerAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingOffer/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingOffer/v1.0/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {

@@ -10,7 +10,7 @@
     "transactionId": "sdiscom-allocate-001",
     "messageId": "sdiscom-msg-001",
     "timestamp": "2026-04-26T06:30:00Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetItem/1.1/context.jsonld", "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetItem/v1.1/context.jsonld", "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld"]
   },
   "message": {
     "contract": {
@@ -26,7 +26,7 @@
               "descriptor": {"name": "Seller-discom meter actuals"},
               "quantity": {"@type": "Quantity", "unitText": "report", "unitCode": "EA", "value": "1"},
               "resourceAttributes": {
-                "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+                "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
                 "@type": "DatasetItem",
                 "schema:identifier": "ds-actuals-001",
                 "schema:name": "Seller-discom meter actuals",

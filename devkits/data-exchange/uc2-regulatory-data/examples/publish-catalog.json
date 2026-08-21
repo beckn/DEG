@@ -8,7 +8,7 @@
     "transactionId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "messageId": "1a2b3c4d-5e6f-7890-abcd-ef0987654321",
     "timestamp": "2026-04-01T06:00:00Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetItem/1.1/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetItem/v1.1/context.jsonld"]
   },
   "message": {
     "publishDirectives": [{"catalogId": "catalog-bescom-arr-filings-001", "catalogType": "REGULAR", "updateMode": "MERGE", "visibleTo": ["nfh.global/testnet-deg"]}],
@@ -28,7 +28,7 @@
               "longDesc": "IES_ARR_Filing-format regulatory data containing cost components, revenue requirements, and tariff projections for BESCOM FY 2025-26, suitable for SERC review and tariff order processing."
             },
             "resourceAttributes": {
-              "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+              "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
               "@type": "DatasetItem",
               "schema:identifier": "ds-bescom-arr-filing-fy2025-26",
               "schema:name": "BESCOM ARR Filing - FY 2025-26",
@@ -51,7 +51,7 @@
                 "id": "consideration-arr-regulatory-mandate",
                 "status": {"code": "ACTIVE"},
                 "considerationAttributes": {
-                  "@context": "https://schema.nfh.global/PriceSpecification/2.1/context.jsonld",
+                  "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
                   "@type": "PriceSpecification",
                   "currency": "INR",
                   "value": 0,

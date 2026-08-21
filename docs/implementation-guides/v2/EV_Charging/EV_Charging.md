@@ -428,7 +428,7 @@ Note: The API calls and schema for walk-in charging are identical to the [advanc
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schema_context": [
-      "https://schema.nfh.global/EvChargingService/1.0/context.jsonld"
+      "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld"
     ]
   },
   "message": {
@@ -536,7 +536,7 @@ Note: Users can discover the charging station through off-network channels (such
               }
             },
             "beckn:itemAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingService/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld",
               "@type": "ChargingService",
               "connectorType": "CCS2",
               "maxPowerKW": 60,
@@ -612,7 +612,7 @@ Note: Users can discover the charging station through off-network channels (such
               }
             },
             "beckn:itemAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingService/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld",
               "@type": "ChargingService",
               "connectorType": "CCS2",
               "maxPowerKW": 60,
@@ -684,7 +684,7 @@ Note: Users can discover the charging station through off-network channels (such
               "WALLET"
             ],
             "beckn:offerAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingOffer/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingOffer/v1.0/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {
@@ -729,7 +729,7 @@ Note: Users can discover the charging station through off-network channels (such
               "CREDIT_CARD"
             ],
             "beckn:offerAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingOffer/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingOffer/v1.0/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {
@@ -839,7 +839,7 @@ CPO returns details of a specific charger: [Example](../../../../examples/ev-cha
         }
       ],
       "beckn:orderAttributes": {
-        "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+        "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
         "@type": "ChargingSession",
         "buyerFinderFee": {
           "feeType": "PERCENTAGE",
@@ -995,7 +995,7 @@ EV user requests charge worth in KWH: [Example](../../../../examples/ev-charging
         ]
       },
       "beckn:orderAttributes": {
-        "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+        "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
         "@type": "ChargingSession",
         "buyerFinderFee": {
           "feeType": "PERCENTAGE",
@@ -1702,7 +1702,7 @@ EV user confirms reservation of a slot at a particular charging station at a par
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "connectorType": "CCS2",
           "maxPowerKW": 50,
@@ -1851,7 +1851,7 @@ CPO responds with confirmed slot: [Example](../../../../examples/ev-charging/v2/
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "connectorType": "CCS2",
           "maxPowerKW": 50,
@@ -1986,7 +1986,7 @@ The user checks the status of charging connector: [Example](../../../../examples
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "connectorType": "CCS2",
           "maxPowerKW": 50,
@@ -2122,7 +2122,7 @@ The CPO response with the status of the charging connector: [Example](../../../.
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "connectorType": "CCS2",
           "maxPowerKW": 50,
@@ -2256,7 +2256,7 @@ EV user starts a charging session: [Example](../../../../examples/ev-charging/v2
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "sessionStatus": "ACTIVE",
           "connectorType": "CCS2",
@@ -2413,7 +2413,7 @@ EV User tracks a live charging session in real-time: [Example](../../../../examp
           }
         },
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "sessionStatus": "ACTIVE",
           "chargingTelemetry": [
@@ -2589,7 +2589,7 @@ EV User receives a live charging session in real-time: [Example](../../../../exa
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "sessionStatus": "INTERRUPTED"
         }
@@ -2722,7 +2722,7 @@ EV user reveives a notification in case of any error occuring during charging se
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "sessionStatus": "STOP"
         }
@@ -2843,7 +2843,7 @@ EV user stops the charging session: [Example](../../../../examples/ev-charging/v
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "sessionStatus": "COMPLETED"
         }
@@ -3225,7 +3225,7 @@ Consumers can search for EV charging stations with specific criteria including l
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schema_context": [
-      "https://schema.nfh.global/EvChargingService/1.0/context.jsonld"
+      "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld"
     ]
   },
   "message": {
@@ -3500,7 +3500,7 @@ Discovering chargers in a specific circular area, a specific connector type and 
               }
             },
             "beckn:itemAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingService/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld",
               "@type": "ChargingService",
               "connectorType": "CCS2",
               "maxPowerKW": 60,
@@ -3576,7 +3576,7 @@ Discovering chargers in a specific circular area, a specific connector type and 
               }
             },
             "beckn:itemAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingService/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld",
               "@type": "ChargingService",
               "connectorType": "CCS2",
               "maxPowerKW": 120,
@@ -3653,7 +3653,7 @@ Discovering chargers in a specific circular area, a specific connector type and 
               }
             },
             "beckn:itemAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingService/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld",
               "@type": "ChargingService",
               "connectorType": "Type2",
               "maxPowerKW": 22,
@@ -3725,7 +3725,7 @@ Discovering chargers in a specific circular area, a specific connector type and 
               "WALLET"
             ],
             "beckn:offerAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingOffer/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingOffer/v1.0/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {
@@ -3772,7 +3772,7 @@ Discovering chargers in a specific circular area, a specific connector type and 
               "BANK_TRANSFER"
             ],
             "beckn:offerAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingOffer/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingOffer/v1.0/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {
@@ -3819,7 +3819,7 @@ Discovering chargers in a specific circular area, a specific connector type and 
               "BANK_TRANSFER"
             ],
             "beckn:offerAttributes": {
-              "@context": "https://schema.nfh.global/EvChargingOffer/1.0/context.jsonld",
+              "@context": "https://schema.nfh.global/EvChargingOffer/v1.0/context.jsonld",
               "@type": "ChargingOffer",
               "tariffModel": "PER_KWH",
               "idleFeePolicy": {
@@ -4025,7 +4025,7 @@ Offer schema in the catalog:
         }
       ],
       "beckn:orderAttributes": {
-        "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+        "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
         "@type": "ChargingSession",
         "buyerFinderFee": {
           "feeType": "PERCENTAGE",
@@ -4193,7 +4193,7 @@ Recommendations for BPP:
         ]
       },
       "beckn:orderAttributes": {
-        "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+        "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
         "@type": "ChargingSession",
         "buyerFinderFee": {
           "feeType": "PERCENTAGE",
@@ -4963,7 +4963,7 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "connectorType": "CCS2",
           "maxPowerKW": 50,
@@ -5119,7 +5119,7 @@ Once these physical steps are completed, the charging session can be initiated t
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "connectorType": "CCS2",
           "maxPowerKW": 50,
@@ -5257,7 +5257,7 @@ Once these physical steps are completed, the charging session can be initiated t
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "sessionStatus": "ACTIVE",
           "connectorType": "CCS2",
@@ -5437,7 +5437,7 @@ Once these physical steps are completed, the charging session can be initiated t
           }
         },
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "sessionStatus": "ACTIVE",
           "chargingTelemetry": [
@@ -5678,7 +5678,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "sessionStatus": "INTERRUPTED"
         }
@@ -5817,7 +5817,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "sessionStatus": "COMPLETED"
         }
@@ -5939,7 +5939,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "sessionStatus": "COMPLETED"
         }

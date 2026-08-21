@@ -61,7 +61,7 @@
         }
       ],
       "beckn:orderAttributes": {
-        "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+        "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
         "@type": "ChargingSession",
         "buyerFinderFee": {
           "feeType": "PERCENTAGE",

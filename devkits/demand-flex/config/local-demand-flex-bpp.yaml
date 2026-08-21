@@ -177,7 +177,7 @@ modules:
               outputPath: "message.contract.consideration[id=auto-revenue-flows].considerationAttributes"
               outputMode: "jsonld"
               outputType: "RevenueFlow"
-              outputContextURL: "https://schema.nfh.global/RevenueFlow/2.0/context.jsonld"
+              outputContextURL: "https://schema.nfh.global/RevenueFlow/v2.0/context.jsonld"
               outputArrayKey: "revenueFlows"
               entryDefaults: '{"status":{"code":"SETTLED"}}'
       steps:

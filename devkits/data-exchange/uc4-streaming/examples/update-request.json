@@ -24,7 +24,7 @@
             "descriptor": {"name": "Monthly MQTT stream subscription"},
             "resourceIds": ["stream-ami-mqtt-blr-zone-a"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+              "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
               "@type": "DatasetItem",
               "schema:identifier": "stream-ami-mqtt-blr-zone-a",
               "schema:name": "AMI Smart Meter Stream — Bengaluru Zone A",

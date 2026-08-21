@@ -10,7 +10,7 @@
     "transactionId": "c3d4e5f6-a7b8-9012-cdef-012345678910",
     "messageId": "c3d4e5f6-a7b8-9012-cdef-012345678914",
     "timestamp": "2026-05-07T09:03:00Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetItem/1.1/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetItem/v1.1/context.jsonld"]
   },
   "message": {
     "contract": {
@@ -29,7 +29,7 @@
           "id": "consideration-stream-001",
           "status": {"code": "ACTIVE"},
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/PriceSpecification/2.1/context.jsonld",
+            "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
             "value": 12000.0,
@@ -44,7 +44,7 @@
           "considerationId": "consideration-stream-001",
           "status": "COMPLETE",
           "settlementAttributes": {
-            "@context": "https://schema.nfh.global/Payment/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
             "@type": "Payment",
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {"currency": "INR", "value": 12000.0},

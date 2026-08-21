@@ -10,7 +10,7 @@
     "transactionId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
     "messageId": "1e2f3a4b-5c6d-7890-4567-890123456789",
     "timestamp": "2026-04-01T09:25:05Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetItem/1.1/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetItem/v1.1/context.jsonld"]
   },
   "message": {
     "contract": {
@@ -31,7 +31,7 @@
           "status": {"code": "DELIVERY_COMPLETE", "name": "ARR filing delivered inline via dataPayload"},
           "commitmentIds": ["commitment-arr-filing-001"],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+            "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
             "@type": "DatasetItem",
             "schema:identifier": "ds-bescom-arr-filing-fy2025-26",
             "schema:name": "BESCOM ARR Filing - FY 2025-26",
@@ -90,7 +90,7 @@
           "considerationId": "consideration-arr-regulatory-mandate",
           "status": "COMPLETE",
           "settlementAttributes": {
-            "@context": "https://schema.nfh.global/Payment/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
             "@type": "Payment",
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {"currency": "INR", "value": 0}
