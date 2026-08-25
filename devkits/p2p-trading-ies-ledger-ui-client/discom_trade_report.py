@@ -25,6 +25,10 @@ Usage:
 
 Both --from and --to are inclusive calendar dates in IST.
 
+--csv holds the trades the report counts, not the raw fetch: TEST_* DISCOM
+placeholders and trades touching no tracked DISCOM are left out. Range mode
+limits the CSV to --from/--to; daily mode spans the whole --fetch-days window.
+
 Credentials and LEDGER_URL are read from .env (same as server.py).
 """
 
@@ -255,7 +259,7 @@ CSV_COLUMNS = [
 
 
 def write_csv(trades, path):
-    """Write all trades to a CSV file with the same columns as the UI table."""
+    """Write the given trades to a CSV file with the same columns as the UI table."""
     with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
         writer.writeheader()
@@ -304,20 +308,18 @@ def _side_pending(trade, discoms, buyer_side):
     return (trade.get(status_key) or "").upper() != "COMPLETED"
 
 
+def filter_reportable(all_trades, discoms):
+    """Non-TEST trades touching a tracked DISCOM, of any delivery date."""
+    return [t for t in all_trades
+            if not _is_test_trade(t)
+            and (t.get("discomIdBuyer") in discoms or
+                 t.get("discomIdSeller") in discoms)]
+
+
 def select_valid_trades(all_trades, discoms, start_key, end_key):
-    """Non-TEST trades touching a tracked DISCOM, delivered within [start, end]."""
-    valid = []
-    for trade in all_trades:
-        if _is_test_trade(trade):
-            continue
-        if trade.get("discomIdBuyer") not in discoms and \
-           trade.get("discomIdSeller") not in discoms:
-            continue
-        sort_key, _ = _delivery_date_key(trade)
-        if not (start_key <= sort_key <= end_key):
-            continue
-        valid.append(trade)
-    return valid
+    """Reportable trades whose delivery day falls within [start_key, end_key]."""
+    return [t for t in filter_reportable(all_trades, discoms)
+            if start_key <= _delivery_date_key(t)[0] <= end_key]
 
 
 def build_range_report(all_trades, start, end, discoms=None,
@@ -511,7 +513,8 @@ def generate_report(csv_path=None, fetch_days=DEFAULT_FETCH_DAYS):
     print(report)
 
     if csv_path:
-        write_csv(all_trades, csv_path)
+        # No delivery-date filter: --fetch-days is the knob that widens the CSV.
+        write_csv(filter_reportable(all_trades, VALID_DISCOMS), csv_path)
 
     return report
 
@@ -527,7 +530,10 @@ def generate_range_report(start, end, csv_path=None, discoms=None,
     print(report)
 
     if csv_path:
-        write_csv(all_trades, csv_path)
+        # The CSV mirrors the report: same DISCOM set, same delivery window.
+        write_csv(select_valid_trades(all_trades, discoms or VALID_DISCOMS,
+                                      start.strftime("%Y-%m-%d"),
+                                      end.strftime("%Y-%m-%d")), csv_path)
 
     return report
 
@@ -676,7 +682,8 @@ if __name__ == "__main__":
                "(delivery T-30 to T-2) as the daily WhatsApp summary.",
     )
     parser.add_argument("--csv", metavar="FILE",
-                        help="Also write every fetched trade to this CSV file")
+                        help="Also write the trades the report counts to this "
+                             "CSV file, TEST and untracked DISCOMs excluded")
     parser.add_argument("--from", dest="date_from", metavar="YYYY-MM-DD",
                         type=_parse_ist_date,
                         help="Range mode: first delivery date, inclusive (IST)")
