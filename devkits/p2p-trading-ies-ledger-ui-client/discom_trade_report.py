@@ -237,6 +237,35 @@ def _duration_hours(start_raw, end_raw):
         return ""
 
 
+def _metric(trade, side_key, metric_type):
+    """Verbatim validationMetricValue of the given type, or None."""
+    for m in trade.get(side_key) or []:
+        if m.get("validationMetricType") == metric_type:
+            return m.get("validationMetricValue")
+    return None
+
+
+def _get_allocation(trade, buyer_side):
+    """A side's allocated quantity, verbatim as the ledger reports it.
+
+    The ledger carries this as a fulfillment validation metric — ACTUAL_PULLED
+    on the buyer side, ACTUAL_PUSHED on the seller side — which is what the
+    dashboard reads. Some records also carry a flat buyerDiscomAllocation /
+    sellerDiscomAllocation mirror of the same number; it is used as a fallback
+    so a record that has only the flat field still reports an allocation.
+    """
+    if buyer_side:
+        side_key, metric_type, flat_key = (
+            "buyerFulfillmentValidationMetrics", "ACTUAL_PULLED", "buyerDiscomAllocation")
+    else:
+        side_key, metric_type, flat_key = (
+            "sellerFulfillmentValidationMetrics", "ACTUAL_PUSHED", "sellerDiscomAllocation")
+    value = _metric(trade, side_key, metric_type)
+    if value is None:
+        value = trade.get(flat_key)
+    return "" if value is None else value
+
+
 CSV_COLUMNS = [
     "Trade Time (IST)",
     "Delivery Start (IST)",
@@ -244,6 +273,7 @@ CSV_COLUMNS = [
     "Qty (KWH)",
     "Buyer Alloc",
     "Seller Alloc",
+    "Final Alloc",
     "Buyer Status",
     "Seller Status",
     "Buyer Discom",
@@ -271,8 +301,9 @@ def write_csv(trades, path):
                 "Delivery Start (IST)": _fmt_ist(start_raw),
                 "Duration (h)": _duration_hours(start_raw, end_raw),
                 "Qty (KWH)": f"{_get_energy(r):.2f}",
-                "Buyer Alloc": r.get("buyerDiscomAllocation", ""),
-                "Seller Alloc": r.get("sellerDiscomAllocation", ""),
+                "Buyer Alloc": _get_allocation(r, buyer_side=True),
+                "Seller Alloc": _get_allocation(r, buyer_side=False),
+                "Final Alloc": r.get("finalAllocation", "") if r.get("finalAllocation") is not None else "",
                 "Buyer Status": r.get("statusBuyerDiscom", ""),
                 "Seller Status": r.get("statusSellerDiscom", ""),
                 "Buyer Discom": r.get("discomIdBuyer", ""),
