@@ -17,7 +17,7 @@
         "maxImportKw": { "type": "number", "minimum": 0, "description": "Maximum power drawn from the grid (absorbs / charges), kW. Always ≥0. CIM: PowerElectronicsConnection.maxP (absorption)." },
         "telemetryProvider": { "type": "string", "description": "Vendor API / data source identifier for telemetry." },
         "commissioningDate": { "type": "string", "format": "date-time", "description": "ISO 8601 date-time the asset was commissioned." },
-        "location": { "$ref": "https://schema.nfh.global/Location/2.0/schema.json#/$defs/Location", "description": "Physical location of this asset." }
+        "location": { "$ref": "https://schema.nfh.global/Location/v2.0/schema.json#/$defs/Location", "description": "Physical location of this asset." }
       }
     },
     "EnergyResourceCommon": {

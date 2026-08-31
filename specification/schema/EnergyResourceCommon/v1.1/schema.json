@@ -72,7 +72,7 @@
         "maxImport":         { "$ref": "#/$defs/QVPower",  "description": "Maximum power drawn from the grid (absorbs/charges). Always ≥0. CIM: PowerElectronicsConnection.maxP (absorption)." },
         "telemetryProvider": { "type": "string", "description": "Vendor API / data source identifier for telemetry." },
         "commissioningDate": { "type": "string", "format": "date-time", "description": "ISO 8601 date-time the asset was commissioned." },
-        "location":          { "$ref": "https://schema.nfh.global/Location/2.0/schema.json#/$defs/Location", "description": "Physical location of this asset." },
+        "location":          { "$ref": "https://schema.nfh.global/Location/v2.0/schema.json#/$defs/Location", "description": "Physical location of this asset." },
         "serialNumber":      { "type": "string", "minLength": 1, "description": "Manufacturer-assigned device serial number from the equipment nameplate. Distinct from id (the network-issued DID). CIM: cim:EndDeviceInfo.serialNumber (IEC 61968-9)." },
         "inspection": {
           "type": "object",

@@ -103,7 +103,7 @@ components:
             "@id": deg:commissioningDate
 
         location:
-          $ref: "https://schema.nfh.global/Location/2.0/attributes.yaml#/components/schemas/Location"
+          $ref: "https://schema.nfh.global/Location/v2.0/attributes.yaml#/components/schemas/Location"
           description: Physical location of this asset.
           x-jsonld:
             "@id": deg:location

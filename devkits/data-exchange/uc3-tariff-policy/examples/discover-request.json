@@ -9,7 +9,7 @@
     "transactionId": "d4e5f6a7-b8c9-0123-def0-123456789012",
     "messageId": "2d3e4f5a-6b7c-8901-def0-123456789013",
     "timestamp": "2026-04-01T09:00:00Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetItem/1.1/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetItem/v1.1/context.jsonld"]
   },
   "message": {
     "intent": {

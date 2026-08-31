@@ -10,7 +10,7 @@
     "transactionId": "e5f6a7b8-c9d0-1234-ef01-345678901234",
     "messageId": "e5f6a7b8-c9d0-1234-ef01-345678901235",
     "timestamp": "2026-05-07T09:03:05Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetFulfillment/1.1/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetFulfillment/v1.1/context.jsonld"]
   },
   "message": {
     "contract": {
@@ -27,7 +27,7 @@
             "descriptor": {"name": "Monthly API subscription — 60 req/min"},
             "resourceIds": ["stream-solar-forecast-api"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+              "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
               "@type": "DatasetItem",
               "schema:identifier": "stream-solar-forecast-api",
               "schema:name": "Solar Generation Forecast API",
@@ -42,12 +42,12 @@
         {
           "id": "consideration-stream-api-001",
           "status": {"code": "ACTIVE"},
-          "considerationAttributes": {"@context": "https://schema.nfh.global/PriceSpecification/2.1/context.jsonld", "@type": "PriceSpecification", "currency": "INR", "value": 8000.0}
+          "considerationAttributes": {"@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld", "@type": "PriceSpecification", "currency": "INR", "value": 8000.0}
         }
       ],
       "participants": [
-        {"id": "intelligrid-amisp-001", "descriptor": {"name": "IntelliGrid AMI Services"}, "participantAttributes": {"@context": "https://schema.nfh.global/Organization/2.0/context.jsonld", "@type": "Organization", "id": "intelligrid-amisp-001", "name": "IntelliGrid AMI Services"}},
-        {"id": "renewco-forecasting-001", "descriptor": {"name": "RenewCo Forecasting Team"}, "participantAttributes": {"@context": "https://schema.nfh.global/Organization/2.0/context.jsonld", "@type": "Organization", "id": "renewco-forecasting-001", "name": "RenewCo Forecasting Team"}}
+        {"id": "intelligrid-amisp-001", "descriptor": {"name": "IntelliGrid AMI Services"}, "participantAttributes": {"@context": "https://schema.nfh.global/Organization/v2.0/context.jsonld", "@type": "Organization", "id": "intelligrid-amisp-001", "name": "IntelliGrid AMI Services"}},
+        {"id": "renewco-forecasting-001", "descriptor": {"name": "RenewCo Forecasting Team"}, "participantAttributes": {"@context": "https://schema.nfh.global/Organization/v2.0/context.jsonld", "@type": "Organization", "id": "renewco-forecasting-001", "name": "RenewCo Forecasting Team"}}
       ],
       "performance": [
         {
@@ -55,7 +55,7 @@
           "status": {"code": "ACTIVE"},
           "commitmentIds": ["commitment-stream-api-001"],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DatasetFulfillment/1.1/context.jsonld",
+            "@context": "https://schema.nfh.global/DatasetFulfillment/v1.1/context.jsonld",
             "@type": "DatasetFulfillment",
             "fulfillment:accessMethod": "API",
             "fulfillment:accessStart": "2026-05-07T09:03:05Z",
@@ -80,7 +80,7 @@
           "considerationId": "consideration-stream-api-001",
           "status": "COMPLETE",
           "settlementAttributes": {
-            "@context": "https://schema.nfh.global/Payment/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
             "@type": "Payment",
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {"currency": "INR", "value": 8000.0},

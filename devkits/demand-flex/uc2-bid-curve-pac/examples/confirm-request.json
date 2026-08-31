@@ -17,7 +17,7 @@
       "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld",
       "https://schema.nfh.global/BecknReportDescriptors/v1.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld",
-      "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld"
+      "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -91,7 +91,7 @@
         {
           "id": "payment-term-pac-001",
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld",
             "@type": "SettlementTerm",
             "settlementStatus": "PENDING",
             "paymentTrigger": "ON_FULFILLMENT",

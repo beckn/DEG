@@ -17,7 +17,7 @@
       "https://schema.nfh.global/RevenueFlow/v2.0/context.jsonld",
       "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld",
       "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld",
-      "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+      "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld",
       "https://schema.nfh.global/PaymentAction/v2.0/context.jsonld"
     ]
   },
@@ -94,7 +94,7 @@
           "considerationId": "auto-settlement-flows",
           "status": "COMPLETE",
           "settlementAttributes": {
-            "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld",
             "@type": "SettlementTerm",
             "payTo": {"accountHolderName": "Seller Platform Pvt Ltd", "accountNumber": "0012345678901", "branchCode": "HDFC0001234", "bankName": "HDFC Bank"},
             "acceptedPaymentMethods": ["BANK_TRANSFER"],

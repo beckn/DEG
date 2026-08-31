@@ -11,7 +11,7 @@
     "messageId": "8b9c0d1e-2f3a-4567-1234-567890123456",
     "timestamp": "2026-04-01T09:15:05Z",
     "schemaContext": [
-      "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+      "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
       "https://india-energy-stack.github.io/ies-accelerator/schemas/MeterDataRequestCredential/v0.1/context.jsonld"
     ]
   },
@@ -54,7 +54,7 @@
             "resourceIds": ["ds-ami-meter-data-blr-zone-a-q1-2026"]
           },
           "commitmentAttributes": {
-            "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+            "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
             "@type": "DatasetItem",
             "schema:identifier": "ds-ami-meter-data-blr-zone-a-q1-2026",
             "schema:name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026",
@@ -68,7 +68,7 @@
           "id": "consideration-ami-existing-contract",
           "status": { "code": "ACTIVE" },
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/PriceSpecification/2.1/context.jsonld",
+            "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
             "value": 0,

@@ -69,7 +69,7 @@ components:
             the envelope level via context.schemaContext[].
 
         location:
-          $ref: "https://schema.nfh.global/Location/2.0/attributes.yaml#/components/schemas/Location"
+          $ref: "https://schema.nfh.global/Location/v2.0/attributes.yaml#/components/schemas/Location"
           description: >
             Geographic area where flex is needed. Beckn Location — GeoJSON
             geometry (geo) plus optional address.

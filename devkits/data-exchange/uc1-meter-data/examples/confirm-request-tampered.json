@@ -11,7 +11,7 @@
     "messageId": "vc-tampered-0001",
     "timestamp": "2026-04-01T09:15:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+      "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
       "https://india-energy-stack.github.io/ies-accelerator/schemas/MeterDataRequestCredential/v0.1/context.jsonld"
     ]
   },
@@ -27,7 +27,7 @@
           "resources": [{"id": "ds-ami-meter-data-blr-zone-a-q1-2026", "descriptor": {"name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026"}, "quantity": {"unitText": "report", "unitCode": "EA", "value": "1"}}],
           "offer": {"id": "offer-ami-meter-data-inline", "descriptor": {"name": "AMI Meter Data Inline Delivery - Bengaluru Zone A Q1 2026"}, "resourceIds": ["ds-ami-meter-data-blr-zone-a-q1-2026"]},
           "commitmentAttributes": {
-            "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+            "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
             "@type": "DatasetItem",
             "schema:identifier": "ds-ami-meter-data-blr-zone-a-q1-2026",
             "schema:name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026",
@@ -41,7 +41,7 @@
           "id": "consideration-ami-existing-contract",
           "status": {"code": "ACTIVE"},
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/PriceSpecification/2.1/context.jsonld",
+            "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
             "value": 0,
@@ -60,7 +60,7 @@
           "considerationId": "consideration-ami-existing-contract",
           "status": "COMPLETE",
           "settlementAttributes": {
-            "@context": "https://schema.nfh.global/Payment/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
             "@type": "Payment",
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {"currency": "INR", "value": 0}

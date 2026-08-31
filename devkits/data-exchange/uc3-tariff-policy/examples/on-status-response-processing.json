@@ -10,7 +10,7 @@
     "transactionId": "e5f6a7b8-c9d0-1234-ef01-234567890123",
     "messageId": "6b7c8d9e-0f1a-2345-ef01-234567890127",
     "timestamp": "2026-04-01T09:20:05Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetItem/1.1/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetItem/v1.1/context.jsonld"]
   },
   "message": {
     "contract": {
@@ -31,7 +31,7 @@
           "status": {"code": "PROCESSING", "name": "Tariff policy artefact serialisation in progress"},
           "commitmentIds": ["commitment-tariff-policy-001"],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+            "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
             "@type": "DatasetItem",
             "schema:identifier": "ds-tariff-policy-mum-res-2024-25",
             "schema:name": "Mumbai Residential Telescopic Tariff 2024-25",

@@ -10,7 +10,7 @@
     "transactionId": "sdledger-status-001",
     "messageId": "sdledger-status-msg-001",
     "timestamp": "2026-04-26T05:35:00Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetItem/1.1/context.jsonld", "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetItem/v1.1/context.jsonld", "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld"]
   },
   "message": {
     "contract": {
@@ -26,7 +26,7 @@
               "descriptor": {"name": "Meter energy consumption request - seller discom"},
               "quantity": {"@type": "Quantity", "unitText": "request", "unitCode": "EA", "value": "1"},
               "resourceAttributes": {
-                "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+                "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
                 "@type": "DatasetItem",
                 "schema:identifier": "ds-meter-request-seller-001",
                 "schema:name": "Meter energy consumption request - seller discom",

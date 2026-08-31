@@ -11,10 +11,10 @@
     "messageId": "msg-on-status-settled-001",
     "timestamp": "2026-04-01T11:00:00Z",
     "schemaContext": [
-      "https://schema.nfh.global/DemandFlexPerformance/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
-      "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
-      "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexPerformance/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
+      "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/Quantity/context.jsonld"
     ]
   },
@@ -41,7 +41,7 @@
                 "@type": "Quantity"
               },
               "resourceAttributes": {
-                "@context": "https://schema.nfh.global/DemandFlexNeed/2.0/context.jsonld",
+                "@context": "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
                 "@type": "DemandFlexNeed",
                 "direction": "REDUCE",
                 "eventWindow": {
@@ -59,7 +59,7 @@
               "flex-need-north-delhi-apr1"
             ],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/2.0/context.jsonld",
+              "@context": "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
               "@type": "DemandFlexBuyOffer",
               "inputs": [
                 {
@@ -109,7 +109,7 @@
             "commitment-flex-001"
           ],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DemandFlexPerformance/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/DemandFlexPerformance/v2.0/context.jsonld",
             "@type": "DemandFlexPerformance",
             "eventId": "evt-2026-04-01-001",
             "methodology": "5of10",
@@ -134,7 +134,7 @@
         }
       ],
       "contractAttributes": {
-        "@context": "https://schema.nfh.global/DEGContract/2.0/context.jsonld",
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
         "@type": "DEGContract",
         "roles": [
           {

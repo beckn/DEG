@@ -96,7 +96,7 @@
         "beckn:id": "fulfillment-001",
         "beckn:mode": "RESERVATION",
         "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
           "@type": "ChargingSession",
           "connectorType": "CCS2",
           "maxPowerKW": 50,

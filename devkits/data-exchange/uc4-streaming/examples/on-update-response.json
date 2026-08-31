@@ -10,7 +10,7 @@
     "transactionId": "c3d4e5f6-a7b8-9012-cdef-012345678910",
     "messageId": "c3d4e5f6-a7b8-9012-cdef-012345678921",
     "timestamp": "2026-06-06T09:00:05Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetFulfillment/1.1/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetFulfillment/v1.1/context.jsonld"]
   },
   "message": {
     "contract": {
@@ -26,7 +26,7 @@
             "descriptor": {"name": "Monthly MQTT stream subscription"},
             "resourceIds": ["stream-ami-mqtt-blr-zone-a"],
             "offerAttributes": {
-              "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+              "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
               "@type": "DatasetItem",
               "schema:identifier": "stream-ami-mqtt-blr-zone-a",
               "schema:name": "AMI Smart Meter Stream — Bengaluru Zone A",
@@ -42,7 +42,7 @@
           "status": {"code": "ACTIVE"},
           "commitmentIds": ["commitment-stream-mqtt-001"],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DatasetFulfillment/1.1/context.jsonld",
+            "@context": "https://schema.nfh.global/DatasetFulfillment/v1.1/context.jsonld",
             "@type": "DatasetFulfillment",
             "fulfillment:accessMethod": "MQTT",
             "fulfillment:accessStart": "2026-05-07T09:03:05Z",

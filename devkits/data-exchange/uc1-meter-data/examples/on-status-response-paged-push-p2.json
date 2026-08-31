@@ -12,7 +12,7 @@
     "messageId": "4b5c6d7e-8f90-1234-5678-901234567890",
     "timestamp": "2026-04-01T09:25:03Z",
     "schemaContext": [
-      "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+      "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
       "https://india-energy-stack.github.io/ies-accelerator/schemas/MeterData/v0.6/context.jsonld",
       "https://schema.nfh.global/BecknPageInfo/v1.0/context.jsonld"
     ]
@@ -36,7 +36,7 @@
           "status": {"code": "DELIVERY_COMPLETE_PARTIAL", "name": "AMI meter data page 2 of 3 (~334 of ~500 customers)"},
           "commitmentIds": ["commitment-ami-meter-001"],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+            "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
             "@type": "DatasetItem",
             "schema:identifier": "ds-ami-meter-data-blr-zone-a-q1-2026",
             "schema:name": "IntelliGrid AMI Meter Data - Bengaluru Zone A - Q1 2026",

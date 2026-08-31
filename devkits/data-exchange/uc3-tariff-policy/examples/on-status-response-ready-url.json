@@ -10,7 +10,7 @@
     "transactionId": "e5f6a7b8-c9d0-1234-ef01-234567890123",
     "messageId": "7c8d9e0f-1a2b-3456-ef01-234567890128",
     "timestamp": "2026-04-01T09:25:05Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetItem/1.1/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetItem/v1.1/context.jsonld"]
   },
   "message": {
     "contract": {
@@ -31,7 +31,7 @@
           "status": {"code": "DELIVERY_COMPLETE", "name": "Tariff policy artefact available for download"},
           "commitmentIds": ["commitment-tariff-policy-001"],
           "performanceAttributes": {
-            "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+            "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
             "@type": "DatasetItem",
             "schema:identifier": "ds-tariff-policy-mum-res-2024-25",
             "schema:name": "Mumbai Residential Telescopic Tariff 2024-25",
@@ -52,7 +52,7 @@
           "considerationId": "consideration-tariff-public-good",
           "status": "COMPLETE",
           "settlementAttributes": {
-            "@context": "https://schema.nfh.global/Payment/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
             "@type": "Payment",
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {"currency": "INR", "value": 0}

@@ -255,8 +255,8 @@ mappings:
     bppMappings: |
       (
         $ctx := $.context;
-        $ltsServiceContext := "https://schema.nfh.global/EvChargingService/2.0/context.jsonld";
-        $ltsOfferContext := "https://schema.nfh.global/EvChargingOffer/2.0/context.jsonld";
+        $ltsServiceContext := "https://schema.nfh.global/EvChargingService/v2.0/context.jsonld";
+        $ltsOfferContext := "https://schema.nfh.global/EvChargingOffer/v2.0/context.jsonld";
         $ensureArray := function($value) { $type($value) = "array" ? $value : [$value] };
 
         $findProviderName := function($catalog, $offer) {(
@@ -396,7 +396,7 @@ mappings:
       (
         $ctx := $.context;
         $order := $.message.order;
-        $sessionContext := "https://schema.nfh.global/EvChargingSession/2.0/context.jsonld";
+        $sessionContext := "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld";
         $ensureArray := function($value) { $type($value) = "array" ? $value : [$value] };
 
         $mapOffer := function($acceptedOffer) {
@@ -669,7 +669,7 @@ mappings:
       (
         $ctx := $.context;
         $order := $.message.order;
-        $sessionContext := "https://schema.nfh.global/EvChargingSession/2.0/context.jsonld";
+        $sessionContext := "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld";
         $ensureArray := function($value) { $type($value) = "array" ? $value : [$value] };
 
         $mapType := function($kind) {
@@ -796,7 +796,7 @@ mappings:
       (
         $ctx := $.context;
         $order := $.message.order;
-        $sessionContext := "https://schema.nfh.global/EvChargingSession/2.0/context.jsonld";
+        $sessionContext := "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld";
         $ensureArray := function($value) { $type($value) = "array" ? $value : [$value] };
         $payment := $order."beckn:payment";
         $paymentAttrs := $payment."beckn:paymentAttributes";
@@ -1135,7 +1135,7 @@ mappings:
       (
         $ctx := $.context;
         $order := $.message.order;
-        $sessionContext := "https://schema.nfh.global/EvChargingSession/2.0/context.jsonld";
+        $sessionContext := "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld";
         $ensureArray := function($value) { $type($value) = "array" ? $value : [$value] };
         $payment := $order."beckn:payment";
         $paymentAttrs := $payment."beckn:paymentAttributes";
@@ -1297,7 +1297,7 @@ mappings:
       (
         $ctx := $.context;
         $order := $.message.order;
-        $sessionContext := "https://schema.nfh.global/EvChargingSession/2.0/context.jsonld";
+        $sessionContext := "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld";
         $ensureArray := function($value) { $type($value) = "array" ? $value : [$value] };
         $payment := $order."beckn:payment";
 
@@ -1653,7 +1653,7 @@ mappings:
       (
         $ctx := $.context;
         $order := $.message.order;
-        $sessionContext := "https://schema.nfh.global/EvChargingSession/2.0/context.jsonld";
+        $sessionContext := "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld";
         $ensureArray := function($value) { $type($value) = "array" ? $value : [$value] };
         $payment := $order."beckn:payment";
         $performance := $order."beckn:fulfillment";

@@ -17,7 +17,7 @@
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld",
       "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld",
-      "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld"
+      "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -72,7 +72,7 @@
         {
           "id": "payment-term-p2p-001",
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld",
             "@type": "SettlementTerm",
             "amount": {"currency": "INR", "value": 481.0},
             "settlementStatus": "PENDING",

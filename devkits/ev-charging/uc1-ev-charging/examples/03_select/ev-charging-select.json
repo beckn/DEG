@@ -44,7 +44,7 @@
         }
       ],
       "beckn:orderAttributes": {
-        "@context": "https://schema.nfh.global/EvChargingSession/1.0/context.jsonld",
+        "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
         "@type": "ChargingSession",
         "buyerFinderFee": {"feeType": "PERCENTAGE", "feeValue": 2.5},
         "preferences": {"startTime": "2025-12-20T10:00:00Z", "endTime": "2025-12-20T11:30:00Z"}

@@ -8,7 +8,7 @@
     "transactionId": "c3d4e5f6-a7b8-9012-cdef-012345678910",
     "messageId": "c3d4e5f6-a7b8-9012-cdef-012345678911",
     "timestamp": "2026-05-07T09:00:00Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetItem/1.1/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetItem/v1.1/context.jsonld"]
   },
   "message": {"intent": {"filters": {"type": "jsonpath", "expression": "$.catalogs[*].resources[*]"}}}
 }

@@ -39,7 +39,7 @@
           "id": "consideration-001",
           "status": { "code": "ACTIVE" },
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/PriceSpecification/2.1/context.jsonld",
+            "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
             "value": 0,
@@ -64,7 +64,7 @@
           "considerationId": "consideration-001",
           "status": "COMPLETE",
           "settlementAttributes": {
-            "@context": "https://schema.nfh.global/Payment/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
             "@type": "Payment",
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": { "currency": "INR", "value": 0 }

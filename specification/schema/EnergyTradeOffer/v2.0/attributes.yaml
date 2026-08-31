@@ -41,7 +41,7 @@ components:
 
         validityWindow:
           allOf:
-            - $ref: "https://schema.nfh.global/TimePeriod/2.0/attributes.yaml#/components/schemas/TimePeriod"
+            - $ref: "https://schema.nfh.global/TimePeriod/v2.0/attributes.yaml#/components/schemas/TimePeriod"
           description: >
             Time window during which this offer can be selected/accepted.
             Typically set to expire before the earliest delivery starts.

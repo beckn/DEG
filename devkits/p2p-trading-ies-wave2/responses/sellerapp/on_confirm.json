@@ -17,7 +17,7 @@
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld",
       "https://schema.nfh.global/DiscomLedgerProvider/v1.0/context.jsonld",
-      "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld"
+      "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -73,7 +73,7 @@
         {
           "id": "payment-term-p2p-001",
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld",
+            "@context": "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld",
             "@type": "SettlementTerm",
             "amount": {"currency": "INR", "value": 481.0},
             "settlementStatus": "PENDING",
@@ -88,7 +88,7 @@
           "id": "settlement-p2p-001",
           "considerationId": "payment-term-p2p-001",
           "status": "COMMITTED",
-          "settlementAttributes": {"@context": "https://schema.nfh.global/SettlementTerm/2.0/context.jsonld", "@type": "SettlementTerm", "settlementFor": "Solar energy P2P trade: 35 kWh on 2026-04-26 10:00-12:00 IST"}
+          "settlementAttributes": {"@context": "https://schema.nfh.global/SettlementTerm/v2.0/context.jsonld", "@type": "SettlementTerm", "settlementFor": "Solar energy P2P trade: 35 kWh on 2026-04-26 10:00-12:00 IST"}
         }
       ]
     }

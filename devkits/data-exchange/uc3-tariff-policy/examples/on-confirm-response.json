@@ -10,7 +10,7 @@
     "transactionId": "e5f6a7b8-c9d0-1234-ef01-234567890123",
     "messageId": "3e4f5a6b-7c8d-9012-ef01-234567890124",
     "timestamp": "2026-04-01T09:15:05Z",
-    "schemaContext": ["https://schema.nfh.global/DatasetItem/1.1/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DatasetItem/v1.1/context.jsonld"]
   },
   "message": {
     "contract": {
@@ -24,7 +24,7 @@
           "resources": [{"id": "ds-tariff-policy-mum-res-2024-25", "descriptor": {"name": "Mumbai Residential Telescopic Tariff 2024-25"}, "quantity": {"unitText": "policy", "unitCode": "EA", "value": "1"}}],
           "offer": {"id": "offer-tariff-policy-inline", "descriptor": {"name": "Inline Tariff Policy Delivery - Mumbai Residential 2024-25"}, "resourceIds": ["ds-tariff-policy-mum-res-2024-25"]},
           "commitmentAttributes": {
-            "@context": "https://schema.nfh.global/DatasetItem/1.1/context.jsonld",
+            "@context": "https://schema.nfh.global/DatasetItem/v1.1/context.jsonld",
             "@type": "DatasetItem",
             "schema:identifier": "ds-tariff-policy-mum-res-2024-25",
             "schema:name": "Mumbai Residential Telescopic Tariff 2024-25",
@@ -38,7 +38,7 @@
           "id": "consideration-tariff-public-good",
           "status": {"code": "ACTIVE"},
           "considerationAttributes": {
-            "@context": "https://schema.nfh.global/PriceSpecification/2.1/context.jsonld",
+            "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
             "value": 0,

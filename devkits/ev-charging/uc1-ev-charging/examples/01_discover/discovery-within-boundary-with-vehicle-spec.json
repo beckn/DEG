@@ -11,7 +11,7 @@
     "message_id": "a1eabf26-29f5-4a01-9d4e-4c5c9d1a3d02",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
-    "schema_context": ["https://schema.nfh.global/EvChargingService/1.0/context.jsonld"]
+    "schema_context": ["https://schema.nfh.global/EvChargingService/v1.0/context.jsonld"]
   },
   "message": {
     "filters": {"type": "jsonpath", "expression": "$[?(@.beckn:fulfillment.beckn:deliveryAttributes.vehicle.make == 'Tata' && @.beckn:fulfillment.beckn:deliveryAttributes.vehicle.model == 'Nexon-EV' )]"},
