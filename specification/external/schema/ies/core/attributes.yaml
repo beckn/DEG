@@ -1,0 +1,166 @@
+openapi: 3.1.0
+info:
+  title: IES Energy Data Exchange Schemas
+  version: 1.0.0
+  description: |
+    Formal schema-only specification of the India Energy Stack (IES) Data Exchange.
+    This specification strictly inherits from OpenADR 3.1.0 and provides
+    semantic extensions for machine-readable policy (Slab/ToU).
+
+components:
+  schemas:
+    IES_Report:
+      description: |
+        A telemetry report consistent with oadr:report, extended for JSON-LD.
+      allOf:
+        - $ref: 'openadr3.yaml#/components/schemas/report'
+        - type: object
+          properties:
+            "@context":
+              type: string
+              example: "./context.jsonld"
+
+    IES_Program:
+      description: |
+        A tariff specification consistent with oadr:program metadata, extended 
+        for JSON-LD.
+      allOf:
+        - $ref: 'openadr3.yaml#/components/schemas/program'
+        - type: object
+          properties:
+            "@context":
+              type: string
+              example: "./context.jsonld"
+
+    IES_Policy:
+      description: |
+        A first-class container for energy policies (e.g., Tariffs).
+        Includes energy slabs and recurring surcharge/discount patterns.
+      type: object
+      required: [id, createdDateTime, modificationDateTime]
+      properties:
+        id:
+          $ref: 'openadr3.yaml#/components/schemas/objectID'
+        createdDateTime:
+          $ref: 'openadr3.yaml#/components/schemas/dateTime'
+        modificationDateTime:
+          $ref: 'openadr3.yaml#/components/schemas/dateTime'
+      allOf:
+        - $ref: '#/components/schemas/IES_PolicyRequest'
+
+    IES_PolicyRequest:
+      description: |
+        A client provided description of an energy policy (e.g., Tariff).
+      type: object
+      required: [objectType, policyID, policyType, programID]
+      properties:
+        objectType:
+          type: string
+          description: Types of objects addressable through API. 
+          enum: [POLICY]
+        "@context":
+          type: string
+          example: "../specs/context.jsonld"
+        programID:
+          $ref: 'openadr3.yaml#/components/schemas/objectID'
+        policyID:
+          type: string
+          description: Contextual identifier for the policy.
+          example: "MUM-RES-T1"
+        policyName:
+          type: string
+          description: Descriptive name of the policy.
+          example: "Residential Telescopic Tariff 2024"
+        policyType:
+          type: string
+          enum: [TARIFF, DISPATCH_GUIDE]
+        samplingInterval:
+          type: string
+          description: ISO 8601 Recurrence pattern (Cn/Start/Duration).
+          example: "R/2024-04-10T00:00:00Z/P1M"
+        energySlabs:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnergySlab'
+        surchargeTariffs:
+          type: array
+          items:
+            $ref: '#/components/schemas/SurchargeTariff'
+        targets:
+          $ref: 'openadr3.yaml#/components/schemas/programRequest/properties/targets'
+
+    EnergySlab:
+      type: object
+      required: [id, start, price]
+      properties:
+        id:
+          type: string
+          example: "slab-1"
+        start:
+          type: number
+          description: Energy consumption start point (inclusive) in kWh.
+        end:
+          type: [number, "null"]
+          description: Energy consumption end point (exclusive) in kWh. Null for infinity.
+        price:
+          type: number
+          description: Base price for energy in this slab.
+
+    SurchargeTariff:
+      type: object
+      required: [id, recurrence, interval, value]
+      properties:
+        id:
+          type: string
+          example: "peak-surcharge"
+        recurrence:
+          type: string
+          description: ISO 8601 Duration for recurrence (e.g., P1D for daily).
+          example: "P1D"
+        interval:
+          $ref: '#/components/schemas/IES_RelativeInterval'
+        value:
+          type: number
+          description: The adjustment value (percentage or absolute).
+        unit:
+          type: string
+          default: PERCENT
+          enum: [PERCENT, INR_PER_KWH]
+
+    IES_RelativeInterval:
+      type: object
+      description: An interval defined by a Time-of-Day start and a duration.
+      required: [start, duration]
+      properties:
+        start:
+          $ref: '#/components/schemas/IES_TimeOfDay'
+        duration:
+          $ref: 'openadr3.yaml#/components/schemas/duration'
+
+    IES_TimeOfDay:
+      type: string
+      description: ISO 8601 Local Time format (T18:00:00Z).
+      pattern: "^T\\d{2}:\\d{2}:\\d{2}Z?$"
+      example: "T18:00:00Z"
+
+    IES_Attribute:
+      description: |
+        Generic IES attribute mapping for supplemental metadata.
+      type: object
+      required: [type, values]
+      properties:
+        type:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: Represents the nature of values.
+          enum: [TARIFF_STRUCTURE, TOU_CAPABILITIES]
+        values:
+          type: array
+          description: A list of data points.
+          items:
+            anyOf:
+              - type: string
+              - type: number
+              - type: integer
+              - type: boolean

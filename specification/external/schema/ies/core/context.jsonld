@@ -1,0 +1,127 @@
+{
+  "@context": {
+    "ies": "https://india-energy-stack.github.io/ns/ies#",
+    "oadr": "https://india-energy-stack.github.io/oadr3#",
+    "@vocab": "https://india-energy-stack.github.io/oadr3#",
+    
+    "id": "@id",
+    "objectType": "@type",
+    
+    "createdDateTime": { "@id": "oadr:createdDateTime", "@type": "xsd:dateTime" },
+    "modificationDateTime": { "@id": "oadr:modificationDateTime", "@type": "xsd:dateTime" },
+    
+    "programName": "oadr:programName",
+    "eventName": "oadr:eventName",
+    "reportName": "oadr:reportName",
+    "venName": "oadr:venName",
+    "resourceName": "oadr:resourceName",
+    "clientName": "oadr:clientName",
+    "clientID": "oadr:clientID",
+    "venID": "oadr:venID",
+    "programID": "oadr:programID",
+    "eventID": "oadr:eventID",
+    
+    "intervalPeriod": "oadr:intervalPeriod",
+    "start": { "@id": "oadr:start", "@type": "xsd:dateTime" },
+    "duration": "oadr:duration",
+    "randomizeStart": "oadr:randomizeStart",
+    
+    "intervals": {
+      "@id": "oadr:intervals",
+      "@container": "@list"
+    },
+    "payloads": {
+      "@id": "oadr:payloads",
+      "@container": "@list"
+    },
+    
+    "type": "oadr:type",
+    "values": {
+      "@id": "oadr:values",
+      "@container": "@list"
+    },
+    
+    "payloadDescriptors": {
+      "@id": "oadr:payloadDescriptors",
+      "@container": "@set"
+    },
+    "payloadType": "oadr:payloadType",
+    "readingType": "oadr:readingType",
+    "units": "oadr:units",
+    "currency": "oadr:currency",
+    "accuracy": "oadr:accuracy",
+    "confidence": "oadr:confidence",
+    
+    "attributes": {
+      "@id": "oadr:attributes",
+      "@container": "@set"
+    },
+    "targets": {
+      "@id": "oadr:targets",
+      "@container": "@set"
+    },
+    "programDescriptions": {
+      "@id": "oadr:programDescriptions",
+      "@container": "@list"
+    },
+    "reportDescriptors": {
+      "@id": "oadr:reportDescriptors",
+      "@container": "@set"
+    },
+    "objectOperations": {
+      "@id": "oadr:objectOperations",
+      "@container": "@list"
+    },
+    
+    "REPORT": "oadr:Report",
+    "PROGRAM": "oadr:Program",
+    "EVENT": "oadr:Event",
+    "SUBSCRIPTION": "oadr:Subscription",
+    "VEN": "oadr:Ven",
+    "RESOURCE": "oadr:Resource",
+    "REPORT_PAYLOAD_DESCRIPTOR": "oadr:ReportPayloadDescriptor",
+    "EVENT_PAYLOAD_DESCRIPTOR": "oadr:EventPayloadDescriptor",
+    
+    "BL_VEN_REQUEST": "oadr:BlVenRequest",
+    "VEN_VEN_REQUEST": "oadr:VenVenRequest",
+    "BL_RESOURCE_REQUEST": "oadr:BlResourceRequest",
+    "VEN_RESOURCE_REQUEST": "oadr:VenResourceRequest",
+    
+    "READ": "oadr:Read",
+    "CREATE": "oadr:Create",
+    "UPDATE": "oadr:Update",
+    "DELETE": "oadr:Delete",
+    
+    "INTERVALS": "oadr:Intervals",
+    "SUB_INTERVALS": "oadr:SubIntervals",
+    "OPEN_INTERVALS": "oadr:OpenIntervals",
+    
+    "JSON": "oadr:Json",
+    "ANONYMOUS": "oadr:Anonymous",
+    "OAUTH2_BEARER_TOKEN": "oadr:Oauth2BearerToken",
+    "CERTIFICATE": "oadr:Certificate",
+
+    "GENERATION": "ies:Generation",
+    "EXPORT": "ies:Export",
+    
+    "read_all": "oadr:ScopeReadAll",
+    "read_targets": "oadr:ScopeReadTargets",
+    "read_ven_objects": "oadr:ScopeReadVenObjects",
+    "write_programs": "oadr:ScopeWritePrograms",
+    "write_events": "oadr:ScopeWriteEvents",
+    "write_reports": "oadr:ScopeWriteReports",
+    "write_subscriptions": "oadr:ScopeWriteSubscriptions",
+    "write_vens": "oadr:ScopeWriteVens",
+
+    "TOU_CAPABILITIES": "ies:TouCapabilities",
+
+    "POLICY": "ies:Policy",
+    "EnergySlab": "ies:EnergySlab",
+    "energySlabs": "ies:energySlabs",
+    "surchargeTariffs": "ies:surchargeTariffs",
+    "samplingInterval": "ies:samplingInterval",
+    "policyID": "ies:policyID",
+
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  }
+}
