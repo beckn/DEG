@@ -1,0 +1,130 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "select",
+    "domain": "beckn.one:deg:smart-ev-charging:2.0.0",
+    "timestamp": "2026-02-08T09:01:00Z",
+    "message_id": "msg-select-v2g-001",
+    "transaction_id": "txn-smart-ev-v2g-001",
+    "bap_id": "ev-app.example.com",
+    "bap_uri": "https://ev-app.example.com/bap",
+    "bpp_id": "bpp.tata-ezcharge.example.com",
+    "bpp_uri": "https://bpp.tata-ezcharge.example.com/bpp",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:orderStatus": "CREATED",
+      "beckn:seller": "tata-ezcharge-mumbai",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "ev-owner-ankit-001",
+        "beckn:role": "BUYER",
+        "beckn:displayName": "Ankit Sharma",
+        "beckn:telephone": "+91-9821234567",
+        "beckn:email": "ankit.sharma@example.com"
+      },
+      "beckn:buyerAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_buyer_context.jsonld",
+        "@type": "EnergyBuyer",
+        "vehicle": {
+          "registration": "MH-02-AB-1234",
+          "makeModel": "Tata Nexon EV Max",
+          "batteryKwh": 60,
+          "connectorType": "CCS2"
+        }
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G",
+          "beckn:quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 20
+          },
+          "beckn:acceptedOffer": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-smart-ev-v2g-001",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Smart V2G Charging Plan - CCS2 60kW"
+            },
+            "beckn:items": [
+              "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G"
+            ],
+            "beckn:provider": "tata-ezcharge-mumbai",
+            "beckn:price": {
+              "currency": "INR",
+              "value": 8.0,
+              "applicableQuantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 1
+              }
+            }
+          }
+        }
+      ],
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "COMPOSITE",
+        "contractState": "NEGOTIATED",
+        "version": "1.0.0",
+        "roles": [
+          {
+            "roleId": "ev_owner",
+            "roleType": "PROSUMER",
+            "party": {
+              "partyId": "ev-owner-ankit-001",
+              "partyType": "BUYER",
+              "platformId": "ev-app.example.com"
+            },
+            "inputs": [
+              {
+                "inputId": "vehicle_battery_kwh",
+                "inputType": "PARAMETER",
+                "required": true,
+                "description": "Total battery capacity of the EV in kWh",
+                "value": 60,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "min_charge_level_pct",
+                "inputType": "PARAMETER",
+                "required": true,
+                "description": "Minimum battery percentage to retain — V2G will not discharge below this",
+                "value": 30,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "current_soc_pct",
+                "inputType": "PARAMETER",
+                "required": false,
+                "description": "Current state of charge of the vehicle battery",
+                "value": 45,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "target_soc_pct",
+                "inputType": "PARAMETER",
+                "required": false,
+                "description": "Desired state of charge when session ends",
+                "value": 80,
+                "providedAt": "NEGOTIATION"
+              }
+            ]
+          }
+        ],
+        "preferences": {
+          "startTime": "2026-02-08T09:15:00Z",
+          "endTime": "2026-02-08T11:15:00Z"
+        }
+      }
+    }
+  }
+}

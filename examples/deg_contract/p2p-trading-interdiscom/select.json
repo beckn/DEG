@@ -1,0 +1,185 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "select",
+    "timestamp": "2025-06-15T06:35:00Z",
+    "message_id": "msg-select-interdiscom-001",
+    "transaction_id": "txn-p2p-interdiscom-001",
+    "bap_id": "bap.energy-buyer.in",
+    "bap_uri": "https://bap.energy-buyer.in",
+    "bpp_id": "bpp.solarfarm-delhi.in",
+    "bpp_uri": "https://bpp.solarfarm-delhi.in",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-interdiscom-001",
+      "beckn:items": [
+        {
+          "beckn:id": "energy-resource-solar-delhi-001",
+          "quantity": {
+            "count": 20.0,
+            "unit": "kWh"
+          }
+        }
+      ],
+      "beckn:offers": [
+        {
+          "beckn:id": "offer-solar-morning-001"
+        },
+        {
+          "beckn:id": "offer-solar-afternoon-001"
+        }
+      ],
+      "beckn:provider": {
+        "beckn:id": "provider-solar-delhi-001"
+      },
+      "beckn:buyer": {
+        "@type": "beckn:Buyer",
+        "beckn:buyerAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_buyer_context.jsonld",
+          "@type": "EnergyBuyer",
+          "gridAccount": {
+            "meterId": "der://meter/98765456",
+            "utilityId": "BESCOM-KA",
+            "utilityCustomerId": "BESCOM-2024-CON-08832",
+            "sanctionedLoad": 5.0,
+            "connectionType": "LT-DOMESTIC"
+          }
+        },
+        "beckn:roleInputs": [
+          {
+            "inputId": "destination_meter",
+            "value": "der://meter/98765456"
+          },
+          {
+            "inputId": "requested_kwh",
+            "value": 20.0
+          }
+        ]
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "P2P_ENERGY_TRADE",
+        "version": "0.4.0",
+        "contractState": "NEGOTIATED",
+        "roles": [
+          {
+            "roleId": "seller",
+            "roleType": "PROSUMER",
+            "party": {
+              "partyId": "provider-solar-delhi-001",
+              "partyType": "PROVIDER",
+              "platformId": "bpp.solarfarm-delhi.in"
+            },
+            "inputs": [
+              {
+                "inputId": "source_meter",
+                "inputType": "METER_ID",
+                "value": "der://meter/100200300",
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "inputId": "energy_source",
+                "inputType": "PARAMETER",
+                "value": "SOLAR",
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "inputId": "available_kwh",
+                "inputType": "PARAMETER",
+                "value": 25.0,
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "inputId": "source_utility",
+                "inputType": "PARAMETER",
+                "value": "TPDDL-DL",
+                "providedAt": "TEMPLATE"
+              }
+            ],
+            "obligations": ["delivery_obligation"]
+          },
+          {
+            "roleId": "buyer",
+            "roleType": "CONSUMER",
+            "party": {
+              "partyId": "buyer-bangalore-001",
+              "partyType": "BUYER",
+              "platformId": "bap.energy-buyer.in"
+            },
+            "inputs": [
+              {
+                "inputId": "destination_meter",
+                "inputType": "METER_ID",
+                "required": true,
+                "value": "der://meter/98765456",
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "requested_kwh",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 20.0,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "buyer_utility_id",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": null,
+                "providedAt": "COMMITMENT"
+              },
+              {
+                "inputId": "buyer_utility_customer_id",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": null,
+                "providedAt": "COMMITMENT"
+              }
+            ],
+            "obligations": ["pricing", "payment_obligation"]
+          },
+          {
+            "roleId": "source_utility",
+            "roleType": "DISCOM",
+            "party": {
+              "partyId": "TPDDL-DL",
+              "partyType": "PROVIDER",
+              "platformId": "bpp.tpddl.gov.in"
+            },
+            "inputs": [
+              {
+                "inputId": "source_wheeling_charge",
+                "inputType": "PARAMETER",
+                "value": null,
+                "providedAt": "COMMITMENT",
+                "filledBy": "source_utility"
+              }
+            ],
+            "obligations": ["utility_registration"]
+          },
+          {
+            "roleId": "destination_utility",
+            "roleType": "DISCOM",
+            "party": null,
+            "inputs": [
+              {
+                "inputId": "destination_wheeling_charge",
+                "inputType": "PARAMETER",
+                "value": null,
+                "providedAt": "COMMITMENT",
+                "filledBy": "destination_utility"
+              }
+            ],
+            "obligations": ["utility_registration"]
+          }
+        ]
+      }
+    }
+  }
+}

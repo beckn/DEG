@@ -1,0 +1,147 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_confirm",
+    "domain": "beckn.one:deg:smart-ev-charging:2.0.0",
+    "timestamp": "2026-02-08T09:03:05Z",
+    "message_id": "msg-on-confirm-v2g-001",
+    "transaction_id": "txn-smart-ev-v2g-001",
+    "bap_id": "ev-app.example.com",
+    "bap_uri": "https://ev-app.example.com/bap",
+    "bpp_id": "bpp.tata-ezcharge.example.com",
+    "bpp_uri": "https://bpp.tata-ezcharge.example.com/bpp",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-smart-ev-v2g-001",
+      "beckn:orderStatus": "CONFIRMED",
+      "beckn:seller": "tata-ezcharge-mumbai",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "ev-owner-ankit-001",
+        "beckn:role": "BUYER",
+        "beckn:displayName": "Ankit Sharma",
+        "beckn:telephone": "+91-9821234567",
+        "beckn:email": "ankit.sharma@example.com",
+        "beckn:taxID": "GSTIN27ABCDS5678K1Z9"
+      },
+      "beckn:buyerAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_buyer_context.jsonld",
+        "@type": "EnergyBuyer",
+        "vehicle": {
+          "registration": "MH-02-AB-1234",
+          "makeModel": "Tata Nexon EV Max",
+          "batteryKwh": 60,
+          "connectorType": "CCS2"
+        }
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G",
+          "beckn:quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 20
+          },
+          "beckn:price": {
+            "currency": "INR",
+            "value": 8.0,
+            "applicableQuantity": {
+              "unitText": "Kilowatt Hour",
+              "unitCode": "KWH",
+              "unitQuantity": 1
+            }
+          }
+        }
+      ],
+      "beckn:orderValue": {
+        "currency": "INR",
+        "value": 163.20,
+        "components": [
+          {
+            "type": "UNIT",
+            "value": 160.0,
+            "currency": "INR",
+            "description": "Estimated charging cost (20 kWh x INR 8/kWh peak rate)"
+          },
+          {
+            "type": "FEE",
+            "value": 3.20,
+            "currency": "INR",
+            "description": "Platform fee (2%)"
+          }
+        ]
+      },
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-v2g-001",
+        "beckn:mode": "RESERVATION",
+        "beckn:deliveryAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_delivery_context.jsonld",
+          "@type": "EnergyDelivery",
+          "status": "PENDING",
+          "deliveryMode": "V2G",
+          "energyFlow": {
+            "direction": "TO_VEHICLE",
+            "delivered": { "value": 0, "unitCode": "KWH" }
+          },
+          "timing": {
+            "reservationWindow": {
+              "startTime": "2026-02-08T09:15:00Z",
+              "endTime": "2026-02-08T11:15:00Z"
+            }
+          },
+          "connector": {
+            "type": "CCS2",
+            "maxPowerKW": 60
+          },
+          "vehicle": {
+            "registration": "MH-02-AB-1234",
+            "makeModel": "Tata Nexon EV Max",
+            "batteryKwh": 60,
+            "minChargeLevelPct": 30
+          },
+          "v2g": {
+            "enabled": true,
+            "status": "STANDBY"
+          },
+          "lastUpdated": "2026-02-08T09:03:05Z"
+        }
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "COMPOSITE",
+        "contractState": "ACTIVE",
+        "version": "1.0.0",
+        "composedOf": [
+          "EV_CHARGING",
+          "DEMAND_FLEXIBILITY"
+        ],
+        "sessionId": "SESSION-V2G-20260208-001",
+        "reservationConfirmed": true,
+        "chargerReservedUntil": "2026-02-08T09:30:00Z",
+        "instructions": "Please plug in your Tata Nexon EV Max (MH-02-AB-1234) at Charger Bay A1, Tata Power EZ Charge Hub, BKC Mumbai by 09:30. V2G is enabled — your vehicle may discharge to grid during peak demand events. You will earn INR 12/kWh for any V2G discharge."
+      },
+      "beckn:payment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Payment",
+        "beckn:id": "payment-v2g-001",
+        "beckn:amount": {
+          "currency": "INR",
+          "value": 163.20
+        },
+        "beckn:paymentURL": "https://payments.tata-ezcharge.example.com/pay?txn=txn-smart-ev-v2g-001&amount=163.20&currency=INR",
+        "beckn:txnRef": "TXN-V2G-20260208-001",
+        "beckn:paidAt": "2026-02-08T09:03:00Z",
+        "beckn:beneficiary": "BPP",
+        "beckn:paymentStatus": "COMPLETED"
+      }
+    }
+  }
+}

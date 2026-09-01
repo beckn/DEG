@@ -1,0 +1,23 @@
+{
+  "contract": {
+    "contractType": "P2P_ENERGY_TRADE",
+    "fulfillmentSpec": {
+      "deliveryWindow": {
+        "startTime": "2020-01-01T00:00:00Z",
+        "endTime": "2030-12-31T23:59:59Z"
+      }
+    },
+    "energySpec": {
+      "quantity": { "unitQuantity": 20.0 }
+    },
+    "terms": {
+      "pricePerKwh": 4.50,
+      "wheelingCharge": 5.00,
+      "deviationPenaltyPerKwh": 2.00
+    }
+  },
+  "meters": {
+    "METER-001": { "sanctionedLoad": 50.0 },
+    "METER-002": { "sanctionedLoad": 10.0 }
+  }
+}

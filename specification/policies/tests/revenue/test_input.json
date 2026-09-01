@@ -1,0 +1,6 @@
+{
+  "deliveredKwh": 19.5,
+  "pricePerKwh": 4.50,
+  "wheelingRatePerKwh": 0.25,
+  "deviationPenaltyPerKwh": 2.00
+}

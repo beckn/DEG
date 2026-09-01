@@ -1,0 +1,368 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "select",
+    "domain": "beckn.one:deg:ev-charging:2.0.0",
+    "bap_id": "ev-bap.mobility-app.in",
+    "bap_uri": "https://ev-bap.mobility-app.in/beckn/v2",
+    "bpp_id": "chargezone-bpp.in",
+    "bpp_uri": "https://api.chargezone-bpp.in/beckn/v2",
+    "transaction_id": "txn-ev-001",
+    "message_id": "msg-select-001",
+    "timestamp": "2026-01-15T10:31:00Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:orderStatus": "CREATED",
+      "beckn:seller": "chargezone-blr",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "user-ravi-456",
+        "beckn:role": "BUYER",
+        "beckn:displayName": "Ravi Shankar",
+        "beckn:telephone": "+91-9845012345",
+        "beckn:email": "ravi.shankar@gmail.com"
+      },
+      "beckn:buyerAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_buyer_context.jsonld",
+        "@type": "EnergyBuyer",
+        "vehicle": {
+          "registration": null,
+          "makeModel": null,
+          "batteryKwh": null,
+          "connectorType": "CCS2"
+        }
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*chargezone*cs-blr-01*IN*CZ*KOR*01*CCS2*A",
+          "beckn:quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 30
+          },
+          "beckn:acceptedOffer": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+            "@type": "beckn:Offer",
+            "beckn:id": "offer-cz-ccs2-60kw-kwh",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "Per-kWh Tariff - CCS2 60kW DC Fast Charging"
+            },
+            "beckn:items": [
+              "IND*chargezone*cs-blr-01*IN*CZ*KOR*01*CCS2*A"
+            ],
+            "beckn:provider": "chargezone-blr",
+            "beckn:price": {
+              "currency": "INR",
+              "value": 18.0,
+              "applicableQuantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 1
+              }
+            }
+          }
+        }
+      ],
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "EV_CHARGING",
+        "version": "1.0.0",
+        "contractState": "NEGOTIATED",
+        "roles": [
+          {
+            "@type": "DEGRole",
+            "roleId": "cpo",
+            "roleType": "CPO",
+            "party": {
+              "partyId": "chargezone-blr",
+              "partyType": "PROVIDER",
+              "platformId": "chargezone-bpp.in"
+            },
+            "inputs": [
+              {
+                "@type": "RoleInput",
+                "inputId": "evse_id",
+                "inputType": "DER_ID",
+                "required": true,
+                "value": "IN*CZ*KOR*01*CCS2*A",
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "tariff_rate",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 18.0,
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "max_power_kw",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 60,
+                "providedAt": "TEMPLATE"
+              }
+            ],
+            "obligations": [
+              "delivery_obligation",
+              "quality_obligation"
+            ]
+          },
+          {
+            "@type": "DEGRole",
+            "roleId": "ev_driver",
+            "roleType": "CONSUMER",
+            "party": {
+              "partyId": "user-ravi-456",
+              "partyType": "BUYER",
+              "platformId": "ev-bap.mobility-app.in"
+            },
+            "inputs": [
+              {
+                "@type": "RoleInput",
+                "inputId": "requested_kwh",
+                "inputType": "PARAMETER",
+                "required": true,
+                "description": "Requested energy in kWh",
+                "value": 30,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "vehicle_connector",
+                "inputType": "PARAMETER",
+                "required": true,
+                "description": "Vehicle connector type compatibility",
+                "value": "CCS2",
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "preferred_start_time",
+                "inputType": "PARAMETER",
+                "required": false,
+                "value": "2026-01-15T11:00:00Z",
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "preferred_end_time",
+                "inputType": "PARAMETER",
+                "required": false,
+                "value": "2026-01-15T12:30:00Z",
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "billing_info",
+                "inputType": "CREDENTIAL",
+                "required": true,
+                "value": null,
+                "providedAt": "COMMITMENT"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "meter_reading_start",
+                "inputType": "METER_ID",
+                "required": true,
+                "value": null,
+                "providedAt": "FULFILLMENT"
+              }
+            ],
+            "obligations": [
+              "payment_obligation",
+              "cancellation_terms"
+            ]
+          }
+        ],
+        "terms": [
+          {
+            "@type": "DEGTerm",
+            "termId": "pricing_term",
+            "termType": "PAYMENT",
+            "description": "Energy is charged at the per-kWh tariff rate. Total cost equals tariff rate multiplied by actual energy consumed.",
+            "condition": {
+              "expr": "contractState == 'ACTIVE' AND deliveredEnergy > 0"
+            },
+            "obligation": {
+              "expr": "payment.amount == inputs.tariff_rate * fulfillment.deliveredEnergy"
+            },
+            "appliesTo": ["ev_driver"]
+          },
+          {
+            "@type": "DEGTerm",
+            "termId": "delivery_obligation",
+            "termType": "DELIVERY",
+            "description": "CPO must deliver requested energy within the agreed time window.",
+            "condition": {
+              "expr": "contractState == 'ACTIVE'"
+            },
+            "obligation": {
+              "expr": "fulfillment.deliveredEnergy >= inputs.requested_kwh"
+            },
+            "appliesTo": ["cpo"]
+          },
+          {
+            "@type": "DEGTerm",
+            "termId": "payment_obligation",
+            "termType": "PAYMENT",
+            "description": "EV driver must complete payment before session start.",
+            "condition": {
+              "expr": "contractState == 'COMMITTED'"
+            },
+            "obligation": {
+              "expr": "payment.status == 'COMPLETED'"
+            },
+            "appliesTo": ["ev_driver"]
+          },
+          {
+            "@type": "DEGTerm",
+            "termId": "cancellation_terms",
+            "termType": "CANCELLATION",
+            "description": "Free cancellation up to 15 minutes before reserved slot. Late cancellation incurs 25% fee.",
+            "condition": {
+              "expr": "cancellation.requested == true"
+            },
+            "obligation": {
+              "rule": {
+                "operator": "IF_THEN",
+                "operands": [
+                  { "expr": "cancellation.time < (fulfillment.startTime - PT15M)" },
+                  { "expr": "cancellation.fee == 0" }
+                ]
+              }
+            },
+            "consequence": {
+              "expr": "cancellation.fee == orderValue.value * 0.25"
+            },
+            "appliesTo": ["ev_driver"]
+          }
+        ],
+        "energySpec": {
+          "@type": "EnergySpecification",
+          "energyType": "ELECTRICAL",
+          "sourceType": "GRID",
+          "quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 30
+          }
+        },
+        "fulfillmentSpec": {
+          "@type": "FulfillmentSpecification",
+          "deliveryMode": "EV_CHARGING",
+          "deliveryWindow": {
+            "startTime": "2026-01-15T11:00:00Z",
+            "endTime": "2026-01-15T12:30:00Z"
+          },
+          "location": {
+            "geo": {
+              "type": "Point",
+              "coordinates": [77.6104, 12.9352]
+            }
+          },
+          "meterIds": ["IN*CZ*KOR*01*CCS2*A*METER"]
+        },
+        "settlementSpec": {
+          "@type": "SettlementSpecification",
+          "paymentType": "PRE_ORDER",
+          "currency": "INR",
+          "settlementCycle": "IMMEDIATE",
+          "acceptedPaymentMethods": ["UPI", "CREDIT_CARD", "WALLET"]
+        },
+        "revenueModel": {
+          "@type": "RevenueModel",
+          "definitions": [
+            {
+              "term": "tariff_rate",
+              "description": "Per-unit energy tariff rate charged by CPO",
+              "source": "role:cpo.input:tariff_rate",
+              "unit": "INR/kWh"
+            },
+            {
+              "term": "delivered_kwh",
+              "description": "Total energy metered and delivered to vehicle",
+              "source": "delivery:energyFlow.delivered.value",
+              "unit": "kWh"
+            },
+            {
+              "term": "base_charge",
+              "description": "Computed energy payment amount",
+              "source": "flow:charging_payment",
+              "unit": "INR"
+            },
+            {
+              "term": "platform_fee_pct",
+              "description": "Platform commission rate",
+              "source": "constant",
+              "value": 0.025,
+              "unit": "fraction"
+            },
+            {
+              "term": "platform_fee_amount",
+              "description": "Computed platform fee",
+              "source": "flow:platform_fee",
+              "unit": "INR"
+            },
+            {
+              "term": "gst_rate",
+              "description": "Goods and Services Tax rate",
+              "source": "constant",
+              "value": 0.18,
+              "unit": "fraction"
+            }
+          ],
+          "flows": [
+            {
+              "@type": "RevenueFlow",
+              "flowId": "charging_payment",
+              "from": "ev_driver",
+              "to": "cpo",
+              "flowType": "ENERGY_PAYMENT",
+              "formula": {
+                "expr": "tariff_rate * delivered_kwh"
+              },
+              "currency": "INR",
+              "triggeredBy": "pricing_term",
+              "schedule": "ON_DELIVERY"
+            },
+            {
+              "@type": "RevenueFlow",
+              "flowId": "platform_fee",
+              "from": "ev_driver",
+              "to": "platform",
+              "flowType": "PLATFORM_FEE",
+              "formula": {
+                "expr": "base_charge * platform_fee_pct"
+              },
+              "currency": "INR",
+              "triggeredBy": "payment_obligation",
+              "schedule": "ON_DELIVERY"
+            },
+            {
+              "@type": "RevenueFlow",
+              "flowId": "gst_tax",
+              "from": "ev_driver",
+              "to": "tax_authority",
+              "flowType": "TAX",
+              "formula": {
+                "expr": "(base_charge + platform_fee_amount) * gst_rate"
+              },
+              "currency": "INR",
+              "triggeredBy": "payment_obligation",
+              "schedule": "ON_DELIVERY"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "contract": {
+    "contractType": "DEMAND_FLEXIBILITY",
+    "inputs": {
+      "priceThreshold": 10.0,
+      "maxEventsPerMonth": 5,
+      "curtailmentCapacity": 100.0,
+      "incentiveRate": 3.50
+    }
+  },
+  "events_this_month": [
+    { "eventId": "evt-001" },
+    { "eventId": "evt-002" }
+  ]
+}

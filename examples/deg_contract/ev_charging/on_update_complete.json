@@ -1,0 +1,564 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_update",
+    "domain": "beckn.one:deg:ev-charging:2.0.0",
+    "bap_id": "ev-bap.mobility-app.in",
+    "bap_uri": "https://ev-bap.mobility-app.in/beckn/v2",
+    "bpp_id": "chargezone-bpp.in",
+    "bpp_uri": "https://api.chargezone-bpp.in/beckn/v2",
+    "transaction_id": "txn-ev-001",
+    "message_id": "msg-on_update-001",
+    "timestamp": "2026-01-15T11:48:00Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-ev-cz-001",
+      "beckn:orderStatus": "COMPLETED",
+      "beckn:seller": "chargezone-blr",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "user-ravi-456",
+        "beckn:role": "BUYER",
+        "beckn:displayName": "Ravi Shankar",
+        "beckn:telephone": "+91-9845012345",
+        "beckn:email": "ravi.shankar@gmail.com",
+        "beckn:taxID": "GSTIN29AABCS1234D1Z5"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*chargezone*cs-blr-01*IN*CZ*KOR*01*CCS2*A"
+        }
+      ],
+      "beckn:orderValue": {
+        "currency": "INR",
+        "value": 637.16,
+        "components": [
+          {
+            "type": "UNIT",
+            "value": 529.2,
+            "currency": "INR",
+            "description": "Actual charging cost (18 INR/kWh x 29.4 kWh delivered)"
+          },
+          {
+            "type": "FEE",
+            "value": 13.23,
+            "currency": "INR",
+            "description": "Platform fee (2.5% of base)"
+          },
+          {
+            "type": "SURCHARGE",
+            "value": 97.64,
+            "currency": "INR",
+            "description": "GST @ 18% on (base + platform fee)"
+          },
+          {
+            "type": "DISCOUNT",
+            "value": -15.0,
+            "currency": "INR",
+            "description": "New user promotional discount"
+          },
+          {
+            "type": "FEE",
+            "value": 12.09,
+            "currency": "INR",
+            "description": "Idle fee (2.5 INR per 10 min x ~48 min idle after session)"
+          }
+        ]
+      },
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-cz-001",
+        "beckn:mode": "RESERVATION",
+        "beckn:deliveryAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_delivery_context.jsonld",
+          "@type": "EnergyDelivery",
+          "status": "COMPLETED",
+          "deliveryMode": "EV_CHARGING",
+          "energyFlow": {
+            "direction": "TO_VEHICLE",
+            "delivered": {
+              "value": 29.4,
+              "unitCode": "KWH"
+            }
+          },
+          "timing": {
+            "startTime": "2026-01-15T11:00:00Z",
+            "endTime": "2026-01-15T11:48:00Z",
+            "elapsed": "PT48M"
+          },
+          "connector": {
+            "type": "CCS2",
+            "maxPowerKW": 60
+          },
+          "telemetry": [
+            {
+              "eventTime": "2026-01-15T11:00:00Z",
+              "metrics": [
+                {
+                  "name": "STATE_OF_CHARGE",
+                  "value": 35.0,
+                  "unitCode": "PERCENTAGE"
+                },
+                {
+                  "name": "POWER",
+                  "value": 0.0,
+                  "unitCode": "KW"
+                },
+                {
+                  "name": "ENERGY",
+                  "value": 0.0,
+                  "unitCode": "KWH"
+                }
+              ]
+            },
+            {
+              "eventTime": "2026-01-15T11:15:00Z",
+              "metrics": [
+                {
+                  "name": "STATE_OF_CHARGE",
+                  "value": 48.5,
+                  "unitCode": "PERCENTAGE"
+                },
+                {
+                  "name": "POWER",
+                  "value": 55.1,
+                  "unitCode": "KW"
+                },
+                {
+                  "name": "ENERGY",
+                  "value": 9.4,
+                  "unitCode": "KWH"
+                }
+              ]
+            },
+            {
+              "eventTime": "2026-01-15T11:30:00Z",
+              "metrics": [
+                {
+                  "name": "STATE_OF_CHARGE",
+                  "value": 65.2,
+                  "unitCode": "PERCENTAGE"
+                },
+                {
+                  "name": "POWER",
+                  "value": 48.7,
+                  "unitCode": "KW"
+                },
+                {
+                  "name": "ENERGY",
+                  "value": 20.1,
+                  "unitCode": "KWH"
+                }
+              ]
+            },
+            {
+              "eventTime": "2026-01-15T11:45:00Z",
+              "metrics": [
+                {
+                  "name": "STATE_OF_CHARGE",
+                  "value": 78.8,
+                  "unitCode": "PERCENTAGE"
+                },
+                {
+                  "name": "POWER",
+                  "value": 32.4,
+                  "unitCode": "KW"
+                },
+                {
+                  "name": "ENERGY",
+                  "value": 29.4,
+                  "unitCode": "KWH"
+                }
+              ]
+            },
+            {
+              "eventTime": "2026-01-15T11:48:00Z",
+              "metrics": [
+                {
+                  "name": "STATE_OF_CHARGE",
+                  "value": 80.0,
+                  "unitCode": "PERCENTAGE"
+                },
+                {
+                  "name": "POWER",
+                  "value": 0.0,
+                  "unitCode": "KW"
+                },
+                {
+                  "name": "ENERGY",
+                  "value": 29.4,
+                  "unitCode": "KWH"
+                }
+              ]
+            }
+          ],
+          "lastUpdated": "2026-01-15T11:48:00Z"
+        }
+      },
+      "beckn:payment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Payment",
+        "beckn:id": "payment-cz-ev-001",
+        "beckn:amount": {
+          "currency": "INR",
+          "value": 649.35
+        },
+        "beckn:paymentURL": "https://payments.chargezone.in/pay?txn_id=txn-ev-001&amount=649.35&currency=INR",
+        "beckn:txnRef": "TXN-CZ-2026011501",
+        "beckn:paidAt": "2026-01-15T10:32:45Z",
+        "beckn:beneficiary": "BPP",
+        "beckn:paymentStatus": "COMPLETED",
+        "beckn:paymentAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/PaymentSettlement/v1/context.jsonld",
+          "@type": "PaymentSettlement",
+          "settlementAccounts": [
+            {
+              "beneficiaryId": "ev-bap.mobility-app.in",
+              "accountHolderName": "MobilityApp Solutions Pvt Ltd",
+              "accountNumber": "5012345678901",
+              "ifscCode": "ICIC0001234",
+              "bankName": "ICICI Bank",
+              "vpa": "mobilityapp@icici"
+            },
+            {
+              "beneficiaryId": "chargezone-bpp.in",
+              "accountHolderName": "ChargeZone Energy Pvt Ltd",
+              "accountNumber": "1098765432101",
+              "ifscCode": "HDFC0005678",
+              "bankName": "HDFC Bank",
+              "vpa": "chargezone@hdfc"
+            }
+          ],
+          "reconciliation": {
+            "prepaidAmount": 649.35,
+            "actualAmount": 637.16,
+            "refundDue": 12.19,
+            "refundStatus": "INITIATED",
+            "refundTxnRef": "RFND-CZ-2026011501"
+          }
+        }
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "EV_CHARGING",
+        "version": "1.0.0",
+        "contractState": "SETTLED",
+        "roles": [
+          {
+            "@type": "DEGRole",
+            "roleId": "cpo",
+            "roleType": "CPO",
+            "party": {
+              "partyId": "chargezone-blr",
+              "partyType": "PROVIDER",
+              "platformId": "chargezone-bpp.in"
+            },
+            "inputs": [
+              {
+                "@type": "RoleInput",
+                "inputId": "evse_id",
+                "inputType": "DER_ID",
+                "required": true,
+                "value": "IN*CZ*KOR*01*CCS2*A",
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "tariff_rate",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 18.0,
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "max_power_kw",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 60,
+                "providedAt": "TEMPLATE"
+              }
+            ],
+            "obligations": ["delivery_obligation", "quality_obligation"]
+          },
+          {
+            "@type": "DEGRole",
+            "roleId": "ev_driver",
+            "roleType": "CONSUMER",
+            "party": {
+              "partyId": "user-ravi-456",
+              "partyType": "BUYER",
+              "platformId": "ev-bap.mobility-app.in"
+            },
+            "inputs": [
+              {
+                "@type": "RoleInput",
+                "inputId": "requested_kwh",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 30,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "vehicle_connector",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": "CCS2",
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "billing_info",
+                "inputType": "CREDENTIAL",
+                "required": true,
+                "value": {
+                  "displayName": "Ravi Shankar",
+                  "taxID": "GSTIN29AABCS1234D1Z5"
+                },
+                "providedAt": "COMMITMENT"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "meter_reading_start",
+                "inputType": "METER_ID",
+                "required": true,
+                "value": 15230.4,
+                "providedAt": "FULFILLMENT"
+              },
+              {
+                "@type": "RoleInput",
+                "inputId": "meter_reading_end",
+                "inputType": "METER_ID",
+                "required": true,
+                "value": 15259.8,
+                "providedAt": "FULFILLMENT"
+              }
+            ],
+            "obligations": ["payment_obligation"]
+          }
+        ],
+        "terms": [
+          {
+            "@type": "DEGTerm",
+            "termId": "pricing_term",
+            "termType": "PAYMENT",
+            "description": "Energy charged at 18 INR/kWh. Actual consumed: 29.4 kWh. Final base cost: 529.20 INR.",
+            "condition": { "expr": "contractState == 'ACTIVE' AND deliveredEnergy > 0" },
+            "obligation": { "expr": "payment.amount == 18.0 * 29.4" },
+            "appliesTo": ["ev_driver"]
+          },
+          {
+            "@type": "DEGTerm",
+            "termId": "delivery_obligation",
+            "termType": "DELIVERY",
+            "description": "CPO delivered 29.4 kWh of requested 30 kWh (98%). Vehicle reached target SoC of 80% - session ended by driver.",
+            "condition": { "expr": "contractState == 'ACTIVE'" },
+            "obligation": { "expr": "fulfillment.deliveredEnergy >= 30 OR session.endedByDriver == true" },
+            "appliesTo": ["cpo"]
+          },
+          {
+            "@type": "DEGTerm",
+            "termId": "payment_obligation",
+            "termType": "PAYMENT",
+            "description": "Payment completed. Prepaid 649.35 INR. Actual cost 637.16 INR. Refund of 12.19 INR initiated.",
+            "condition": { "expr": "contractState == 'SETTLED'" },
+            "obligation": { "expr": "payment.status == 'COMPLETED' AND refund.status == 'INITIATED'" },
+            "appliesTo": ["ev_driver"]
+          }
+        ],
+        "energySpec": {
+          "@type": "EnergySpecification",
+          "energyType": "ELECTRICAL",
+          "sourceType": "GRID",
+          "quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 29.4
+          }
+        },
+        "fulfillmentSpec": {
+          "@type": "FulfillmentSpecification",
+          "deliveryMode": "EV_CHARGING",
+          "deliveryWindow": {
+            "startTime": "2026-01-15T11:00:00Z",
+            "endTime": "2026-01-15T11:48:00Z"
+          },
+          "location": {
+            "geo": { "type": "Point", "coordinates": [77.6104, 12.9352] }
+          },
+          "meterIds": ["IN*CZ*KOR*01*CCS2*A*METER"]
+        },
+        "settlementSpec": {
+          "@type": "SettlementSpecification",
+          "paymentType": "PRE_ORDER",
+          "currency": "INR",
+          "settlementCycle": "IMMEDIATE",
+          "acceptedPaymentMethods": ["UPI", "CREDIT_CARD", "WALLET"]
+        },
+        "revenueModel": {
+          "@type": "RevenueModel",
+          "definitions": [
+            {
+              "term": "tariff_rate",
+              "description": "Per-unit energy tariff rate charged by CPO",
+              "source": "role:cpo.input:tariff_rate",
+              "unit": "INR/kWh",
+              "resolvedValue": 18.0
+            },
+            {
+              "term": "delivered_kwh",
+              "description": "Total energy metered and delivered to vehicle",
+              "source": "delivery:energyFlow.delivered.value",
+              "unit": "kWh",
+              "resolvedValue": 29.4
+            },
+            {
+              "term": "base_charge",
+              "description": "Computed energy payment amount",
+              "source": "flow:charging_payment",
+              "unit": "INR",
+              "resolvedValue": 529.2
+            },
+            {
+              "term": "platform_fee_pct",
+              "description": "Platform commission rate",
+              "source": "constant",
+              "value": 0.025,
+              "unit": "fraction",
+              "resolvedValue": 0.025
+            },
+            {
+              "term": "platform_fee_amount",
+              "description": "Computed platform fee",
+              "source": "flow:platform_fee",
+              "unit": "INR",
+              "resolvedValue": 13.23
+            },
+            {
+              "term": "gst_rate",
+              "description": "Goods and Services Tax rate",
+              "source": "constant",
+              "value": 0.18,
+              "unit": "fraction",
+              "resolvedValue": 0.18
+            },
+            {
+              "term": "idle_fee_rate",
+              "description": "Idle fee per 10-minute block",
+              "source": "constant",
+              "value": 2.5,
+              "unit": "INR/block",
+              "resolvedValue": 2.5
+            },
+            {
+              "term": "idle_block_size",
+              "description": "Idle fee block size",
+              "source": "constant",
+              "value": 10,
+              "unit": "minutes",
+              "resolvedValue": 10
+            },
+            {
+              "term": "idle_minutes",
+              "description": "Minutes vehicle remained idle after charging",
+              "source": "delivery:timing.idleMinutes",
+              "unit": "minutes",
+              "resolvedValue": 48.36
+            },
+            {
+              "term": "prepaid_amount",
+              "description": "Pre-order payment amount collected",
+              "source": "payment:prepaidAmount",
+              "unit": "INR",
+              "resolvedValue": 649.35
+            },
+            {
+              "term": "actual_total",
+              "description": "Sum of all charges (base + platform + GST + idle)",
+              "source": "flow:total_charges",
+              "unit": "INR",
+              "resolvedValue": 637.16
+            }
+          ],
+          "flows": [
+            {
+              "@type": "RevenueFlow",
+              "flowId": "charging_payment",
+              "from": "ev_driver",
+              "to": "cpo",
+              "flowType": "ENERGY_PAYMENT",
+              "formula": { "expr": "tariff_rate * delivered_kwh" },
+              "currency": "INR",
+              "computedAmount": 529.2,
+              "triggeredBy": "pricing_term",
+              "schedule": "ON_DELIVERY"
+            },
+            {
+              "@type": "RevenueFlow",
+              "flowId": "platform_fee",
+              "from": "ev_driver",
+              "to": "platform",
+              "flowType": "PLATFORM_FEE",
+              "formula": { "expr": "base_charge * platform_fee_pct" },
+              "currency": "INR",
+              "computedAmount": 13.23,
+              "triggeredBy": "payment_obligation",
+              "schedule": "ON_DELIVERY"
+            },
+            {
+              "@type": "RevenueFlow",
+              "flowId": "gst_tax",
+              "from": "ev_driver",
+              "to": "tax_authority",
+              "flowType": "TAX",
+              "formula": { "expr": "(base_charge + platform_fee_amount) * gst_rate" },
+              "currency": "INR",
+              "computedAmount": 97.64,
+              "triggeredBy": "payment_obligation",
+              "schedule": "ON_DELIVERY"
+            },
+            {
+              "@type": "RevenueFlow",
+              "flowId": "idle_fee",
+              "from": "ev_driver",
+              "to": "cpo",
+              "flowType": "GRID_SERVICE_FEE",
+              "formula": { "expr": "(idle_minutes / idle_block_size) * idle_fee_rate" },
+              "currency": "INR",
+              "computedAmount": 12.09,
+              "triggeredBy": "delivery_obligation",
+              "schedule": "ON_SETTLEMENT"
+            },
+            {
+              "@type": "RevenueFlow",
+              "flowId": "refund_overcharge",
+              "from": "cpo",
+              "to": "ev_driver",
+              "flowType": "CREDIT",
+              "formula": { "expr": "prepaid_amount - actual_total" },
+              "currency": "INR",
+              "computedAmount": 12.19,
+              "triggeredBy": "payment_obligation",
+              "schedule": "ON_SETTLEMENT"
+            }
+          ],
+          "netPositions": {
+            "ev_driver": { "net": -639.97, "direction": "PAYS" },
+            "cpo": { "net": 529.10, "direction": "RECEIVES" },
+            "platform": { "net": 13.23, "direction": "RECEIVES" },
+            "tax_authority": { "net": 97.64, "direction": "RECEIVES" }
+          },
+          "netZeroCheck": { "sum": 0.00, "valid": true }
+        }
+      }
+    }
+  }
+}

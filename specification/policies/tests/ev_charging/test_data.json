@@ -1,0 +1,20 @@
+{
+  "contract": {
+    "contractType": "EV_CHARGING",
+    "inputs": {
+      "connectorType": "CCS2",
+      "maxPowerKW": 60,
+      "minPowerKW": 7,
+      "reservationSupported": true
+    },
+    "terms": {
+      "peakRate": 12.0,
+      "normalRate": 8.0,
+      "offPeakRate": 5.0
+    }
+  },
+  "charger_state": {
+    "occupied": false,
+    "v2gSupported": true
+  }
+}

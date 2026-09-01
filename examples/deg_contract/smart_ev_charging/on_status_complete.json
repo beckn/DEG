@@ -1,0 +1,630 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_status",
+    "domain": "beckn.one:deg:smart-ev-charging:2.0.0",
+    "timestamp": "2026-02-08T11:02:00Z",
+    "message_id": "msg-on-status-complete-v2g-001",
+    "transaction_id": "txn-smart-ev-v2g-001",
+    "bap_id": "ev-app.example.com",
+    "bap_uri": "https://ev-app.example.com/bap",
+    "bpp_id": "bpp.tata-ezcharge.example.com",
+    "bpp_uri": "https://bpp.tata-ezcharge.example.com/bpp",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-smart-ev-v2g-001",
+      "beckn:orderStatus": "COMPLETED",
+      "beckn:seller": "tata-ezcharge-mumbai",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "ev-owner-ankit-001",
+        "beckn:role": "BUYER",
+        "beckn:displayName": "Ankit Sharma",
+        "beckn:telephone": "+91-9821234567",
+        "beckn:email": "ankit.sharma@example.com",
+        "beckn:taxID": "GSTIN27ABCDS5678K1Z9"
+      },
+      "beckn:buyerAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_buyer_context.jsonld",
+        "@type": "EnergyBuyer",
+        "vehicle": {
+          "registration": "MH-02-AB-1234",
+          "makeModel": "Tata Nexon EV Max",
+          "batteryKwh": 60,
+          "connectorType": "CCS2"
+        }
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G",
+          "beckn:quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 28.0
+          },
+          "beckn:price": {
+            "currency": "INR",
+            "value": 8.0,
+            "applicableQuantity": {
+              "unitText": "Kilowatt Hour",
+              "unitCode": "KWH",
+              "unitQuantity": 1
+            }
+          }
+        }
+      ],
+      "beckn:orderValue": {
+        "currency": "INR",
+        "value": 170.0,
+        "components": [
+          {
+            "type": "UNIT",
+            "value": 224.0,
+            "currency": "INR",
+            "description": "Charging cost (28.0 kWh x INR 8/kWh peak rate)"
+          },
+          {
+            "type": "CREDIT",
+            "value": -54.0,
+            "currency": "INR",
+            "description": "V2G earnings credit (4.5 kWh discharged x INR 12/kWh)"
+          }
+        ]
+      },
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-v2g-001",
+        "beckn:mode": "RESERVATION",
+        "beckn:deliveryAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_delivery_context.jsonld",
+          "@type": "EnergyDelivery",
+          "status": "COMPLETED",
+          "deliveryMode": "V2G",
+          "energyFlow": {
+            "delivered": { "value": 28.0, "unitCode": "KWH" },
+            "discharged": { "value": 4.5, "unitCode": "KWH" },
+            "net": { "value": 23.5, "unitCode": "KWH" }
+          },
+          "timing": {
+            "startTime": "2026-02-08T09:20:00Z",
+            "endTime": "2026-02-08T11:00:00Z",
+            "duration": "PT1H40M"
+          },
+          "connector": {
+            "type": "CCS2",
+            "maxPowerKW": 60
+          },
+          "v2g": {
+            "enabled": true,
+            "status": "COMPLETED",
+            "events": [
+              {
+                "eventId": "V2G-EVENT-20260208-001",
+                "eventType": "GRID_STRESS_V2G_DISPATCH",
+                "startTime": "2026-02-08T10:02:00Z",
+                "endTime": "2026-02-08T10:15:00Z",
+                "duration": "PT13M",
+                "triggerSignal": {
+                  "signalType": "GRID_FREQUENCY",
+                  "observedValue": 49.35,
+                  "thresholdValue": 49.5,
+                  "unit": "Hz"
+                },
+                "energyDischargedKwh": 4.5,
+                "dischargePowerKw": 30.0,
+                "v2gEarnings": {
+                  "currency": "INR",
+                  "value": 54.0
+                },
+                "policyEvaluation": {
+                  "policyRef": {
+                    "type": "REGO",
+                    "package": "deg.contracts.v2g",
+                    "uri": "https://policies.deg-network.io/v2g/v1.rego"
+                  },
+                  "results": {
+                    "v2g_eligible": true,
+                    "should_discharge": true,
+                    "max_discharge_kwh": 22.8,
+                    "net_payment": -130.0,
+                    "net_payment_note": "Negative = EV owner still pays net (charged > discharged)"
+                  }
+                }
+              }
+            ]
+          },
+          "grid": {
+            "status": "NORMAL"
+          },
+          "vehicle": {
+            "registration": "MH-02-AB-1234",
+            "makeModel": "Tata Nexon EV Max",
+            "batteryKwh": 60,
+            "minChargeLevelPct": 30
+          },
+          "telemetry": [
+            {
+              "eventTime": "2026-02-08T09:20:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 25.0, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": 55.0, "unitCode": "KW" },
+                { "name": "ENERGY_DELIVERED", "value": 0.0, "unitCode": "KWH" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "TO_VEHICLE", "unitCode": "DIRECTION" }
+              ]
+            },
+            {
+              "eventTime": "2026-02-08T09:45:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 40.5, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": 54.2, "unitCode": "KW" },
+                { "name": "ENERGY_DELIVERED", "value": 7.4, "unitCode": "KWH" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "TO_VEHICLE", "unitCode": "DIRECTION" }
+              ]
+            },
+            {
+              "eventTime": "2026-02-08T10:02:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 48.0, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": 0.0, "unitCode": "KW", "note": "V2G event triggered — grid stress detected" },
+                { "name": "ENERGY_DELIVERED", "value": 13.8, "unitCode": "KWH" },
+                { "name": "GRID_FREQUENCY", "value": 49.35, "unitCode": "HZ" }
+              ]
+            },
+            {
+              "eventTime": "2026-02-08T10:05:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 47.0, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": -30.0, "unitCode": "KW", "note": "Negative = discharging to grid" },
+                { "name": "ENERGY_DISCHARGED", "value": 1.5, "unitCode": "KWH" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "FROM_VEHICLE", "unitCode": "DIRECTION" },
+                { "name": "GRID_FREQUENCY", "value": 49.42, "unitCode": "HZ" }
+              ]
+            },
+            {
+              "eventTime": "2026-02-08T10:15:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 43.5, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": -30.0, "unitCode": "KW" },
+                { "name": "ENERGY_DISCHARGED", "value": 4.5, "unitCode": "KWH" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "FROM_VEHICLE", "unitCode": "DIRECTION" },
+                { "name": "GRID_FREQUENCY", "value": 49.48, "unitCode": "HZ", "note": "Grid recovering" }
+              ]
+            },
+            {
+              "eventTime": "2026-02-08T10:16:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 43.5, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": 54.0, "unitCode": "KW", "note": "V2G event ended, normal charging resumed" },
+                { "name": "ENERGY_DELIVERED", "value": 13.8, "unitCode": "KWH" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "TO_VEHICLE", "unitCode": "DIRECTION" },
+                { "name": "GRID_FREQUENCY", "value": 49.52, "unitCode": "HZ" }
+              ]
+            },
+            {
+              "eventTime": "2026-02-08T10:45:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 63.2, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": 45.8, "unitCode": "KW" },
+                { "name": "ENERGY_DELIVERED", "value": 24.6, "unitCode": "KWH" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "TO_VEHICLE", "unitCode": "DIRECTION" }
+              ]
+            },
+            {
+              "eventTime": "2026-02-08T11:00:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 80.0, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": 0.0, "unitCode": "KW", "note": "Target SOC reached, session complete" },
+                { "name": "ENERGY_DELIVERED", "value": 28.0, "unitCode": "KWH" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "COMPLETED", "unitCode": "DIRECTION" }
+              ]
+            }
+          ],
+          "summary": {
+            "totalDeliveredKwh": 28.0,
+            "totalDischargedKwh": 4.5,
+            "netKwh": 23.5,
+            "duration": "PT1H40M",
+            "startSOC": 25.0,
+            "endSOC": 80.0,
+            "v2gEventsCount": 1,
+            "v2gTotalDuration": "PT13M",
+            "pricingPeriodBreakdown": {
+              "peak": {
+                "chargedKwh": 28.0,
+                "ratePerKwh": 8.0,
+                "subtotal": 224.0
+              }
+            },
+            "totalChargingCost": {
+              "currency": "INR",
+              "value": 224.0
+            },
+            "totalV2gEarnings": {
+              "currency": "INR",
+              "value": 54.0,
+              "description": "4.5 kWh x INR 12/kWh V2G rate"
+            },
+            "netPayment": {
+              "currency": "INR",
+              "value": 170.0,
+              "description": "INR 224.00 charging - INR 54.00 V2G earnings = INR 170.00"
+            }
+          },
+          "lastUpdated": "2026-02-08T11:02:00Z"
+        }
+      },
+      "beckn:payment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Payment",
+        "beckn:id": "payment-v2g-001",
+        "beckn:amount": {
+          "currency": "INR",
+          "value": 170.0
+        },
+        "beckn:paymentURL": "https://payments.tata-ezcharge.example.com/pay?txn=txn-smart-ev-v2g-001&amount=170.00&currency=INR",
+        "beckn:txnRef": "TXN-V2G-20260208-001",
+        "beckn:paidAt": "2026-02-08T11:02:00Z",
+        "beckn:beneficiary": "BPP",
+        "beckn:paymentStatus": "COMPLETED",
+        "beckn:paymentAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/payment_settlement_context.jsonld",
+          "@type": "PaymentSettlement",
+          "settlementAccounts": [
+            {
+              "beneficiaryId": "ev-app.example.com",
+              "accountHolderName": "EV App Solutions Pvt Ltd",
+              "accountNumber": "5012345678901",
+              "ifscCode": "ICIC0001234",
+              "bankName": "ICICI Bank",
+              "vpa": "evapp@icici"
+            },
+            {
+              "beneficiaryId": "bpp.tata-ezcharge.example.com",
+              "accountHolderName": "Tata Power EZ Charge Pvt Ltd",
+              "accountNumber": "1098765432101",
+              "ifscCode": "HDFC0005678",
+              "bankName": "HDFC Bank",
+              "vpa": "tataezcharge@hdfc"
+            }
+          ],
+          "reconciliation": {
+            "prepaidAmount": 163.20,
+            "actualAmount": 170.0,
+            "additionalDue": 6.80,
+            "additionalDueStatus": "COLLECTED",
+            "additionalDueTxnRef": "ADD-TXN-V2G-20260208-001",
+            "note": "Actual usage (28 kWh) exceeded estimate (20 kWh), but V2G credit (INR 54) reduced net. Additional INR 6.80 collected."
+          }
+        }
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "COMPOSITE",
+        "contractState": "SETTLED",
+        "version": "1.0.0",
+        "composedOf": [
+          "EV_CHARGING",
+          "DEMAND_FLEXIBILITY"
+        ],
+        "roles": [
+          {
+            "roleId": "ev_owner",
+            "roleType": "PROSUMER",
+            "party": {
+              "partyId": "ev-owner-ankit-001",
+              "partyType": "BUYER",
+              "platformId": "ev-app.example.com"
+            },
+            "inputs": [
+              {
+                "inputId": "vehicle_battery_kwh",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 60,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "min_charge_level_pct",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 30,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "v2g_consent",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": true,
+                "providedAt": "COMMITMENT"
+              },
+              {
+                "inputId": "vehicle_registration",
+                "inputType": "CREDENTIAL",
+                "required": true,
+                "value": "MH-02-AB-1234",
+                "providedAt": "COMMITMENT"
+              }
+            ],
+            "obligations": ["charging_payment", "cancellation"]
+          },
+          {
+            "roleId": "cpo_aggregator",
+            "roleType": "AGGREGATOR",
+            "party": {
+              "partyId": "tata-ezcharge-mumbai",
+              "partyType": "PROVIDER",
+              "platformId": "bpp.tata-ezcharge.example.com"
+            },
+            "inputs": [
+              {
+                "inputId": "charger_id",
+                "inputType": "ITEM_REF",
+                "required": true,
+                "value": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G",
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "inputId": "connector_type",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": "CCS2",
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "inputId": "max_power_kw",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": 60,
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "inputId": "v2g_supported",
+                "inputType": "PARAMETER",
+                "required": true,
+                "value": true,
+                "providedAt": "TEMPLATE"
+              }
+            ],
+            "obligations": ["charging_delivery", "v2g_payment_to_owner"]
+          },
+          {
+            "roleId": "grid_operator",
+            "roleType": "GRID_OPERATOR",
+            "party": {
+              "partyId": "msedcl-mumbai",
+              "partyType": "PROVIDER",
+              "platformId": "bpp.msedcl-grid.example.com"
+            },
+            "inputs": [
+              {
+                "inputId": "grid_frequency_feed",
+                "inputType": "SIGNAL",
+                "required": true,
+                "value": {
+                  "source": "mqtt://grid-signals.msedcl.example.com:8883/frequency/mumbai",
+                  "protocol": "MQTT",
+                  "sampleRate": "PT5S"
+                },
+                "providedAt": "TEMPLATE"
+              },
+              {
+                "inputId": "curtailment_signal",
+                "inputType": "SIGNAL",
+                "required": true,
+                "value": {
+                  "source": "https://api.msedcl-grid.example.com/v2/curtailment-signals",
+                  "protocol": "HTTP_WEBHOOK",
+                  "sampleRate": "PT1M"
+                },
+                "providedAt": "TEMPLATE"
+              }
+            ],
+            "obligations": ["grid_v2g_payment"]
+          }
+        ],
+        "terms": [
+          {
+            "termId": "charging_delivery",
+            "termType": "DELIVERY",
+            "description": "CPO delivered 28.0 kWh of charging energy over 1h40m session. Target SOC of 80% reached.",
+            "condition": { "expr": "sessionStatus == 'COMPLETED'" },
+            "obligation": { "expr": "deliveredKwh >= requestedKwh OR targetSOC reached" },
+            "appliesTo": ["cpo_aggregator"]
+          },
+          {
+            "termId": "v2g_discharge",
+            "termType": "SIGNAL_RESPONSE",
+            "description": "V2G event dispatched at 10:02. Grid frequency dropped to 49.35 Hz. Vehicle discharged 4.5 kWh over 13 minutes at 30 kW. Grid recovered to 49.52 Hz.",
+            "condition": {
+              "policyRef": {
+                "type": "REGO",
+                "package": "deg.contracts.v2g",
+                "entrypoint": "should_discharge"
+              }
+            },
+            "obligation": { "expr": "dischargeToGrid(4.5 kWh) — completed successfully" },
+            "appliesTo": ["cpo_aggregator", "ev_owner"]
+          },
+          {
+            "termId": "charging_payment",
+            "termType": "PAYMENT",
+            "description": "EV owner charged 28.0 kWh at peak rate INR 8/kWh = INR 224.00",
+            "condition": { "expr": "chargedKwh > 0" },
+            "obligation": { "expr": "payment.chargingAmount == 224.00" },
+            "appliesTo": ["ev_owner"]
+          },
+          {
+            "termId": "v2g_payment_to_owner",
+            "termType": "PAYMENT",
+            "description": "EV owner earned INR 54.00 for 4.5 kWh V2G discharge at INR 12/kWh",
+            "condition": { "expr": "dischargedKwh > 0" },
+            "obligation": { "expr": "v2gCredit == 4.5 * 12.0 == 54.00" },
+            "appliesTo": ["cpo_aggregator"]
+          },
+          {
+            "termId": "grid_v2g_payment",
+            "termType": "PAYMENT",
+            "description": "Grid operator pays CPO INR 81.00 for V2G grid services (4.5 kWh x INR 18/kWh)",
+            "condition": { "expr": "dischargedKwh > 0" },
+            "obligation": { "expr": "gridPayment == 4.5 * 18.0 == 81.00" },
+            "appliesTo": ["grid_operator"]
+          }
+        ],
+        "energySpec": {
+          "energyType": "ELECTRICAL",
+          "sourceType": "GRID",
+          "quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 28.0,
+            "note": "Total energy charged to vehicle"
+          },
+          "v2gDischarge": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 4.5,
+            "note": "Total energy discharged from vehicle to grid"
+          },
+          "netEnergy": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 23.5,
+            "note": "Net energy to vehicle (charged - discharged)"
+          }
+        },
+        "fulfillmentSpec": {
+          "deliveryMode": "V2G",
+          "deliveryWindow": {
+            "startTime": "2026-02-08T09:20:00Z",
+            "endTime": "2026-02-08T11:00:00Z"
+          },
+          "location": {
+            "geo": { "type": "Point", "coordinates": [72.8614, 19.0596] }
+          },
+          "meterIds": ["METER-TATA-BKC-V2G-001"]
+        },
+        "settlementSpec": {
+          "paymentType": "POST_DELIVERY",
+          "currency": "INR",
+          "settlementCycle": "IMMEDIATE",
+          "acceptedPaymentMethods": ["UPI", "CREDIT_CARD", "WALLET"]
+        },
+        "revenueModel": {
+          "definitions": [
+            {
+              "term": "charging_rate",
+              "description": "Per-kWh charging rate (time-of-day dependent)",
+              "source": "role:cpo_aggregator.input:charging_rate",
+              "unit": "INR/kWh",
+              "resolvedValue": 8.0
+            },
+            {
+              "term": "v2g_rate",
+              "description": "Per-kWh rate paid to EV owner for V2G discharge",
+              "source": "constant",
+              "value": 12.0,
+              "unit": "INR/kWh",
+              "resolvedValue": 12.0
+            },
+            {
+              "term": "grid_v2g_rate",
+              "description": "Per-kWh rate paid by grid operator for V2G grid services",
+              "source": "constant",
+              "value": 18.0,
+              "unit": "INR/kWh",
+              "resolvedValue": 18.0
+            },
+            {
+              "term": "charged_kwh",
+              "description": "Total energy delivered to vehicle (charging)",
+              "source": "delivery:energyFlow.delivered.value",
+              "unit": "kWh",
+              "resolvedValue": 28.0
+            },
+            {
+              "term": "discharged_kwh",
+              "description": "Total energy discharged from vehicle to grid (V2G)",
+              "source": "delivery:energyFlow.discharged.value",
+              "unit": "kWh",
+              "resolvedValue": 4.5
+            },
+            {
+              "term": "charging_payment_amount",
+              "description": "Computed charging payment amount",
+              "source": "flow:charging_payment",
+              "unit": "INR",
+              "resolvedValue": 224.0
+            },
+            {
+              "term": "platform_fee_pct",
+              "description": "Platform commission rate on charging",
+              "source": "constant",
+              "value": 0.02,
+              "unit": "fraction",
+              "resolvedValue": 0.02
+            }
+          ],
+          "flows": [
+            {
+              "flowId": "charging_payment",
+              "from": "ev_owner",
+              "to": "cpo_aggregator",
+              "flowType": "ENERGY_PAYMENT",
+              "formula": { "expr": "charged_kwh * charging_rate" },
+              "currency": "INR",
+              "computedAmount": 224.0,
+              "triggeredBy": "charging_payment",
+              "schedule": "ON_DELIVERY"
+            },
+            {
+              "flowId": "v2g_payment",
+              "from": "cpo_aggregator",
+              "to": "ev_owner",
+              "flowType": "INCENTIVE",
+              "formula": { "expr": "discharged_kwh * v2g_rate" },
+              "currency": "INR",
+              "computedAmount": 54.0,
+              "triggeredBy": "v2g_payment_to_owner",
+              "schedule": "ON_DELIVERY"
+            },
+            {
+              "flowId": "grid_v2g_payment",
+              "from": "grid_operator",
+              "to": "cpo_aggregator",
+              "flowType": "GRID_SERVICE_FEE",
+              "formula": { "expr": "discharged_kwh * grid_v2g_rate" },
+              "currency": "INR",
+              "computedAmount": 81.0,
+              "triggeredBy": "grid_v2g_payment",
+              "schedule": "ON_SETTLEMENT"
+            },
+            {
+              "flowId": "platform_fee",
+              "from": "cpo_aggregator",
+              "to": "platform",
+              "flowType": "PLATFORM_FEE",
+              "formula": { "expr": "charging_payment_amount * platform_fee_pct" },
+              "currency": "INR",
+              "computedAmount": 4.48,
+              "schedule": "ON_SETTLEMENT"
+            }
+          ],
+          "netPositions": {
+            "ev_owner": { "net": -170.00, "direction": "PAYS" },
+            "cpo_aggregator": { "net": 246.52, "direction": "RECEIVES" },
+            "grid_operator": { "net": -81.00, "direction": "PAYS" },
+            "platform": { "net": 4.48, "direction": "RECEIVES" }
+          },
+          "netZeroCheck": { "sum": 0.00, "valid": true }
+        }
+      }
+    }
+  }
+}
