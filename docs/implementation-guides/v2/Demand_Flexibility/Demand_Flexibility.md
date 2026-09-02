@@ -171,7 +171,7 @@ The utility publishes a flex catalog containing:
     "schemaContext": [
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -315,7 +315,7 @@ The CDS returns matching catalogs. The offer carries the full `contractTerms` an
     "schemaContext": [
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -436,7 +436,7 @@ The aggregator selects an offer with a desired quantity. The `contractTerms` fro
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -552,7 +552,7 @@ The BPP returns a DRAFT contract. The `contractAttributes` carries the `DEGContr
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -669,7 +669,7 @@ The aggregator provides their identity. The seller role in `inputs` is now fille
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -810,7 +810,7 @@ The BPP acknowledges the seller and populates the initial set of participating m
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -951,7 +951,7 @@ The aggregator confirms the contract. Same structure as init.
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -1092,7 +1092,7 @@ The BPP activates the contract. Status changes to `ACTIVE`. The contract is now 
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -1234,7 +1234,7 @@ The aggregator updates the participating meters list before an event. The seller
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {
@@ -1374,7 +1374,7 @@ Before the event, the utility publishes baseline load per meter. The `DemandFlex
       "https://schema.nfh.global/DemandFlexPerformance/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld",
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld"
     ]
   },
@@ -1569,7 +1569,7 @@ After the event, the utility publishes actual load per meter alongside baselines
       "https://schema.nfh.global/DemandFlexPerformance/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld",
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld"
     ]
   },
@@ -1765,7 +1765,7 @@ The rego policy is evaluated against the actuals payload. Revenue flows are comp
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {

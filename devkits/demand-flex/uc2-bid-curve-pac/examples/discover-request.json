@@ -8,7 +8,7 @@
     "transactionId": "c2d3e4f5-a6b7-8901-abcd-ef5678901234",
     "messageId": "e2f3a4b5-c6d7-8901-abcd-ef7890123456",
     "timestamp": "2026-06-14T09:00:00Z",
-    "schemaContext": ["https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld", "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld", "https://schema.nfh.global/Quantity/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld", "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld", "https://schema.nfh.global/Quantity/v2.0/context.jsonld"]
   },
   "message": {
     "intent": {

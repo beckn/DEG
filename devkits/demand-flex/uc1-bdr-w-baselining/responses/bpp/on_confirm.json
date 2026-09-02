@@ -16,7 +16,7 @@
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
       "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
       "https://schema.nfh.global/BecknReportDescriptors/v1.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld",
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld",
       "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld"
     ]
   },

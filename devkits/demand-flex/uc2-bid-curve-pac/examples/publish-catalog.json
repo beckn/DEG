@@ -8,7 +8,7 @@
     "transactionId": "c2d3e4f5-a6b7-8901-abcd-ef5678901234",
     "messageId": "d1e2f3a4-b5c6-7890-abcd-ef6789012345",
     "timestamp": "2026-06-14T08:00:00Z",
-    "schemaContext": ["https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld", "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld", "https://schema.nfh.global/Quantity/context.jsonld"]
+    "schemaContext": ["https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld", "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld", "https://schema.nfh.global/Quantity/v2.0/context.jsonld"]
   },
   "message": {
     "publishDirectives": [{"catalogId": "catalog-flex-tpddl-2026-06", "catalogType": "REGULAR", "updateMode": "MERGE", "visibleTo": ["nfh.global/testnet-deg"]}],

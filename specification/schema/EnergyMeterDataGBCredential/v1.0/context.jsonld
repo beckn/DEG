@@ -1,7 +1,7 @@
 {
     "@context": [
         "https://schema.nfh.global/espiGreenButton/v1.0/context.jsonld",
-        "https://schema.nfh.global/EnergyCustomerProfile/context.jsonld",
+        "https://schema.nfh.global/EnergyCustomerProfile/v1.0/context.jsonld",
         {
             "@version": 1.1,
             "@protected": true,

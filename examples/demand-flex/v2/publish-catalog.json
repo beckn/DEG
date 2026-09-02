@@ -11,7 +11,7 @@
     "schemaContext": [
       "https://schema.nfh.global/DemandFlexBuyOffer/v2.0/context.jsonld",
       "https://schema.nfh.global/DemandFlexNeed/v2.0/context.jsonld",
-      "https://schema.nfh.global/Quantity/context.jsonld"
+      "https://schema.nfh.global/Quantity/v2.0/context.jsonld"
     ]
   },
   "message": {
