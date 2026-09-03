@@ -30,7 +30,7 @@
                 "@type": "DatasetItem",
                 "schema:identifier": "ds-meter-request-seller-001",
                 "schema:name": "Meter energy consumption request - seller discom",
-                "schema:temporalCoverage": "2026-04-26T04:30:00Z/2026-04-26T05:30:00Z",
+                "schema:temporalCoverage": "2026-04-26T04:30:00Z/2026-04-26T06:30:00Z",
                 "dataPayload": [
                   {
                     "@context": "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld",
@@ -39,7 +39,7 @@
                     "clientName": "TEST_DISCOM_SELLER",
                     "intervalPeriod": {"start": "2026-04-26T04:30:00Z", "duration": "PT1H"},
                     "payloadDescriptors": [{"objectType": "REPORT_PAYLOAD_DESCRIPTOR", "payloadType": "ENERGY_CONSUMPTION", "units": "KWH"}],
-                    "intervals": [{"id": 0, "payloads": [{"type": "ENERGY_CONSUMPTION", "values": []}]}]
+                    "intervals": [{"id": 0, "payloads": [{"type": "ENERGY_CONSUMPTION", "values": []}]}, {"id": 1, "payloads": [{"type": "ENERGY_CONSUMPTION", "values": []}]}]
                   },
                   {
                     "@context": "https://schema.nfh.global/BecknTimeSeries/v1.0/context.jsonld",
@@ -48,7 +48,7 @@
                     "clientName": "TEST_DISCOM_SELLER",
                     "intervalPeriod": {"start": "2026-04-26T04:30:00Z", "duration": "PT1H"},
                     "payloadDescriptors": [{"objectType": "REPORT_PAYLOAD_DESCRIPTOR", "payloadType": "ENERGY_CONSUMPTION", "units": "KWH"}],
-                    "intervals": [{"id": 0, "payloads": [{"type": "ENERGY_CONSUMPTION", "values": []}]}]
+                    "intervals": [{"id": 0, "payloads": [{"type": "ENERGY_CONSUMPTION", "values": []}]}, {"id": 1, "payloads": [{"type": "ENERGY_CONSUMPTION", "values": []}]}]
                   }
                 ]
               }
