@@ -63,7 +63,7 @@ components:
                 description: Meter identifier.
                 example: "der://meter/001"
               telemetry:
-                $ref: "https://schema.nfh.global/BecknTimeSeries/v1.0#/components/schemas/BecknTimeSeries"
+                $ref: "https://schema.nfh.global/BecknTimeSeries/v1.0/attributes.yaml#/components/schemas/BecknTimeSeries"
                 description: >
                   BecknTimeSeries carrying BASELINE (always) and — once the
                   event has completed — USAGE payloads, aligned to the same
@@ -82,7 +82,7 @@ components:
             entirely when the whole cohort fits in one message —
             absence of `pageInfo` is the signal that this message is
             self-contained.
-          $ref: "https://schema.nfh.global/BecknPageInfo/v1.0#/components/schemas/BecknPageInfo"
+          $ref: "https://schema.nfh.global/BecknPageInfo/v1.0/attributes.yaml#/components/schemas/BecknPageInfo"
 
         metersRef:
           description: >
@@ -93,4 +93,4 @@ components:
             entire collection. Receivers fetch `uri`, verify against
             `contentHash` and `count`, then run settlement against the
             fetched body.
-          $ref: "https://schema.nfh.global/BecknResourceRef/v1.0#/components/schemas/BecknResourceRef"
+          $ref: "https://schema.nfh.global/BecknResourceRef/v1.0/attributes.yaml#/components/schemas/BecknResourceRef"

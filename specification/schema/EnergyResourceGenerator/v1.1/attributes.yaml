@@ -27,7 +27,7 @@ components:
         "@context": ./context.jsonld
         "@type": EnergyResourceGenerator
       allOf:
-        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommon"
+        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommon"
         - type: object
           required: [id, type]
           properties:
@@ -48,13 +48,13 @@ components:
       x-jsonld:
         "@id": erDeg:attributes
       allOf:
-        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommonAttributes"
+        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommonAttributes"
         - type: object
           additionalProperties: true
           properties:
 
             nominalPower:
-              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVPower"
+              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVPower"
               description: >
                 Nominal (nameplate) power output. Use when distinct from
                 maxExport (peak).
@@ -73,7 +73,7 @@ components:
                 "@id": erDeg:efficiency
 
             dcArrayCapacity:
-              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVPower"
+              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVPower"
               description: >
                 DC-side nameplate capacity of a photovoltaic array at Standard
                 Test Conditions (industry term: "kWp"). For PV systems this is

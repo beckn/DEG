@@ -24,7 +24,7 @@ components:
   schemas:
 
     MeterServiceProfile:
-      $id: https://schema.nfh.global/MeterServiceProfile/v1.0#/components/schemas/MeterServiceProfile
+      $id: https://schema.nfh.global/MeterServiceProfile/v1.0/attributes.yaml#/components/schemas/MeterServiceProfile
       type: object
       description: >
         Tariff and regulatory load profile for one meter connection point.

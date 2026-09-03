@@ -50,7 +50,7 @@ properties:
     type: array
     items: { ... }
   pageInfo:
-    $ref: "https://schema.nfh.global/BecknPageInfo/v1.0#/components/schemas/BecknPageInfo"
+    $ref: "https://schema.nfh.global/BecknPageInfo/v1.0/attributes.yaml#/components/schemas/BecknPageInfo"
     description: Optional. Present only when the collection is paged.
 ```
 

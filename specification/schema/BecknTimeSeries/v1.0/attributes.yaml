@@ -54,7 +54,7 @@ components:
             inline `$ref` from the parent schema.
 
         intervalPeriod:
-          $ref: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/intervalPeriod"
+          $ref: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/intervalPeriod"
           description: >
             Default temporal bounds of the series — ISO 8601 `start` and
             `duration`. An individual interval may override these.
@@ -73,13 +73,13 @@ components:
             — for telemetry/meter readings). The objectType field is the discriminator.
           items:
             oneOf:
-              - $ref: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/eventPayloadDescriptor"
-              - $ref: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/reportPayloadDescriptor"
+              - $ref: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/eventPayloadDescriptor"
+              - $ref: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/reportPayloadDescriptor"
             discriminator:
               propertyName: objectType
               mapping:
-                EVENT_PAYLOAD_DESCRIPTOR: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/eventPayloadDescriptor"
-                REPORT_PAYLOAD_DESCRIPTOR: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/reportPayloadDescriptor"
+                EVENT_PAYLOAD_DESCRIPTOR: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/eventPayloadDescriptor"
+                REPORT_PAYLOAD_DESCRIPTOR: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/reportPayloadDescriptor"
 
         intervals:
           type: array
@@ -89,7 +89,7 @@ components:
             typed `payloads` (valuesMap). Per-row `intervalPeriod` is
             optional and overrides the default.
           items:
-            $ref: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/interval"
+            $ref: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/interval"
 
         resourceName:
           type: string

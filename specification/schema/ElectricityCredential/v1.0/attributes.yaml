@@ -72,7 +72,7 @@ components:
               x-jsonld:
                 "@id": deg:customerProfile
             customerDetails:
-              $ref: "https://schema.nfh.global/CustomerDetails/v1.0#/components/schemas/CustomerDetails"
+              $ref: "https://schema.nfh.global/CustomerDetails/v1.0/attributes.yaml#/components/schemas/CustomerDetails"
               description: >
                 PII section — fullName, installationAddress (beckn Location/2.0),
                 serviceConnectionDate. Defined in CustomerDetails/v1.0.
@@ -89,7 +89,7 @@ components:
               type: array
               minItems: 1
               items:
-                $ref: "https://schema.nfh.global/ConsumptionProfileCredential/v2.0#/components/schemas/ConsumptionProfileCredential/properties/credentialSubject"
+                $ref: "https://schema.nfh.global/ConsumptionProfileCredential/v2.0/attributes.yaml#/components/schemas/ConsumptionProfileCredential/properties/credentialSubject"
             generationProfiles:
               description: >
                 DER generation assets. Each entry conforms to the credentialSubject
@@ -101,7 +101,7 @@ components:
               type: array
               minItems: 1
               items:
-                $ref: "https://schema.nfh.global/GenerationProfileCredential/v2.0#/components/schemas/GenerationProfileCredential/properties/credentialSubject"
+                $ref: "https://schema.nfh.global/GenerationProfileCredential/v2.0/attributes.yaml#/components/schemas/GenerationProfileCredential/properties/credentialSubject"
             storageProfiles:
               description: >
                 Energy storage assets. Each entry conforms to the credentialSubject
@@ -112,4 +112,4 @@ components:
               type: array
               minItems: 1
               items:
-                $ref: "https://schema.nfh.global/StorageProfileCredential/v2.0#/components/schemas/StorageProfileCredential/properties/credentialSubject"
+                $ref: "https://schema.nfh.global/StorageProfileCredential/v2.0/attributes.yaml#/components/schemas/StorageProfileCredential/properties/credentialSubject"

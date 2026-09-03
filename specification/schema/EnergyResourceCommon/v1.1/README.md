@@ -69,7 +69,7 @@ The attribute bag base inherited inside every kind's `<Kind>Attributes` object v
 ```yaml
 EnergyResourceMeter:
   allOf:
-    - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommon"
+    - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommon"
     - type: object
       properties:
         type:
@@ -83,7 +83,7 @@ EnergyResourceMeter:
 ```yaml
 EnergyResourceMeterAttributes:
   allOf:
-    - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommonAttributes"
+    - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommonAttributes"
     - type: object
       additionalProperties: true
       properties:

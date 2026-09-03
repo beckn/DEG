@@ -104,7 +104,7 @@ components:
           x-jsonld:
             "@id": deg:customerNumber
         idRef:
-          $ref: "https://schema.nfh.global/IdRef/v1.0#/components/schemas/IdRef"
+          $ref: "https://schema.nfh.global/IdRef/v1.0/attributes.yaml#/components/schemas/IdRef"
           description: External identity reference for the customer. Defined in IdRef/v1.0.
           x-jsonld:
             "@id": deg:idRef
@@ -124,7 +124,7 @@ components:
           x-jsonld:
             "@id": deg:energyResources
           items:
-            $ref: "https://schema.nfh.global/EnergyResource/v2.0#/components/schemas/EnergyResource"
+            $ref: "https://schema.nfh.global/EnergyResource/v2.0/attributes.yaml#/components/schemas/EnergyResource"
         consumptionProfiles:
           type: array
           minItems: 1
@@ -139,14 +139,14 @@ components:
             $ref: "#/components/schemas/ConsumptionProfile"
 
     ConsumptionProfile:
-      $ref: "https://schema.nfh.global/MeterServiceProfile/v1.0#/components/schemas/MeterServiceProfile"
+      $ref: "https://schema.nfh.global/MeterServiceProfile/v1.0/attributes.yaml#/components/schemas/MeterServiceProfile"
       description: >
         Tariff and regulatory load profile for one meter connection.
         meterId links to a METER entry in customerProfile.energyResources[].
         Alias for MeterServiceProfile/v1.0 — kept for backward compatibility.
 
     CustomerDetails:
-      $ref: "https://schema.nfh.global/CustomerDetails/v1.0#/components/schemas/CustomerDetails"
+      $ref: "https://schema.nfh.global/CustomerDetails/v1.0/attributes.yaml#/components/schemas/CustomerDetails"
       description: >
         PII section — fullName, installationAddress, serviceConnectionDate.
         fullName appears ONLY here — never in customerProfile or resource entries.

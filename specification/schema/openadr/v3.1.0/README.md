@@ -40,7 +40,7 @@ DEG schemas reference these types via the canonical `schema.nfh.global` URL:
 
 ```yaml
 intervalPeriod:
-  $ref: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/intervalPeriod"
+  $ref: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/intervalPeriod"
 ```
 
 `BecknTimeSeries` uses `interval`, `intervalPeriod`, `eventPayloadDescriptor`,

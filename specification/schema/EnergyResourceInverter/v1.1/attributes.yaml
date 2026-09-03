@@ -24,7 +24,7 @@ components:
         "@context": ./context.jsonld
         "@type": EnergyResourceInverter
       allOf:
-        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommon"
+        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommon"
         - type: object
           required: [id, type]
           properties:
@@ -47,13 +47,13 @@ components:
       x-jsonld:
         "@id": erDeg:attributes
       allOf:
-        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommonAttributes"
+        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommonAttributes"
         - type: object
           additionalProperties: true
           properties:
 
             ratedApparentPower:
-              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVApparentPower"
+              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVApparentPower"
               description: >
                 Rated apparent power. Replaces ratedApparentPowerKva from v1.0.
               x-standard: "SunSpec DER Model 702 (maxVA); CIM (IEC 61970-302 PowerElectronicsConnection.ratedS)"
@@ -61,7 +61,7 @@ components:
                 "@id": erDeg:ratedApparentPower
 
             maxReactivePower:
-              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVReactivePower"
+              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVReactivePower"
               description: >
                 Maximum reactive power injection (leading / over-excited).
                 Replaces maxReactivePowerKvar from v1.0.
@@ -70,7 +70,7 @@ components:
                 "@id": erDeg:maxReactivePower
 
             minReactivePower:
-              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVReactivePower"
+              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVReactivePower"
               description: >
                 Maximum reactive power absorption (lagging / under-excited).
                 Value is typically negative. Replaces minReactivePowerKvar from v1.0.

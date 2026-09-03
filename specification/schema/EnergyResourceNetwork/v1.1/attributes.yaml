@@ -22,7 +22,7 @@ components:
         "@context": ./context.jsonld
         "@type": EnergyResourceNetwork
       allOf:
-        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommon"
+        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommon"
         - type: object
           required: [id, type]
           properties:
@@ -46,13 +46,13 @@ components:
       x-jsonld:
         "@id": erDeg:attributes
       allOf:
-        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommonAttributes"
+        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommonAttributes"
         - type: object
           additionalProperties: true
           properties:
 
             nominalVoltage:
-              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVVoltage"
+              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVVoltage"
               description: >
                 Nominal operating voltage. Replaces nominalVoltageKv from v1.0.
               x-standard: "CIM (IEC 61970-301 BaseVoltage.nominalVoltage)"

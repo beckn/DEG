@@ -37,7 +37,7 @@ components:
   schemas:
 
     QuantitativeValue:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QuantitativeValue
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QuantitativeValue
       type: object
       description: >
         A dimensioned quantity. value is the numeric magnitude; unit is a QUDT
@@ -58,7 +58,7 @@ components:
             V, kV (voltage). Mapped to QUDT IRIs via JSON-LD context.
 
     QVPower:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVPower
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVPower
       type: object
       description: >
         Active-power quantity {value, unit}. unit is a QUDT power alias
@@ -73,7 +73,7 @@ components:
           enum: [W, kW, MW]
 
     QVEnergy:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVEnergy
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVEnergy
       type: object
       description: >
         Energy quantity {value, unit}. unit is a QUDT energy alias
@@ -89,7 +89,7 @@ components:
           enum: [kWh, MWh]
 
     QVApparentPower:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVApparentPower
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVApparentPower
       type: object
       description: >
         Apparent-power quantity {value, unit}. unit is a QUDT apparent-power
@@ -105,7 +105,7 @@ components:
           enum: [kVA, MVA]
 
     QVReactivePower:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVReactivePower
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVReactivePower
       type: object
       description: >
         Reactive-power quantity {value, unit}. unit is a QUDT reactive-power
@@ -121,7 +121,7 @@ components:
           enum: [kVAR, MVAR]
 
     QVVoltage:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVVoltage
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVVoltage
       type: object
       description: >
         Voltage quantity {value, unit}. unit is a QUDT voltage alias
@@ -137,7 +137,7 @@ components:
           enum: [V, kV]
 
     EnergyResourceCommonAttributes:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommonAttributes
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommonAttributes
       type: object
       additionalProperties: true
       description: >
@@ -278,7 +278,7 @@ components:
             "@id": deg:aggregator
 
     EnergyResourceCommon:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommon
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommon
       type: object
       additionalProperties: true
       description: >
@@ -314,7 +314,7 @@ components:
           items:
             oneOf:
               - type: string
-              - $ref: "https://schema.nfh.global/EnergyResource/v2.1#/components/schemas/EnergyResource"
+              - $ref: "https://schema.nfh.global/EnergyResource/v2.1/attributes.yaml#/components/schemas/EnergyResource"
           x-jsonld:
             "@id": deg:subResources
 

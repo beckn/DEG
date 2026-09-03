@@ -78,7 +78,7 @@ components:
             "@id": location
 
         intervalPeriod:
-          $ref: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/intervalPeriod"
+          $ref: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/intervalPeriod"
           description: >
             Default temporal bounds of the schedule — ISO 8601 `start` and
             `duration` (e.g. PT30M). Interval `id` 0..n-1 index sequential
@@ -99,7 +99,7 @@ components:
             CAPACITY_OFFERED (seller, on commitmentAttributes) and BASELINE /
             USAGE (meter telemetry).
           items:
-            $ref: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/eventPayloadDescriptor"
+            $ref: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/eventPayloadDescriptor"
           x-jsonld:
             "@id": payloadDescriptors
 
@@ -110,6 +110,6 @@ components:
             One row per tranche. Each row carries integer `id` and typed
             `payloads` — CAPACITY_REQUESTED, PRICE, SHORTFALL_PENALTY.
           items:
-            $ref: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/interval"
+            $ref: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/interval"
           x-jsonld:
             "@id": intervals

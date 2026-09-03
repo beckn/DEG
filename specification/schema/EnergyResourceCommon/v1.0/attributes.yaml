@@ -31,7 +31,7 @@ components:
     # ── Attribute bag base — inherited by every kind's attributes object ──
 
     EnergyResourceCommonAttributes:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.0#/components/schemas/EnergyResourceCommonAttributes
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.0/attributes.yaml#/components/schemas/EnergyResourceCommonAttributes
       type: object
       additionalProperties: true
       description: >
@@ -111,7 +111,7 @@ components:
     # ── Structural envelope — inherited by every kind schema ─────────────
 
     EnergyResourceCommon:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.0#/components/schemas/EnergyResourceCommon
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.0/attributes.yaml#/components/schemas/EnergyResourceCommon
       type: object
       additionalProperties: true
       description: >
@@ -149,7 +149,7 @@ components:
             oneOf:
               - type: string
                 description: id of a sibling EnergyResource.
-              - $ref: "https://schema.nfh.global/EnergyResource/v2.0#/components/schemas/EnergyResource"
+              - $ref: "https://schema.nfh.global/EnergyResource/v2.0/attributes.yaml#/components/schemas/EnergyResource"
                 description: Inline-nested EnergyResource.
           x-jsonld:
             "@id": deg:subResources

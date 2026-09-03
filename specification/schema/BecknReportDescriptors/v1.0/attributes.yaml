@@ -34,7 +34,7 @@ components:
         OpenADR3 `reportPayloadDescriptor` augmented with a `cardinality`
         field. Required fields and value enums otherwise match OpenADR3.
       allOf:
-        - $ref: "https://schema.nfh.global/openadr/v3.1.0#/components/schemas/reportPayloadDescriptor"
+        - $ref: "https://schema.nfh.global/openadr/v3.1.0/attributes.yaml#/components/schemas/reportPayloadDescriptor"
         - type: object
           properties:
             cardinality:

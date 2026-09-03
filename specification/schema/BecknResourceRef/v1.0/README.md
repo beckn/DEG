@@ -62,7 +62,7 @@ properties:
     type: array
     items: { type: string }
   participatingMetersRef:
-    $ref: "https://schema.nfh.global/BecknResourceRef/v1.0#/components/schemas/BecknResourceRef"
+    $ref: "https://schema.nfh.global/BecknResourceRef/v1.0/attributes.yaml#/components/schemas/BecknResourceRef"
 ```
 
 ## Minimal example — bulk meter enrollment at confirm
