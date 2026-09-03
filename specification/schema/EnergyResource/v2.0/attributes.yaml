@@ -38,25 +38,25 @@ components:
     # directly by the kind schemas — not re-aliased here.
 
     EnergyResourceMeter:
-      $ref: "https://schema.nfh.global/EnergyResourceMeter/v1.0#/components/schemas/EnergyResourceMeter"
+      $ref: "https://schema.nfh.global/EnergyResourceMeter/v1.0/attributes.yaml#/components/schemas/EnergyResourceMeter"
 
     EnergyResourceGenerator:
-      $ref: "https://schema.nfh.global/EnergyResourceGenerator/v1.0#/components/schemas/EnergyResourceGenerator"
+      $ref: "https://schema.nfh.global/EnergyResourceGenerator/v1.0/attributes.yaml#/components/schemas/EnergyResourceGenerator"
 
     EnergyResourceStorage:
-      $ref: "https://schema.nfh.global/EnergyResourceStorage/v1.0#/components/schemas/EnergyResourceStorage"
+      $ref: "https://schema.nfh.global/EnergyResourceStorage/v1.0/attributes.yaml#/components/schemas/EnergyResourceStorage"
 
     EnergyResourceEVCharger:
-      $ref: "https://schema.nfh.global/EnergyResourceEVCharger/v1.0#/components/schemas/EnergyResourceEVCharger"
+      $ref: "https://schema.nfh.global/EnergyResourceEVCharger/v1.0/attributes.yaml#/components/schemas/EnergyResourceEVCharger"
 
     EnergyResourceInverter:
-      $ref: "https://schema.nfh.global/EnergyResourceInverter/v1.0#/components/schemas/EnergyResourceInverter"
+      $ref: "https://schema.nfh.global/EnergyResourceInverter/v1.0/attributes.yaml#/components/schemas/EnergyResourceInverter"
 
     EnergyResourceLoad:
-      $ref: "https://schema.nfh.global/EnergyResourceLoad/v1.0#/components/schemas/EnergyResourceLoad"
+      $ref: "https://schema.nfh.global/EnergyResourceLoad/v1.0/attributes.yaml#/components/schemas/EnergyResourceLoad"
 
     EnergyResourceNetwork:
-      $ref: "https://schema.nfh.global/EnergyResourceNetwork/v1.0#/components/schemas/EnergyResourceNetwork"
+      $ref: "https://schema.nfh.global/EnergyResourceNetwork/v1.0/attributes.yaml#/components/schemas/EnergyResourceNetwork"
 
     # ── Union entry point ─────────────────────────────────────────────────
 

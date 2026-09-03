@@ -44,6 +44,6 @@ components:
             - Other
           description: Type of electricity meter installed.
         idRef:
-          $ref: "https://schema.nfh.global/IdRef/v1.0#/components/schemas/IdRef"
+          $ref: "https://schema.nfh.global/IdRef/v1.0/attributes.yaml#/components/schemas/IdRef"
           description: External identity reference for the customer. Defined in IdRef/v1.0.
       additionalProperties: false

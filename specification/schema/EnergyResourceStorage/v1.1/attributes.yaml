@@ -27,7 +27,7 @@ components:
         "@context": ./context.jsonld
         "@type": EnergyResourceStorage
       allOf:
-        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommon"
+        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommon"
         - type: object
           required: [id, type]
           properties:
@@ -51,13 +51,13 @@ components:
       x-jsonld:
         "@id": erDeg:attributes
       allOf:
-        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/EnergyResourceCommonAttributes"
+        - $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/EnergyResourceCommonAttributes"
         - type: object
           additionalProperties: true
           properties:
 
             storageCapacity:
-              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVEnergy"
+              $ref: "https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVEnergy"
               description: >
                 Rated stored-energy capacity. Replaces storageCapacityKwh from v1.0.
               x-standard: "CIM (IEC 61970-302 BatteryUnit.ratedE)"

@@ -41,7 +41,7 @@
           "items": {
             "oneOf": [
               { "type": "string", "minLength": 1 },
-              { "$ref": "https://schema.nfh.global/EnergyResource/v2.0#/components/schemas/EnergyResource" }
+              { "$ref": "https://schema.nfh.global/EnergyResource/v2.0/attributes.yaml#/components/schemas/EnergyResource" }
             ]
           }
         },

@@ -46,7 +46,7 @@ human readers.
 ```yaml
 # In the parent attributes.yaml
 telemetry:
-  $ref: "https://schema.nfh.global/BecknTimeSeries/v1.0#/components/schemas/BecknTimeSeries"
+  $ref: "https://schema.nfh.global/BecknTimeSeries/v1.0/attributes.yaml#/components/schemas/BecknTimeSeries"
 ```
 
 **(b) Discovery via `@context` — for polymorphic carriers.** Parent

@@ -124,25 +124,25 @@ components:
             $ref: "#/components/schemas/ConsumptionProfile"
 
     IdRef:
-      $ref: "https://schema.nfh.global/IdRef/v1.0#/components/schemas/IdRef"
+      $ref: "https://schema.nfh.global/IdRef/v1.0/attributes.yaml#/components/schemas/IdRef"
       description: External identity reference for the customer. Defined in IdRef/v1.0.
 
     ConsumptionProfile:
-      $ref: "https://schema.nfh.global/MeterServiceProfile/v1.1#/components/schemas/MeterServiceProfile"
+      $ref: "https://schema.nfh.global/MeterServiceProfile/v1.1/attributes.yaml#/components/schemas/MeterServiceProfile"
       description: >
         Tariff and regulatory load profile for one meter connection.
         meterId links to a METER entry in customerProfile.energyResources[].
         Uses MeterServiceProfile/v1.1 (sanctionedLoad, contractMaxDemand as QuantitativeValue).
 
     CustomerDetails:
-      $ref: "https://schema.nfh.global/CustomerDetails/v1.0#/components/schemas/CustomerDetails"
+      $ref: "https://schema.nfh.global/CustomerDetails/v1.0/attributes.yaml#/components/schemas/CustomerDetails"
       description: >
         PII section — fullName, installationAddress, serviceConnectionDate.
         fullName appears ONLY here — never in customerProfile or resource entries.
         Defined in CustomerDetails/v1.0.
 
     EnergyResource:
-      $ref: "https://schema.nfh.global/EnergyResource/v2.1#/components/schemas/EnergyResource"
+      $ref: "https://schema.nfh.global/EnergyResource/v2.1/attributes.yaml#/components/schemas/EnergyResource"
       description: >
         Discriminated union of all seven typed EnergyResource kinds, each
         inheriting id, type, subResources, parentResources, and attributes

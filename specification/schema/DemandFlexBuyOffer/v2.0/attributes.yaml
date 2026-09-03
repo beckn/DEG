@@ -94,7 +94,7 @@ components:
                 / units / cardinality table (USAGE, POWER, SOC_END,
                 GPS_LAT, GPS_LON, …).
               oneOf:
-                - $ref: "https://schema.nfh.global/BecknReportDescriptors/v1.0#/components/schemas/BecknReportDescriptors"
+                - $ref: "https://schema.nfh.global/BecknReportDescriptors/v1.0/attributes.yaml#/components/schemas/BecknReportDescriptors"
                 - type: "null"
 
             participatingMetersRef:
@@ -105,7 +105,7 @@ components:
                 fetched body as the authoritative meter list once the
                 receiver has verified `contentHash` and `count` against
                 the body's canonicalized form.
-              $ref: "https://schema.nfh.global/BecknResourceRef/v1.0#/components/schemas/BecknResourceRef"
+              $ref: "https://schema.nfh.global/BecknResourceRef/v1.0/attributes.yaml#/components/schemas/BecknResourceRef"
 
             energyResources:
               type: array
@@ -121,7 +121,7 @@ components:
                 chargers, batteries, solar PV, smart HVAC, etc. —
                 shared with P2P-trading and any future DEG domain.
               items:
-                $ref: "https://schema.nfh.global/EnergyResource/v2.0#/components/schemas/EnergyResource"
+                $ref: "https://schema.nfh.global/EnergyResource/v2.0/attributes.yaml#/components/schemas/EnergyResource"
 
             energyResourcesRef:
               description: >
@@ -129,7 +129,7 @@ components:
                 cohort when it's too large to inline. Mutually
                 exclusive with `energyResources`. Same verification
                 rules as `participatingMetersRef`.
-              $ref: "https://schema.nfh.global/BecknResourceRef/v1.0#/components/schemas/BecknResourceRef"
+              $ref: "https://schema.nfh.global/BecknResourceRef/v1.0/attributes.yaml#/components/schemas/BecknResourceRef"
 
             participatingMetersDigest:
               type: object

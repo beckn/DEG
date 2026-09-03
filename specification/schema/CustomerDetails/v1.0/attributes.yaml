@@ -29,7 +29,7 @@ components:
   schemas:
 
     CustomerDetails:
-      $id: https://schema.nfh.global/CustomerDetails/v1.0#/components/schemas/CustomerDetails
+      $id: https://schema.nfh.global/CustomerDetails/v1.0/attributes.yaml#/components/schemas/CustomerDetails
       type: object
       description: >
         PII identity and address details for a utility customer.

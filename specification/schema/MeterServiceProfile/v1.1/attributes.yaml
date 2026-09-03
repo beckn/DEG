@@ -30,7 +30,7 @@ components:
   schemas:
 
     QVPower:
-      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1#/components/schemas/QVPower
+      $id: https://schema.nfh.global/EnergyResourceCommon/v1.1/attributes.yaml#/components/schemas/QVPower
       type: object
       description: >
         Active-power quantity {value, unit}. unit is a QUDT power alias
@@ -45,7 +45,7 @@ components:
           enum: [W, kW, MW]
 
     MeterServiceProfile:
-      $id: https://schema.nfh.global/MeterServiceProfile/v1.1#/components/schemas/MeterServiceProfile
+      $id: https://schema.nfh.global/MeterServiceProfile/v1.1/attributes.yaml#/components/schemas/MeterServiceProfile
       type: object
       description: >
         Tariff and regulatory load profile for one meter connection point.
