@@ -1,0 +1,26 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "beckn": "https://schema.nfh.global/core/v2.0/",
+    "deg": "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingOffer/v3.0/vocab.jsonld#",
+    "ChargingOffer": "deg:ChargingOffer",
+    "mode": {"@id": "deg:mode", "@type": "@vocab"},
+    "WALK_IN": "deg:WalkIn",
+    "RESERVATION": "deg:Reservation",
+    "terms": "deg:terms",
+    "currency": "schema:priceCurrency",
+    "energyPerKWh": "deg:energyPerKWh",
+    "occupancyPerMin": "deg:occupancyPerMin",
+    "idlePerMin": "deg:idlePerMin",
+    "graceMin": "deg:graceMin",
+    "maxDemotions": "deg:maxDemotions",
+    "gridDelayCreditPerMin": "deg:gridDelayCreditPerMin",
+    "reservation": "deg:reservation",
+    "fee": "deg:fee",
+    "cancelBeforeMin": "deg:cancelBeforeMin",
+    "cpoDelayCreditPerMin": "deg:cpoDelayCreditPerMin",
+    "liabilityCap": "deg:liabilityCap",
+    "contractAttributes": "deg:contractAttributes"
+  }
+}

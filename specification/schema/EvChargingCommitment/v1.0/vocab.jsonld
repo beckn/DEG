@@ -1,0 +1,23 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.nfh.global/core/v2.0/",
+    "deg": "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingCommitment/v1.0/vocab.jsonld#",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {"@id": "deg:ChargingCommitment", "@type": "rdfs:Class", "rdfs:label": "EV Charging Commitment", "rdfs:comment": "A driver's charging request and the CPO's quote for it."},
+    {"@id": "deg:Vehicle", "@type": "rdfs:Class", "rdfs:label": "Vehicle", "rdfs:subClassOf": "schema:Vehicle"},
+    {"@id": "deg:vehicle", "@type": "rdf:Property", "rdfs:label": "Vehicle", "rdfs:domain": "deg:ChargingCommitment", "schema:rangeIncludes": "deg:Vehicle"},
+    {"@id": "deg:maxChargeKW", "@type": "rdf:Property", "rdfs:label": "Maximum charge power", "rdfs:comment": "Maximum power the vehicle accepts (kW).", "rdfs:domain": "deg:Vehicle", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:socPercent", "@type": "rdf:Property", "rdfs:label": "State of charge", "rdfs:comment": "State of charge when requesting (%).", "rdfs:domain": "deg:Vehicle", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:reservedStart", "@type": "rdf:Property", "rdfs:label": "Reserved start", "rdfs:comment": "Reserved start time; RESERVATION mode only.", "rdfs:domain": "deg:ChargingCommitment", "schema:rangeIncludes": "xsd:dateTime"},
+    {"@id": "deg:Quote", "@type": "rdfs:Class", "rdfs:label": "Charging quote", "rdfs:comment": "The CPO's answer: promised power and a start-time forecast band."},
+    {"@id": "deg:quote", "@type": "rdf:Property", "rdfs:label": "Quote", "rdfs:domain": "deg:ChargingCommitment", "schema:rangeIncludes": "deg:Quote"},
+    {"@id": "deg:promisedKW", "@type": "rdf:Property", "rdfs:label": "Promised power", "rdfs:comment": "Contractual reference power (kW) for delay and shortfall.", "rdfs:domain": "deg:Quote", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:estimatedStart", "@type": "rdf:Property", "rdfs:label": "Estimated start", "rdfs:comment": "Forecast band (from, to) for stall assignment.", "rdfs:domain": "deg:Quote", "schema:rangeIncludes": "schema:Schedule"}
+  ]
+}

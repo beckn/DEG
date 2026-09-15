@@ -1,0 +1,33 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.nfh.global/core/v2.0/",
+    "deg": "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingOffer/v3.0/vocab.jsonld#",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {"@id": "deg:ChargingOffer", "@type": "rdfs:Class", "rdfs:label": "EV Charging Offer", "rdfs:comment": "A charging contract offer: mode, settlement terms and the contract policy reference.", "rdfs:subClassOf": "schema:Offer"},
+    {"@id": "deg:ChargingMode", "@type": "schema:Enumeration", "rdfs:label": "Charging contract mode", "schema:hasEnumerationMember": [{"@id": "deg:WalkIn"}, {"@id": "deg:Reservation"}]},
+    {"@id": "deg:WalkIn", "@type": "deg:ChargingMode", "rdfs:label": "WALK_IN", "rdfs:comment": "A place in the virtual queue, starting now."},
+    {"@id": "deg:Reservation", "@type": "deg:ChargingMode", "rdfs:label": "RESERVATION", "rdfs:comment": "A start time booked ahead for a fee, with a CPO delay guarantee."},
+    {"@id": "deg:mode", "@type": "rdf:Property", "rdfs:label": "Mode", "rdfs:domain": "deg:ChargingOffer", "schema:rangeIncludes": "deg:ChargingMode"},
+    {"@id": "deg:ChargingTerms", "@type": "rdfs:Class", "rdfs:label": "Charging terms", "rdfs:comment": "Commercial terms the contract policy settles against. Tax-exclusive."},
+    {"@id": "deg:terms", "@type": "rdf:Property", "rdfs:label": "Terms", "rdfs:domain": "deg:ChargingOffer", "schema:rangeIncludes": "deg:ChargingTerms"},
+    {"@id": "deg:energyPerKWh", "@type": "rdf:Property", "rdfs:label": "Energy tariff", "rdfs:comment": "Amount per metered kWh.", "rdfs:domain": "deg:ChargingTerms", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:occupancyPerMin", "@type": "rdf:Property", "rdfs:label": "Occupancy rate", "rdfs:comment": "Stall rent per driver-responsible minute.", "rdfs:domain": "deg:ChargingTerms", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:idlePerMin", "@type": "rdf:Property", "rdfs:label": "Idle rate", "rdfs:comment": "Amount per idle minute beyond grace.", "rdfs:domain": "deg:ChargingTerms", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:graceMin", "@type": "rdf:Property", "rdfs:label": "Grace minutes", "rdfs:comment": "Slack for driver arrival, driver unplugging and CPO readiness.", "rdfs:domain": "deg:ChargingTerms", "schema:rangeIncludes": "xsd:integer"},
+    {"@id": "deg:maxDemotions", "@type": "rdf:Property", "rdfs:label": "Maximum demotions", "rdfs:comment": "Missed assignments tolerated before NO_SHOW.", "rdfs:domain": "deg:ChargingTerms", "schema:rangeIncludes": "xsd:integer"},
+    {"@id": "deg:gridDelayCreditPerMin", "@type": "rdf:Property", "rdfs:label": "Grid delay credit", "rdfs:comment": "Credit per minute added to the session by a grid limit.", "rdfs:domain": "deg:ChargingTerms", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:ReservationTerms", "@type": "rdfs:Class", "rdfs:label": "Reservation terms", "rdfs:comment": "Premium and guarantee added by a RESERVATION offer."},
+    {"@id": "deg:reservation", "@type": "rdf:Property", "rdfs:label": "Reservation", "rdfs:domain": "deg:ChargingTerms", "schema:rangeIncludes": "deg:ReservationTerms"},
+    {"@id": "deg:fee", "@type": "rdf:Property", "rdfs:label": "Reservation fee", "rdfs:domain": "deg:ReservationTerms", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:cancelBeforeMin", "@type": "rdf:Property", "rdfs:label": "Free cancellation window", "rdfs:comment": "Minutes before reservedStart up to which cancellation is free.", "rdfs:domain": "deg:ReservationTerms", "schema:rangeIncludes": "xsd:integer"},
+    {"@id": "deg:cpoDelayCreditPerMin", "@type": "rdf:Property", "rdfs:label": "CPO delay credit", "rdfs:comment": "Credit per minute of CPO-caused delay.", "rdfs:domain": "deg:ReservationTerms", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:liabilityCap", "@type": "rdf:Property", "rdfs:label": "Liability cap", "rdfs:comment": "Upper bound on the CPO delay credit per session.", "rdfs:domain": "deg:ReservationTerms", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:contractAttributes", "@type": "rdf:Property", "rdfs:label": "Contract template", "rdfs:comment": "DEGContract template promoted to Contract.contractAttributes at select.", "rdfs:domain": "deg:ChargingOffer"}
+  ]
+}

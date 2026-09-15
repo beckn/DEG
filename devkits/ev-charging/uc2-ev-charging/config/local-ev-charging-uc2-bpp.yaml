@@ -1,0 +1,174 @@
+appName: "onix-local"
+log:
+  level: debug
+  destinations:
+    - type: stdout
+  contextKeys:
+    - transaction_id
+    - message_id
+    - subscriber_id
+    - module_id
+http:
+  port: 8082
+  timeout:
+    read: 30
+    write: 30
+    idle: 30
+pluginManager:
+  root: ./plugins
+modules:
+  - name: bppTxnReceiver
+    path: /bpp/receiver/
+    handler:
+      type: std
+      role: bpp
+      httpClientConfig:
+        maxIdleConns: 1000
+        maxIdleConnsPerHost: 200
+        idleConnTimeout: 300s
+        responseHeaderTimeout: 30s
+      plugins:
+        registry:
+          id: dediregistry
+          config:
+            registryName: subscribers.beckn.one
+            allowedNetworkIDs: "nfh.global/testnet-deg"
+            timeout: 10
+        keyManager:
+          id: simplekeymanager
+          config:
+            networkParticipant: bpp.example.com
+            keyId: 76EU7ofwRCF1aobQkShARrf1PAUsNpHqWUJoynPu9w45YFKmzqaPmy
+            signingPrivateKey: 393fVJJsfqssJCRAjedKR2cKAjSLrjU3t+bICQ5KzYM=
+            signingPublicKey: CqVy97DW45bcZPPrWIYGe2ldl9C93NFeVciiAEYsvR0=
+            encrPrivateKey: 393fVJJsfqssJCRAjedKR2cKAjSLrjU3t+bICQ5KzYM=
+            encrPublicKey: CqVy97DW45bcZPPrWIYGe2ldl9C93NFeVciiAEYsvR0=
+        schemaValidator:
+          id: schemav2validator
+          config:
+            cacheTTL: "3600"
+            extendedSchema_enabled: "true"
+            extendedSchema_cacheTTL: "86400"
+            extendedSchema_maxCacheSize: "100"
+            extendedSchema_downloadTimeout: "30"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.nfh.global"
+        checkPolicy:
+          id: opapolicychecker
+          config:
+            networkPolicyConfig: ./config/opa-network-policies.yaml
+            refreshInterval: "24h"
+        cache:
+          id: cache
+          config:
+            addr: redis:6379
+        signValidator:
+          id: signvalidator
+        router:
+          id: router
+          config:
+            routingConfig: ./config/local-ev-charging-uc2-routing-BPP-Receiver.yaml
+        middleware:
+          - id: reqpreprocessor
+            config:
+              uuidKeys: transaction_id,message_id
+              role: bpp
+        steps:
+          # Authoritative check on inbound driver requests. Enforcement only —
+          # nothing is written to the payload before the session settles.
+          - id: contractpolicyenforcer
+            config:
+              actions: ""
+              violationActions: "select,init,confirm,cancel"
+              debugLogging: "true"
+              # Only this fork's policies are accepted (raw GitHub, main branch).
+              allowedPolicyUrlPrefixes: "https://raw.githubusercontent.com/ameetdesh/DEG/"
+      steps:
+        - validateSign
+        - checkPolicy
+        - contractpolicyenforcer
+        - addRoute
+        - validateSchema
+
+  - name: bppTxnCaller
+    path: /bpp/caller/
+    handler:
+      type: std
+      role: bpp
+      httpClientConfig:
+        maxIdleConns: 1000
+        maxIdleConnsPerHost: 200
+        idleConnTimeout: 300s
+        responseHeaderTimeout: 30s
+      plugins:
+        registry:
+          id: dediregistry
+          config:
+            registryName: subscribers.beckn.one
+            allowedNetworkIDs: "nfh.global/testnet-deg"
+            timeout: 10
+        keyManager:
+          id: simplekeymanager
+          config:
+            networkParticipant: bpp.example.com
+            keyId: 76EU7ofwRCF1aobQkShARrf1PAUsNpHqWUJoynPu9w45YFKmzqaPmy
+            signingPrivateKey: 393fVJJsfqssJCRAjedKR2cKAjSLrjU3t+bICQ5KzYM=
+            signingPublicKey: CqVy97DW45bcZPPrWIYGe2ldl9C93NFeVciiAEYsvR0=
+            encrPrivateKey: 393fVJJsfqssJCRAjedKR2cKAjSLrjU3t+bICQ5KzYM=
+            encrPublicKey: CqVy97DW45bcZPPrWIYGe2ldl9C93NFeVciiAEYsvR0=
+        schemaValidator:
+          id: schemav2validator
+          config:
+            cacheTTL: "3600"
+            extendedSchema_enabled: "true"
+            extendedSchema_cacheTTL: "86400"
+            extendedSchema_maxCacheSize: "100"
+            extendedSchema_downloadTimeout: "30"
+            extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.nfh.global"
+        checkPolicy:
+          id: opapolicychecker
+          config:
+            networkPolicyConfig: ./config/opa-network-policies.yaml
+            refreshInterval: "24h"
+        cache:
+          id: cache
+          config:
+            addr: redis:6379
+        router:
+          id: router
+          config:
+            routingConfig: ./config/local-ev-charging-uc2-routing-BPP-Caller.yaml
+        signer:
+          id: signer
+        middleware:
+          - id: reqpreprocessor
+            config:
+              uuidKeys: transaction_id,message_id
+              role: bpp
+        steps:
+          # First step. Enforces the contract on every response the CPO emits —
+          # including on_status, so a ledger that breaks the terms (e.g. an
+          # early NO_SHOW) never leaves the CPO — and injects settlement once
+          # the ledger is terminal (on_status / on_cancel). Runs before
+          # validateSchema and sign, so the injected flows are validated and
+          # signed.
+          - id: contractpolicyenforcer
+            config:
+              actions: "on_status,on_cancel"
+              violationActions: "on_select,on_init,on_confirm,on_status,on_cancel"
+              debugLogging: "true"
+              # Only this fork's policies are accepted (raw GitHub, main branch).
+              allowedPolicyUrlPrefixes: "https://raw.githubusercontent.com/ameetdesh/DEG/"
+              # Settlement lands as a Beckn-native Consideration entry holding a
+              # RevenueFlow (idempotent on retry via the [id=settlement] selector).
+              outputPath: "message.contract.consideration[id=settlement].considerationAttributes"
+              outputMode: "jsonld"
+              outputType: "RevenueFlow"
+              outputContextURL: "https://schema.nfh.global/RevenueFlow/v2.0/context.jsonld"
+              outputArrayKey: "revenueFlows"
+              entryDefaults: '{"status":{"code":"SETTLED"}}'
+      steps:
+        - contractpolicyenforcer
+        - validateSchema
+        - checkPolicy
+        - addRoute
+        - sign

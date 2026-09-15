@@ -1,0 +1,102 @@
+openapi: 3.1.1
+info:
+  title: EvChargingSession
+  version: '3.0'
+  description: >
+    Attribute schema for an EV charging session (Performance.performanceAttributes),
+    modelled as a transition log — the ledger the contract policy settles from.
+
+    Each ledger row holds its state from `at` until the next row's `at`, so
+    time is conserved and intervals are contiguous by construction. A terminal
+    state, when present, is the last row and its `at` is the session end.
+    Attribution follows from the state name (LIMITED_BY_CPO, LIMITED_BY_GRID)
+    — there is no separate attribution column to disagree with it. The stall is
+    named on the ASSIGNED row, so a session holds one stall at a time.
+
+    Conditional fields (checked by ev-charging-networkpolicy.rego):
+      - `kWh` present exactly on CHARGING, LIMITED_BY_CPO, LIMITED_BY_GRID;
+      - `stallId` present exactly on ASSIGNED;
+      - `eventId` present exactly on LIMITED_BY_GRID.
+
+    v3.0 is a clean break from v2.0 (sessionStatus / chargingTelemetry),
+    which remains valid for existing networks.
+components:
+  schemas:
+    EvChargingSession:
+      type: object
+      additionalProperties: false
+      required: [ledger]
+      x-tags: [ev-charging, session, performance, ledger, settlement, energy]
+      x-jsonld:
+        '@context': ./context.jsonld
+        '@type': ChargingSession
+      properties:
+        ledger:
+          type: array
+          minItems: 1
+          description: Session transition log, ordered by `at`.
+          x-jsonld:
+            '@id': ledger
+            '@container': '@list'
+          items:
+            $ref: '#/components/schemas/LedgerRow'
+
+    LedgerRow:
+      type: object
+      additionalProperties: false
+      required: [at, state]
+      properties:
+        at:
+          type: string
+          format: date-time
+          description: Moment the session entered this state (UTC).
+          example: '2026-10-02T18:15:00Z'
+          x-jsonld:
+            '@id': schema:startTime
+        state:
+          type: string
+          enum:
+            - QUEUED
+            - ASSIGNED
+            - CHARGING
+            - LIMITED_BY_CPO
+            - LIMITED_BY_GRID
+            - IDLE
+            - DEPARTED
+            - CANCELLED
+            - NO_SHOW
+            - FAILED_BY_CPO
+          description: >
+            QUEUED — in the virtual queue, no stall.
+            ASSIGNED — stall held for the driver; arrival grace running.
+            CHARGING — on stall, pace set by the vehicle (including pauses).
+            LIMITED_BY_CPO — on stall, power limited by the CPO (charger derate,
+            fault, site load management).
+            LIMITED_BY_GRID — on stall, power limited by a grid event.
+            IDLE — charging finished, vehicle still on the stall.
+            Terminal — DEPARTED (served), CANCELLED (by the driver),
+            NO_SHOW (grace missed after maxDemotions), FAILED_BY_CPO.
+          example: CHARGING
+          x-jsonld:
+            '@id': state
+        stallId:
+          type: string
+          description: EVSE assigned to the driver. ASSIGNED rows only.
+          example: IN*ECO*E01BTM*A1
+          x-jsonld:
+            '@id': stallId
+        kWh:
+          type: number
+          minimum: 0
+          description: >
+            Metered energy register delta over this row (kWh). Energy rows
+            only; a fault or full suspension is a LIMITED_* row with 0.
+          example: 10.0
+          x-jsonld:
+            '@id': kWh
+        eventId:
+          type: string
+          description: Identifier of the grid event behind a LIMITED_BY_GRID row.
+          example: BESCOM-DR-2026-10-02-1825
+          x-jsonld:
+            '@id': eventId

@@ -10,6 +10,7 @@ The single source of truth for every policy in this repository. Devkits resolve 
 | `p2p-trading-ies-wave2-contractpolicy.rego` | Wave2 **seller-discom policy**: buyer-discom allowlist (`violations` → NACK at select/init/confirm) + itemized settlement `revenue_flows` (wheeling, shortfall penalty, platform charge cap) |
 | `p2p-trading-ies-wave2-networkpolicy.rego` | Wave2 network policy run by `opapolicychecker` (mounted into the wave2 devkit containers) |
 | `demand-flex-networkpolicy.rego` / `demand-flex-contractpolicy.rego` / `demand-flex-pac-contractpolicy.rego` | Demand-flexibility network + contract policies |
+| `ev-charging-networkpolicy.rego` / `ev-charging-contractpolicy.rego` | EV charging uc2: ledger structure, reservation lead time (network) + walk-in/reservation settlement from the session ledger (contract) — see [uc2 DESIGN](../../devkits/ev-charging/uc2-ev-charging/DESIGN.md) |
 | [`test/`](./test/) | OPA unit tests (`<policy>_test.rego`) for the policies above |
 | [`discom-policy-guide/`](./discom-policy-guide/) | How a discom authors, versions, and publishes its own policy (checksum, release tag, DeDi record) |
 

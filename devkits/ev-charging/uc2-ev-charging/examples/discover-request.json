@@ -1,0 +1,17 @@
+{
+  "context": {
+    "networkId": "nfh.global/testnet-deg",
+    "version": "2.0.0",
+    "action": "discover",
+    "bapId": "bap.example.com",
+    "bapUri": "https://bap.example.com/bap/receiver",
+    "transactionId": "5b6c7d8e-9f0a-4b1c-8d2e-3f4a5b6c7d03",
+    "messageId": "5b6c7d8e-9f0a-4b1c-8d2e-000000000002",
+    "timestamp": "2026-10-02T11:58:00Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingService/v2.0/context.jsonld",
+      "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingOffer/v3.0/context.jsonld"
+    ]
+  },
+  "message": {"intent": {"filters": {"type": "jsonpath", "expression": "$.catalogs[*] ? (@.resources[*].resourceAttributes.connectorType == 'CCS2' && @.offers[*].offerAttributes.mode == 'RESERVATION')"}}}
+}

@@ -1,0 +1,145 @@
+# EV Charging uc2 (settlement-first) devkit stack.
+#
+# Self-contained: uc2 runs the Beckn v2.0 LTS adapter (onix-adapter-deg:v2,
+# with opapolicychecker + contractpolicyenforcer), while uc1 runs the older
+# rc-shape adapter from ../../install.
+#
+# BAP-side and BPP-side services live on separate, mutually unreachable
+# docker networks (bap_side, bpp_side), each with its own redis (aliased
+# `redis`). The beckn-router (Caddy) is the only container on both networks;
+# it accepts traffic on :9000 and routes /bap/* and /bpp/* to the adapter on
+# its own side.
+#
+# Schemas and policies are fetched at runtime from the ameetdesh/DEG fork's
+# main branch (raw.githubusercontent.com), so nothing is mounted for them.
+#
+# Run (from this directory):
+#   docker compose up -d
+#
+# The explicit project name keeps this stack from colliding with other
+# devkits whose compose files also live in a directory named `install`.
+# Only one devkit stack can run at a time (they share host ports).
+
+name: ev-charging-uc2
+
+services:
+  # ---------- BAP side (driver app) ----------
+  redis-bap:
+    image: redis:alpine
+    hostname: redis
+    container_name: redis-bap
+    networks:
+      - bap_side
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  onix-bap:
+    image: fidedocker/onix-adapter-deg:v2
+    container_name: onix-bap
+    ports:
+      - "8081:8081"
+    environment:
+      CONFIG_FILE: "/app/config/local-ev-charging-uc2-bap.yaml"
+      REDIS_ADDR: redis:6379
+    volumes:
+      - ../config:/app/config
+    command: ["./server", "--config=/app/config/local-ev-charging-uc2-bap.yaml"]
+    networks:
+      - bap_side
+
+  sandbox-bap:
+    container_name: sandbox-bap
+    image: fidedocker/sandbox-2.0:latest
+    platform: linux/amd64
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - bap_side
+
+  # ---------- BPP side (charge point operator) ----------
+  redis-bpp:
+    image: redis:alpine
+    hostname: redis
+    container_name: redis-bpp
+    networks:
+      - bpp_side
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  onix-bpp:
+    image: fidedocker/onix-adapter-deg:v2
+    container_name: onix-bpp
+    ports:
+      - "8082:8082"
+    environment:
+      CONFIG_FILE: "/app/config/local-ev-charging-uc2-bpp.yaml"
+      REDIS_ADDR: redis:6379
+    volumes:
+      - ../config:/app/config
+    command: ["./server", "--config=/app/config/local-ev-charging-uc2-bpp.yaml"]
+    networks:
+      - bpp_side
+
+  sandbox-bpp:
+    container_name: sandbox-bpp
+    image: fidedocker/sandbox-2.0:latest
+    platform: linux/amd64
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - PERSONA=bpp
+    ports:
+      - "3002:3002"
+    # The CPO app's answers to the reservation flow (on_select, on_init,
+    # on_confirm, on_status, on_cancel), resolved by context.networkId.
+    volumes:
+      - ../responses:/app/dist/webhook/jsons/nfh.global/testnet-deg/response
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - bpp_side
+
+  # ---------- Path router (only container on both sides) ----------
+  # Aliases let the adapters resolve the subscriber hostnames the shared
+  # Arazzo runner rewrites bapUri/bppUri to (devkits/scripts/run-arazzo-lib.sh).
+  beckn-router:
+    image: caddy:alpine
+    container_name: beckn-router
+    ports:
+      - "9000:9000"
+    networks:
+      bap_side:
+        aliases:
+          - bap.example.com
+          - bpp.example.com
+      bpp_side:
+        aliases:
+          - bap.example.com
+          - bpp.example.com
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+
+networks:
+  bap_side:
+    driver: bridge
+  bpp_side:
+    driver: bridge

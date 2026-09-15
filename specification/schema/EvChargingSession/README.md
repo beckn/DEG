@@ -15,8 +15,11 @@
 |---------|----------------|----------------|--------------|--------|
 | **v1.0** | [attributes.yaml](./v1.0/attributes.yaml) | [context.jsonld](./v1.0/context.jsonld) | [vocab.jsonld](./v1.0/vocab.jsonld) | [README](./v1.0/README.md) |
 | **v2.0** | [attributes.yaml](./v2.0/attributes.yaml) | [context.jsonld](./v2.0/context.jsonld) | [vocab.jsonld](./v2.0/vocab.jsonld) | [README](./v2.0/README.md) |
+| **v3.0** | [attributes.yaml](./v3.0/attributes.yaml) | [context.jsonld](./v3.0/context.jsonld) | [vocab.jsonld](./v3.0/vocab.jsonld) | [README](./v3.0/README.md) |
 
-## Properties (latest: v2.0)
+v3.0 is the settlement-first redesign used by [devkits/ev-charging/uc2-ev-charging](../../../devkits/ev-charging/uc2-ev-charging/); see its [README](./v3.0/README.md). The table below describes v2.0.
+
+## Properties (v2.0)
 
 | Property | Type | Required | Description |
 |----------|------|:--------:|-------------|

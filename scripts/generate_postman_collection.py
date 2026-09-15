@@ -96,6 +96,21 @@ DEVKIT_CONFIGS = {
         "examples_path": "devkits/ev-charging/uc1-ev-charging/examples",
         "structure": "folders"  # Folder-based structure
     },
+    "ev-charging-uc2-ev-charging": {
+        # Settlement-first EV charging on Beckn v2 LTS (self-contained stack
+        # under devkits/ev-charging/uc2-ev-charging/install).
+        "endpoint_overrides": {"publish": "catalog/publish"},
+        "domain": "nfh.global/testnet-deg",
+        "bap_id": "bap.example.com",
+        "bap_host_root": "http://beckn-router:9000",
+        "bpp_id": "bpp.example.com",
+        "bpp_host_root": "http://beckn-router:9000",
+        "bap_caller_url": "http://localhost:8081/bap/caller",
+        "bpp_caller_url": "http://localhost:8082/bpp/caller",
+        "transaction_id": "7f1c2b9e-4d3a-4e8f-9b61-2a5c8d0e1f01",
+        "examples_path": "devkits/ev-charging/uc2-ev-charging/examples",
+        "structure": "flat"
+    },
     "p2p-trading": {
         "domain": "beckn.one:deg:p2p-trading:2.0.0",
         "bap_id": "p2p-trading-sandbox1.com",
@@ -461,6 +476,7 @@ _FORCE_ELEMENT_KEYS = {
     "roles",
     "participants",
     "revenueFlows",
+    "ledger",
 }
 
 
@@ -1572,7 +1588,7 @@ def main():
     parser.add_argument(
         "--devkit",
         type=str,
-        choices=["ev-charging", "p2p-trading", "p2p-enrollment", "p2p-trading-interdiscom", "demand-flex", "demand-flex-uc2-bid-curve-pac", "p2p-trading-ies-wave1", "p2p-trading-ies-wave2", "data-exchange-uc1-meter-data", "data-exchange-uc2-regulatory-data", "data-exchange-uc3-tariff-policy"],
+        choices=sorted(DEVKIT_CONFIGS.keys()),
         required=True,
         help="Devkit type"
     )

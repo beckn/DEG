@@ -1,0 +1,97 @@
+openapi: 3.1.1
+info:
+  title: EvChargingCommitment
+  version: '1.0'
+  description: >
+    Attribute schema for an EV charging commitment (Commitment.commitmentAttributes).
+    Holds the driver's request and the CPO's answer to it, side by side:
+
+      - `vehicle` and `reservedStart` — written by the driver at select;
+      - `quote` — written by the CPO from on_select onward.
+
+    The energy needed travels on the core `Commitment.resources[].quantity`
+    (unitCode KWH). `quote.promisedKW` is contractual: it is the reference
+    power for shortfall and delay in the contract policy. `quote.estimatedStart`
+    is an informational forecast band the CPO may refresh on any on_status.
+components:
+  schemas:
+    EvChargingCommitment:
+      type: object
+      additionalProperties: false
+      required: [vehicle]
+      x-tags: [ev-charging, commitment, quote, reservation, energy]
+      x-jsonld:
+        '@context': ./context.jsonld
+        '@type': ChargingCommitment
+      properties:
+        vehicle:
+          type: object
+          additionalProperties: false
+          required: [maxChargeKW]
+          description: What the CPO needs to know about the vehicle to promise power and forecast duration.
+          x-jsonld:
+            '@id': vehicle
+          properties:
+            maxChargeKW:
+              type: number
+              exclusiveMinimum: 0
+              description: Maximum power the vehicle accepts on this connector (kW). Bounds quote.promisedKW.
+              example: 60
+              x-jsonld:
+                '@id': maxChargeKW
+            socPercent:
+              type: number
+              minimum: 0
+              maximum: 100
+              description: State of charge when requesting (%). Optional forecast input.
+              example: 22
+              x-jsonld:
+                '@id': socPercent
+        reservedStart:
+          type: string
+          format: date-time
+          description: >
+            Reserved start time (UTC). Required when the offer mode is
+            RESERVATION, forbidden for WALK_IN. Must respect the network's
+            minimum reservation lead time.
+          example: '2026-10-02T18:00:00Z'
+          x-jsonld:
+            '@id': reservedStart
+        quote:
+          type: object
+          additionalProperties: false
+          required: [promisedKW, estimatedStart]
+          description: The CPO's answer to the request. Present from on_select onward.
+          x-jsonld:
+            '@id': quote
+          properties:
+            promisedKW:
+              type: number
+              exclusiveMinimum: 0
+              description: >
+                Power the CPO promises for this vehicle (kW), at most
+                vehicle.maxChargeKW. Contractual reference for delay and
+                shortfall; immutable after confirm.
+              example: 60
+              x-jsonld:
+                '@id': promisedKW
+            estimatedStart:
+              type: object
+              additionalProperties: false
+              required: [from, to]
+              description: Forecast band for the moment a stall is assigned (UTC).
+              x-jsonld:
+                '@id': estimatedStart
+              properties:
+                from:
+                  type: string
+                  format: date-time
+                  example: '2026-10-02T18:00:00Z'
+                  x-jsonld:
+                    '@id': schema:startTime
+                to:
+                  type: string
+                  format: date-time
+                  example: '2026-10-02T18:10:00Z'
+                  x-jsonld:
+                    '@id': schema:endTime

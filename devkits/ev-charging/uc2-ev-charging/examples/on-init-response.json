@@ -1,0 +1,70 @@
+{
+  "context": {
+    "networkId": "nfh.global/testnet-deg",
+    "version": "2.0.0",
+    "action": "on_init",
+    "bapId": "bap.example.com",
+    "bapUri": "https://bap.example.com/bap/receiver",
+    "bppId": "bpp.example.com",
+    "bppUri": "https://bpp.example.com/bpp/receiver",
+    "transactionId": "7f1c2b9e-4d3a-4e8f-9b61-2a5c8d0e1f01",
+    "messageId": "7f1c2b9e-4d3a-4e8f-9b61-000000000006",
+    "timestamp": "2026-10-02T12:01:02Z",
+    "schemaContext": [
+      "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingOffer/v3.0/context.jsonld",
+      "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingCommitment/v1.0/context.jsonld",
+      "https://schema.nfh.global/DEGContract/v2.0/context.jsonld"
+    ]
+  },
+  "message": {
+    "contract": {
+      "status": {"code": "DRAFT"},
+      "commitments": [
+        {
+          "id": "commitment-1",
+          "status": {"descriptor": {"code": "DRAFT"}},
+          "resources": [{"id": "ecopower-btm-ccs2-dc60", "quantity": {"unitCode": "KWH", "unitQuantity": 30}}],
+          "offer": {
+            "id": "ecopower-btm-reservation",
+            "descriptor": {"name": "Reservation", "shortDesc": "Book a start time at least an hour ahead"},
+            "resourceIds": ["ecopower-btm-ccs2-dc60"],
+            "offerAttributes": {
+              "@context": "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingOffer/v3.0/context.jsonld",
+              "@type": "ChargingOffer",
+              "mode": "RESERVATION",
+              "terms": {
+                "currency": "INR",
+                "energyPerKWh": 18,
+                "occupancyPerMin": 2,
+                "idlePerMin": 10,
+                "graceMin": 5,
+                "maxDemotions": 2,
+                "gridDelayCreditPerMin": 1,
+                "reservation": {"fee": 100, "cancelBeforeMin": 60, "cpoDelayCreditPerMin": 5, "liabilityCap": 500}
+              },
+              "contractAttributes": {
+                "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
+                "@type": "DEGContract",
+                "roles": [{"role": "cpo", "participantId": "bpp.example.com"}, {"role": "driver", "participantId": null}],
+                "policy": {"url": "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/policies/ev-charging-contractpolicy.rego", "queryPath": "data.deg.contracts.ev_charging"}
+              }
+            }
+          },
+          "commitmentAttributes": {
+            "@context": "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingCommitment/v1.0/context.jsonld",
+            "@type": "ChargingCommitment",
+            "vehicle": {"maxChargeKW": 60, "socPercent": 22},
+            "reservedStart": "2026-10-02T18:00:00Z",
+            "quote": {"promisedKW": 60, "estimatedStart": {"from": "2026-10-02T18:00:00Z", "to": "2026-10-02T18:10:00Z"}}
+          }
+        }
+      ],
+      "contractAttributes": {
+        "@context": "https://schema.nfh.global/DEGContract/v2.0/context.jsonld",
+        "@type": "DEGContract",
+        "roles": [{"role": "cpo", "participantId": "bpp.example.com"}, {"role": "driver", "participantId": "bap.example.com"}],
+        "policy": {"url": "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/policies/ev-charging-contractpolicy.rego", "queryPath": "data.deg.contracts.ev_charging"}
+      }
+    }
+  }
+}

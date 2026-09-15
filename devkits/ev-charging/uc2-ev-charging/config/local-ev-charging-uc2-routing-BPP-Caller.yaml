@@ -1,0 +1,22 @@
+# BPP Caller routing: on_* callbacks from BPP → BAP adapter
+routingRules:
+  - version: "2.0.0"
+    targetType: "bap"
+    endpoints:
+      - on_select
+      - on_init
+      - on_confirm
+      - on_status
+      - on_update
+      - on_cancel
+
+  # Catalog actions are compound endpoints in Beckn v2 (/catalog/publish,
+  # /catalog/subscription); the router appends the full action to the target
+  # URL, hence the base ends at /beckn/.
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "https://fabric.nfh.global/beckn/"
+    endpoints:
+      - catalog/publish
+      - catalog/subscription

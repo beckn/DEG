@@ -1,0 +1,25 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "beckn": "https://schema.nfh.global/core/v2.0/",
+    "deg": "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingSession/v3.0/vocab.jsonld#",
+    "ChargingSession": "deg:ChargingSession",
+    "ledger": {"@id": "deg:ledger", "@container": "@list"},
+    "at": {"@id": "schema:startTime", "@type": "http://www.w3.org/2001/XMLSchema#dateTime"},
+    "state": {"@id": "deg:state", "@type": "@vocab"},
+    "QUEUED": "deg:Queued",
+    "ASSIGNED": "deg:Assigned",
+    "CHARGING": "deg:Charging",
+    "LIMITED_BY_CPO": "deg:LimitedByCpo",
+    "LIMITED_BY_GRID": "deg:LimitedByGrid",
+    "IDLE": "deg:Idle",
+    "DEPARTED": "deg:Departed",
+    "CANCELLED": "deg:Cancelled",
+    "NO_SHOW": "deg:NoShow",
+    "FAILED_BY_CPO": "deg:FailedByCpo",
+    "stallId": "deg:stallId",
+    "kWh": "deg:kWh",
+    "eventId": "deg:eventId"
+  }
+}

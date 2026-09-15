@@ -1,0 +1,55 @@
+# Declarative substitution rules for ev-charging uc2-ev-charging Postman
+# collections. Loaded by generate_postman_collection.py when this file is
+# present in the output dir (replaces the legacy role-inference macro logic).
+#
+# Structure:
+#   common:  rules applied to every role before role-specific rules
+#   roles:   per-canonical-role rule lists (BAP = driver app, BPP = CPO)
+#
+# Each rule entry:
+#   match:  glob pattern (or list of patterns) matched against the source filename
+#   paths:  path → {var, suffix?, required?}
+#     var:      Postman variable name (rendered as {{var}}suffix)
+#     suffix:   string appended after the variable reference
+#     required: if false, missing paths are silently skipped (default: true)
+
+common:
+  - match: "*.json"
+    paths:
+      context.version:       {var: version}
+      context.networkId:     {var: domain, required: false}
+      context.transactionId: {var: transaction_id}
+      context.messageId:     {var: "$guid"}
+      # context.timestamp is deliberately NOT substituted: the scenario is a
+      # dated story (reservedStart, ledger rows) and network rule N3 compares
+      # reservedStart with context.timestamp, so literal timestamps keep the
+      # reservation valid and the too-soon request NACKing on every run.
+
+roles:
+  # ── Driver app (BAP) ──────────────────────────────────────────────────────
+  BAP:
+    - match: "*.json"
+      paths:
+        context.bapId:  {var: bap_id}
+        context.bapUri: {var: bap_host_root, suffix: /bap/receiver}
+        context.bppId:  {var: bpp_id, required: false}
+        context.bppUri: {var: bpp_host_root, suffix: /bpp/receiver, required: false}
+
+  # ── Charge point operator (BPP) ───────────────────────────────────────────
+  # bapId/bapUri absent in publish-catalog.json, so marked required: false.
+  BPP:
+    - match: "*.json"
+      paths:
+        context.bapId:  {var: bap_id, required: false}
+        context.bapUri: {var: bap_host_root, suffix: /bap/receiver, required: false}
+        context.bppId:  {var: bpp_id, required: false}
+        context.bppUri: {var: bpp_host_root, suffix: /bpp/receiver, required: false}
+
+    # publishDirectives.visibleTo[0] mirrors context.networkId — same {{domain}} variable.
+    # Target the first element of the visibleTo array so the array shape is preserved
+    # (generator's _parse_path supports positional [n] segments); substituting the bare
+    # key would collapse the array to a string, which the beckn core schema NACKs
+    # ("message/publishDirectives/0/visibleTo: value must be an array").
+    - match: "publish-catalog.json"
+      paths:
+        message.publishDirectives[catalogId=ecopower-btm-catalog].visibleTo[0]: {var: domain, required: false}

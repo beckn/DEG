@@ -1,0 +1,31 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "beckn": "https://schema.nfh.global/core/v2.0/",
+    "deg": "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingSession/v3.0/vocab.jsonld#",
+    "schema": "https://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {"@id": "deg:ChargingSession", "@type": "rdfs:Class", "rdfs:label": "EV Charging Session", "rdfs:comment": "A charging session recorded as a transition log."},
+    {"@id": "deg:LedgerRow", "@type": "rdfs:Class", "rdfs:label": "Ledger row", "rdfs:comment": "The session entered `state` at `at` and held it until the next row."},
+    {"@id": "deg:ledger", "@type": "rdf:Property", "rdfs:label": "Ledger", "rdfs:domain": "deg:ChargingSession", "schema:rangeIncludes": "deg:LedgerRow"},
+    {"@id": "deg:SessionState", "@type": "schema:Enumeration", "rdfs:label": "Session state", "schema:hasEnumerationMember": [{"@id": "deg:Queued"}, {"@id": "deg:Assigned"}, {"@id": "deg:Charging"}, {"@id": "deg:LimitedByCpo"}, {"@id": "deg:LimitedByGrid"}, {"@id": "deg:Idle"}, {"@id": "deg:Departed"}, {"@id": "deg:Cancelled"}, {"@id": "deg:NoShow"}, {"@id": "deg:FailedByCpo"}]},
+    {"@id": "deg:Queued", "@type": "deg:SessionState", "rdfs:label": "QUEUED", "rdfs:comment": "In the virtual queue; no stall."},
+    {"@id": "deg:Assigned", "@type": "deg:SessionState", "rdfs:label": "ASSIGNED", "rdfs:comment": "Stall held for the driver; arrival grace running."},
+    {"@id": "deg:Charging", "@type": "deg:SessionState", "rdfs:label": "CHARGING", "rdfs:comment": "On stall; pace set by the vehicle."},
+    {"@id": "deg:LimitedByCpo", "@type": "deg:SessionState", "rdfs:label": "LIMITED_BY_CPO", "rdfs:comment": "On stall; power limited by the CPO."},
+    {"@id": "deg:LimitedByGrid", "@type": "deg:SessionState", "rdfs:label": "LIMITED_BY_GRID", "rdfs:comment": "On stall; power limited by a grid event."},
+    {"@id": "deg:Idle", "@type": "deg:SessionState", "rdfs:label": "IDLE", "rdfs:comment": "Charging finished; vehicle still on the stall."},
+    {"@id": "deg:Departed", "@type": "deg:SessionState", "rdfs:label": "DEPARTED", "rdfs:comment": "Terminal: served, vehicle left."},
+    {"@id": "deg:Cancelled", "@type": "deg:SessionState", "rdfs:label": "CANCELLED", "rdfs:comment": "Terminal: cancelled by the driver."},
+    {"@id": "deg:NoShow", "@type": "deg:SessionState", "rdfs:label": "NO_SHOW", "rdfs:comment": "Terminal: grace missed after maxDemotions."},
+    {"@id": "deg:FailedByCpo", "@type": "deg:SessionState", "rdfs:label": "FAILED_BY_CPO", "rdfs:comment": "Terminal: the CPO could not serve the session."},
+    {"@id": "deg:state", "@type": "rdf:Property", "rdfs:label": "State", "rdfs:domain": "deg:LedgerRow", "schema:rangeIncludes": "deg:SessionState"},
+    {"@id": "deg:stallId", "@type": "rdf:Property", "rdfs:label": "Stall", "rdfs:comment": "EVSE assigned to the driver.", "rdfs:domain": "deg:LedgerRow", "schema:rangeIncludes": "xsd:string"},
+    {"@id": "deg:kWh", "@type": "rdf:Property", "rdfs:label": "Energy", "rdfs:comment": "Metered register delta over the row (kWh).", "rdfs:domain": "deg:LedgerRow", "schema:rangeIncludes": "xsd:decimal"},
+    {"@id": "deg:eventId", "@type": "rdf:Property", "rdfs:label": "Grid event", "rdfs:comment": "Grid event behind a LIMITED_BY_GRID row.", "rdfs:domain": "deg:LedgerRow", "schema:rangeIncludes": "xsd:string"}
+  ]
+}

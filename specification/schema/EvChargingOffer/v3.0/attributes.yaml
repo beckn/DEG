@@ -1,0 +1,163 @@
+openapi: 3.1.1
+info:
+  title: EvChargingOffer
+  version: '3.0'
+  description: >
+    Attribute schema for settlement-first EV charging offers (Offer.offerAttributes).
+    An offer publishes a contract mode (WALK_IN or RESERVATION), the complete
+    commercial terms the contract policy settles against, and the DEGContract
+    template (roles + policy reference) promoted to Contract.contractAttributes
+    at select.
+
+    Terms are data, the policy is code: every CPO publishes its own numbers,
+    while the formulas live in the shared, checksummed contract policy
+    (ev-charging-contractpolicy.rego). All amounts are in `terms.currency`,
+    tax-exclusive. Every key is required for its mode — there are no implicit
+    defaults. The network policy checks that `mode` and the presence of
+    `terms.reservation` agree.
+
+    v3.0 is a clean break from v2.0 (tariffModel / idleFeePolicy /
+    buyerFinderFee), which remains valid for existing networks.
+components:
+  schemas:
+    EvChargingOffer:
+      type: object
+      additionalProperties: false
+      required: [mode, terms, contractAttributes]
+      x-tags: [ev-charging, offer, tariff, settlement, energy]
+      x-jsonld:
+        '@context': ./context.jsonld
+        '@type': ChargingOffer
+      properties:
+        mode:
+          type: string
+          enum: [WALK_IN, RESERVATION]
+          description: >
+            Contract mode. WALK_IN buys a place in the virtual queue now;
+            RESERVATION buys a start time booked ahead, for a fee, with a
+            CPO delay guarantee.
+          example: RESERVATION
+          x-jsonld:
+            '@id': mode
+        terms:
+          $ref: '#/components/schemas/ChargingTerms'
+        contractAttributes:
+          type: object
+          additionalProperties: true
+          description: >
+            DEGContract template (roles `driver` and `cpo`, policy url +
+            queryPath). `driver` participantId is null in the catalog and is
+            bound at select, when the whole object is copied to
+            Contract.contractAttributes. Validated separately via its own
+            @context.
+          x-jsonld:
+            '@id': contractAttributes
+
+    ChargingTerms:
+      type: object
+      additionalProperties: false
+      required: [currency, energyPerKWh, occupancyPerMin, idlePerMin, graceMin, maxDemotions, gridDelayCreditPerMin]
+      description: Commercial terms settled by the contract policy.
+      x-jsonld:
+        '@id': terms
+      properties:
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          x-standard: ISO 4217
+          description: Currency of every amount in these terms.
+          example: INR
+          x-jsonld:
+            '@id': currency
+        energyPerKWh:
+          type: number
+          minimum: 0
+          description: Energy tariff per metered kWh.
+          example: 18
+          x-jsonld:
+            '@id': energyPerKWh
+        occupancyPerMin:
+          type: number
+          minimum: 0
+          description: >
+            Stall rent per minute the driver is responsible for — energy rows
+            net of minutes added by CPO or grid limits.
+          example: 2
+          x-jsonld:
+            '@id': occupancyPerMin
+        idlePerMin:
+          type: number
+          minimum: 0
+          description: Idle fee per minute a charged vehicle stays on the stall beyond graceMin.
+          example: 10
+          x-jsonld:
+            '@id': idlePerMin
+        graceMin:
+          type: integer
+          minimum: 0
+          description: >
+            One slack for everyone: minutes the driver has to arrive after
+            assignment and to unplug after charging, and minutes the CPO has
+            to be ready after a reserved start.
+          example: 5
+          x-jsonld:
+            '@id': graceMin
+        maxDemotions:
+          type: integer
+          minimum: 0
+          description: >
+            Missed assignments tolerated. A missed assignment demotes the
+            driver by one slot; the next miss after maxDemotions ends the
+            session as NO_SHOW.
+          example: 2
+          x-jsonld:
+            '@id': maxDemotions
+        gridDelayCreditPerMin:
+          type: number
+          minimum: 0
+          description: Credit to the driver per minute a grid (DR) limit added to the session.
+          example: 1
+          x-jsonld:
+            '@id': gridDelayCreditPerMin
+        reservation:
+          $ref: '#/components/schemas/ReservationTerms'
+
+    ReservationTerms:
+      type: object
+      additionalProperties: false
+      required: [fee, cancelBeforeMin, cpoDelayCreditPerMin, liabilityCap]
+      description: Present if and only if mode is RESERVATION.
+      x-jsonld:
+        '@id': reservation
+      properties:
+        fee:
+          type: number
+          minimum: 0
+          description: Reservation premium; kept, refunded or forfeited by outcome.
+          example: 100
+          x-jsonld:
+            '@id': fee
+        cancelBeforeMin:
+          type: integer
+          minimum: 0
+          description: Cancellation is free up to this many minutes before reservedStart.
+          example: 60
+          x-jsonld:
+            '@id': cancelBeforeMin
+        cpoDelayCreditPerMin:
+          type: number
+          minimum: 0
+          description: >
+            Credit to the driver per minute of CPO-caused delay — late start
+            beyond graceMin plus minutes added by CPO limits.
+          example: 5
+          x-jsonld:
+            '@id': cpoDelayCreditPerMin
+        liabilityCap:
+          type: number
+          minimum: 0
+          description: Upper bound on the CPO delay credit for one session.
+          example: 500
+          x-jsonld:
+            '@id': liabilityCap

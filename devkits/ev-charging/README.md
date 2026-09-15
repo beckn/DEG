@@ -9,6 +9,7 @@ For the shared stack topology, prerequisites, Quick Start, transaction flow, hos
 | Use Case | BAP (Consumer) | BPP (Provider) | Description |
 |----------|---------------|----------------|-------------|
 | [uc1-ev-charging](./uc1-ev-charging/) | EV Driver App | Charging Station Operator | Discovery → reserve → session → billing → cancellation |
+| [uc2-ev-charging](./uc2-ev-charging/) | EV Driver App | Charge Point Operator | Settlement-first: walk-in and reservation share one virtual queue; the session ledger is settled by a contract policy both sides run (Beckn v2.0 LTS, self-contained stack) |
 
 The devkit covers:
 - **Charging station discovery** — filter by location, connector, power rating, availability

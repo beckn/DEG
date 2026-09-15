@@ -1,0 +1,24 @@
+# OPA network policy config consumed by the `opapolicychecker` plugin on all
+# four adapter modules.
+#
+# Each entry is keyed by full networkId; `default:` is the fallback. Both
+# point at the same gate-only structural policy (rules N1–N8, see its header):
+# roles, mode consistency, reservation lead time, promise within vehicle
+# limit, ledger order/transitions/fields, plausibility, status vs ledger.
+# Settlement and party-agreed terms live in the contract policy linked from
+# each payload's contractAttributes.policy.
+#
+# `type: file` resolves remote URLs too. The rego is fetched from the
+# ameetdesh/DEG fork's main branch, so a policy edit takes effect in the
+# devkit once it is merged there (and the adapter is restarted).
+
+networkPolicies:
+  default:
+    type: file
+    location: https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/policies/ev-charging-networkpolicy.rego
+    query: data.deg.policy.ev_charging_network.violations
+
+  nfh.global/testnet-deg:
+    type: file
+    location: https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/policies/ev-charging-networkpolicy.rego
+    query: data.deg.policy.ev_charging_network.violations

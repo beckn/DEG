@@ -275,7 +275,9 @@ try:
 except Exception as e:
     print(f"NACK check: unable to read respect JSON log ({e})")
     sys.exit(0)
+import re
 nacks = []
+expected = []
 for _, file_data in data.get('files', {}).items():
     for wf in file_data.get('executedWorkflows', []):
         for step in wf.get('executedSteps', []):
@@ -286,8 +288,19 @@ for _, file_data in data.get('files', {}).items():
             is_nack = (
                 isinstance(status, int) and status >= 400
             ) or (body_str and '"NACK"' in body_str)
-            if is_nack:
+            # Negative-path steps declare the NACK they expect
+            # (successCriteria: $statusCode == 4xx); a passing check makes
+            # the NACK the intended outcome rather than a failure.
+            expects_nack = any(
+                c.get('passed') and re.search(r'\$statusCode\s*==\s*4\d\d', json.dumps(c))
+                for c in step.get('checks') or []
+            )
+            if is_nack and expects_nack:
+                expected.append((wf.get('workflowId'), step.get('stepId'), status))
+            elif is_nack:
                 nacks.append((wf.get('workflowId'), step.get('stepId'), status))
+for wf_id, step_id, status in expected:
+    print(f"NACK check: expected NACK — {wf_id} / {step_id}  (HTTP {status})")
 if nacks:
     print("\nNACK check: FAILED — the following steps returned a NACK/error response:")
     for wf_id, step_id, status in nacks:

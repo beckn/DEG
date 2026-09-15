@@ -82,7 +82,7 @@ components:
               x-jsonld:
                 '@id': serviceLocation
               allOf:
-              - $ref: https://schema.nfh.global/Location/v2.0
+              - $ref: "https://schema.nfh.global/Location/v2.0/attributes.yaml#/components/schemas/Location"
               - type: object
               example:
                 '@type': beckn:Location

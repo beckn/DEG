@@ -1,0 +1,18 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "schema": "https://schema.org/",
+    "beckn": "https://schema.nfh.global/core/v2.0/",
+    "deg": "https://raw.githubusercontent.com/ameetdesh/DEG/refs/heads/main/specification/schema/EvChargingCommitment/v1.0/vocab.jsonld#",
+    "ChargingCommitment": "deg:ChargingCommitment",
+    "vehicle": "deg:vehicle",
+    "maxChargeKW": "deg:maxChargeKW",
+    "socPercent": "deg:socPercent",
+    "reservedStart": {"@id": "deg:reservedStart", "@type": "http://www.w3.org/2001/XMLSchema#dateTime"},
+    "quote": "deg:quote",
+    "promisedKW": "deg:promisedKW",
+    "estimatedStart": "deg:estimatedStart",
+    "from": {"@id": "schema:startTime", "@type": "http://www.w3.org/2001/XMLSchema#dateTime"},
+    "to": {"@id": "schema:endTime", "@type": "http://www.w3.org/2001/XMLSchema#dateTime"}
+  }
+}
