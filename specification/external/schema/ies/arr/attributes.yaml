@@ -1,0 +1,211 @@
+openapi: 3.1.0
+info:
+  title: IES ARR Filing Schemas
+  version: 1.0.0
+  description: |
+    Schema definitions for Aggregate Revenue Requirement (ARR) filings
+    by distribution licensees to State Electricity Regulatory Commissions (SERCs).
+
+    Designed to unify different DISCOM filing formats:
+    - Multi-Year Tariff (MYT) wide-format filings (e.g., APEPDCL to APERC)
+    - Annual single-year filings with historical SERC-approved data (e.g., Goa GED to JERC)
+    - Varying line item granularity (e.g., O&M split vs consolidated, Return on NFA vs RoE)
+    - Evolving line items across years (new items appearing, old items consolidated)
+
+components:
+  schemas:
+    IES_ARR_Filing:
+      description: |
+        A complete ARR filing by a distribution licensee.
+        Contains one or more fiscal years, each with its own line items.
+        Supports both MYT control-period filings and annual historical data.
+      type: object
+      required: [objectType, filingId, licensee, regulatoryCommission, currency, unitScale, fiscalYears]
+      properties:
+        "@context":
+          type: string
+        objectType:
+          type: string
+          enum: [ARR_FILING]
+        id:
+          type: string
+          description: Unique identifier for this filing.
+        filingId:
+          type: string
+          description: Regulatory filing reference number.
+          example: "APERC/ARR/APEPDCL/MYT/2024-29"
+        filingDate:
+          type: string
+          format: date
+        filingType:
+          type: string
+          enum: [MYT, ANNUAL, TRUE_UP, REVISED]
+          description: |
+            MYT - Multi-Year Tariff control period filing (multiple years, mix of actual/proposed)
+            ANNUAL - single year or historical year-by-year approved data
+            TRUE_UP - reconciliation of actuals vs previously approved amounts
+            REVISED - amended filing with corrections
+        licensee:
+          type: string
+          description: Full name of the distribution licensee.
+          example: "Andhra Pradesh Eastern Power Distribution Company Limited"
+        licenseeCode:
+          type: string
+          description: Short code for the licensee.
+          example: "APEPDCL"
+        stateProvince:
+          type: string
+          example: "Andhra Pradesh"
+        regulatoryCommission:
+          type: string
+          description: SERC or Joint ERC that receives the filing.
+          example: "APERC"
+        controlPeriodStart:
+          type: string
+          description: Start fiscal year of MYT control period (only for MYT filings).
+          example: "FY 2024-25"
+        controlPeriodEnd:
+          type: string
+          description: End fiscal year of MYT control period.
+          example: "FY 2028-29"
+        currency:
+          type: string
+          default: INR
+          enum: [INR]
+        unitScale:
+          type: string
+          default: CRORE
+          enum: [CRORE, LAKH, ABSOLUTE]
+          description: Scale of all amounts in the filing.
+        status:
+          type: string
+          enum: [DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED]
+        formReference:
+          type: string
+          description: Regulatory form identifier.
+          example: "Form 1"
+        notes:
+          type: array
+          items:
+            type: string
+          description: Footnotes, regulatory order references, and explanatory notes.
+        fiscalYears:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/IES_ARR_FiscalYear'
+
+    IES_ARR_FiscalYear:
+      description: |
+        ARR data for a single fiscal year.
+        The combination of yearType + amountBasis captures what the numbers represent:
+        e.g., a BASE_YEAR with AUDITED amounts, or a PROJECTION year with PROPOSED amounts.
+      type: object
+      required: [fiscalYear, amountBasis, lineItems]
+      properties:
+        fiscalYear:
+          type: string
+          description: Fiscal year label.
+          example: "FY 2025-26"
+        yearType:
+          type: string
+          enum: [BASE_YEAR, CONTROL_PERIOD, HISTORICAL]
+          description: |
+            BASE_YEAR - reference year in an MYT filing (typically the year before the control period)
+            CONTROL_PERIOD - a year within the MYT control period being filed for
+            HISTORICAL - a past year with finalized data (used in annual/historical filings)
+        amountBasis:
+          type: string
+          enum: [AUDITED, APPROVED, PROPOSED, TRUED_UP, NOT_FILED]
+          description: |
+            AUDITED - actual costs verified by auditors
+            APPROVED - amounts approved by the SERC in a tariff order
+            PROPOSED - amounts requested by the DISCOM, pending SERC approval
+            TRUED_UP - reconciled amounts after comparing actuals to approved
+            NOT_FILED - placeholder year in a control period, no data yet
+        lineItems:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/IES_ARR_LineItem'
+
+    IES_ARR_LineItem:
+      description: |
+        A single cost, income, subtotal, or adjustment line item.
+
+        The schema accommodates varying granularity across DISCOMs:
+        - O&M may be one line (consolidated) or split into Employee Costs,
+          Admin & General, Repair & Maintenance
+        - Return may appear as Return on NFA, Return on Equity,
+          or Return on Capital Base depending on SERC regulations
+        - Some years may have items not present in others
+          (e.g., Incentive/Disincentive, DSM Provision, O&M sharing gains)
+      type: object
+      required: [lineItemId, category, head, amount]
+      properties:
+        lineItemId:
+          type: string
+          description: |
+            Stable identifier for this line item across years.
+            Use kebab-case, e.g., "power-purchase-cost", "interest-working-cap".
+        serialNumber:
+          type: integer
+          description: Display order as shown in the regulatory form.
+        category:
+          type: string
+          enum: [VARIABLE, FIXED, INCOME, SUB_TOTAL, ARR, ADJUSTMENT]
+          description: |
+            VARIABLE - costs varying with energy volume (power purchase)
+            FIXED - costs independent of volume (O&M, depreciation, interest, return)
+            INCOME - revenue credits that reduce the ARR (negative amounts)
+            SUB_TOTAL - computed aggregation of other line items
+            ARR - the final net/aggregate revenue requirement
+            ADJUSTMENT - true-up corrections, pass-throughs, FPPCA adjustments
+        subCategory:
+          type: string
+          enum:
+            - POWER_PURCHASE
+            - NETWORK_COST
+            - O_AND_M
+            - DEPRECIATION
+            - INTEREST
+            - RETURN_ON_EQUITY
+            - PROVISIONAL
+            - OTHER
+            - NON_TARIFF_INCOME
+            - REVENUE_CREDIT
+            - TOTAL
+            - NET_ARR
+          description: Functional sub-classification for analysis and comparison across DISCOMs.
+        head:
+          type: string
+          description: |
+            Short heading as used in the regulatory form.
+            Varies by DISCOM — use the original text from the filing.
+          example: "Transmission Cost"
+        particulars:
+          type: string
+          description: |
+            Detailed description or the "Particulars" column value.
+            Useful when head alone is ambiguous (e.g., "Others" head with
+            "Incentive/Disincentive on achievement of norms" as particulars).
+        amount:
+          type: ["number", "null"]
+          description: |
+            Amount in the filing's currency and unitScale.
+            Null means the line item exists in the form but was not filed / not applicable.
+            Negative values represent credits, deductions, or adjustments that reduce ARR.
+        formReference:
+          type: string
+          description: Reference to the supporting sub-form or schedule.
+          example: "Form 1.1"
+        componentOf:
+          type: string
+          description: lineItemId of the parent subtotal this item contributes to.
+          example: "network-and-sldc-cost"
+        formula:
+          type: string
+          description: |
+            Human-readable computation formula expressed as references to other lineItemIds.
+            Only present on SUB_TOTAL and ARR items.
+          example: "transmission-cost + sldc-cost + net-distribution-cost + pgcil-expenses + uldc-charges"
