@@ -1,0 +1,39 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "support",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "example-bap.com",
+    "bapUri": "https://api.example-bap.com/pilot/bap/energy/v2",
+    "bppId": "example-bpp.com",
+    "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "7fe9567d-7931-5978-92f2-21d48374b4f5",
+    "timestamp": "2025-01-27T11:40:00Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "support": {
+      "orderId": "order-ev-charging-001",
+      "descriptor": {
+        "code": "CONNECTOR_FAULT",
+        "name": "Connector not releasing",
+        "shortDesc": "Charging stopped but the CCS2 connector is still locked to the vehicle."
+      },
+      "channels": [
+        {
+          "@context": "https://schema.nfh.global/SupportInfo/v2.1/context.jsonld",
+          "@type": "SupportInfo",
+          "name": "Ravi Kumar",
+          "telephone": "+91-9876543210",
+          "email": "ravi.kumar@example.com",
+          "hoursAvailable": "Mon–Sun: 6:00 PM - 10:00 PM IST",
+          "channels": [
+            "PHONE",
+            "WHATSAPP"
+          ]
+        }
+      ]
+    }
+  }
+}

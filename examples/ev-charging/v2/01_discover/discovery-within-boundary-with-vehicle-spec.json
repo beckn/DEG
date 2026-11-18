@@ -2,37 +2,38 @@
   "context": {
     "version": "2.0.0",
     "action": "discover",
-    "domain": "beckn.one:deg:ev-charging:*",
-    "bap_id": "app.example.com",
-    "bap_uri": "https://app.example.com/bap",
-    "bpp_id": "example-cds.com",
-    "bpp_uri": "https://example-cds.com/pilot/cds/energy/v2",
-    "transaction_id": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "message_id": "a1eabf26-29f5-4a01-9d4e-4c5c9d1a3d02",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "app.example.com",
+    "bapUri": "https://app.example.com/bap",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "5a5f250c-144a-5bf7-bd46-ffff23fef10b",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
-    "schema_context": [
-      "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld"
+    "schemaContext": [
+      "https://schema.nfh.global/EvChargingService/v2.0/context.jsonld",
+      "https://schema.nfh.global/EvChargingOffer/v2.0/context.jsonld"
     ]
   },
   "message": {
-    "filters": {
-      "type": "jsonpath",
-      "expression": "$[?(@.beckn:fulfillment.beckn:deliveryAttributes.vehicle.make == 'Tata' && @.beckn:fulfillment.beckn:deliveryAttributes.vehicle.model == 'Nexon-EV' )]"
-    },
-    "spatial": [
-      {
-        "op": "s_dwithin",
-        "targets": "$['beckn:itemAttributes.chargingStation.serviceLocation.geo']",
-        "geometry": {
-          "type": "Point",
-          "coordinates": [
-            77.6,
-            12.95
-          ]
-        },
-        "distanceMeters": 8000
-      }
-    ]
+    "intent": {
+      "filters": {
+        "type": "jsonpath",
+        "expression": "$.catalogs[*].resources[?(@.resourceAttributes.vehicleType == '4-WHEELER' && @.resourceAttributes.connectorType == 'CCS2')]"
+      },
+      "spatial": [
+        {
+          "op": "S_DWITHIN",
+          "targets": "$.catalogs[*].provider.availableAt[*].geo",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              77.6,
+              12.95
+            ]
+          },
+          "distanceMeters": 8000
+        }
+      ]
+    }
   }
 }

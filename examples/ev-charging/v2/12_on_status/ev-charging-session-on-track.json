@@ -2,113 +2,172 @@
   "context": {
     "version": "2.0.0",
     "action": "on_status",
-    "domain": "beckn.one:deg:ev-charging:*",
-    "bap_id": "example-bap.com",
-    "bap_uri": "https://example-bap.com/pilot/bap/energy/v2",
-    "transaction_id": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "message_id": "6ace310b-6440-4421-a2ed-b484c7548bd5",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "example-bap.com",
+    "bapUri": "https://example-bap.com/pilot/bap/energy/v2",
+    "bppId": "example-bpp.com",
+    "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "6ace310b-6440-4421-a2ed-b484c7548bd5",
     "timestamp": "2025-01-27T17:00:40.065Z",
-    "ttl": "PT30S",
-    "bpp_id": "example-bpp.com",
-    "bpp_uri": "https://example-bpp.com/pilot/bpp/energy/v2"
+    "ttl": "PT30S"
   },
   "message": {
-    "order": {
-      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
-      "@type": "beckn:Order",
-      "beckn:id": "order-ev-charging-001",
-      "beckn:orderStatus": "INPROGRESS",
-      "beckn:seller": "cpo1.com",
-      "beckn:buyer": {
-        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
-        "@type": "beckn:Buyer",
-        "beckn:id": "user-123"
+    "contract": {
+      "id": "order-ev-charging-001",
+      "status": {
+        "code": "ACTIVE"
       },
-      "beckn:orderItems": [
+      "participants": [
         {
-          "beckn:orderedItem": "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A"
-        }
-      ],
-      "beckn:fulfillment": {
-        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
-        "@type": "beckn:Fulfillment",
-        "beckn:id": "fulfillment-001",
-        "beckn:mode": "RESERVATION",
-        "trackingAction": {
-          "@type": "beckn:TrackAction",
-          "target": {
-            "@type": "schema:EntryPoint",
-            "url": "https://track.bluechargenet-aggregator.io/session/SESSION-9876543210"
+          "id": "ecopower-charging",
+          "descriptor": {
+            "name": "EcoPower Charging Pvt Ltd"
           }
         },
-        "beckn:deliveryAttributes": {
-          "@context": "https://schema.nfh.global/EvChargingSession/v1.0/context.jsonld",
-          "@type": "ChargingSession",
-          "sessionStatus": "ACTIVE",
-          "chargingTelemetry": [
-            {
-              "eventTime": "2025-01-27T17:00:00Z",
-              "metrics": [
-                {
-                  "name": "STATE_OF_CHARGE",
-                  "value": 62.5,
-                  "unitCode": "PERCENTAGE"
-                },
-                {
-                  "name": "POWER",
-                  "value": 18.4,
-                  "unitCode": "KWH"
-                },
-                {
-                  "name": "ENERGY",
-                  "value": 10.2,
-                  "unitCode": "KW"
-                },
-                {
-                  "name": "VOLTAGE",
-                  "value": 392,
-                  "unitCode": "VLT"
-                },
-                {
-                  "name": "CURRENT",
-                  "value": 47.0,
-                  "unitCode": "AMP"
-                }
-              ]
-            },
-            {
-              "eventTime": "2025-01-27T17:05:00Z",
-              "metrics": [
-                {
-                  "name": "STATE_OF_CHARGE",
-                  "value": 65.0,
-                  "unitCode": "PERCENTAGE"
-                },
-                {
-                  "name": "POWER",
-                  "value": 17.1,
-                  "unitCode": "KWH"
-                },
-                {
-                  "name": "ENERGY",
-                  "value": 11.1,
-                  "unitCode": "KW"
-                },
-                {
-                  "name": "VOLTAGE",
-                  "value": 388,
-                  "unitCode": "VLT"
-                },
-                {
-                  "name": "CURRENT",
-                  "value": 44.2,
-                  "unitCode": "AMP"
-                }
-              ]
+        {
+          "id": "user-123",
+          "descriptor": {
+            "name": "user-123"
+          },
+          "participantAttributes": {
+            "@context": "https://schema.nfh.global/Consumer/v2.0/context.jsonld",
+            "@type": "Consumer",
+            "person": {
+              "id": "user-123"
             }
-          ]
+          }
         }
-      }
+      ],
+      "commitments": [
+        {
+          "id": "commitment-001",
+          "status": {
+            "descriptor": {
+              "code": "ACTIVE"
+            }
+          },
+          "resources": [
+            {
+              "id": "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A",
+              "quantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 2.5
+              }
+            }
+          ],
+          "offer": {
+            "id": "offer-ccs2-60kw-kwh",
+            "descriptor": {
+              "name": "Per-kWh Tariff - CCS2 60kW"
+            },
+            "provider": {
+              "id": "ecopower-charging",
+              "descriptor": {
+                "name": "EcoPower Charging Pvt Ltd"
+              }
+            },
+            "resourceIds": [
+              "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A"
+            ],
+            "considerations": [
+              {
+                "id": "price-offer-ccs2-60kw-kwh",
+                "considerationAttributes": {
+                  "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
+                  "@type": "PriceSpecification",
+                  "currency": "INR",
+                  "value": 45.0,
+                  "applicableQuantity": {
+                    "unitText": "Kilowatt Hour",
+                    "unitCode": "KWH",
+                    "unitQuantity": 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "performance": [
+        {
+          "id": "fulfillment-001",
+          "status": {
+            "code": "ACTIVE"
+          },
+          "commitmentIds": [
+            "commitment-001"
+          ],
+          "performanceAttributes": {
+            "@context": "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld",
+            "@type": "ChargingSession",
+            "sessionStatus": "ACTIVE",
+            "chargingTelemetry": [
+              {
+                "eventTime": "2025-01-27T17:00:00Z",
+                "metrics": [
+                  {
+                    "name": "STATE_OF_CHARGE",
+                    "value": 62.5,
+                    "unitCode": "PERCENTAGE"
+                  },
+                  {
+                    "name": "POWER",
+                    "value": 18.4,
+                    "unitCode": "KW"
+                  },
+                  {
+                    "name": "ENERGY",
+                    "value": 10.2,
+                    "unitCode": "KWH"
+                  },
+                  {
+                    "name": "VOLTAGE",
+                    "value": 392,
+                    "unitCode": "VLT"
+                  },
+                  {
+                    "name": "CURRENT",
+                    "value": 47.0,
+                    "unitCode": "AMP"
+                  }
+                ]
+              },
+              {
+                "eventTime": "2025-01-27T17:05:00Z",
+                "metrics": [
+                  {
+                    "name": "STATE_OF_CHARGE",
+                    "value": 65.0,
+                    "unitCode": "PERCENTAGE"
+                  },
+                  {
+                    "name": "POWER",
+                    "value": 17.1,
+                    "unitCode": "KW"
+                  },
+                  {
+                    "name": "ENERGY",
+                    "value": 11.1,
+                    "unitCode": "KWH"
+                  },
+                  {
+                    "name": "VOLTAGE",
+                    "value": 388,
+                    "unitCode": "VLT"
+                  },
+                  {
+                    "name": "CURRENT",
+                    "value": 44.2,
+                    "unitCode": "AMP"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 }
