@@ -1,0 +1,23 @@
+# Apps mode: discover goes to the CPO platform's local discovery service (through the
+# BPP adapter), so discovery works offline. With the hosted discovery service, use
+# config/local-ev-routing-BAPCaller.yaml instead.
+routingRules:
+  - version: "2.0.0"
+    targetType: "bpp"
+    endpoints:
+      - select
+      - init
+      - confirm
+      - status
+      - track
+      - cancel
+      - update
+      - rate
+      - support
+
+  - version: "2.0.0"
+    targetType: "url"
+    target:
+      url: "http://beckn-router:9000/bpp/receiver"
+    endpoints:
+      - discover
