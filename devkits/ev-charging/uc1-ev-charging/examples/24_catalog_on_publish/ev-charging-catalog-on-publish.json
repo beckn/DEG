@@ -1,0 +1,25 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "catalog/on_publish",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bppId": "bpp.example.com",
+    "bppUri": "https://bpp.example.com/pilot/bpp/energy/v2",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "b8d1e889-ef34-5981-b864-1cc20330c596",
+    "timestamp": "2025-10-01T00:00:05Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "results": [
+      {
+        "catalogId": "catalog-ev-charging-001-ecopower-charging",
+        "status": "ACCEPTED",
+        "stats": {
+          "itemCount": 1,
+          "providerCount": 1
+        }
+      }
+    ]
+  }
+}

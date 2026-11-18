@@ -1,25 +1,39 @@
 {
   "context": {
     "version": "2.0.0",
-    "action": "on_rating",
-    "domain": "beckn.one:deg:ev-charging:*",
-    "bap_id": "bap.example.com",
-    "bap_uri": "https://bap.example.com",
-    "transaction_id": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "message_id": "89ee20fe-b592-48b0-a5c5-e38f6b90e569",
+    "action": "on_rate",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "bap.example.com",
+    "bapUri": "https://bap.example.com",
+    "bppId": "bpp.example.com",
+    "bppUri": "https://bpp.example.com",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "89ee20fe-b592-48b0-a5c5-e38f6b90e569",
     "timestamp": "2025-01-27T12:00:30Z",
-    "ttl": "PT30S",
-    "bpp_id": "bpp.example.com",
-    "bpp_uri": "https://bpp.example.com"
+    "ttl": "PT30S"
   },
   "message": {
-    "received": true,
-    "feedbackForm": {
-      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/core/v2/context.jsonld",
-      "@type": "beckn:Form",
-      "url": "https://example-bpp.com/feedback/portal",
-      "mime_type": "application/xml",
-      "submission_id": "feedback-123e4567-e89b-12d3-a456-426614174000"
-    }
+    "ratings": [
+      {
+        "target": {
+          "id": "fulfillment-001",
+          "descriptor": {
+            "code": "FULFILLMENT"
+          }
+        },
+        "range": {
+          "bestRating": 5,
+          "worstRating": 1,
+          "ratingValue": 4
+        },
+        "feedbackFormSubmission": {
+          "data": {
+            "comments": "Excellent charging experience! The station was clean, easy to find, and the charging was fast and reliable. The staff was helpful and the payment process was smooth.",
+            "tags": "fast-charging,easy-to-use,clean-station,helpful-staff,smooth-payment"
+          },
+          "id": "https://bpp.example.com/feedback/portal"
+        }
+      }
+    ]
   }
 }

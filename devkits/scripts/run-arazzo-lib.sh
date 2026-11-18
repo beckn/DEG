@@ -71,6 +71,7 @@ run_arazzo() {
   # The original Arazzo file keeps the authoritative URL; only the tmpdir copy
   # is patched to point at the processed local file.
   local beckn_processed="$redocly_cache/beckn-processed.yaml"
+  mkdir -p "$redocly_cache"  # the processed spec is written here before Redocly is installed
   if [ ! -f "$beckn_processed" ]; then
     echo "Downloading beckn.yaml and breaking circular \$refs (first run only) ..."
     python3 - "$beckn_processed" <<'BREAK_CYCLES_PY'

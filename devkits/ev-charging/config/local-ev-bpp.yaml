@@ -36,7 +36,7 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: bpp.example.com
+            subscriberId: bpp.example.com
             keyId: 76EU7ofwRCF1aobQkShARrf1PAUsNpHqWUJoynPu9w45YFKmzqaPmy
             signingPrivateKey: 393fVJJsfqssJCRAjedKR2cKAjSLrjU3t+bICQ5KzYM=
             signingPublicKey: CqVy97DW45bcZPPrWIYGe2ldl9C93NFeVciiAEYsvR0=
@@ -51,6 +51,9 @@ modules:
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
             extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.nfh.global"
+            # Preloads ../schemas (fixed EV packs, keyed by @type). Remove once
+            # schema.nfh.global serves the EvChargingService/EvChargingOffer v2.0 ref fixes.
+            extendedSchema_localSchemaPath: "/app/schemas"
         cache:
           id: cache
           config:
@@ -85,7 +88,7 @@ modules:
         keyManager:
           id: simplekeymanager
           config:
-            networkParticipant: bpp.example.com
+            subscriberId: bpp.example.com
             keyId: 76EU7ofwRCF1aobQkShARrf1PAUsNpHqWUJoynPu9w45YFKmzqaPmy
             signingPrivateKey: 393fVJJsfqssJCRAjedKR2cKAjSLrjU3t+bICQ5KzYM=
             signingPublicKey: CqVy97DW45bcZPPrWIYGe2ldl9C93NFeVciiAEYsvR0=
@@ -100,6 +103,9 @@ modules:
             extendedSchema_maxCacheSize: "100"
             extendedSchema_downloadTimeout: "30"
             extendedSchema_allowedDomains: "raw.githubusercontent.com,schema.nfh.global"
+            # Preloads ../schemas (fixed EV packs, keyed by @type). Remove once
+            # schema.nfh.global serves the EvChargingService/EvChargingOffer v2.0 ref fixes.
+            extendedSchema_localSchemaPath: "/app/schemas"
         cache:
           id: cache
           config:
