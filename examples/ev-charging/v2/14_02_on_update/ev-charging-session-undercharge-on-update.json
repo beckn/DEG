@@ -8,7 +8,7 @@
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "13e99d5e-2cad-52e7-9673-b8d0bcb12921",
+    "messageId": "722a01ac-5cb9-5013-8d0b-c659573f840a",
     "timestamp": "2025-01-27T11:20:00Z",
     "ttl": "PT30S"
   },
@@ -174,7 +174,7 @@
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -193,7 +193,7 @@
             "beckn:paymentStatus": "REFUNDED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 37.2
+              "value": 37.68
             },
             "beckn:txnRef": "RFND-TXN-123456791",
             "beckn:paidAt": "2025-01-27T11:20:00Z",

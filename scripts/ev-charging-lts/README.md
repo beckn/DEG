@@ -6,7 +6,8 @@ Tools that produced `examples/ev-charging/v2` and `devkits/ev-charging/uc1-ev-ch
 |---|---|
 | `rc2lts.py` | Converts each rc example to LTS. The mapping rules are in its header and in `examples/ev-charging/v2/README.md`; it also fixes the rc data errors listed there. `--profile devkit` writes the devkit copy (registered test participant ids). |
 | `variants.py` | Adds the use-case variants the rc set lacked (slot unavailable, outstanding dues, start rejected, undercharge refund, overcharge, early completion, invoice ready, cancel preview, CPO cancellation, support resolved, track, catalog publish), derived from the same flow so ids and amounts stay consistent. |
-| `build-examples.sh` | Runs both, for the canonical and devkit sets. |
+| `correlate.py` | Gives each request and the callback(s) answering it one `messageId`, gives every other interaction its own, and keeps callbacks timestamped after their request. |
+| `build-examples.sh` | Runs the converter, the variants and the correlation pass, for the canonical and devkit sets. Only generated JSON is replaced. |
 | `core-lint.py` | Closed-world lint: reports any field the LTS core schema does not declare (ONIX accepts them because several core objects are open). |
 | `onix-check.py` | POSTs every example through a running devkit (BAP caller for requests, BPP caller for callbacks) and reports ACK/NACK, i.e. signature, registry, LTS core and attribute-pack validation. |
 

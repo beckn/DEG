@@ -12,4 +12,6 @@ python3 "$HERE/rc2lts.py" "$rc" "$devkit" --profile devkit >/dev/null
 python3 "$HERE/variants.py" "$devkit" >/dev/null
 # variants copy ids from their source files; normalise the few literals they add
 find "$devkit" -name '*.json' -exec sed -i '' -e 's/example-bpp\.com/bpp.example.com/g' -e 's/example-bap\.com/bap.example.com/g' {} +
+python3 "$HERE/correlate.py" "$canon"
+python3 "$HERE/correlate.py" "$devkit"
 echo "canonical: $(find "$canon" -name '*.json' | wc -l | tr -d ' ') files; devkit: $(find "$devkit" -name '*.json' | wc -l | tr -d ' ') files"

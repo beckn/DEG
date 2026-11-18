@@ -80,7 +80,12 @@ A different `networkId` is rejected by the BPP adapter with `AUT_NETWORK_NOT_ALL
 
 ## Notes
 
-- **Local schema copies.** `schemas/` holds `EvChargingService`, `EvChargingOffer`, `EvChargingSession` and `EvChargingPointOperator` v2.0, named by their `@type`, because ONIX's local schema mode looks packs up by `@type`. The adapters preload them (`extendedSchema_localSchemaPath`) because the copies on schema.nfh.global still have broken `$ref`s. Remove the preload once the fixed packs are published.
+- **Local schema copies (temporary).** `schemas/` holds `EvChargingService`, `EvChargingOffer`, `EvChargingSession` and `EvChargingPointOperator` v2.0. The adapters preload them (`extendedSchema_localSchemaPath`) because the copies on schema.nfh.global still have broken `$ref`s. Remove the preload, and the `../schemas` mount it needs, once the fixed packs are published.
+  - **Named by `@type`:** the folders use the `@type` because ONIX's local schema mode looks packs up by `@type`.
+  - **Two side effects in ONIX 1.9.4:**
+    - In local mode, ONIX re-parses the pack and re-fetches its remote `$ref`s for every object. That is why `discover` (many objects) takes about 1.5 s, against about 60 ms for every other action.
+    - The `@context` URL of a matching `@type` is not checked.
+  - **Copying the config:** if you copy these configs, copy the `schemas/` mount too, or the adapter will not start.
 - **Mock replies.** `install/sandbox-fixtures/` supplies LTS `on_*` replies for the mock CPO, because the replies built into the `fidedocker/sandbox-2.0` image predate LTS.
 - **Postman.** Regenerate the collections from the examples with `python3 scripts/generate_postman_collection.py --role BAP|BPP`.
 

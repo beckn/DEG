@@ -388,6 +388,13 @@ def contract(order):
     pay = g(order, "payment")
     if pay:
         c["settlements"] = [settlement(pay)]
+        if order.get("_refund"):
+            c["settlements"].append({
+                "id": "settlement-002", "considerationId": "consideration-001", "status": "COMPLETE",
+                "settlementAttributes": {"@context": CTX["payment"], "@type": "Payment", "beckn:id": "refund-001",
+                                         "beckn:paymentStatus": "REFUNDED",
+                                         "beckn:amount": {"currency": "INR", "value": order["_refund"]},
+                                         "beckn:beneficiary": "BUYER"}})
     ca = session_attrs(g(order, "orderAttributes"))
     if ca:
         c["contractAttributes"] = ca
@@ -453,6 +460,31 @@ SELLER_ALIASES = {"cpo1.com": "ecopower-charging"}  # rc switches seller id mid-
 UNIT_FIXES = {"POWER": "KW", "ENERGY": "KWH"}       # rc swaps these two units
 
 
+RATE, KWH, EST_KWH = 45.0, 2.5, 0.3
+
+
+def priced(kwh, delivered=None):
+    """The pricing model shared with the reference CPO app: energy, 20% surge, 15% offer
+    discount, 10 INR service fee, an overcharge estimate on quotes (refunded if unused),
+    2.5% buyer finder fee. Lines are rounded, and the total is the sum of the lines."""
+    billed = kwh if delivered is None else min(delivered, kwh)
+    base = RATE * billed
+    lines = [("UNIT", base, f"Charging energy ({RATE:g} INR/kWh x {billed:g} kWh)"),
+             ("SURCHARGE", base * 0.20, "Surge price (20% of energy cost)"),
+             ("DISCOUNT", -base * 0.15, "Offer discount (15% of energy cost)"),
+             ("FEE", 10.0, "Service fee")]
+    if delivered is None:
+        lines.append(("FEE", RATE * EST_KWH, f"Overcharge estimate ({EST_KWH:g} kWh, refunded if unused)"))
+    lines.append(("FEE", base * 0.025, "Buyer finder fee (2.5% of energy cost)"))
+    comps = [{"type": t, "value": round(v, 2), "currency": "INR", "description": d} for t, v, d in lines]
+    return {"currency": "INR", "value": round(sum(c["value"] for c in comps), 2), "components": comps}
+
+
+QUOTE = priced(KWH)              # 144.43
+FINAL = priced(KWH, KWH)         # 130.93 for the full 2.5 kWh
+RC_QUOTE = 143.95                # the rc quote, whose lines did not match their labels
+
+
 def normalize(rc):
     """Correct inconsistencies in the rc examples so the LTS set is one coherent flow."""
     for cat in rc.get("message", {}).get("catalogs", []) or []:
@@ -468,8 +500,19 @@ def normalize(rc):
         for it in order.get("beckn:orderItems", []):
             if it.get("beckn:orderedItem") == "pe-charging-01":  # truncated id in 20_on_cancel
                 it["beckn:orderedItem"] = FLOW_ITEM
+        if (order.get("beckn:orderValue") or {}).get("value") == RC_QUOTE:
+            order["beckn:orderValue"] = copy.deepcopy(QUOTE)
+        pay = order.get("beckn:payment") or {}
+        if (pay.get("beckn:amount") or {}).get("value") == RC_QUOTE:
+            pay["beckn:amount"]["value"] = QUOTE["value"]
         ful = order.get("beckn:fulfillment") or {}
-        for ev in (ful.get("beckn:deliveryAttributes") or {}).get("chargingTelemetry", []):
+        attrs = ful.get("beckn:deliveryAttributes") or {}
+        if order.get("beckn:orderStatus") == "COMPLETED" and attrs.get("sessionStatus") == "COMPLETED":
+            # the final bill: 2.5 kWh delivered, the unused overcharge estimate refunded
+            order["beckn:orderValue"] = copy.deepcopy(FINAL)
+            attrs.update(meteredEnergyKWh=KWH, totalCost={"inclVat": FINAL["value"]})
+            order["_refund"] = round(QUOTE["value"] - FINAL["value"], 2)
+        for ev in attrs.get("chargingTelemetry", []):
             for m in ev.get("metrics", []):
                 if m.get("name") in UNIT_FIXES:
                     m["unitCode"] = UNIT_FIXES[m["name"]]

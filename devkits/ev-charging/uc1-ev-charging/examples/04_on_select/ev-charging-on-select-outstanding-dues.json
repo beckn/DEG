@@ -8,7 +8,7 @@
     "bppId": "bpp.example.com",
     "bppUri": "https://bpp.example.com",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "3b6a2587-8835-5aea-88c1-67d865890193",
+    "messageId": "b16f4529-c67a-5b55-b4af-a95a8898b9c1",
     "timestamp": "2025-01-27T10:00:30Z",
     "ttl": "PT30S"
   },
@@ -103,7 +103,7 @@
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 149.33,
+            "value": 162.83,
             "components": [
               {
                 "type": "UNIT",
@@ -131,6 +131,12 @@
               },
               {
                 "type": "FEE",
+                "value": 13.5,
+                "currency": "INR",
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
+              },
+              {
+                "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
                 "description": "Buyer finder fee (2.5% of energy cost)"
@@ -139,7 +145,7 @@
                 "type": "FEE",
                 "value": 18.4,
                 "currency": "INR",
-                "description": "Outstanding balance from session order-ev-charging-000 (overcharge, unpaid)"
+                "description": "Outstanding balance from an earlier session (overcharge, unpaid)"
               }
             ]
           }
