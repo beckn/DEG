@@ -464,7 +464,7 @@ RATE, KWH, EST_KWH = 45.0, 2.5, 0.3
 
 
 def priced(kwh, delivered=None):
-    """The pricing model shared with the reference CPO app: energy, 20% surge, 15% offer
+    """The pricing model every example and variant uses: energy, 20% surge, 15% offer
     discount, 10 INR service fee, an overcharge estimate on quotes (refunded if unused),
     2.5% buyer finder fee. Lines are rounded, and the total is the sum of the lines."""
     billed = kwh if delivered is None else min(delivered, kwh)

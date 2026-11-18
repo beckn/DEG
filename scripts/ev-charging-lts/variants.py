@@ -41,7 +41,7 @@ def with_ctx(base, rel, action, ts, **extra):
 
 
 def breakup(energy_kwh, extra=(), quote=False):
-    """Price lines with the model shared by the main flow and the reference CPO app."""
+    """Price lines with the model the main flow uses (rc2lts.priced)."""
     base = RATE * energy_kwh
     lines = [("UNIT", base, f"Charging energy ({RATE:g} INR/kWh x {energy_kwh:g} kWh)"),
              ("SURCHARGE", base * 0.20, "Surge price (20% of energy cost)"),

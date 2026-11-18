@@ -304,7 +304,7 @@ Specifically, for EV Charging, please use the following configuration:
 3. For routing calls to Catalog Discovery Service, refer to routing configuration [here](https://github.com/Beckn-One/beckn-onix/blob/main/config/local-simple-routing-BAPCaller.yaml).
 4. ONIX validates messages against the Beckn 2.0 LTS core specification (`core-v2.0.0-lts`) by default from v1.7.1 onwards. The examples in this guide are validated through ONIX 1.9.4, against the LTS core schema and the attribute packs.
 5. Set `context.networkId` to `nfh.global/testnet-evcharging` for the EV charging test network, on which the devkit's example participants are registered.
-6. The [EV charging devkit](../../../../devkits/ev-charging/README.md) has ready ONIX configurations for a BAP and a BPP (`config/`), a Docker Compose setup and reference apps that run every use case in this guide. The conventions the examples follow are in the [examples README](../../../../examples/ev-charging/v2/README.md).
+6. The [EV charging devkit](../../../../devkits/ev-charging/README.md) has ready ONIX configurations for a BAP and a BPP (`config/`), a Docker Compose setup with mock participants, and Arazzo workflows that run the flows in this guide. The conventions the examples follow are in the [examples README](../../../../examples/ev-charging/v2/README.md).
 
 ### 11.2.3. 10.2.3 Performing a test EV charging transaction
 

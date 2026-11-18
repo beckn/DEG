@@ -8,7 +8,7 @@ Every file here is checked in two ways:
 
 The discover requests were also run against the fabric discovery service code (`beckn/beckn-discovr`, the image the hosted service runs) with these catalogs ingested; see Discovery below.
 
-The [EV devkit](../../../devkits/ev-charging) carries the same set with the devkit's registered test participants, and its reference apps run every use case below as live transactions. The tools that produced and check these files are in [`scripts/ev-charging-lts`](../../../scripts/ev-charging-lts).
+The [EV devkit](../../../devkits/ev-charging) carries the same set with the devkit's registered test participants, and its Arazzo workflows run the flows below through ONIX. The tools that produced and check these files are in [`scripts/ev-charging-lts`](../../../scripts/ev-charging-lts).
 
 ## Use cases
 
@@ -112,7 +112,7 @@ The rc set had data errors. The LTS set fixes them so the files form one consist
   - 20% surge, 15% discount, 10 INR service fee, a 0.3 kWh overcharge estimate (refunded if unused) and a 2.5% buyer finder fee;
   - lines are rounded, and the total is their sum;
   - the completed session bills **130.93** and refunds the unused 13.50;
-  - every variant and the devkit's reference CPO app use the same pricing.
+  - every variant uses the same pricing.
 - **messageIds:** each callback carries its request's `messageId`, and every other interaction has its own. In the rc set, unrelated requests shared ids, and some callbacks predated their request.
 - **Seller id:** it switched from `ecopower-charging` to `cpo1.com` from `05_init` onwards.
 - **Charger id:** `20_on_cancel` referred to a truncated id (`pe-charging-01`).

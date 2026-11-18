@@ -14,8 +14,8 @@ info:
 
     Workflows: discover, walk-in, reservation, exceptions, cancellation, support.
 
-    Catalog publishing is exercised by the reference apps (install/docker-compose.apps.yml),
-    not here: the default BPP routing sends publish to the hosted fabric catalog service.
+    Catalog publishing is not in these workflows: the default BPP routing sends publish to
+    the hosted fabric catalog service. The catalog/publish request is in the examples.
 
 sourceDescriptions:
   - name: beckn-bap-caller
