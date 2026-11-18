@@ -1,0 +1,84 @@
+openapi: 3.1.1
+info:
+  title: EvChargingOffer
+  version: '2.0'
+  description: Attribute schema for EV charging offers (Offer.attributes). Provides tariff details beyond
+    core price fields including per-kWh or time-based pricing, idle fee policies, and accepted payment
+    methods.
+components:
+  schemas:
+    EvChargingOffer:
+      type: object
+      additionalProperties: false
+      x-tags:
+      - ev-charging
+      - offer
+      - energy
+      x-jsonld:
+        '@context': ./context.jsonld
+        '@type': ChargingOffer
+      properties:
+        tariffModel:
+          type: string
+          enum:
+          - PER_KWH
+          - PER_MINUTE
+          - SUBSCRIPTION
+          - TIME_OF_DAY
+          description: Tariff model classification used by the provider.
+          example: PER_KWH
+          x-jsonld:
+            '@id': tariffModel
+        idleFeePolicy:
+          description: Idle fee policy specification (reuses Beckn PriceSpecification).
+          x-jsonld:
+            '@id': idleFeePolicy
+          allOf:
+          - $ref: https://schema.nfh.global/PriceSpecification/v2.0/attributes.yaml#/components/schemas/PriceSpecification
+          - type: object
+          example:
+            currency: INR
+            value: 2
+            applicableQuantity:
+              unitCode: MIN
+              unitText: minutes
+              unitQuantity: 10
+        buyerFinderFee:
+          type: object
+          description: Commission payable by provider to the BAP for this offer.
+          x-jsonld:
+            '@id': buyerFinderFee
+          additionalProperties: false
+          properties:
+            feeType:
+              type: string
+              enum:
+              - PERCENTAGE
+              - AMOUNT
+              example: PERCENTAGE
+              x-jsonld:
+                '@id': feeType
+            feeValue:
+              type: number
+              minimum: 0
+              example: 2.5
+              x-jsonld:
+                '@id': feeValue
+        eligibleQuantity:
+          description: Energy quantity limits (min/max kWh) applicable to this offer.
+          x-jsonld:
+            '@id': eligibleQuantity
+          allOf:
+          - $ref: https://schema.nfh.global/Quantity/v2.0/attributes.yaml#/components/schemas/Quantity
+        acceptedPaymentMethods:
+          type: array
+          description: List of accepted payment method codes.
+          items:
+            type: string
+          example:
+          - UPI
+          - CARD
+          - NETBANKING
+          x-jsonld:
+            '@id': acceptedPaymentMethods
+            '@container': '@set'

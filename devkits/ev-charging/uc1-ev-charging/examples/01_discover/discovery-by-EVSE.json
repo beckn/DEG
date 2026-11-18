@@ -2,16 +2,24 @@
   "context": {
     "version": "2.0.0",
     "action": "discover",
-    "domain": "beckn.one:deg:ev-charging:*",
-    "bap_id": "bap.example.com",
-    "bap_uri": "https://bap.example.com",
-    "bpp_id": "bpp.example.com",
-    "bpp_uri": "https://bpp.example.com",
-    "transaction_id": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "message_id": "a1eabf26-29f5-4a01-9d4e-4c5c9d1a3d02",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "bap.example.com",
+    "bapUri": "https://bap.example.com",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "10462231-30b0-5595-b70f-4214e4044d8c",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
-    "schema_context": ["https://schema.nfh.global/EvChargingService/v1.0/context.jsonld"]
+    "schemaContext": [
+      "https://schema.nfh.global/EvChargingService/v2.0/context.jsonld",
+      "https://schema.nfh.global/EvChargingOffer/v2.0/context.jsonld"
+    ]
   },
-  "message": {"filters": {"type": "jsonpath", "expression": "$[?(@.beckn:id == 'IND*CPO1*cs-01*evse-01*connectorid-01')]"}}
+  "message": {
+    "intent": {
+      "filters": {
+        "type": "jsonpath",
+        "expression": "$.catalogs[*].resources[?(@.resourceAttributes.evseId == 'IN*ECO*BTM*01*CCS2*A')]"
+      }
+    }
+  }
 }

@@ -1,0 +1,209 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_update",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "example-bap.com",
+    "bapUri": "https://example-bap.com/pilot/bap/energy/v2",
+    "bppId": "example-bpp.com",
+    "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "4e0847ba-d66d-556e-95f6-d59934b5fb55",
+    "timestamp": "2025-01-27T11:35:00Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "contract": {
+      "id": "order-ev-charging-001",
+      "status": {
+        "code": "COMPLETE"
+      },
+      "participants": [
+        {
+          "id": "ecopower-charging",
+          "descriptor": {
+            "name": "EcoPower Charging Pvt Ltd"
+          }
+        },
+        {
+          "id": "user-123",
+          "descriptor": {
+            "name": "Ravi Kumar"
+          },
+          "participantAttributes": {
+            "@context": "https://schema.nfh.global/Consumer/v2.0/context.jsonld",
+            "@type": "Consumer",
+            "role": "BUYER",
+            "person": {
+              "id": "user-123",
+              "name": "Ravi Kumar",
+              "telephone": "+91-9876543210",
+              "email": "ravi.kumar@example.com"
+            }
+          }
+        }
+      ],
+      "commitments": [
+        {
+          "id": "commitment-001",
+          "status": {
+            "descriptor": {
+              "code": "CLOSED"
+            }
+          },
+          "resources": [
+            {
+              "id": "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A",
+              "quantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 2.5
+              }
+            }
+          ],
+          "offer": {
+            "id": "offer-ccs2-60kw-kwh",
+            "descriptor": {
+              "name": "Per-kWh Tariff - CCS2 60kW"
+            },
+            "provider": {
+              "id": "ecopower-charging",
+              "descriptor": {
+                "name": "EcoPower Charging Pvt Ltd"
+              }
+            },
+            "resourceIds": [
+              "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A"
+            ],
+            "considerations": [
+              {
+                "id": "price-offer-ccs2-60kw-kwh",
+                "considerationAttributes": {
+                  "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
+                  "@type": "PriceSpecification",
+                  "currency": "INR",
+                  "value": 45.0,
+                  "applicableQuantity": {
+                    "unitText": "Kilowatt Hour",
+                    "unitCode": "KWH",
+                    "unitQuantity": 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consideration": [
+        {
+          "id": "consideration-001",
+          "status": {
+            "code": "FINAL"
+          },
+          "considerationAttributes": {
+            "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
+            "@type": "PriceSpecification",
+            "currency": "INR",
+            "value": 144.43,
+            "components": [
+              {
+                "type": "UNIT",
+                "value": 112.5,
+                "currency": "INR",
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
+              },
+              {
+                "type": "SURCHARGE",
+                "value": 22.5,
+                "currency": "INR",
+                "description": "Surge price (20% of energy cost)"
+              },
+              {
+                "type": "DISCOUNT",
+                "value": -16.88,
+                "currency": "INR",
+                "description": "Offer discount (15% of energy cost)"
+              },
+              {
+                "type": "FEE",
+                "value": 10.0,
+                "currency": "INR",
+                "description": "Service fee"
+              },
+              {
+                "type": "FEE",
+                "value": 2.81,
+                "currency": "INR",
+                "description": "Buyer finder fee (2.5% of energy cost)"
+              },
+              {
+                "type": "FEE",
+                "value": 13.5,
+                "currency": "INR",
+                "description": "Overcharge: 0.3 kWh delivered after the charger lost its CMS link (45 INR/kWh)"
+              }
+            ]
+          }
+        }
+      ],
+      "performance": [
+        {
+          "id": "fulfillment-001",
+          "status": {
+            "code": "COMPLETED"
+          },
+          "commitmentIds": [
+            "commitment-001"
+          ],
+          "performanceAttributes": {
+            "@context": "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld",
+            "@type": "ChargingSession",
+            "sessionStatus": "COMPLETED",
+            "meteredEnergyKWh": 2.8,
+            "meteredDurationMinutes": 31,
+            "lastUpdated": "2025-01-27T11:34:00Z",
+            "totalCost": {
+              "inclVat": 144.43
+            }
+          }
+        }
+      ],
+      "settlements": [
+        {
+          "id": "settlement-001",
+          "considerationId": "consideration-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:id": "payment-123e4567-e89b-12d3-a456-426614174000",
+            "beckn:paymentStatus": "COMPLETED",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 143.95
+            },
+            "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
+            "beckn:txnRef": "TXN-123456789",
+            "beckn:paidAt": "2025-12-19T10:05:00Z",
+            "beckn:beneficiary": "BPP"
+          }
+        },
+        {
+          "id": "settlement-002",
+          "considerationId": "consideration-001",
+          "status": "DRAFT",
+          "settlementAttributes": {
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:paymentStatus": "PENDING",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 0.48
+            },
+            "beckn:beneficiary": "BPP"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,82 @@
+openapi: 3.1.1
+info:
+  title: EvChargingPointOperator
+  version: '2.0'
+  description: Attribute schema for EV charging point operators (Provider.attributes). Provides operator
+    identifiers, statutory registrations, and extended contact details for the charging provider.
+components:
+  schemas:
+    EvChargingPointOperator:
+      type: object
+      additionalProperties: false
+      x-tags:
+      - ev-charging
+      - provider
+      - operator
+      - energy
+      x-jsonld:
+        '@context': ./context.jsonld
+        '@type': ChargingPointOperator
+      properties:
+        operatorName:
+          type: string
+          description: Operating company name (display).
+          example: EcoPower Charging Pvt Ltd
+          x-jsonld:
+            '@id': operatorName
+        operatorCode:
+          type: string
+          description: Provider code as used in roaming/ops systems.
+          example: ECOPOWER
+          x-jsonld:
+            '@id': operatorCode
+        identifier:
+          type: string
+          description: Provider identifier (URN/URL/code).
+          example: urn:epc:provider:ecopower
+          x-jsonld:
+            '@id': identifier
+        sameAs:
+          type: string
+          format: uri
+          description: Canonical reference (e.g., website, registry entry).
+          example: https://ecopower.example.org/about
+          x-jsonld:
+            '@id': sameAs
+        supportEmail:
+          type: string
+          format: email
+          description: Support email (if not provided in core Provider).
+          example: support@ecopower.example.org
+          x-jsonld:
+            '@id': supportEmail
+        supportPhone:
+          type: string
+          description: Support phone (if not provided in core Provider).
+          example: +91-90000-00000
+          x-jsonld:
+            '@id': supportPhone
+        gstNumber:
+          type: string
+          description: India GSTIN (if applicable).
+          example: 29ABCDE1234F1Z5
+          x-jsonld:
+            '@id': gstNumber
+        cin:
+          type: string
+          description: India CIN (corporate identification number).
+          example: L12345KA2020PLC123456
+          x-jsonld:
+            '@id': cin
+        msme:
+          type: string
+          description: MSME/Udyam registration (if applicable).
+          example: UDYAM-KR-12-3456789
+          x-jsonld:
+            '@id': msme
+        operatorContact:
+          type: object
+          additionalProperties: true
+          description: Free-form contact blob for ops (last resort).
+          x-jsonld:
+            '@id': operatorContact

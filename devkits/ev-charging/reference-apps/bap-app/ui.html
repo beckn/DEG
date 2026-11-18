@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EV Charge</title>
+<style>
+  :root { --bg:#f5f7fb; --card:#fff; --ink:#172033; --muted:#64748b; --line:#e2e8f0; --accent:#0e7c66; --bad:#b42318; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0d1117; --card:#161b22; --ink:#e6edf3; --muted:#9aa4b2; --line:#283040; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.45 system-ui, sans-serif; }
+  .wrap { max-width:520px; margin:0 auto; padding:16px; }
+  h1 { font-size:20px; margin:4px 0 12px; } h3 { margin:0 0 8px; font-size:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; }
+  .muted { color:var(--muted); font-size:13px; } .err { color:var(--bad); }
+  label { display:block; font-size:13px; color:var(--muted); margin-top:8px; }
+  input, select, button { font:inherit; width:100%; box-sizing:border-box; padding:9px 10px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); }
+  button { background:var(--accent); color:#fff; border:none; margin-top:10px; cursor:pointer; } button.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .row { display:flex; gap:8px; } .row > * { flex:1; }
+  .charger { border-top:1px solid var(--line); padding:10px 0; } .charger:first-child { border-top:none; }
+  .meter { font-size:34px; font-weight:600; } table { width:100%; font-size:13px; border-collapse:collapse; } td { padding:3px 0; } td:last-child { text-align:right; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>EV Charge <span class="muted">· Beckn 2.0 LTS consumer app</span></h1>
+
+  <div class="card" id="find">
+    <h3>Find a charger</h3>
+    <div class="row"><div><label>Near</label><select id="near">
+      <option value="77.59,12.94">BTM Layout, Bengaluru</option><option value="77.6408,12.9784">Indiranagar</option><option value="77.6245,12.9352">Koramangala</option></select></div>
+      <div><label>Within</label><select id="radius"><option>2000</option><option selected>10000</option><option>50000</option></select></div></div>
+    <div class="row"><div><label>Connector</label><select id="conn"><option value="">Any</option><option>CCS2</option><option>Type2</option></select></div>
+      <div><label>Min power kW</label><input id="minkw" type="number" value="0"></div></div>
+    <label>…or scan a charger QR (EVSE id)</label><input id="qr" placeholder="IN*ECO*BTM*01*CCS2*A">
+    <button onclick="find()">Search</button>
+    <div id="results"></div>
+  </div>
+
+  <div class="card" id="book" hidden>
+    <h3 id="bookTitle">Book</h3>
+    <div class="row"><div><label>Energy (kWh)</label><input id="kwh" type="number" value="2.5" step="0.5"></div>
+      <div><label>When</label><select id="when"><option value="now">Charge now</option><option value="2h">Reserve in 2 h</option></select></div></div>
+    <div class="row"><div><label>Pay</label><select id="pay"><option value="BPP">UPI link (charger operator)</option><option value="BAP">In-app wallet</option></select></div></div>
+    <button onclick="quote()">Get quote</button>
+    <div id="quote"></div>
+  </div>
+
+  <div class="card" id="live" hidden>
+    <h3>Charging session</h3>
+    <div class="meter" id="energy">0.00 kWh</div><div class="muted" id="sess"></div>
+    <div class="row"><button onclick="start()">Start charging</button><button class="secondary" onclick="stop()">Stop</button></div>
+    <div class="row"><button class="secondary" onclick="cancelBooking(true)">Cancellation terms</button><button class="secondary" onclick="cancelBooking(false)">Cancel booking</button></div>
+    <div id="liveMsg" class="muted"></div>
+  </div>
+
+  <div class="card" id="after" hidden>
+    <h3>Receipt</h3><div id="receipt"></div>
+    <label>Rate this session</label><select id="stars"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
+    <button class="secondary" onclick="rate()">Submit rating</button>
+    <label>Need help?</label><input id="issue" placeholder="Describe the problem">
+    <button class="secondary" onclick="support()">Contact support</button>
+    <div id="afterMsg" class="muted"></div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const buyer = {id:'user-ravi', name:'Ravi Kumar', phone:'+91-9876543210', email:'ravi.kumar@example.com'};
+let S = {txn:null, catalog:null, resourceId:null, contract:null, poll:null};
+const api = async (op, body) => (await fetch('/api/' + op, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})).json();
+const money = c => { const p = (c.consideration||[])[0]; return p ? p.considerationAttributes : null; };
+const inr = v => (v < 0 ? '−₹' : '₹') + Math.abs(v).toFixed(2);
+
+async function find() {
+  const [lon, lat] = $('near').value.split(',').map(Number), intent = {};
+  if ($('qr').value.trim()) intent.filters = {type:'jsonpath', expression:`$.catalogs[*].resources[?(@.resourceAttributes.evseId == '${$('qr').value.trim()}')]`};
+  else {
+    intent.spatial = [{op:'S_DWITHIN', targets:'$.catalogs[*].provider.availableAt[*].geo', geometry:{type:'Point', coordinates:[lon, lat]}, distanceMeters:Number($('radius').value)}];
+    const c = [];
+    if ($('conn').value) c.push(`@.resourceAttributes.connectorType == '${$('conn').value}'`);
+    if (Number($('minkw').value) > 0) c.push(`@.resourceAttributes.maxPowerKW >= ${Number($('minkw').value)}`);
+    if (c.length) intent.filters = {type:'jsonpath', expression:`$.catalogs[*].resources[?(${c.join(' && ')})]`};
+  }
+  $('results').innerHTML = '<p class="muted">Searching…</p>';
+  const r = await api('discover', {intent});
+  const cats = (r.message||{}).catalogs || [];
+  if (!cats.length) { $('results').innerHTML = `<p class="muted">No chargers found.</p>`; return; }
+  $('results').innerHTML = cats.flatMap(c => c.resources.map(res => {
+    const o = c.offers.find(o => o.resourceIds.includes(res.id)), p = o && o.considerations[0].considerationAttributes, a = res.resourceAttributes;
+    return `<div class="charger"><b>${esc(res.descriptor?.name)}</b><div class="muted">${esc(c.provider.descriptor.name)} · ${esc(a.connectorType)} · ${esc(a.maxPowerKW)} kW · ${esc(a.chargingStation?.serviceLocation?.address?.streetAddress)}</div>
+      <div>${p ? `₹${esc(p.value)}/kWh` : ''} <button class="secondary" style="width:auto" onclick='pick(${JSON.stringify(c.id)}, ${JSON.stringify(res.id)})'>Select</button></div></div>`;
+  })).join('');
+  S.cats = cats; S.discoverTxn = r.txn;
+}
+function pick(cid, rid) { S.catalog = S.cats.find(c => c.id === cid); S.resourceId = rid; $('book').hidden = false; $('bookTitle').textContent = 'Book ' + rid.split('*').slice(-1); $('quote').innerHTML = ''; }
+
+async function quote() {
+  const body = {catalog:S.catalog, resourceId:S.resourceId, kwh:Number($('kwh').value), buyer};
+  if ($('when').value === '2h') { const s = new Date(Date.now() + 2*3600e3), e = new Date(s.getTime() + 3600e3); body.startTime = s.toISOString(); body.endTime = e.toISOString(); }
+  const r = await api('select', body); S.txn = r.txn;
+  if (!r.ok) { $('quote').innerHTML = `<p class="err">${esc(r.error?.message || r.error)}</p>`; return; }
+  const p = money(r.message.contract);
+  $('quote').innerHTML = `<table>${p.components.map(c => `<tr><td>${esc(c.description)}</td><td>${inr(c.value)}</td></tr>`).join('')}<tr><td><b>Total</b></td><td><b>${inr(p.value)}</b></td></tr></table><button onclick="checkout()">Pay and book</button>`;
+}
+async function checkout() {
+  const mode = $('pay').value, r = await api('init', {txn:S.txn, payment:mode});
+  if (!r.ok) return $('quote').insertAdjacentHTML('beforeend', `<p class="err">${esc(r.error?.message)}</p>`);
+  const pay = r.message.contract.settlements[0].settlementAttributes;
+  if (mode === 'BPP') {
+    window.open(pay['beckn:paymentURL'], '_blank');
+    $('quote').insertAdjacentHTML('beforeend', '<p class="muted">Complete the UPI payment in the new tab…</p>');
+    const w = await api('wait', {txn:S.txn, action:'on_status', timeout:120});
+    if (!w.ok) return $('quote').insertAdjacentHTML('beforeend', '<p class="err">Payment not received.</p>');
+  } else await api('pay', {txn:S.txn});
+  const c = await api('confirm', {txn:S.txn});
+  if (!c.ok) return $('quote').insertAdjacentHTML('beforeend', `<p class="err">${esc(c.error?.message)}</p>`);
+  S.contract = c.message.contract; $('live').hidden = false; $('sess').textContent = `Booking ${S.contract.id} confirmed`;
+}
+async function start() {
+  const r = await api('start', {txn:S.txn});
+  if (!r.ok) { $('liveMsg').innerHTML = `<span class="err">${esc(r.error?.message)} ${esc(r.error?.details?.cause?.message || '')}</span>`; return; }
+  $('liveMsg').textContent = 'Charging…'; S.poll = setInterval(refresh, 2000);
+}
+async function refresh() {
+  const r = await api('status', {txn:S.txn}); if (!r.ok) return;
+  const pa = r.message.contract.performance?.[0]?.performanceAttributes || {};
+  $('energy').textContent = `${(pa.meteredEnergyKWh || 0).toFixed(2)} kWh`; $('sess').textContent = `Session ${pa.sessionStatus}`;
+  if (pa.sessionStatus !== 'ACTIVE') { clearInterval(S.poll); showReceipt(r.message.contract); }
+}
+async function stop() {
+  clearInterval(S.poll); const r = await api('stop', {txn:S.txn});
+  if (!r.ok) { $('liveMsg').innerHTML = `<span class="err">${esc(r.error?.message)}</span>`; return; }
+  const pa = r.message.contract.performance?.[0]?.performanceAttributes || {};
+  $('energy').textContent = `${(pa.meteredEnergyKWh || 0).toFixed(2)} kWh`; $('sess').textContent = `Session ${pa.sessionStatus}`; $('liveMsg').textContent = 'Charging stopped.';
+  showReceipt(r.message.contract);
+  const inv = await api('wait', {txn:S.txn, action:'on_update', timeout:15});
+  const doc = inv.ok && inv.message.contract.descriptor?.docs?.[0];
+  if (doc) $('receipt').insertAdjacentHTML('beforeend', `<p><a href="${esc(doc.url)}">${esc(doc.label)}</a></p>`);
+}
+function showReceipt(c) {
+  const p = money(c), refunds = (c.settlements||[]).filter(s => s.settlementAttributes['beckn:beneficiary'] === 'BUYER');
+  $('after').hidden = false;
+  $('receipt').innerHTML = `<table>${p.components.map(x => `<tr><td>${esc(x.description)}</td><td>${inr(x.value)}</td></tr>`).join('')}<tr><td><b>Billed</b></td><td><b>${inr(p.value)}</b></td></tr>${refunds.map(s => `<tr><td>Refund</td><td>${inr(s.settlementAttributes['beckn:amount'].value)}</td></tr>`).join('')}</table>`;
+}
+async function cancelBooking(preview) {
+  const r = await api('cancel', {txn:S.txn, preview});
+  if (!r.ok) { $('liveMsg').innerHTML = `<span class="err">${esc(r.error?.message)}</span>`; return; }
+  const c = r.message.contract, refund = c.settlements.slice(-1)[0].settlementAttributes['beckn:amount'].value;
+  $('liveMsg').textContent = preview ? `${c.descriptor.shortDesc} Refund if you cancel now: ₹${refund}` : `Cancelled. Refund ₹${refund}`;
+}
+async function rate() { const r = await api('rate', {txn:S.txn, value:Number($('stars').value)}); $('afterMsg').textContent = r.ok ? 'Thanks for rating.' : 'Rating failed.'; }
+async function support() {
+  const r = await api('support', {txn:S.txn, code:'GENERAL', name:'Help with charging session', text:$('issue').value});
+  $('afterMsg').textContent = r.ok ? `${r.message.support.descriptor.name}. ${r.message.support.channels[0].telephone}` : 'Support request failed.';
+}
+</script>
+</body>
+</html>

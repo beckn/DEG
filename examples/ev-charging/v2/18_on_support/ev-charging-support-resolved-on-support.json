@@ -1,0 +1,43 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_support",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "example-bap.com",
+    "bapUri": "https://example-bap.com/pilot/bap/energy/v2",
+    "bppId": "example-bpp.com",
+    "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "0d45d998-bdfe-5903-872d-8e78e3e11b3f",
+    "timestamp": "2025-01-27T11:52:00Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "support": {
+      "orderId": "order-ev-charging-001",
+      "descriptor": {
+        "code": "RESOLVED",
+        "name": "Ticket SUP-20250730-002 resolved",
+        "shortDesc": "Connector released remotely by the CPO at 11:51 UTC."
+      },
+      "channels": [
+        {
+          "@context": "https://schema.nfh.global/SupportInfo/v2.1/context.jsonld",
+          "@type": "SupportInfo",
+          "name": "BlueCharge Support Team",
+          "telephone": "18001080",
+          "email": "support@bluechargenet-aggregator.io",
+          "url": "https://support.bluechargenet-aggregator.io/ticket/SUP-20250730-001",
+          "hoursAvailable": "Mon–Sun 24/7 IST",
+          "channels": [
+            "PHONE",
+            "EMAIL",
+            "WEB",
+            "CHAT"
+          ],
+          "callbackStatus": "COMPLETED"
+        }
+      ]
+    }
+  }
+}

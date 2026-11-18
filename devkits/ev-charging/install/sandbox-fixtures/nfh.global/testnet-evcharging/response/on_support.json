@@ -1,0 +1,41 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_support",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "bap.example.com",
+    "bapUri": "https://bap.example.com",
+    "bppId": "bpp.example.com",
+    "bppUri": "https://bpp.example.com",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "dee432d9-36c9-4146-ad21-2f5bcac9b6a9",
+    "timestamp": "2025-01-27T12:15:30Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "support": {
+      "orderId": "order-ev-charging-001",
+      "descriptor": {
+        "name": "Support ticket SUP-20250730-001",
+        "code": "OPEN"
+      },
+      "channels": [
+        {
+          "@context": "https://schema.nfh.global/SupportInfo/v2.1/context.jsonld",
+          "@type": "SupportInfo",
+          "name": "BlueCharge Support Team",
+          "telephone": "18001080",
+          "email": "support@bluechargenet-aggregator.io",
+          "url": "https://support.bluechargenet-aggregator.io/ticket/SUP-20250730-001",
+          "hoursAvailable": "Mon–Sun 24/7 IST",
+          "channels": [
+            "PHONE",
+            "EMAIL",
+            "WEB",
+            "CHAT"
+          ]
+        }
+      ]
+    }
+  }
+}

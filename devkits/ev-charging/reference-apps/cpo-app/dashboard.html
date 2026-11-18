@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CPO Operations</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --muted:#667085; --line:#e4e7ec; --ok:#12805c; --warn:#b54708; --bad:#b42318; --accent:#1f5eff; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1218; --card:#171b23; --ink:#e7eaf0; --muted:#98a2b3; --line:#2a303b; } }
+  body { margin:0; font:14px/1.45 system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:16px; border-bottom:1px solid var(--line); display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; }
+  h1 { font-size:18px; margin:0; } .muted { color:var(--muted); }
+  main { padding:16px; display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; overflow:auto; }
+  .kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .kpi b { display:block; font-size:22px; } table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:left; padding:6px 4px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  .ACTIVE { color:var(--accent); } .COMPLETE { color:var(--ok); } .CANCELLED { color:var(--bad); } .DRAFT { color:var(--muted); }
+  input, select, button { font:inherit; padding:6px 8px; border-radius:6px; border:1px solid var(--line); background:var(--card); color:var(--ink); }
+  button { cursor:pointer; } .row { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0; }
+</style>
+</head>
+<body>
+<header><h1>CPO Operations</h1><span class="muted">EV charging BPP reference app (Beckn 2.0 LTS) · refreshes every 2 s</span></header>
+<main>
+  <section class="card"><h3>Today</h3><div class="kpis" id="kpis"></div></section>
+  <section class="card"><h3>Network messages</h3><div class="kpis" id="msgs"></div></section>
+  <section class="card"><h3>Operations</h3>
+    <div class="row"><input id="rid" placeholder="resource id (EVSE connector)" size="34">
+      <button onclick="op('fault',{resourceId:val('rid')})">Mark EVSE inoperative</button>
+      <button onclick="op('fault',{resourceId:val('rid'),clear:true})">Clear fault</button></div>
+    <div class="row"><input id="txn" placeholder="transaction id" size="34">
+      <button onclick="op('power-cut',{txn:val('txn')})">Power cut</button>
+      <button onclick="op('cms-offline',{txn:val('txn')})">CMS offline</button>
+      <button onclick="op('cpo-cancel',{txn:val('txn')})">Cancel booking (CPO)</button></div>
+    <pre id="out" class="muted"></pre>
+  </section>
+  <section class="card" style="grid-column:1/-1"><h3>Sessions</h3><table id="sessions"></table></section>
+  <section class="card"><h3>Support tickets</h3><table id="tickets"></table></section>
+  <section class="card"><h3>Faults and dues</h3><pre id="faults"></pre></section>
+</main>
+<script>
+const val = id => document.getElementById(id).value.trim();
+const esc = s => String(s ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+async function op(name, body) {
+  const r = await fetch('/admin/' + name, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  document.getElementById('out').textContent = JSON.stringify(await r.json(), null, 1).slice(0, 600);
+  load();
+}
+async function resolve(id) { await op('resolve-ticket', {ticketId:id}); }
+async function load() {
+  const s = await (await fetch('/api/state')).json();
+  document.getElementById('kpis').innerHTML = [['Bookings', s.contracts], ['Completed', s.completed], ['Revenue INR', s.revenueINR]]
+    .map(([k, v]) => `<div class="kpi"><span class="muted">${k}</span><b>${v}</b></div>`).join('');
+  const c = s.counters;
+  document.getElementById('msgs').innerHTML = [['Requests in', c.requests], ['Callbacks out', c.callbacks_sent], ['Callbacks NACKed', c.callbacks_nacked]]
+    .map(([k, v]) => `<div class="kpi"><span class="muted">${k}</span><b>${v}</b></div>`).join('');
+  document.getElementById('sessions').innerHTML = '<tr><th>Contract</th><th>Charger</th><th>Status</th><th>Session</th><th>kWh</th><th>Paid</th><th>Billed</th><th>Buyer</th><th>Txn</th></tr>' +
+    s.sessions.slice().reverse().map(x => `<tr><td>${esc(x.id)}</td><td title="${esc(x.resource)}">${esc((x.resource||'').split('*').slice(-1))}</td><td class="${esc(x.status)}">${esc(x.status)}</td><td>${esc(x.session)}</td><td>${esc(x.kwh)}</td><td>${esc(x.paid)}</td><td>${esc(x.billed)}</td><td>${esc(x.buyer)}</td><td class="muted">${esc(x.txn.slice(0,8))}</td></tr>`).join('');
+  document.getElementById('tickets').innerHTML = '<tr><th>Ticket</th><th>Order</th><th>Status</th><th>Issue</th><th></th></tr>' +
+    s.tickets.map(t => `<tr><td>${esc(t.id)}</td><td>${esc(t.orderId)}</td><td>${esc(t.status)}</td><td>${esc((t.descriptor||{}).name)}</td><td>${t.status==='OPEN'?`<button onclick="resolve('${esc(t.id)}')">Resolve</button>`:''}</td></tr>`).join('');
+  document.getElementById('faults').textContent = JSON.stringify({faults:s.faults, outstandingDues:s.dues, catalogs:s.catalogs, chargers:s.resources}, null, 1);
+}
+load(); setInterval(load, 2000);
+</script>
+</body>
+</html>

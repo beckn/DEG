@@ -1,0 +1,190 @@
+openapi: 3.1.1
+info:
+  title: EvChargingService
+  version: '2.0'
+  description: 'Attribute schema for EV charging services (Item.attributes). Provides technical and contextual
+    details of a charging connector or station including connector type, power capacity, socket count,
+    reservation capability, and amenities.
+
+    NOTE: This schema only defines attributes NOT already modeled by core Beckn schemas. Core fields (name/descriptor,
+    images/URL, category, availableAt/location, validity windows, eligibility, order state, fulfillment
+    start/end times, etc.) should be taken from the core Beckn objects (Catalog/Item/Offer/Order/Fulfillment).'
+components:
+  schemas:
+    EvChargingService:
+      type: object
+      additionalProperties: false
+      required:
+      - connectorType
+      - maxPowerKW
+      x-tags:
+      - ev-charging
+      - item
+      - connector
+      - energy
+      x-jsonld:
+        '@context': ./context.jsonld
+        '@type': ChargingService
+      properties:
+        evseId:
+          type: string
+          description: EVSE identifier (e.g., OCPI/Hubject style).
+          example: IN*ECO*01*CCS2*A
+          x-jsonld:
+            '@id': evseId
+        connectorType:
+          type: string
+          enum:
+          - CCS2
+          - Type2
+          - CHAdeMO
+          - GB_T
+          description: Physical connector type supported by this EVSE.
+          example: CCS2
+          x-jsonld:
+            '@id': connectorType
+        maxPowerKW:
+          type: number
+          minimum: 1
+          maximum: 500
+          description: Maximum output power of the connector (kW).
+          example: 60
+          x-jsonld:
+            '@id': maxPowerKW
+        minPowerKW:
+          type: number
+          minimum: 0
+          maximum: 500
+          description: Minimum controllable power if throttling supported (kW).
+          example: 5
+          x-jsonld:
+            '@id': minPowerKW
+        reservationSupported:
+          type: boolean
+          default: true
+          description: Whether advance reservations are supported.
+          x-jsonld:
+            '@id': reservationSupported
+        chargingStation:
+          type: object
+          description: Charging station information including station ID and location.
+          x-jsonld:
+            '@id': chargingStation
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the charging station (chargingStationId).
+              example: IN-ECO-MDY-STATION-01
+              x-jsonld:
+                '@id': beckn:id
+            serviceLocation:
+              description: Location of the charging site (reuses Beckn Location).
+              x-jsonld:
+                '@id': serviceLocation
+              allOf:
+              - $ref: https://schema.nfh.global/Location/v2.0/attributes.yaml#/components/schemas/Location
+              - type: object
+              example:
+                '@type': beckn:Location
+                geo:
+                  type: Point
+                  coordinates:
+                  - 77.6104
+                  - 12.9153
+                address:
+                  streetAddress: EcoPower BTM Hub, 100 Ft Rd
+                  addressLocality: Bengaluru
+                  addressRegion: Karnataka
+                  postalCode: '560076'
+                  addressCountry: IN
+          example:
+            id: IN-ECO-MDY-STATION-01
+            serviceLocation:
+              '@type': beckn:Location
+              geo:
+                type: Point
+                coordinates:
+                - 77.6104
+                - 12.9153
+              address:
+                streetAddress: EcoPower BTM Hub, 100 Ft Rd
+                addressLocality: Bengaluru
+                addressRegion: Karnataka
+                postalCode: '560076'
+                addressCountry: IN
+        amenityFeature:
+          type: array
+          items:
+            type: string
+            enum:
+            - RESTAURANT
+            - RESTROOM
+            - WI-FI
+            - PARKING
+          description: Nearby amenities (e.g., Restaurant, Restroom, Wi-Fi).
+          example:
+          - RESTAURANT
+          - RESTROOM
+          x-jsonld:
+            '@id': amenityFeature
+            '@container': '@set'
+        roamingNetwork:
+          type: string
+          description: Roaming network name if applicable.
+          example: GreenRoam
+          x-jsonld:
+            '@id': roamingNetwork
+        parkingType:
+          type: string
+          enum:
+          - OnStreet
+          - OffStreet
+          - Basement
+          - Mall
+          - FuelStation
+          - Office
+          - Hotel
+          description: Parking context of the station.
+          example: Mall
+          x-jsonld:
+            '@id': parkingType
+        powerType:
+          type: string
+          enum:
+          - AC_SINGLE_PHASE
+          - AC_3_PHASE
+          - DC
+          description: Electrical system type at the connector.
+          example: DC
+          x-jsonld:
+            '@id': powerType
+        connectorFormat:
+          type: string
+          enum:
+          - SOCKET
+          - CABLE
+          description: Whether the gun is tethered (CABLE) or socketed (SOCKET).
+          example: CABLE
+          x-jsonld:
+            '@id': connectorFormat
+        chargingSpeed:
+          type: string
+          enum:
+          - SLOW
+          - NORMAL
+          - FAST
+          - ULTRAFAST
+          description: Marketing band for comprehension.
+          example: FAST
+          x-jsonld:
+            '@id': chargingSpeed
+        vehicleType:
+          type: string
+          enum:
+          - 2-WHEELER
+          - 3-WHEELER
+          - 4-WHEELER
+          description: Type of vehicle that can use this charging service.
+          example: 4-WHEELER
+          x-jsonld:
+            '@id': vehicleType

@@ -1,0 +1,162 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_select",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "bap.example.com",
+    "bapUri": "https://bap.example.com",
+    "bppId": "bpp.example.com",
+    "bppUri": "https://bpp.example.com",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "3b6a2587-8835-5aea-88c1-67d865890193",
+    "timestamp": "2025-01-27T10:00:30Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "contract": {
+      "status": {
+        "code": "DRAFT"
+      },
+      "participants": [
+        {
+          "id": "ecopower-charging",
+          "descriptor": {
+            "name": "EcoPower Charging Pvt Ltd"
+          }
+        },
+        {
+          "id": "user-123",
+          "descriptor": {
+            "name": "Ravi Kumar"
+          },
+          "participantAttributes": {
+            "@context": "https://schema.nfh.global/Consumer/v2.0/context.jsonld",
+            "@type": "Consumer",
+            "role": "BUYER",
+            "person": {
+              "id": "user-123",
+              "name": "Ravi Kumar",
+              "telephone": "+91-9876543210",
+              "email": "ravi.kumar@example.com"
+            }
+          }
+        }
+      ],
+      "commitments": [
+        {
+          "id": "commitment-001",
+          "status": {
+            "descriptor": {
+              "code": "DRAFT"
+            }
+          },
+          "resources": [
+            {
+              "id": "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A",
+              "quantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 2.5
+              }
+            }
+          ],
+          "offer": {
+            "id": "offer-ccs2-60kw-kwh",
+            "descriptor": {
+              "name": "Per-kWh Tariff - CCS2 60kW"
+            },
+            "provider": {
+              "id": "ecopower-charging",
+              "descriptor": {
+                "name": "EcoPower Charging Pvt Ltd"
+              }
+            },
+            "resourceIds": [
+              "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A"
+            ],
+            "considerations": [
+              {
+                "id": "price-offer-ccs2-60kw-kwh",
+                "considerationAttributes": {
+                  "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
+                  "@type": "PriceSpecification",
+                  "currency": "INR",
+                  "value": 45.0,
+                  "applicableQuantity": {
+                    "unitText": "Kilowatt Hour",
+                    "unitCode": "KWH",
+                    "unitQuantity": 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consideration": [
+        {
+          "id": "consideration-001",
+          "status": {
+            "code": "QUOTED"
+          },
+          "considerationAttributes": {
+            "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
+            "@type": "PriceSpecification",
+            "currency": "INR",
+            "value": 149.33,
+            "components": [
+              {
+                "type": "UNIT",
+                "value": 112.5,
+                "currency": "INR",
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
+              },
+              {
+                "type": "SURCHARGE",
+                "value": 22.5,
+                "currency": "INR",
+                "description": "Surge price (20% of energy cost)"
+              },
+              {
+                "type": "DISCOUNT",
+                "value": -16.88,
+                "currency": "INR",
+                "description": "Offer discount (15% of energy cost)"
+              },
+              {
+                "type": "FEE",
+                "value": 10.0,
+                "currency": "INR",
+                "description": "Service fee"
+              },
+              {
+                "type": "FEE",
+                "value": 2.81,
+                "currency": "INR",
+                "description": "Buyer finder fee (2.5% of energy cost)"
+              },
+              {
+                "type": "FEE",
+                "value": 18.4,
+                "currency": "INR",
+                "description": "Outstanding balance from session order-ev-charging-000 (overcharge, unpaid)"
+              }
+            ]
+          }
+        }
+      ],
+      "contractAttributes": {
+        "@context": "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld",
+        "@type": "ChargingSession",
+        "buyerFinderFee": {
+          "feeType": "PERCENTAGE",
+          "feeValue": 2.5
+        },
+        "preferences": {
+          "startTime": "2025-12-20T10:00:00Z",
+          "endTime": "2025-12-20T11:30:00Z"
+        }
+      }
+    }
+  }
+}

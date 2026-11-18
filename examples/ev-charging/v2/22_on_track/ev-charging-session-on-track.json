@@ -1,0 +1,82 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_track",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "example-bap.com",
+    "bapUri": "https://example-bap.com/pilot/bap/energy/v2",
+    "bppId": "example-bpp.com",
+    "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "2618a2ec-7b87-5d7a-b378-9831bcb89e68",
+    "timestamp": "2025-01-27T10:30:02Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "tracking": {
+      "contract": {
+        "id": "order-ev-charging-001",
+        "commitments": [
+          {
+            "id": "commitment-001",
+            "status": {
+              "descriptor": {
+                "code": "ACTIVE"
+              }
+            },
+            "resources": [
+              {
+                "id": "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A",
+                "quantity": {
+                  "unitText": "Kilowatt Hour",
+                  "unitCode": "KWH",
+                  "unitQuantity": 2.5
+                }
+              }
+            ],
+            "offer": {
+              "id": "offer-ccs2-60kw-kwh",
+              "descriptor": {
+                "name": "Per-kWh Tariff - CCS2 60kW"
+              },
+              "provider": {
+                "id": "ecopower-charging",
+                "descriptor": {
+                  "name": "EcoPower Charging Pvt Ltd"
+                }
+              },
+              "resourceIds": [
+                "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A"
+              ],
+              "considerations": [
+                {
+                  "id": "price-offer-ccs2-60kw-kwh",
+                  "considerationAttributes": {
+                    "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
+                    "@type": "PriceSpecification",
+                    "currency": "INR",
+                    "value": 45.0,
+                    "applicableQuantity": {
+                      "unitText": "Kilowatt Hour",
+                      "unitCode": "KWH",
+                      "unitQuantity": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": "ACTIVE",
+      "url": "https://track.bluechargenet-aggregator.io/session/SESSION-9876543210",
+      "trackingAttributes": {
+        "@context": "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld",
+        "@type": "ChargingSession",
+        "sessionStatus": "ACTIVE",
+        "meteredEnergyKWh": 1.1,
+        "lastUpdated": "2025-01-27T10:30:00Z"
+      }
+    }
+  }
+}

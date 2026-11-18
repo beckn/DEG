@@ -31,9 +31,8 @@ services:
       retries: 5
 
   onix-bap:
-    image: fidedocker/onix-adapter:latest
+    image: fidedocker/onix-adapter:${ONIX_TAG:-1.9.4}
     container_name: onix-bap
-    platform: linux/amd64
     ports:
       - "8081:8081"
     environment:
@@ -83,9 +82,8 @@ services:
       retries: 5
 
   onix-bpp:
-    image: fidedocker/onix-adapter:latest
+    image: fidedocker/onix-adapter:${ONIX_TAG:-1.9.4}
     container_name: onix-bpp
-    platform: linux/amd64
     ports:
       - "8082:8082"
     environment:
@@ -110,6 +108,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3002
+    volumes:
+      # LTS on_* replies for the mock CPO (the image's built-in EV replies predate LTS)
+      - ./sandbox-fixtures/nfh.global/testnet-evcharging/response:/app/dist/webhook/jsons/nfh.global/testnet-evcharging/response
     ports:
       - "3002:3002"
     healthcheck:

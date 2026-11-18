@@ -1,0 +1,219 @@
+openapi: 3.1.1
+info:
+  title: EvChargingSession
+  version: '2.0'
+  description: Attribute schema for EV charging sessions (Order.fulfillments[].attributes). Tracks real-time
+    or completed charging session data including session status, energy consumed, duration, total cost,
+    telemetry intervals, and tracking links.
+components:
+  schemas:
+    EvChargingSession:
+      type: object
+      additionalProperties: false
+      x-tags:
+      - ev-charging
+      - session
+      - fulfillment
+      - energy
+      x-jsonld:
+        '@context': ./context.jsonld
+        '@type': ChargingSession
+      properties:
+        sessionStatus:
+          type: string
+          enum:
+          - PENDING
+          - ACTIVE
+          - STOP
+          - COMPLETED
+          - INTERRUPTED
+          description: High-level session state (order.state carries overall state).
+          example: ACTIVE
+          x-jsonld:
+            '@id': sessionStatus
+        connectorStatus:
+          type: string
+          enum:
+          - AVAILABLE
+          - PREPARING
+          - UNAVAILABLE
+          description: Charging connector status (from OCPP status codes).
+          example: PREPARING
+          x-jsonld:
+            '@id': connectorStatus
+        buyerFinderFee:
+          type: object
+          description: Commission payable by provider to the BAP for this offer.
+          x-jsonld:
+            '@id': buyerFinderFee
+          additionalProperties: false
+          properties:
+            feeType:
+              type: string
+              enum:
+              - PERCENTAGE
+              - AMOUNT
+              example: PERCENTAGE
+              x-jsonld:
+                '@id': feeType
+            feeValue:
+              type: number
+              minimum: 0
+              example: 2.5
+              x-jsonld:
+                '@id': feeValue
+        connectorType:
+          type: string
+          enum:
+          - CCS2
+          - Type2
+          - CHAdeMO
+          - GB_T
+          description: Connector used for this session (may differ from listing).
+          example: CCS2
+          x-jsonld:
+            '@id': connectorType
+        maxPowerKW:
+          type: number
+          minimum: 1
+          description: Peak power observed/allowed for this session (kW).
+          example: 60
+          x-jsonld:
+            '@id': maxPowerKW
+        meteredEnergyKWh:
+          type: number
+          minimum: 0
+          description: Total metered energy delivered (kWh).
+          example: 13.6
+          x-jsonld:
+            '@id': meteredEnergyKWh
+        meteredDurationMinutes:
+          type: number
+          minimum: 0
+          description: Total metered session time in minutes.
+          example: 35
+          x-jsonld:
+            '@id': meteredDurationMinutes
+        chargingTelemetry:
+          type: array
+          description: OCPI-like intervals with telemetry metrics.
+          x-jsonld:
+            '@id': chargingTelemetry
+            '@container': '@set'
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              eventTime:
+                type: string
+                format: date-time
+                description: Telemetry event timestamp (UTC).
+                x-jsonld:
+                  '@id': schema:startTime
+              metrics:
+                type: array
+                description: Array of telemetry metrics using schema.org QuantitativeValue.
+                items:
+                  type: object
+                  additionalProperties: false
+                  required:
+                  - name
+                  - value
+                  - unitCode
+                  x-jsonld:
+                    '@id': schema:QuantitativeValue
+                  properties:
+                    name:
+                      type: string
+                      enum:
+                      - ENERGY
+                      - POWER
+                      - CURRENT
+                      - VOLTAGE
+                      - STATE_OF_CHARGE
+                      description: Name of the telemetry metric.
+                      example: ENERGY
+                      x-jsonld:
+                        '@id': schema:name
+                    value:
+                      type: number
+                      description: Numeric value of the metric.
+                      example: 5.8
+                      x-jsonld:
+                        '@id': schema:value
+                    unitCode:
+                      type: string
+                      description: 'Unit code for the metric value. Valid codes: ENERGY uses KW, POWER
+                        uses KWH, CURRENT uses AMP, VOLTAGE uses VLT, STATE_OF_CHARGE uses PERCENTAGE.'
+                      example: KWH
+                      x-jsonld:
+                        '@id': schema:unitCode
+        totalCost:
+          type: object
+          description: Total session cost breakout.
+          x-jsonld:
+            '@id': totalCost
+          additionalProperties: false
+          properties:
+            exclVat:
+              type: number
+              example: 245.0
+              x-jsonld:
+                '@id': exclVat
+            inclVat:
+              type: number
+              example: 289.1
+              x-jsonld:
+                '@id': inclVat
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Last telemetry/billing update timestamp (UTC).
+          x-jsonld:
+            '@id': schema:dateModified
+        reservationId:
+          type: string
+          description: Server-assigned reservation identifier.
+          example: RESV-984532
+          x-jsonld:
+            '@id': reservationId
+        gracePeriodMinutes:
+          type: number
+          minimum: 0
+          description: Minutes allowed after scheduled start before releasing.
+          example: 10
+          x-jsonld:
+            '@id': gracePeriodMinutes
+        vehicleMake:
+          type: string
+          description: Vehicle make/brand for the session (optional).
+          example: Tata
+          x-jsonld:
+            '@id': vehicleMake
+        vehicleModel:
+          type: string
+          description: Vehicle model for the session (optional).
+          example: Nexon EV
+          x-jsonld:
+            '@id': vehicleModel
+        preferences:
+          type: object
+          description: Charging session preferences including time windows.
+          x-jsonld:
+            '@id': preferences
+          additionalProperties: false
+          properties:
+            startTime:
+              type: string
+              format: date-time
+              description: Preferred or scheduled start time for the charging session (UTC).
+              example: '2024-01-15T10:00:00Z'
+              x-jsonld:
+                '@id': schema:startTime
+            endTime:
+              type: string
+              format: date-time
+              description: Preferred or scheduled end time for the charging session (UTC).
+              example: '2024-01-15T11:30:00Z'
+              x-jsonld:
+                '@id': schema:endTime

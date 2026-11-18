@@ -1,0 +1,193 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "confirm",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "bap.example.com",
+    "bapUri": "https://bap.example.com",
+    "bppId": "bpp.example.com",
+    "bppUri": "https://bpp.example.com",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "0c04db0b-980b-57ae-9003-7721be0f876f",
+    "timestamp": "2025-01-27T10:04:00Z",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "contract": {
+      "id": "order-ev-charging-001",
+      "status": {
+        "code": "DRAFT"
+      },
+      "participants": [
+        {
+          "id": "ecopower-charging",
+          "descriptor": {
+            "name": "EcoPower Charging Pvt Ltd"
+          }
+        },
+        {
+          "id": "user-123",
+          "descriptor": {
+            "name": "Ravi Kumar"
+          },
+          "participantAttributes": {
+            "@context": "https://schema.nfh.global/Consumer/v2.0/context.jsonld",
+            "@type": "Consumer",
+            "role": "BUYER",
+            "person": {
+              "id": "user-123",
+              "name": "Ravi Kumar",
+              "telephone": "+91-9876543210",
+              "email": "ravi.kumar@example.com"
+            }
+          }
+        }
+      ],
+      "commitments": [
+        {
+          "id": "commitment-001",
+          "status": {
+            "descriptor": {
+              "code": "DRAFT"
+            }
+          },
+          "resources": [
+            {
+              "id": "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A",
+              "quantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 2.5
+              }
+            }
+          ],
+          "offer": {
+            "id": "offer-ccs2-60kw-kwh",
+            "descriptor": {
+              "name": "Per-kWh Tariff - CCS2 60kW"
+            },
+            "provider": {
+              "id": "ecopower-charging",
+              "descriptor": {
+                "name": "EcoPower Charging Pvt Ltd"
+              }
+            },
+            "resourceIds": [
+              "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A"
+            ],
+            "considerations": [
+              {
+                "id": "price-offer-ccs2-60kw-kwh",
+                "considerationAttributes": {
+                  "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
+                  "@type": "PriceSpecification",
+                  "currency": "INR",
+                  "value": 45.0,
+                  "applicableQuantity": {
+                    "unitText": "Kilowatt Hour",
+                    "unitCode": "KWH",
+                    "unitQuantity": 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consideration": [
+        {
+          "id": "consideration-001",
+          "status": {
+            "code": "QUOTED"
+          },
+          "considerationAttributes": {
+            "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
+            "@type": "PriceSpecification",
+            "currency": "INR",
+            "value": 143.95,
+            "components": [
+              {
+                "type": "UNIT",
+                "value": 112.5,
+                "currency": "INR",
+                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+              },
+              {
+                "type": "SURCHARGE",
+                "value": 20.0,
+                "currency": "INR",
+                "description": "Surge price (20%)"
+              },
+              {
+                "type": "DISCOUNT",
+                "value": -15.0,
+                "currency": "INR",
+                "description": "Offer discount (15%)"
+              },
+              {
+                "type": "FEE",
+                "value": 10.0,
+                "currency": "INR",
+                "description": "Service fee"
+              },
+              {
+                "type": "FEE",
+                "value": 13.64,
+                "currency": "INR",
+                "description": "Overcharge estimation"
+              },
+              {
+                "type": "FEE",
+                "value": 2.81,
+                "currency": "INR",
+                "description": "Buyer finder fee (2.5%)"
+              }
+            ]
+          }
+        }
+      ],
+      "settlements": [
+        {
+          "id": "settlement-001",
+          "considerationId": "consideration-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:id": "payment-123e4567-e89b-12d3-a456-426614174000",
+            "beckn:paymentStatus": "COMPLETED",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 143.95
+            },
+            "beckn:beneficiary": "BAP",
+            "beckn:paymentAttributes": {
+              "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-v2/tags/core-2.0.0-rc-eos-release/schema/PaymentSettlement/v1/context.jsonld",
+              "@type": "PaymentSettlement",
+              "settlementAccounts": [
+                {
+                  "beneficiaryId": "bap.example.com",
+                  "accountHolderName": "Example BAP Solutions Pvt Ltd",
+                  "accountNumber": "9876543210123",
+                  "ifscCode": "HDFC0009876",
+                  "bankName": "HDFC Bank",
+                  "vpa": "example-bap@paytm"
+                },
+                {
+                  "beneficiaryId": "bpp.example.com",
+                  "accountHolderName": "EcoPower Charging Solutions Pvt Ltd",
+                  "accountNumber": "1234567890123",
+                  "ifscCode": "HDFC0001234",
+                  "bankName": "HDFC Bank",
+                  "vpa": "ecopower@paytm"
+                }
+              ]
+            },
+            "beckn:txnRef": "BAP-UPI-7781234567",
+            "beckn:paidAt": "2025-01-27T10:03:40Z"
+          }
+        }
+      ]
+    }
+  }
+}

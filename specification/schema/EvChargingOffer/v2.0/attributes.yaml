@@ -34,7 +34,7 @@ components:
           x-jsonld:
             '@id': idleFeePolicy
           allOf:
-          - $ref: https://schema.nfh.global/PriceSpecification/v2.0
+          - $ref: https://schema.nfh.global/PriceSpecification/v2.0/attributes.yaml#/components/schemas/PriceSpecification
           - type: object
           example:
             currency: INR
@@ -69,7 +69,7 @@ components:
           x-jsonld:
             '@id': eligibleQuantity
           allOf:
-          - $ref: https://schema.nfh.global/Quantity/v2.0
+          - $ref: https://schema.nfh.global/Quantity/v2.0/attributes.yaml#/components/schemas/Quantity
         acceptedPaymentMethods:
           type: array
           description: List of accepted payment method codes.

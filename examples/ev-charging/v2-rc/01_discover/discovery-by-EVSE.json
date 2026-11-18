@@ -1,0 +1,24 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "discover",
+    "domain": "beckn.one:deg:ev-charging:*",
+    "bap_id": "app.example.com",
+    "bap_uri": "https://app.example.com/bap",
+    "bpp_id": "example-cds.com",
+    "bpp_uri": "https://example-cds.com/pilot/cds/energy/v2",
+    "transaction_id": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "message_id": "a1eabf26-29f5-4a01-9d4e-4c5c9d1a3d02",
+    "timestamp": "2025-10-14T07:31:00Z",
+    "ttl": "PT30S",
+    "schema_context": [
+      "https://schema.nfh.global/EvChargingService/v1.0/context.jsonld"
+    ]
+  },
+  "message": {
+    "filters": {
+      "type": "jsonpath",
+      "expression": "$[?(@.beckn:id == 'IND*CPO1*cs-01*evse-01*connectorid-01')]"
+    }
+  }
+}

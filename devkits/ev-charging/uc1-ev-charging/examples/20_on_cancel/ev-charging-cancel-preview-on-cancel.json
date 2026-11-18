@@ -1,0 +1,162 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_cancel",
+    "networkId": "nfh.global/testnet-evcharging",
+    "bapId": "bap.example.com",
+    "bapUri": "https://bap.example.com",
+    "bppId": "bpp.example.com",
+    "bppUri": "https://bpp.example.com",
+    "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
+    "messageId": "5ec82de5-c9fd-510a-b2a4-b4e5120ed1c9",
+    "timestamp": "2025-01-27T09:40:02Z",
+    "ttl": "PT30S",
+    "try": true
+  },
+  "message": {
+    "contract": {
+      "id": "order-ev-charging-001",
+      "status": {
+        "code": "ACTIVE"
+      },
+      "participants": [
+        {
+          "id": "ecopower-charging",
+          "descriptor": {
+            "name": "EcoPower Charging Pvt Ltd"
+          }
+        },
+        {
+          "id": "user-123",
+          "descriptor": {
+            "name": "Ravi Kumar"
+          },
+          "participantAttributes": {
+            "@context": "https://schema.nfh.global/Consumer/v2.0/context.jsonld",
+            "@type": "Consumer",
+            "role": "BUYER",
+            "person": {
+              "id": "user-123",
+              "name": "Ravi Kumar",
+              "telephone": "+91-9876543210",
+              "email": "ravi.kumar@example.com"
+            }
+          }
+        }
+      ],
+      "commitments": [
+        {
+          "id": "commitment-001",
+          "status": {
+            "descriptor": {
+              "code": "ACTIVE"
+            }
+          },
+          "resources": [
+            {
+              "id": "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A",
+              "quantity": {
+                "unitText": "Kilowatt Hour",
+                "unitCode": "KWH",
+                "unitQuantity": 2.5
+              }
+            }
+          ],
+          "offer": {
+            "id": "offer-ccs2-60kw-kwh",
+            "descriptor": {
+              "name": "Per-kWh Tariff - CCS2 60kW"
+            },
+            "provider": {
+              "id": "ecopower-charging",
+              "descriptor": {
+                "name": "EcoPower Charging Pvt Ltd"
+              }
+            },
+            "resourceIds": [
+              "IND*ecopower-charging*cs-01*IN*ECO*BTM*01*CCS2*A*CCS2-A"
+            ],
+            "considerations": [
+              {
+                "id": "price-offer-ccs2-60kw-kwh",
+                "considerationAttributes": {
+                  "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
+                  "@type": "PriceSpecification",
+                  "currency": "INR",
+                  "value": 45.0,
+                  "applicableQuantity": {
+                    "unitText": "Kilowatt Hour",
+                    "unitCode": "KWH",
+                    "unitQuantity": 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consideration": [
+        {
+          "id": "consideration-001",
+          "status": {
+            "code": "QUOTED"
+          },
+          "considerationAttributes": {
+            "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
+            "@type": "PriceSpecification",
+            "currency": "INR",
+            "value": 11.25,
+            "components": [
+              {
+                "type": "FEE",
+                "value": 11.25,
+                "currency": "INR",
+                "description": "Late cancellation fee (10% of energy cost, within 30 minutes of the slot)"
+              }
+            ]
+          }
+        }
+      ],
+      "settlements": [
+        {
+          "id": "settlement-001",
+          "considerationId": "consideration-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:id": "payment-123e4567-e89b-12d3-a456-426614174000",
+            "beckn:paymentStatus": "COMPLETED",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 143.95
+            },
+            "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
+            "beckn:txnRef": "TXN-123456789",
+            "beckn:paidAt": "2025-12-19T10:05:00Z",
+            "beckn:beneficiary": "BPP"
+          }
+        },
+        {
+          "id": "settlement-002",
+          "considerationId": "consideration-001",
+          "status": "DRAFT",
+          "settlementAttributes": {
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:paymentStatus": "PENDING",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 132.7
+            },
+            "beckn:beneficiary": "BUYER"
+          }
+        }
+      ],
+      "descriptor": {
+        "code": "CANCELLATION_TERMS",
+        "shortDesc": "Free cancellation up to 30 minutes before the slot; 10% of the energy cost after that."
+      }
+    }
+  }
+}

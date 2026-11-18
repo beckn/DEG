@@ -1,27 +1,21 @@
 arazzo: 1.0.1
 info:
-  title: EV Charging Workflow - Use Case 1
-  version: 1.0.0
+  title: EV Charging Workflows (Beckn 2.0 LTS)
+  version: 2.0.0
   description: >
-    End-to-end Beckn 2.0 workflow for EV charging discovery, reservation,
-    session, and cancellation.
+    Beckn 2.0 LTS workflows for every EV charging use case in examples/. Requests go
+    through the BAP caller and callbacks through the BPP caller, so each payload is
+    signed, registry-checked and validated by ONIX.
 
-    Run via the workflow runner (from uc1-ev-charging/workflows/):
+    Run from uc1-ev-charging/workflows/ (stack up with `docker compose up -d` in install/):
 
-      Local-bridge mode (default, BAP↔BPP via Caddy router inside docker —
-      `docker compose up -d` in install/):
-        ./run-arazzo.sh
-        ./run-arazzo.sh -w select-through-status -v
+      ./run-arazzo.sh                    # all workflows
+      ./run-arazzo.sh -w walk-in -v
 
-      Over-internet mode (against the public ngrok URL fronting the router):
-        PUBLIC_URL=https://<host>.ngrok-free.dev ./run-arazzo.sh
+    Workflows: discover, walk-in, reservation, exceptions, cancellation, support.
 
-      Available workflows: discover, select-through-status,
-        ev-charging-cancellation
-
-      Override server URLs (optional, defaults in x-serverUrl):
-        -S beckn-bap-caller=http://localhost:8081/bap/caller \
-        -S beckn-bpp-caller=http://localhost:8082/bpp/caller
+    Catalog publishing is exercised by the reference apps (install/docker-compose.apps.yml),
+    not here: the default BPP routing sends publish to the hosted fabric catalog service.
 
 sourceDescriptions:
   - name: beckn-bap-caller
@@ -36,29 +30,101 @@ sourceDescriptions:
 
 workflows:
   - workflowId: discover
-    summary: EV driver app discovers nearby charging stations
+    summary: "Every discovery variant and the catalogs returned"
     steps:
-      - stepId: discover
-        description: BAP discovers charging stations within a circular boundary
+      - stepId: discovery-within-a-circular-boundary
+        description: "Chargers within 10 km (S_DWITHIN on provider.availableAt)"
         operationId: beckn-bap-caller.discover
         requestBody:
           contentType: application/json
           payload:
             $ref: "../examples/01_discover/discovery-within-a-circular-boundary.json"
 
-      - stepId: on-discover
-        description: BPP returns catalog of charging stations
+      - stepId: discovery-within-boundary-with-connection-spec
+        description: "CCS2, at least 50 kW, within 10 km"
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/01_discover/discovery-within-boundary-with-connection-spec.json"
+
+      - stepId: discovery-within-boundary-with-vehicle-spec
+        description: "4-wheeler with a CCS2 inlet, within 8 km"
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/01_discover/discovery-within-boundary-with-vehicle-spec.json"
+
+      - stepId: discovery-services-by-a-cpo
+        description: "All chargers of one CPO"
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/01_discover/discovery-services-by-a-cpo.json"
+
+      - stepId: discovery-services-by-a-station
+        description: "A station by id"
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/01_discover/discovery-services-by-a-station.json"
+
+      - stepId: discovery-by-EVSE
+        description: "A connector by id (QR scan)"
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/01_discover/discovery-by-EVSE.json"
+
+      - stepId: discovery-within-a-timerange
+        description: "Open across 11:30-14:30 (offer validity hours)"
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/01_discover/discovery-within-a-timerange.json"
+
+      - stepId: discovery-catalog
+        description: "Catalogs for three CPOs"
         operationId: beckn-bpp-caller.onDiscover
         requestBody:
           contentType: application/json
           payload:
             $ref: "../examples/02_on_discover/ev-charging-discovery-catalog.json"
 
-  - workflowId: select-through-status
-    summary: Select station, initialize, confirm, and check session status
+      - stepId: specific-evse-catalog
+        description: "Catalog for the scanned connector"
+        operationId: beckn-bpp-caller.onDiscover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/02_on_discover/ev-charging-specific-evse-catalog.json"
+
+  - workflowId: walk-in
+    summary: "Use case 1: walk-in, scan QR, pay by the CPO payment link, charge, stop, invoice, rate, support"
     steps:
+      - stepId: discovery-by-EVSE
+        description: "Scan the charger QR"
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/01_discover/discovery-by-EVSE.json"
+
+      - stepId: specific-evse-catalog
+        description: "Charger and tariff"
+        operationId: beckn-bpp-caller.onDiscover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/02_on_discover/ev-charging-specific-evse-catalog.json"
+
       - stepId: select
-        description: BAP selects a specific station with fulfillment details
+        description: "Choose 2.5 kWh"
         operationId: beckn-bap-caller.select
         requestBody:
           contentType: application/json
@@ -66,31 +132,39 @@ workflows:
             $ref: "../examples/03_select/ev-charging-select.json"
 
       - stepId: on-select
-        description: BPP returns pricing and confirms selection
+        description: "Quote with surge, discount, fees"
         operationId: beckn-bpp-caller.onSelect
         requestBody:
           contentType: application/json
           payload:
             $ref: "../examples/04_on_select/ev-charging-on-select.json"
 
-      - stepId: init
-        description: BAP initializes with payment and billing details
+      - stepId: bpp-payment-init
+        description: "Pay the CPO"
         operationId: beckn-bap-caller.init
         requestBody:
           contentType: application/json
           payload:
-            $ref: "../examples/05_init/ev-charging-bap-payment-init.json"
+            $ref: "../examples/05_init/ev-charging-bpp-payment-init.json"
 
-      - stepId: on-init
-        description: BPP acknowledges initialization with quote
+      - stepId: bpp-payment-on-init
+        description: "Payment link"
         operationId: beckn-bpp-caller.onInit
         requestBody:
           contentType: application/json
           payload:
             $ref: "../examples/06_on_init/ev-charging-bpp-payment-on-init.json"
 
+      - stepId: bpp-payment-check-on-status
+        description: "Payment received"
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/06_on_status_1/ev-charging-bpp-payment-check-on-status.json"
+
       - stepId: confirm
-        description: BAP confirms the reservation with authorization
+        description: "Confirm"
         operationId: beckn-bap-caller.confirm
         requestBody:
           contentType: application/json
@@ -98,44 +172,357 @@ workflows:
             $ref: "../examples/07_confirm/ev-charging-confirm.json"
 
       - stepId: on-confirm
-        description: BPP confirms reservation and starts session
+        description: "Booked, session PENDING"
         operationId: beckn-bpp-caller.onConfirm
         requestBody:
           contentType: application/json
           payload:
             $ref: "../examples/08_00_on_confirm/ev-charging-on-confirm.json"
 
-      - stepId: status
-        description: BAP polls for current connector status
+      - stepId: connector-status
+        description: "Connector status"
         operationId: beckn-bap-caller.status
         requestBody:
           contentType: application/json
           payload:
             $ref: "../examples/08_01_status/ev-charging-connector-status.json"
 
-      - stepId: on-status
-        description: BPP returns current connector status
+      - stepId: connector-on-status
+        description: "Connector PREPARING"
         operationId: beckn-bpp-caller.onStatus
         requestBody:
           contentType: application/json
           payload:
             $ref: "../examples/08_02_on_status/ev-charging-connector-on-status.json"
 
-  - workflowId: ev-charging-cancellation
-    summary: Cancel an EV charging reservation
+      - stepId: 01-session-start-update
+        description: "Start charging"
+        operationId: beckn-bap-caller.update
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/09_update/ev-charging-01-session-start-update.json"
+
+      - stepId: session-on-update
+        description: "Session ACTIVE"
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/10_on_update/ev-charging-session-on-update.json"
+
+      - stepId: session-track
+        description: "Live status"
+        operationId: beckn-bap-caller.status
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/11_status/ev-charging-session-track.json"
+
+      - stepId: session-on-track
+        description: "Telemetry"
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/12_on_status/ev-charging-session-on-track.json"
+
+      - stepId: session-end-update
+        description: "Stop charging"
+        operationId: beckn-bap-caller.update
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/14_01_update/ev-charging-session-end-update.json"
+
+      - stepId: session-complete-on-update
+        description: "Final bill"
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/14_02_on_update/ev-charging-session-complete-on-update.json"
+
+      - stepId: invoice-ready-on-update
+        description: "Invoice ready"
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/14_03_on_update/ev-charging-invoice-ready-on-update.json"
+
+      - stepId: session-rating
+        description: "Rate"
+        operationId: beckn-bap-caller.rate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/15_rating/ev-charging-session-rating.json"
+
+      - stepId: session-on-rating
+        description: "Rating recorded"
+        operationId: beckn-bpp-caller.onRate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/16_on_rating/ev-charging-session-on-rating.json"
+
+      - stepId: session-support
+        description: "Ask for support"
+        operationId: beckn-bap-caller.support
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/17_support/ev-charging-session-support.json"
+
+      - stepId: session-on-support
+        description: "Ticket opened"
+        operationId: beckn-bpp-caller.onSupport
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/18_on_support/ev-charging-session-on-support.json"
+
+  - workflowId: reservation
+    summary: "Use case 2: reserve a slot, pay in the consumer app, track, stop"
     steps:
-      - stepId: cancel
-        description: BAP cancels reserved slot
+      - stepId: discovery-within-a-circular-boundary
+        description: "Search nearby"
+        operationId: beckn-bap-caller.discover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/01_discover/discovery-within-a-circular-boundary.json"
+
+      - stepId: discovery-catalog
+        description: "Catalogs"
+        operationId: beckn-bpp-caller.onDiscover
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/02_on_discover/ev-charging-discovery-catalog.json"
+
+      - stepId: select
+        description: "Choose a slot"
+        operationId: beckn-bap-caller.select
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/03_select/ev-charging-select.json"
+
+      - stepId: on-select
+        description: "Quote"
+        operationId: beckn-bpp-caller.onSelect
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/04_on_select/ev-charging-on-select.json"
+
+      - stepId: bap-payment-init
+        description: "Consumer app collects payment"
+        operationId: beckn-bap-caller.init
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/05_init/ev-charging-bap-payment-init.json"
+
+      - stepId: bap-payment-on-init
+        description: "Settlement terms"
+        operationId: beckn-bpp-caller.onInit
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/06_on_init/ev-charging-bap-payment-on-init.json"
+
+      - stepId: confirm
+        description: "Confirm"
+        operationId: beckn-bap-caller.confirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/07_confirm/ev-charging-confirm.json"
+
+      - stepId: on-confirm
+        description: "Booked"
+        operationId: beckn-bpp-caller.onConfirm
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/08_00_on_confirm/ev-charging-on-confirm.json"
+
+      - stepId: 01-session-start-update
+        description: "Start at the slot"
+        operationId: beckn-bap-caller.update
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/09_update/ev-charging-01-session-start-update.json"
+
+      - stepId: session-on-update
+        description: "Session ACTIVE"
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/10_on_update/ev-charging-session-on-update.json"
+
+      - stepId: session-track
+        description: "Ask for a live tracking handle"
+        operationId: beckn-bap-caller.track
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/21_track/ev-charging-session-track.json"
+
+      - stepId: session-on-track
+        description: "Tracking URL"
+        operationId: beckn-bpp-caller.onTrack
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/22_on_track/ev-charging-session-on-track.json"
+
+      - stepId: session-end-update
+        description: "Stop"
+        operationId: beckn-bap-caller.update
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/14_01_update/ev-charging-session-end-update.json"
+
+      - stepId: session-complete-on-update
+        description: "Final bill"
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/14_02_on_update/ev-charging-session-complete-on-update.json"
+
+  - workflowId: exceptions
+    summary: "Refusals and billing exceptions"
+    steps:
+      - stepId: on-select-slot-unavailable
+        description: "Slot already booked"
+        operationId: beckn-bpp-caller.onSelect
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/04_on_select/ev-charging-on-select-slot-unavailable.json"
+
+      - stepId: on-select-outstanding-dues
+        description: "Quote with an outstanding balance"
+        operationId: beckn-bpp-caller.onSelect
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/04_on_select/ev-charging-on-select-outstanding-dues.json"
+
+      - stepId: session-start-rejected-on-update
+        description: "Start refused: EVSE inoperative"
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/10_on_update/ev-charging-session-start-rejected-on-update.json"
+
+      - stepId: session-interrupt-on-status
+        description: "Connection interrupted"
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/13_on_status/ev-charging-session-interrupt-on-status.json"
+
+      - stepId: session-undercharge-refund-on-status
+        description: "Power cut: bill delivered energy, refund the rest"
+        operationId: beckn-bpp-caller.onStatus
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/13_on_status/ev-charging-session-undercharge-refund-on-status.json"
+
+      - stepId: session-overcharge-on-update
+        description: "Charger offline kept dispensing"
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/14_02_on_update/ev-charging-session-overcharge-on-update.json"
+
+      - stepId: session-undercharge-on-update
+        description: "Battery full early"
+        operationId: beckn-bpp-caller.onUpdate
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/14_02_on_update/ev-charging-session-undercharge-on-update.json"
+
+  - workflowId: cancellation
+    summary: "Cancellation terms, consumer cancellation, CPO cancellation"
+    steps:
+      - stepId: cancel-preview
+        description: "Ask for terms (context.try)"
+        operationId: beckn-bap-caller.cancel
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/19_cancel/ev-charging-cancel-preview.json"
+
+      - stepId: cancel-preview-on-cancel
+        description: "Terms and refund"
+        operationId: beckn-bpp-caller.onCancel
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/20_on_cancel/ev-charging-cancel-preview-on-cancel.json"
+
+      - stepId: cancel-reserved-slot
+        description: "Cancel"
         operationId: beckn-bap-caller.cancel
         requestBody:
           contentType: application/json
           payload:
             $ref: "../examples/19_cancel/ev-charging-cancel-reserved-slot.json"
 
-      - stepId: on-cancel
-        description: BPP confirms cancellation with any applicable refund
+      - stepId: bpp-reservation-on-cancel
+        description: "Cancelled, refund"
         operationId: beckn-bpp-caller.onCancel
         requestBody:
           contentType: application/json
           payload:
             $ref: "../examples/20_on_cancel/ev-charging-bpp-reservation-on-cancel.json"
+
+      - stepId: cpo-initiated-on-cancel
+        description: "CPO cancels: charger fault, full refund"
+        operationId: beckn-bpp-caller.onCancel
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/20_on_cancel/ev-charging-cpo-initiated-on-cancel.json"
+
+  - workflowId: support
+    summary: "Support ticket opened and resolved"
+    steps:
+      - stepId: connector-fault-support
+        description: "Connector not releasing"
+        operationId: beckn-bap-caller.support
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/17_support/ev-charging-connector-fault-support.json"
+
+      - stepId: session-on-support
+        description: "Ticket opened"
+        operationId: beckn-bpp-caller.onSupport
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/18_on_support/ev-charging-session-on-support.json"
+
+      - stepId: support-resolved-on-support
+        description: "Ticket resolved"
+        operationId: beckn-bpp-caller.onSupport
+        requestBody:
+          contentType: application/json
+          payload:
+            $ref: "../examples/18_on_support/ev-charging-support-resolved-on-support.json"
