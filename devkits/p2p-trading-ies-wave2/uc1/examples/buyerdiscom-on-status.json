@@ -38,8 +38,7 @@
                   "clientName": "TEST_DISCOM_BUYER",
                   "intervalPeriod": {"start": "2026-04-26T04:30:00Z", "duration": "PT1H"},
                   "payloadDescriptors": [{"objectType": "REPORT_PAYLOAD_DESCRIPTOR", "payloadType": "ENERGY_CONSUMPTION", "units": "KWH"}],
-                  "intervals": [{"id": 0, "payloads": [{"type": "ENERGY_CONSUMPTION", "values": [5.0]}]},
-                  {"id": 1, "payloads": [{"type": "ENERGY_CONSUMPTION", "values": [7.0]}]}]
+                  "intervals": [{"id": 0, "payloads": [{"type": "ENERGY_CONSUMPTION", "values": [19.2]}]}, {"id": 1, "payloads": [{"type": "ENERGY_CONSUMPTION", "values": [19.3]}]}]
                 }
               }
             }
