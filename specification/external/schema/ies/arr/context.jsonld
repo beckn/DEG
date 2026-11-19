@@ -1,0 +1,64 @@
+{
+  "@context": {
+    "ies": "https://india-energy-stack.github.io/ns/ies#",
+    "arr": "https://india-energy-stack.github.io/ns/ies/arr#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "schema": "https://schema.org/",
+
+    "id": "@id",
+    "objectType": "@type",
+
+    "ARR_FILING": "arr:ArrFiling",
+    "ARR_LINE_ITEM": "arr:ArrLineItem",
+    "ARR_FISCAL_YEAR": "arr:ArrFiscalYear",
+
+    "filingId": "arr:filingId",
+    "filingDate": { "@id": "arr:filingDate", "@type": "xsd:date" },
+    "filingType": "arr:filingType",
+    "controlPeriodStart": "arr:controlPeriodStart",
+    "controlPeriodEnd": "arr:controlPeriodEnd",
+    "regulatoryCommission": "arr:regulatoryCommission",
+    "licensee": "arr:licensee",
+    "licenseeCode": "arr:licenseeCode",
+    "stateProvince": "schema:addressRegion",
+    "currency": "arr:currency",
+    "unitScale": "arr:unitScale",
+    "formReference": "arr:formReference",
+    "status": "arr:status",
+    "notes": { "@id": "arr:notes", "@container": "@list" },
+
+    "fiscalYears": { "@id": "arr:fiscalYears", "@container": "@list" },
+    "fiscalYear": "arr:fiscalYear",
+    "yearType": "arr:yearType",
+    "amountBasis": "arr:amountBasis",
+
+    "lineItems": { "@id": "arr:lineItems", "@container": "@list" },
+    "lineItemId": "arr:lineItemId",
+    "serialNumber": "arr:serialNumber",
+    "category": "arr:category",
+    "subCategory": "arr:subCategory",
+    "head": "arr:head",
+    "particulars": "arr:particulars",
+    "amount": { "@id": "arr:amount", "@type": "xsd:decimal" },
+    "componentOf": "arr:componentOf",
+    "formula": "arr:formula",
+
+    "VARIABLE": "arr:Variable",
+    "FIXED": "arr:Fixed",
+    "INCOME": "arr:Income",
+    "SUB_TOTAL": "arr:SubTotal",
+    "ARR": "arr:Arr",
+    "ADJUSTMENT": "arr:Adjustment",
+
+    "NETWORK_COST": "arr:NetworkCost",
+    "POWER_PURCHASE": "arr:PowerPurchase",
+    "O_AND_M": "arr:OAndM",
+    "DEPRECIATION": "arr:Depreciation",
+    "INTEREST": "arr:Interest",
+    "RETURN_ON_EQUITY": "arr:ReturnOnEquity",
+    "PROVISIONAL": "arr:Provisional",
+    "OTHER": "arr:Other",
+    "NON_TARIFF_INCOME": "arr:NonTariffIncome",
+    "REVENUE_CREDIT": "arr:RevenueCredit"
+  }
+}
