@@ -1,0 +1,8 @@
+{
+  "vehicleBatteryPct": 80,
+  "vehicleBatteryKwh": 60,
+  "v2gCapable": true,
+  "gridStress": true,
+  "totalChargedKwh": 30.0,
+  "totalDischargedKwh": 10.0
+}

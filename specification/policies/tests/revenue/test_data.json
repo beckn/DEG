@@ -1,0 +1,23 @@
+{
+  "contract": {
+    "contractType": "P2P_ENERGY_TRADE",
+    "roles": [
+      { "roleId": "buyer",          "roleType": "CONSUMER" },
+      { "roleId": "seller",         "roleType": "PRODUCER" },
+      { "roleId": "source_utility", "roleType": "UTILITY" },
+      { "roleId": "platform",       "roleType": "AGGREGATOR" }
+    ],
+    "energySpec": {
+      "quantity": { "unitQuantity": 20.0 }
+    },
+    "revenueModel": {
+      "flows": [
+        { "flowId": "energy_payment",     "from": "buyer",  "to": "seller",         "flowType": "ENERGY_PAYMENT",   "currency": "INR" },
+        { "flowId": "wheeling_charge",    "from": "buyer",  "to": "source_utility", "flowType": "WHEELING_CHARGE",  "currency": "INR" },
+        { "flowId": "platform_fee_buyer", "from": "buyer",  "to": "platform",       "flowType": "PLATFORM_FEE",     "currency": "INR" },
+        { "flowId": "platform_fee_seller","from": "seller", "to": "platform",       "flowType": "PLATFORM_FEE",     "currency": "INR" },
+        { "flowId": "deviation_penalty",  "from": "seller", "to": "buyer",          "flowType": "DEVIATION_PENALTY", "currency": "INR" }
+      ]
+    }
+  }
+}

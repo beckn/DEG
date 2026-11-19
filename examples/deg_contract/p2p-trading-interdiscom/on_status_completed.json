@@ -1,0 +1,517 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_status",
+    "timestamp": "2025-06-15T18:30:00Z",
+    "message_id": "msg-on-status-completed-interdiscom-001",
+    "transaction_id": "txn-p2p-interdiscom-001",
+    "bap_id": "bap.energy-buyer.in",
+    "bap_uri": "https://bap.energy-buyer.in",
+    "bpp_id": "bpp.solarfarm-delhi.in",
+    "bpp_uri": "https://bpp.solarfarm-delhi.in",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-interdiscom-001",
+      "beckn:items": [
+        {
+          "beckn:id": "energy-resource-solar-delhi-001",
+          "quantity": {
+            "count": 20.0,
+            "unit": "kWh"
+          }
+        }
+      ],
+      "beckn:offers": [
+        {
+          "beckn:id": "offer-solar-morning-001"
+        },
+        {
+          "beckn:id": "offer-solar-afternoon-001"
+        }
+      ],
+      "beckn:provider": {
+        "beckn:id": "provider-solar-delhi-001"
+      },
+      "beckn:fulfillments": [
+        {
+          "@type": "beckn:Fulfillment",
+          "beckn:id": "fulfillment-interdiscom-001",
+          "beckn:type": "ENERGY_DELIVERY",
+          "beckn:state": {
+            "@type": "beckn:State",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "COMPLETED"
+            }
+          },
+          "beckn:attributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_delivery_context.jsonld",
+            "@type": "EnergyDelivery",
+            "status": "COMPLETED",
+            "deliveryMode": "GRID_INJECTION",
+            "energyFlow": {
+              "delivered": { "value": 19.5, "unitCode": "KWH" }
+            },
+            "timing": {
+              "startTime": "2025-06-15T06:00:00+05:30",
+              "endTime": "2025-06-15T18:00:00+05:30"
+            },
+            "meterReadings": [
+              {
+                "timeWindow": {
+                  "start": "2025-06-15T06:00:00+05:30",
+                  "end": "2025-06-15T08:00:00+05:30"
+                },
+                "consumedEnergy": 3.1,
+                "producedEnergy": 3.2,
+                "allocatedEnergy": 3.1,
+                "unit": "KWH"
+              },
+              {
+                "timeWindow": {
+                  "start": "2025-06-15T08:00:00+05:30",
+                  "end": "2025-06-15T10:00:00+05:30"
+                },
+                "consumedEnergy": 3.0,
+                "producedEnergy": 3.5,
+                "allocatedEnergy": 3.0,
+                "unit": "KWH"
+              },
+              {
+                "timeWindow": {
+                  "start": "2025-06-15T10:00:00+05:30",
+                  "end": "2025-06-15T12:00:00+05:30"
+                },
+                "consumedEnergy": 3.1,
+                "producedEnergy": 4.0,
+                "allocatedEnergy": 3.1,
+                "unit": "KWH"
+              },
+              {
+                "timeWindow": {
+                  "start": "2025-06-15T12:00:00+05:30",
+                  "end": "2025-06-15T14:00:00+05:30"
+                },
+                "consumedEnergy": 3.5,
+                "producedEnergy": 4.5,
+                "allocatedEnergy": 3.5,
+                "unit": "KWH"
+              },
+              {
+                "timeWindow": {
+                  "start": "2025-06-15T14:00:00+05:30",
+                  "end": "2025-06-15T16:00:00+05:30"
+                },
+                "consumedEnergy": 3.8,
+                "producedEnergy": 3.8,
+                "allocatedEnergy": 3.8,
+                "unit": "KWH"
+              },
+              {
+                "timeWindow": {
+                  "start": "2025-06-15T16:00:00+05:30",
+                  "end": "2025-06-15T18:00:00+05:30"
+                },
+                "consumedEnergy": 3.0,
+                "producedEnergy": 2.5,
+                "allocatedEnergy": 3.0,
+                "unit": "KWH"
+              }
+            ],
+            "lastUpdated": "2025-06-15T18:30:00+05:30"
+          }
+        }
+      ],
+      "beckn:orderItems": [
+        {
+          "@type": "beckn:OrderItem",
+          "beckn:id": "order-item-morning-001",
+          "beckn:offer": {
+            "beckn:id": "offer-solar-morning-001"
+          },
+          "beckn:item": {
+            "beckn:id": "energy-resource-solar-delhi-001"
+          },
+          "beckn:quantity": {
+            "count": 10.0,
+            "unit": "kWh"
+          },
+          "beckn:orderItemAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_order_item_context.jsonld",
+            "@type": "EnergyOrderItem",
+            "deliveryWindow": {
+              "start": "06:00:00+05:30",
+              "end": "12:00:00+05:30"
+            },
+            "delivery": {
+              "status": "COMPLETED",
+              "deliveredQuantity": { "value": 9.2, "unitCode": "KWH" },
+              "meterReadings": [
+                {
+                  "timeWindow": {
+                    "start": "2025-06-15T06:00:00+05:30",
+                    "end": "2025-06-15T08:00:00+05:30"
+                  },
+                  "consumedEnergy": 3.1,
+                  "producedEnergy": 3.2,
+                  "allocatedEnergy": 3.1,
+                  "unit": "KWH"
+                },
+                {
+                  "timeWindow": {
+                    "start": "2025-06-15T08:00:00+05:30",
+                    "end": "2025-06-15T10:00:00+05:30"
+                  },
+                  "consumedEnergy": 3.0,
+                  "producedEnergy": 3.5,
+                  "allocatedEnergy": 3.0,
+                  "unit": "KWH"
+                },
+                {
+                  "timeWindow": {
+                    "start": "2025-06-15T10:00:00+05:30",
+                    "end": "2025-06-15T12:00:00+05:30"
+                  },
+                  "consumedEnergy": 3.1,
+                  "producedEnergy": 4.0,
+                  "allocatedEnergy": 3.1,
+                  "unit": "KWH"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "@type": "beckn:OrderItem",
+          "beckn:id": "order-item-afternoon-001",
+          "beckn:offer": {
+            "beckn:id": "offer-solar-afternoon-001"
+          },
+          "beckn:item": {
+            "beckn:id": "energy-resource-solar-delhi-001"
+          },
+          "beckn:quantity": {
+            "count": 10.0,
+            "unit": "kWh"
+          },
+          "beckn:orderItemAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_order_item_context.jsonld",
+            "@type": "EnergyOrderItem",
+            "deliveryWindow": {
+              "start": "12:00:00+05:30",
+              "end": "18:00:00+05:30"
+            },
+            "delivery": {
+              "status": "COMPLETED",
+              "deliveredQuantity": { "value": 10.3, "unitCode": "KWH" },
+              "meterReadings": [
+                {
+                  "timeWindow": {
+                    "start": "2025-06-15T12:00:00+05:30",
+                    "end": "2025-06-15T14:00:00+05:30"
+                  },
+                  "consumedEnergy": 3.5,
+                  "producedEnergy": 4.5,
+                  "allocatedEnergy": 3.5,
+                  "unit": "KWH"
+                },
+                {
+                  "timeWindow": {
+                    "start": "2025-06-15T14:00:00+05:30",
+                    "end": "2025-06-15T16:00:00+05:30"
+                  },
+                  "consumedEnergy": 3.8,
+                  "producedEnergy": 3.8,
+                  "allocatedEnergy": 3.8,
+                  "unit": "KWH"
+                },
+                {
+                  "timeWindow": {
+                    "start": "2025-06-15T16:00:00+05:30",
+                    "end": "2025-06-15T18:00:00+05:30"
+                  },
+                  "consumedEnergy": 3.0,
+                  "producedEnergy": 2.5,
+                  "allocatedEnergy": 3.0,
+                  "unit": "KWH"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "beckn:payments": [
+        {
+          "@type": "beckn:Payment",
+          "beckn:id": "payment-interdiscom-001",
+          "beckn:type": "ON-FULFILLMENT",
+          "beckn:status": "PAID",
+          "beckn:collected_by": "BPP",
+          "beckn:params": {
+            "amount": "93.58",
+            "currency": "INR",
+            "transaction_id": "pay-upi-2025-06-15-00891"
+          },
+          "beckn:paymentAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/PaymentSettlement/v0.2/context.jsonld",
+            "@type": "PaymentSettlement",
+            "paymentAttributes": {
+              "settlementAccounts": [
+                {
+                  "accountType": "UPI",
+                  "accountId": "priya.sharma@okicici",
+                  "accountHolder": "Priya Sharma",
+                  "role": "buyer"
+                },
+                {
+                  "accountType": "BANK_ACCOUNT",
+                  "accountId": "HDFC-50100012345678",
+                  "ifscCode": "HDFC0001234",
+                  "accountHolder": "Delhi Solar Prosumer Pvt Ltd",
+                  "role": "seller"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "P2P_ENERGY_TRADE",
+        "version": "0.4.0",
+        "contractState": "SETTLED",
+        "deliveryProgress": {
+          "totalContracted": 20.0,
+          "totalDelivered": 19.5,
+          "morningSlotDelivered": 9.2,
+          "afternoonSlotDelivered": 10.3,
+          "complianceStatus": "COMPLIANT",
+          "deviationKwh": -0.5,
+          "deviationPercent": -2.5
+        },
+        "revenueModel": {
+          "definitions": [
+            {
+              "term": "price_per_kwh",
+              "description": "Per-kWh energy price set by seller",
+              "source": "role:seller.input:price_per_kwh",
+              "unit": "INR/kWh",
+              "resolvedValue": {
+                "effective": 4.24,
+                "perSlot": {
+                  "morningSlot": { "rate": 4.50, "deliveredKwh": 9.2, "amount": 41.40 },
+                  "afternoonSlot": { "rate": 4.00, "deliveredKwh": 10.3, "amount": 41.20 }
+                }
+              }
+            },
+            {
+              "term": "delivered_kwh",
+              "description": "Total energy delivered via grid injection",
+              "source": "delivery:energyFlow.delivered.value",
+              "unit": "kWh",
+              "resolvedValue": 19.5
+            },
+            {
+              "term": "source_wheeling_rate",
+              "description": "Wheeling charge rate from source DISCOM",
+              "source": "role:source_utility.input:source_wheeling_charge",
+              "unit": "INR/kWh",
+              "resolvedValue": 0.25
+            },
+            {
+              "term": "dest_wheeling_rate",
+              "description": "Wheeling charge rate from destination DISCOM",
+              "source": "role:destination_utility.input:destination_wheeling_charge",
+              "unit": "INR/kWh",
+              "resolvedValue": 0.25
+            },
+            {
+              "term": "energy_payment_amount",
+              "description": "Computed energy payment from buyer to seller",
+              "source": "flow:energy_payment",
+              "unit": "INR",
+              "resolvedValue": 82.60
+            },
+            {
+              "term": "platform_fee_pct",
+              "description": "Platform commission rate (bilateral)",
+              "source": "constant",
+              "value": 0.01,
+              "unit": "fraction",
+              "resolvedValue": 0.01
+            },
+            {
+              "term": "requested_kwh",
+              "description": "Energy quantity requested by buyer",
+              "source": "role:buyer.input:requested_kwh",
+              "unit": "kWh",
+              "resolvedValue": 20.0
+            },
+            {
+              "term": "deviation_tolerance",
+              "description": "Acceptable deviation from contracted quantity",
+              "source": "constant",
+              "value": 0.10,
+              "unit": "fraction",
+              "resolvedValue": 0.10
+            }
+          ],
+          "flows": [
+            {
+              "flowId": "energy_payment",
+              "from": "buyer",
+              "to": "seller",
+              "flowType": "ENERGY_PAYMENT",
+              "formula": {
+                "expr": "delivered_kwh * price_per_kwh"
+              },
+              "currency": "INR",
+              "computedAmount": 82.60,
+              "breakdown": {
+                "morningSlot": {
+                  "deliveredKwh": 9.2,
+                  "pricePerKwh": 4.50,
+                  "amount": 41.40
+                },
+                "afternoonSlot": {
+                  "deliveredKwh": 10.3,
+                  "pricePerKwh": 4.00,
+                  "amount": 41.20
+                }
+              },
+              "triggeredBy": "pricing"
+            },
+            {
+              "flowId": "wheeling_charge",
+              "from": "buyer",
+              "to": "source_utility",
+              "flowType": "WHEELING_CHARGE",
+              "formula": {
+                "expr": "delivered_kwh * source_wheeling_rate"
+              },
+              "currency": "INR",
+              "computedAmount": 4.88,
+              "triggeredBy": "utility_registration"
+            },
+            {
+              "flowId": "dest_wheeling_charge",
+              "from": "buyer",
+              "to": "destination_utility",
+              "flowType": "WHEELING_CHARGE",
+              "formula": {
+                "expr": "delivered_kwh * dest_wheeling_rate"
+              },
+              "currency": "INR",
+              "computedAmount": 4.88,
+              "triggeredBy": "utility_registration"
+            },
+            {
+              "flowId": "platform_fee_buyer",
+              "from": "buyer",
+              "to": "platform",
+              "flowType": "PLATFORM_FEE",
+              "formula": {
+                "expr": "energy_payment_amount * platform_fee_pct"
+              },
+              "currency": "INR",
+              "computedAmount": 0.83
+            },
+            {
+              "flowId": "platform_fee_seller",
+              "from": "seller",
+              "to": "platform",
+              "flowType": "PLATFORM_FEE",
+              "formula": {
+                "expr": "energy_payment_amount * platform_fee_pct"
+              },
+              "currency": "INR",
+              "computedAmount": 0.83
+            },
+            {
+              "flowId": "deviation_penalty",
+              "from": "seller",
+              "to": "buyer",
+              "flowType": "DEVIATION_PENALTY",
+              "formula": {
+                "policyRef": {
+                  "type": "REGO",
+                  "package": "deg.contracts.p2p_trade",
+                  "entrypoint": "deviation_penalty"
+                }
+              },
+              "currency": "INR",
+              "computedAmount": 0.00,
+              "note": "No penalty: deviation of -2.5% is within +/-10% tolerance",
+              "triggeredBy": "delivery_obligation"
+            }
+          ],
+          "netPositions": {
+            "buyer": { "net": -93.19, "direction": "PAYS" },
+            "seller": { "net": 81.77, "direction": "RECEIVES" },
+            "source_utility": { "net": 4.88, "direction": "RECEIVES" },
+            "destination_utility": { "net": 4.88, "direction": "RECEIVES" },
+            "platform": { "net": 1.66, "direction": "RECEIVES" }
+          },
+          "netZeroCheck": { "sum": 0.00, "valid": true },
+          "settlement": {
+            "settlementCycleId": "settle-2025-06-15-001",
+            "settlementTime": "2025-06-15T18:30:00+05:30",
+            "perRoleSummary": [
+              {
+                "roleId": "buyer",
+                "inflows": 0.00,
+                "outflows": 93.19,
+                "netPosition": -93.19,
+                "direction": "PAYS",
+                "breakdown": {
+                  "energyPayment": 82.60,
+                  "sourceWheeling": 4.88,
+                  "destWheeling": 4.88,
+                  "platformFee": 0.83
+                }
+              },
+              {
+                "roleId": "seller",
+                "inflows": 82.60,
+                "outflows": 0.83,
+                "netPosition": 81.77,
+                "direction": "RECEIVES",
+                "breakdown": {
+                  "energyPayment": 82.60,
+                  "platformFee": -0.83
+                }
+              },
+              {
+                "roleId": "source_utility",
+                "inflows": 4.88,
+                "outflows": 0.00,
+                "netPosition": 4.88,
+                "direction": "RECEIVES"
+              },
+              {
+                "roleId": "destination_utility",
+                "inflows": 4.88,
+                "outflows": 0.00,
+                "netPosition": 4.88,
+                "direction": "RECEIVES"
+              },
+              {
+                "roleId": "platform",
+                "inflows": 1.66,
+                "outflows": 0.00,
+                "netPosition": 1.66,
+                "direction": "RECEIVES"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

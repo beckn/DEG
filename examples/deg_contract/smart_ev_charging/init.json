@@ -1,0 +1,156 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "init",
+    "domain": "beckn.one:deg:smart-ev-charging:2.0.0",
+    "timestamp": "2026-02-08T09:02:00Z",
+    "message_id": "msg-init-v2g-001",
+    "transaction_id": "txn-smart-ev-v2g-001",
+    "bap_id": "ev-app.example.com",
+    "bap_uri": "https://ev-app.example.com/bap",
+    "bpp_id": "bpp.tata-ezcharge.example.com",
+    "bpp_uri": "https://bpp.tata-ezcharge.example.com/bpp",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-smart-ev-v2g-001",
+      "beckn:orderStatus": "CREATED",
+      "beckn:seller": "tata-ezcharge-mumbai",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "ev-owner-ankit-001",
+        "beckn:role": "BUYER",
+        "beckn:displayName": "Ankit Sharma",
+        "beckn:telephone": "+91-9821234567",
+        "beckn:email": "ankit.sharma@example.com",
+        "beckn:taxID": "GSTIN27ABCDS5678K1Z9"
+      },
+      "beckn:buyerAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_buyer_context.jsonld",
+        "@type": "EnergyBuyer",
+        "vehicle": {
+          "registration": "MH-02-AB-1234",
+          "makeModel": "Tata Nexon EV Max",
+          "batteryKwh": 60,
+          "connectorType": "CCS2"
+        }
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G",
+          "beckn:quantity": {
+            "unitText": "Kilowatt Hour",
+            "unitCode": "KWH",
+            "unitQuantity": 20
+          },
+          "beckn:price": {
+            "currency": "INR",
+            "value": 8.0,
+            "applicableQuantity": {
+              "unitText": "Kilowatt Hour",
+              "unitCode": "KWH",
+              "unitQuantity": 1
+            }
+          }
+        }
+      ],
+      "beckn:orderValue": {
+        "currency": "INR",
+        "value": 163.20,
+        "components": [
+          {
+            "type": "UNIT",
+            "value": 160.0,
+            "currency": "INR",
+            "description": "Estimated charging cost (20 kWh x INR 8/kWh peak rate)"
+          },
+          {
+            "type": "FEE",
+            "value": 3.20,
+            "currency": "INR",
+            "description": "Platform fee (2%)"
+          }
+        ]
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "COMPOSITE",
+        "contractState": "COMMITTED",
+        "version": "1.0.0",
+        "roles": [
+          {
+            "roleId": "ev_owner",
+            "roleType": "PROSUMER",
+            "party": {
+              "partyId": "ev-owner-ankit-001",
+              "partyType": "BUYER",
+              "platformId": "ev-app.example.com"
+            },
+            "inputs": [
+              {
+                "inputId": "vehicle_battery_kwh",
+                "inputType": "PARAMETER",
+                "value": 60,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "min_charge_level_pct",
+                "inputType": "PARAMETER",
+                "value": 30,
+                "providedAt": "NEGOTIATION"
+              },
+              {
+                "inputId": "v2g_consent",
+                "inputType": "PARAMETER",
+                "description": "EV owner consents to V2G discharge during grid stress",
+                "value": true,
+                "providedAt": "COMMITMENT"
+              },
+              {
+                "inputId": "vehicle_registration",
+                "inputType": "CREDENTIAL",
+                "description": "Vehicle registration number",
+                "value": "MH-02-AB-1234",
+                "providedAt": "COMMITMENT"
+              },
+              {
+                "inputId": "vehicle_make_model",
+                "inputType": "PARAMETER",
+                "description": "Vehicle make and model",
+                "value": "Tata Nexon EV Max",
+                "providedAt": "COMMITMENT"
+              }
+            ]
+          }
+        ]
+      },
+      "beckn:payment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Payment",
+        "beckn:id": "payment-v2g-001",
+        "beckn:amount": {
+          "currency": "INR",
+          "value": 163.20
+        },
+        "beckn:beneficiary": "BAP",
+        "beckn:paymentStatus": "INITIATED",
+        "beckn:paymentAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/payment_settlement_context.jsonld",
+          "@type": "PaymentSettlement",
+          "settlementAccounts": [
+            {
+              "beneficiaryId": "ev-app.example.com",
+              "accountHolderName": "Ankit Sharma",
+              "vpa": "ankit.sharma@upi"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

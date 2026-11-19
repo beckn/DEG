@@ -1,0 +1,15 @@
+{
+  "contract": {
+    "contractType": "V2G",
+    "inputs": {
+      "minChargeLevelPct": 20
+    },
+    "terms": {
+      "chargingRate": 8.0,
+      "v2gRate": 12.0
+    }
+  },
+  "charger_state": {
+    "v2gSupported": true
+  }
+}

@@ -1,0 +1,1067 @@
+arazzo: 1.0.1
+info:
+  title: DEG Contract — Full Beckn Transaction Flow
+  version: 0.1.0
+  description: >
+    Arazzo workflow specification for testing a complete Beckn Protocol v2
+    transaction flow using the DEG Contract-as-Code schema. Covers three
+    use cases: EV Charging, P2P Inter-Discom Trading, and Smart EV Charging
+    (composite EV + Demand Flexibility / V2G).
+
+    Each workflow describes the sequence of Beckn actions (search → confirm → status)
+    with the DEGContract flowing through as offerAttributes (template) →
+    orderAttributes (committed) → settlement (with computed revenue flows).
+
+  summary: End-to-end Beckn transaction workflows for DEG energy contracts
+
+# ───────────────────────────────────────────────────────────────────────
+# Source Descriptions — API endpoints used in workflows
+# ───────────────────────────────────────────────────────────────────────
+sourceDescriptions:
+  - name: beckn-bap
+    url: https://ev-bap.mobility-app.in/beckn/v2
+    type: openapi
+    x-description: >
+      Beckn Application Platform (BAP) — consumer-facing app.
+      Sends search, select, init, confirm, status, update, cancel.
+
+  - name: beckn-bpp
+    url: https://api.chargezone-bpp.in/beckn/v2
+    type: openapi
+    x-description: >
+      Beckn Provider Platform (BPP) — provider-side.
+      Responds with on_search, on_select, on_init, on_confirm, on_status, on_update.
+
+  - name: beckn-bpp-utility
+    url: https://api.bescom-utility-bpp.in/beckn/v2
+    type: openapi
+    x-description: >
+      Utility BPP — for cascaded init in P2P inter-discom trading.
+      The P2P BPP acts as BAP and forwards init to the utility.
+
+  - name: opa-policy-engine
+    url: https://opa.deg-network.io/v1
+    type: openapi
+    x-description: >
+      OPA (Open Policy Agent) endpoint for evaluating Rego policies.
+      Used for contract term evaluation, compliance checks, and settlement.
+
+# ───────────────────────────────────────────────────────────────────────
+# WORKFLOW 1: EV Charging with DEG Contract
+# ───────────────────────────────────────────────────────────────────────
+workflows:
+  - workflowId: ev-charging-flow
+    summary: Complete EV charging transaction with DEG contract
+    description: >
+      BAP discovers charging stations, selects an offer with embedded
+      DEGContract template, fills consumer role inputs, commits, and tracks
+      the charging session through to settlement with computed revenue flows.
+    inputs:
+      type: object
+      properties:
+        searchLocation:
+          type: object
+          description: Geographic search area
+          properties:
+            lat: { type: number, example: 19.076 }
+            lon: { type: number, example: 72.8777 }
+            radius: { type: string, example: "5km" }
+        connectorType:
+          type: string
+          example: "CCS2"
+        requestedKwh:
+          type: number
+          example: 15.0
+        vehicleConnectorType:
+          type: string
+          example: "CCS2"
+
+    steps:
+      # ── Step 1: Discover charging stations ──
+      - stepId: discover
+        operationId: beckn-bap.search
+        description: >
+          BAP sends search with location filter and connector type.
+          Filter uses JSONPath over itemAttributes.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: search
+              domain: "beckn.one:deg:ev-charging:2.0.0"
+              bap_id: "ev-bap.mobility-app.in"
+              bap_uri: "https://ev-bap.mobility-app.in/beckn/v2"
+              transaction_id: "{$generate.uuid}"
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              filters:
+                type: jsonpath
+                expression: >
+                  $[?(@.itemAttributes.connectorType == '{$inputs.connectorType}'
+                  && @.itemAttributes.maxPowerKW >= 22)]
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          transactionId: $response.body.context.transaction_id
+
+      # ── Step 2: Receive catalog with DEGContract templates ──
+      - stepId: on-discover
+        operationId: beckn-bpp.on_search
+        description: >
+          BPP returns catalog. Each Offer contains a DEGContract in TEMPLATE
+          state with CPO role pre-filled and ev_driver role as open slot.
+          The revenueModel shows estimated flows.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.catalogs[0].beckn:offers[0].beckn:offerAttributes.degContract.contractState == 'TEMPLATE'
+          - condition: $response.body.message.catalogs[0].beckn:offers[0].beckn:offerAttributes.degContract.roles[?(@.roleId=='ev_driver')].party == null
+        outputs:
+          catalogId: $response.body.message.catalogs[0].beckn:id
+          selectedOfferId: $response.body.message.catalogs[0].beckn:offers[0].beckn:id
+          selectedItemId: $response.body.message.catalogs[0].beckn:items[0].beckn:id
+          contractTemplate: $response.body.message.catalogs[0].beckn:offers[0].beckn:offerAttributes.degContract
+
+      # ── Step 3: Select offer and fill buyer inputs ──
+      - stepId: select
+        operationId: beckn-bap.select
+        description: >
+          BAP selects offer and fills ev_driver role inputs:
+          requested_kwh, vehicle connector type, preferred time window.
+          DEGContract transitions to NEGOTIATED.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: select
+              domain: "beckn.one:deg:ev-charging:2.0.0"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                "@type": "beckn:Order"
+                beckn:orderStatus: CREATED
+                beckn:buyer:
+                  beckn:id: "buyer-ev-001"
+                beckn:orderItems:
+                  - beckn:orderedItem: $steps.on-discover.outputs.selectedItemId
+                    beckn:quantity:
+                      unitQuantity: $inputs.requestedKwh
+                      unitText: "kWh"
+                    beckn:acceptedOffer:
+                      beckn:id: $steps.on-discover.outputs.selectedOfferId
+                beckn:orderAttributes:
+                  degContract:
+                    contractState: NEGOTIATED
+                    roles:
+                      - roleId: ev_driver
+                        inputs:
+                          - inputId: requested_kwh
+                            value: $inputs.requestedKwh
+                          - inputId: vehicle_connector_type
+                            value: $inputs.vehicleConnectorType
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 4: Receive quote ──
+      - stepId: on-select
+        operationId: beckn-bpp.on_select
+        description: >
+          BPP returns price quote with breakup.
+          Evaluates pricing terms and returns orderValue components.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.order.beckn:orderValue.value > 0
+        outputs:
+          quotedAmount: $response.body.message.order.beckn:orderValue.value
+          quoteCurrency: $response.body.message.order.beckn:orderValue.currency
+
+      # ── Step 5: Initialize order with payment and credentials ──
+      - stepId: init
+        operationId: beckn-bap.init
+        description: >
+          BAP provides billing info, payment settlement accounts.
+          DEGContract transitions to COMMITTED.
+          All required COMMITMENT-phase inputs must be filled.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: init
+              domain: "beckn.one:deg:ev-charging:2.0.0"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                beckn:payment:
+                  beckn:amount:
+                    currency: $steps.on-select.outputs.quoteCurrency
+                    value: $steps.on-select.outputs.quotedAmount
+                  beckn:beneficiary: BPP
+                  beckn:paymentStatus: INITIATED
+                  beckn:paymentAttributes:
+                    "@type": PaymentSettlement
+                    settlementAccounts:
+                      - beneficiaryId: "ev-bap.mobility-app.in"
+                        accountHolderName: "EV Mobility App Pvt Ltd"
+                        bankName: "HDFC Bank"
+                        ifscCode: "HDFC0001234"
+                        vpa: "evmobility@upi"
+                beckn:orderAttributes:
+                  degContract:
+                    contractState: COMMITTED
+                    roles:
+                      - roleId: ev_driver
+                        inputs:
+                          - inputId: billing_info
+                            value:
+                              name: "Raj Kumar"
+                              email: "raj@example.com"
+                              phone: "+91-9876543210"
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 6: Receive payment link ──
+      - stepId: on-init
+        operationId: beckn-bpp.on_init
+        description: >
+          BPP assigns order ID, returns payment URL and final contract terms.
+          DEGContract is fully committed with all roles and terms finalized.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.order.beckn:payment.beckn:paymentURL != null
+          - condition: $response.body.message.order.beckn:orderAttributes.degContract.contractState == 'COMMITTED'
+        outputs:
+          orderId: $response.body.message.order.beckn:id
+          paymentUrl: $response.body.message.order.beckn:payment.beckn:paymentURL
+
+      # ── Step 7: Confirm (after payment) ──
+      - stepId: confirm
+        operationId: beckn-bap.confirm
+        description: >
+          BAP confirms order after payment is completed.
+          DEGContract transitions to ACTIVE.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: confirm
+              domain: "beckn.one:deg:ev-charging:2.0.0"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                beckn:id: $steps.on-init.outputs.orderId
+                beckn:payment:
+                  beckn:paymentStatus: COMPLETED
+                  beckn:paidAt: "{$generate.timestamp}"
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 8: Receive confirmation ──
+      - stepId: on-confirm
+        operationId: beckn-bpp.on_confirm
+        description: >
+          BPP confirms the order. Fulfillment is created with RESERVATION mode.
+          ChargingSession deliveryAttributes initialized with sessionStatus PENDING.
+          DEGContract is now ACTIVE.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.order.beckn:orderStatus == 'CONFIRMED'
+          - condition: $response.body.message.order.beckn:orderAttributes.degContract.contractState == 'ACTIVE'
+          - condition: $response.body.message.order.beckn:fulfillment.beckn:deliveryAttributes.sessionStatus == 'PENDING'
+        outputs:
+          fulfillmentId: $response.body.message.order.beckn:fulfillment.beckn:id
+
+      # ── Step 9: Track charging session ──
+      - stepId: status-tracking
+        operationId: beckn-bap.status
+        description: >
+          BAP polls for charging session status.
+          BPP returns ChargingSession telemetry (power, energy, SOC).
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: status
+              domain: "beckn.one:deg:ev-charging:2.0.0"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                beckn:id: $steps.on-init.outputs.orderId
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 10: Receive session status ──
+      - stepId: on-status
+        operationId: beckn-bpp.on_status
+        description: >
+          BPP returns current session state with telemetry metrics.
+          ChargingSession shows ACTIVE with real-time power, energy, SOC.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.order.beckn:fulfillment.beckn:deliveryAttributes.sessionStatus == 'ACTIVE'
+        outputs:
+          deliveredKwh: $response.body.message.order.beckn:fulfillment.beckn:deliveryAttributes.energyDeliveredKwh
+          sessionStatus: $response.body.message.order.beckn:fulfillment.beckn:deliveryAttributes.sessionStatus
+
+      # ── Step 11: Evaluate contract compliance (OPA) ──
+      - stepId: evaluate-compliance
+        operationId: opa-policy-engine.evaluate
+        description: >
+          Evaluate delivery compliance using Rego policy.
+          Checks delivery_quantity_compliant and deviation_penalty.
+        requestBody:
+          contentType: application/json
+          payload:
+            input:
+              deliveredQuantity: $steps.on-status.outputs.deliveredKwh
+              fulfillmentState: "charging-complete"
+            data:
+              contract: $steps.on-confirm.outputs
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          deliveryCompliant: $response.body.result.delivery_compliant
+          deviationPenalty: $response.body.result.deviation_penalty
+
+      # ── Step 12: Session complete with settlement ──
+      - stepId: on-update-complete
+        operationId: beckn-bpp.on_update
+        description: >
+          BPP sends final update: session COMPLETED.
+          revenueModel.flows have computedAmount filled.
+          Settlement summary shows per-role net positions.
+          DEGContract transitions to SETTLED.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.order.beckn:fulfillment.beckn:deliveryAttributes.sessionStatus == 'COMPLETED'
+          - condition: $response.body.message.order.beckn:orderAttributes.degContract.contractState == 'SETTLED'
+          - condition: $response.body.message.order.beckn:orderAttributes.degContract.revenueModel.netZeroValid == true
+        outputs:
+          finalAmount: $response.body.message.order.beckn:payment.beckn:amount.value
+          settlementSummary: $response.body.message.order.beckn:orderAttributes.degContract.revenueModel
+
+  # ───────────────────────────────────────────────────────────────────────
+  # WORKFLOW 2: P2P Inter-Discom Energy Trading with DEG Contract
+  # ───────────────────────────────────────────────────────────────────────
+  - workflowId: p2p-interdiscom-trading-flow
+    summary: Inter-discom P2P energy trade with cascaded utility init
+    description: >
+      A prosumer (solar farm under TPDDL) sells energy to a consumer
+      (under BESCOM). The P2P BPP cascades init to both utilities for
+      wheeling approval and sanctioned load checks. DEGContract tracks
+      all three roles (seller, buyer, utility) and their revenue positions.
+    inputs:
+      type: object
+      properties:
+        sourceType:
+          type: string
+          example: "SOLAR"
+        requestedKwh:
+          type: number
+          example: 25.0
+        buyerMeterId:
+          type: string
+          example: "der://meter/98765456"
+        buyerUtilityId:
+          type: string
+          example: "BESCOM-KA"
+
+    steps:
+      # ── Step 1: Search for energy offers ──
+      - stepId: discover
+        operationId: beckn-bap.search
+        description: >
+          BAP searches for solar energy offers.
+          Filter: sourceType SOLAR, deliveryMode GRID_INJECTION, minimum quantity.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: search
+              domain: "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+              bap_id: "bap.energy-consumer.com"
+              bap_uri: "https://bap.energy-consumer.com"
+              transaction_id: "{$generate.uuid}"
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+              location:
+                city:
+                  code: "DL"
+                  name: "Delhi"
+                country:
+                  code: "IND"
+            message:
+              filters:
+                type: jsonpath
+                expression: >
+                  $[?(@.itemAttributes.sourceType == 'SOLAR'
+                  && @.itemAttributes.deliveryMode == 'GRID_INJECTION')]
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          transactionId: $response.body.context.transaction_id
+
+      # ── Step 2: Catalog with DEGContract template ──
+      - stepId: on-discover
+        operationId: beckn-bpp.on_search
+        description: >
+          BPP returns energy catalog. Offers contain DEGContract templates
+          with seller role filled, buyer and utility roles open.
+          EnergyResource itemAttributes and EnergyTradeOffer preserved.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.catalogs[0].beckn:offers[0].beckn:offerAttributes.degContract.contractType == 'P2P_ENERGY_TRADE'
+        outputs:
+          selectedOfferId: $response.body.message.catalogs[0].beckn:offers[0].beckn:id
+          selectedItemId: $response.body.message.catalogs[0].beckn:items[0].beckn:id
+
+      # ── Step 3: Select offer with buyer inputs ──
+      - stepId: select
+        operationId: beckn-bap.select
+        description: >
+          Buyer selects offer, provides destination meter and requested quantity.
+          DEGContract: buyer role inputs filled, state → NEGOTIATED.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: select
+              domain: "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                beckn:orderItems:
+                  - beckn:orderedItem: $steps.on-discover.outputs.selectedItemId
+                    beckn:quantity:
+                      unitQuantity: $inputs.requestedKwh
+                      unitText: "kWh"
+                    beckn:acceptedOffer:
+                      beckn:id: $steps.on-discover.outputs.selectedOfferId
+                beckn:orderAttributes:
+                  degContract:
+                    contractState: NEGOTIATED
+                    roles:
+                      - roleId: buyer
+                        inputs:
+                          - inputId: destination_meter
+                            value: $inputs.buyerMeterId
+                          - inputId: requested_kwh
+                            value: $inputs.requestedKwh
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 4: Quote ──
+      - stepId: on-select
+        operationId: beckn-bpp.on_select
+        description: >
+          BPP returns quote: energy cost + estimated wheeling charges.
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          quotedTotal: $response.body.message.order.beckn:quote.beckn:price.schema:price
+
+      # ── Step 5: Init with buyer credentials ──
+      - stepId: init
+        operationId: beckn-bap.init
+        description: >
+          Buyer provides EnergyCustomer attributes (meterId, utilityId),
+          billing info, and payment settlement accounts.
+          DEGContract state → COMMITTED.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: init
+              domain: "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                beckn:buyer:
+                  beckn:buyerAttributes:
+                    "@type": EnergyCustomer
+                    meterId: $inputs.buyerMeterId
+                    utilityId: $inputs.buyerUtilityId
+                    utilityCustomerId: "BESCOM-CUST-001"
+                beckn:orderAttributes:
+                  degContract:
+                    contractState: COMMITTED
+                beckn:payment:
+                  beckn:paymentStatus: INITIATED
+                beckn:billing:
+                  beckn:name: "Energy Consumer"
+                  beckn:email: "consumer@example.com"
+                  beckn:phone: "+91-9876543210"
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 6: BPP returns init response ──
+      - stepId: on-init
+        operationId: beckn-bpp.on_init
+        description: >
+          BPP acknowledges init, assigns order ID.
+          EnergyTradeOrder in orderAttributes alongside DEGContract.
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          orderId: $response.body.message.order.beckn:id
+
+      # ── Step 7: Cascaded init to source utility ──
+      - stepId: cascaded-init-source
+        operationId: beckn-bpp.init
+        description: >
+          P2P BPP (acting as BAP) forwards init to source utility (TPDDL).
+          Checks sanctioned load for the source meter.
+          Uses Rego policy: deg.contracts.p2p_trade.sanctioned_load_check
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: init
+              domain: "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+              bap_id: "bpp.energy-provider.com"
+              bap_uri: "https://bpp.energy-provider.com/bap"
+              bpp_id: "bpp.tpddl-utility.in"
+              bpp_uri: "https://api.tpddl-utility.in/beckn/v2"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                beckn:orderAttributes:
+                  "@type": EnergyTradeOrder
+                  sourceMeterId: "der://meter/100200300"
+                  targetMeterId: $inputs.buyerMeterId
+                  contractedQuantity: $inputs.requestedKwh
+                beckn:fulfillment:
+                  beckn:type: ENERGY_DELIVERY
+                  beckn:stops:
+                    - beckn:type: START
+                      beckn:location:
+                        beckn:address: "der://meter/100200300"
+                    - beckn:type: END
+                      beckn:location:
+                        beckn:address: $inputs.buyerMeterId
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 8: Source utility response ──
+      - stepId: cascaded-on-init-source
+        operationId: beckn-bpp-utility.on_init
+        description: >
+          Source utility (TPDDL) approves, returns wheeling charges.
+          DEGContract utility role gets filled.
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          sourceWheelingCharge: $response.body.message.order.beckn:quote.beckn:breakup[0].beckn:price.schema:price
+
+      # ── Step 9: Cascaded init to destination utility ──
+      - stepId: cascaded-init-dest
+        operationId: beckn-bpp.init
+        description: >
+          P2P BPP forwards init to destination utility (BESCOM).
+          Checks sanctioned load for the destination meter.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: init
+              domain: "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+              bap_id: "bpp.energy-provider.com"
+              bap_uri: "https://bpp.energy-provider.com/bap"
+              bpp_id: "bpp.bescom-utility.in"
+              bpp_uri: "https://api.bescom-utility.in/beckn/v2"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                beckn:orderAttributes:
+                  "@type": EnergyTradeOrder
+                  sourceMeterId: "der://meter/100200300"
+                  targetMeterId: $inputs.buyerMeterId
+                  contractedQuantity: $inputs.requestedKwh
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 10: Destination utility response ──
+      - stepId: cascaded-on-init-dest
+        operationId: beckn-bpp-utility.on_init
+        description: >
+          Destination utility (BESCOM) approves, returns wheeling charges.
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          destWheelingCharge: $response.body.message.order.beckn:quote.beckn:breakup[0].beckn:price.schema:price
+
+      # ── Step 11: Confirm trade ──
+      - stepId: confirm
+        operationId: beckn-bap.confirm
+        dependsOn:
+          - cascaded-on-init-source
+          - cascaded-on-init-dest
+        description: >
+          After both utilities approve, BAP confirms the trade.
+          DEGContract transitions to ACTIVE with all three roles filled.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: confirm
+              domain: "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                beckn:id: $steps.on-init.outputs.orderId
+                beckn:payment:
+                  beckn:paymentStatus: AUTHORIZED
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 12: Trade confirmed ──
+      - stepId: on-confirm
+        operationId: beckn-bpp.on_confirm
+        description: >
+          BPP confirms trade. DEGContract ACTIVE.
+          EnergyTradeDelivery initialized with PENDING status.
+          settlementCycles created for the delivery window.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.order.beckn:orderAttributes.degContract.contractState == 'ACTIVE'
+
+      # ── Step 13: Delivery status check ──
+      - stepId: status
+        operationId: beckn-bap.status
+        description: >
+          BAP checks delivery progress during the delivery window.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: status
+              domain: "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                beckn:id: $steps.on-init.outputs.orderId
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 14: Delivery in progress ──
+      - stepId: on-status
+        operationId: beckn-bpp.on_status
+        description: >
+          BPP returns delivery status with EnergyTradeDelivery fulfillmentAttributes:
+          deliveryStatus, deliveredQuantity, meterReadings.
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          deliveredQuantity: $response.body.message.order.beckn:orderItems[0].beckn:orderItemAttributes.fulfillmentAttributes.deliveredQuantity
+
+      # ── Step 15: Evaluate delivery compliance (OPA) ──
+      - stepId: evaluate-delivery
+        operationId: opa-policy-engine.evaluate
+        description: >
+          Evaluate delivery_compliant and deviation_penalty using Rego.
+          Package: deg.contracts.p2p_trade
+        requestBody:
+          contentType: application/json
+          payload:
+            input:
+              deliveredQuantity: $steps.on-status.outputs.deliveredQuantity
+            data:
+              contract:
+                energySpec:
+                  quantity:
+                    unitQuantity: $inputs.requestedKwh
+                terms:
+                  deviationPenaltyPerKwh: 1.0
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          isCompliant: $response.body.result.delivery_compliant
+          penalty: $response.body.result.deviation_penalty
+
+      # ── Step 16: Compute settlement (OPA) ──
+      - stepId: compute-settlement
+        operationId: opa-policy-engine.evaluate
+        description: >
+          Compute multi-party settlement using deg.revenue package.
+          Returns per-role net positions and validates net-zero invariant.
+        requestBody:
+          contentType: application/json
+          payload:
+            input:
+              deliveredKwh: $steps.on-status.outputs.deliveredQuantity
+              pricePerKwh: 4.50
+              wheelingRatePerKwh: 0.50
+              deviationPenaltyPerKwh: 1.0
+            data:
+              contract:
+                roles:
+                  - { roleId: seller }
+                  - { roleId: buyer }
+                  - { roleId: utility }
+                  - { roleId: platform }
+                revenueModel:
+                  flows:
+                    - { flowId: energy_payment, from: buyer, to: seller, flowType: ENERGY_PAYMENT }
+                    - { flowId: wheeling_charge, from: buyer, to: utility, flowType: WHEELING_CHARGE }
+                    - { flowId: platform_fee_buyer, from: buyer, to: platform, flowType: PLATFORM_FEE }
+                    - { flowId: platform_fee_seller, from: seller, to: platform, flowType: PLATFORM_FEE }
+                    - { flowId: deviation_penalty, from: seller, to: buyer, flowType: DEVIATION_PENALTY }
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.result.net_zero_valid == true
+        outputs:
+          settlementSummary: $response.body.result.settlement_summary
+
+      # ── Step 17: Final status (completed) ──
+      - stepId: on-status-completed
+        operationId: beckn-bpp.on_status
+        description: >
+          Final on_status with delivery COMPLETED.
+          DEGContract transitions to SETTLED.
+          revenueModel.flows have all computedAmounts filled.
+          settlementCycles show final breakdown.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.order.beckn:orderAttributes.degContract.contractState == 'SETTLED'
+          - condition: $response.body.message.order.beckn:orderAttributes.degContract.revenueModel.netZeroValid == true
+
+  # ───────────────────────────────────────────────────────────────────────
+  # WORKFLOW 3: Smart EV Charging (Composite: EV Charging + V2G)
+  # ───────────────────────────────────────────────────────────────────────
+  - workflowId: smart-ev-charging-v2g-flow
+    summary: Composite EV charging with V2G demand flexibility
+    description: >
+      A V2G-capable EV plugs in at a smart charger. Normal charging proceeds
+      until a grid stress event occurs, at which point the vehicle discharges
+      to grid. The DEGContract is COMPOSITE (EV_CHARGING + DEMAND_FLEXIBILITY)
+      with three roles: ev_owner, cpo_aggregator, grid_operator.
+      Revenue flows bidirectionally: EV owner pays for charging but earns
+      from V2G discharge.
+    inputs:
+      type: object
+      properties:
+        vehicleBatteryKwh:
+          type: number
+          example: 60.0
+        minChargeLevelPct:
+          type: number
+          example: 30
+        requestedKwh:
+          type: number
+          example: 20.0
+        connectorType:
+          type: string
+          example: "CCS2"
+
+    steps:
+      # ── Step 1: Discover V2G-capable chargers ──
+      - stepId: discover
+        operationId: beckn-bap.search
+        description: >
+          Search for chargers with v2gSupported: true.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: search
+              domain: "beckn.one:deg:smart-ev-charging:2.0.0"
+              bap_id: "ev-bap.mobility-app.in"
+              bap_uri: "https://ev-bap.mobility-app.in/beckn/v2"
+              transaction_id: "{$generate.uuid}"
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              filters:
+                type: jsonpath
+                expression: >
+                  $[?(@.itemAttributes.connectorType == '{$inputs.connectorType}'
+                  && @.itemAttributes.v2gSupported == true)]
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          transactionId: $response.body.context.transaction_id
+
+      # ── Step 2: Catalog with COMPOSITE DEGContract ──
+      - stepId: on-discover
+        operationId: beckn-bpp.on_search
+        description: >
+          BPP returns V2G-capable charger catalog.
+          Offer contains COMPOSITE DEGContract with:
+          - ev_owner role (open), cpo_aggregator (filled), grid_operator (filled)
+          - Terms: charging, v2g_discharge, pricing (both directions)
+          - Revenue model: charging_payment, v2g_payment, grid_v2g_payment, platform_fee
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.catalogs[0].beckn:offers[0].beckn:offerAttributes.degContract.contractType == 'COMPOSITE'
+        outputs:
+          selectedOfferId: $response.body.message.catalogs[0].beckn:offers[0].beckn:id
+          selectedItemId: $response.body.message.catalogs[0].beckn:items[0].beckn:id
+
+      # ── Step 3: Select with vehicle details ──
+      - stepId: select
+        operationId: beckn-bap.select
+        description: >
+          EV owner fills vehicle details: battery capacity, min charge level,
+          V2G consent. DEGContract → NEGOTIATED.
+        requestBody:
+          contentType: application/json
+          payload:
+            context:
+              version: "2.0.0"
+              action: select
+              domain: "beckn.one:deg:smart-ev-charging:2.0.0"
+              transaction_id: $steps.discover.outputs.transactionId
+              message_id: "{$generate.uuid}"
+              timestamp: "{$generate.timestamp}"
+              ttl: "PT30S"
+            message:
+              order:
+                beckn:orderItems:
+                  - beckn:orderedItem: $steps.on-discover.outputs.selectedItemId
+                    beckn:quantity:
+                      unitQuantity: $inputs.requestedKwh
+                      unitText: "kWh"
+                    beckn:acceptedOffer:
+                      beckn:id: $steps.on-discover.outputs.selectedOfferId
+                beckn:orderAttributes:
+                  degContract:
+                    contractState: NEGOTIATED
+                    roles:
+                      - roleId: ev_owner
+                        inputs:
+                          - inputId: vehicle_battery_kwh
+                            value: $inputs.vehicleBatteryKwh
+                          - inputId: min_charge_level_pct
+                            value: $inputs.minChargeLevelPct
+                          - inputId: v2g_consent
+                            value: true
+        successCriteria:
+          - condition: $statusCode == 200
+
+      # ── Step 4: Quote with V2G earning potential ──
+      - stepId: on-select
+        operationId: beckn-bpp.on_select
+        description: >
+          BPP returns quote showing:
+          - Estimated charging cost (e.g., INR 160 for 20 kWh @ INR 8/kWh)
+          - Estimated V2G earning potential (e.g., "up to INR 72 if 6 kWh discharged")
+          - Net estimated cost
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          estimatedChargingCost: $response.body.message.order.beckn:orderValue.value
+
+      # ── Step 5-8: Init → Confirm (same pattern as EV charging) ──
+      - stepId: init
+        operationId: beckn-bap.init
+        description: Commit with billing and payment.
+        successCriteria:
+          - condition: $statusCode == 200
+
+      - stepId: on-init
+        operationId: beckn-bpp.on_init
+        description: Payment URL returned, contract COMMITTED.
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          orderId: $response.body.message.order.beckn:id
+
+      - stepId: confirm
+        operationId: beckn-bap.confirm
+        description: Payment completed, confirm order.
+        successCriteria:
+          - condition: $statusCode == 200
+
+      - stepId: on-confirm
+        operationId: beckn-bpp.on_confirm
+        description: >
+          Contract ACTIVE. Session begins with normal charging.
+          energyFlowDirection: TO_VEHICLE
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.order.beckn:orderAttributes.degContract.contractState == 'ACTIVE'
+
+      # ── Step 9: Normal charging status ──
+      - stepId: on-status-charging
+        operationId: beckn-bpp.on_status
+        description: >
+          Normal charging in progress.
+          ChargingSession: ACTIVE, energyFlowDirection: TO_VEHICLE.
+          Telemetry: SOC rising, power at requested level.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.order.beckn:fulfillment.beckn:deliveryAttributes.sessionStatus == 'ACTIVE'
+
+      # ── Step 10: Grid stress → V2G activation ──
+      - stepId: evaluate-v2g-eligibility
+        operationId: opa-policy-engine.evaluate
+        description: >
+          Grid stress signal received. Evaluate V2G eligibility using Rego:
+          deg.contracts.v2g.v2g_eligible and should_discharge.
+          Checks: batteryPct > minChargeLevelPct, v2gCapable, charger supports V2G.
+        requestBody:
+          contentType: application/json
+          payload:
+            input:
+              vehicleBatteryPct: 65
+              vehicleBatteryKwh: $inputs.vehicleBatteryKwh
+              v2gCapable: true
+              gridStress: true
+            data:
+              contract:
+                inputs:
+                  minChargeLevelPct: $inputs.minChargeLevelPct
+              charger_state:
+                v2gSupported: true
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.result.v2g_eligible == true
+          - condition: $response.body.result.should_discharge == true
+        outputs:
+          maxDischargeKwh: $response.body.result.max_discharge_kwh
+
+      # ── Step 11: V2G discharge event ──
+      - stepId: on-update-v2g
+        operationId: beckn-bpp.on_update
+        description: >
+          BPP notifies: V2G discharge activated.
+          energyFlowDirection: FROM_VEHICLE.
+          Telemetry shows discharge power and grid feed-in.
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          dischargedKwh: $response.body.message.order.beckn:fulfillment.beckn:deliveryAttributes.v2gDischargedKwh
+
+      # ── Step 12: Compute net payment ──
+      - stepId: compute-net-payment
+        operationId: opa-policy-engine.evaluate
+        description: >
+          Compute bidirectional revenue using deg.contracts.v2g.net_payment.
+          Positive = EV owner pays, Negative = EV owner receives.
+        requestBody:
+          contentType: application/json
+          payload:
+            input:
+              totalChargedKwh: 15.0
+              totalDischargedKwh: $steps.on-update-v2g.outputs.dischargedKwh
+            data:
+              contract:
+                terms:
+                  chargingRate: 8.0
+                  v2gRate: 12.0
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          netPayment: $response.body.result.net_payment
+
+      # ── Step 13: Session complete with full settlement ──
+      - stepId: on-status-complete
+        operationId: beckn-bpp.on_status
+        description: >
+          Final status: session COMPLETED. DEGContract → SETTLED.
+          Revenue model fully computed:
+          - charging_payment: ev_owner → cpo_aggregator (INR 120 for 15 kWh)
+          - v2g_payment: cpo_aggregator → ev_owner (INR 36 for 3 kWh)
+          - grid_v2g_payment: grid_operator → cpo_aggregator (INR 54 for 3 kWh)
+          - platform_fee: cpo_aggregator → platform (INR 2.61)
+          Net-zero check passes.
+          EV owner effective rate: INR 5.60/kWh instead of INR 8/kWh.
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $response.body.message.order.beckn:orderAttributes.degContract.contractState == 'SETTLED'
+          - condition: $response.body.message.order.beckn:orderAttributes.degContract.revenueModel.netZeroValid == true
+        outputs:
+          finalSettlement: $response.body.message.order.beckn:orderAttributes.degContract.revenueModel
+          effectiveRate: $response.body.message.order.beckn:orderAttributes.degContract.x-settlement.effectiveRatePerKwh
+
+# ───────────────────────────────────────────────────────────────────────
+# Reusable Components
+# ───────────────────────────────────────────────────────────────────────
+components:
+  inputs:
+    BecknContext:
+      type: object
+      properties:
+        version: { type: string, default: "2.0.0" }
+        domain: { type: string }
+        bap_id: { type: string }
+        bap_uri: { type: string }
+        bpp_id: { type: string }
+        bpp_uri: { type: string }
+        transaction_id: { type: string }
+        message_id: { type: string }
+        timestamp: { type: string, format: date-time }
+        ttl: { type: string, default: "PT30S" }
+
+    DEGContractTemplate:
+      type: object
+      description: >
+        A partially-filled DEGContract used as input to workflows.
+        The contract template is retrieved from catalog (on_discover)
+        and progressively filled through the transaction lifecycle.
+      properties:
+        contractType: { type: string }
+        version: { type: string }
+        contractState: { type: string }
+        roles: { type: array }
+        terms: { type: array }
+        energySpec: { type: object }
+        fulfillmentSpec: { type: object }
+        settlementSpec: { type: object }
+        revenueModel: { type: object }
+
+  parameters:
+    transactionId:
+      name: transaction_id
+      in: header
+      description: Beckn transaction ID that links all messages in a flow.
+
+    orderId:
+      name: order_id
+      in: path
+      description: Order ID assigned by BPP during on_init.

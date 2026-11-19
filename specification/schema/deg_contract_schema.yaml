@@ -1,0 +1,609 @@
+openapi: 3.1.1
+info:
+  title: DEG Contract-as-Code Schema (v0.1)
+  version: 0.1.0-draft
+  description: >
+    Generalized contract schema for Digital Energy Grid (DEG) use cases.
+    Unifies EV Charging, P2P Energy Trading, and Demand Flexibility under
+    a single contract-as-code model that maps to Beckn Protocol v2 slots.
+
+    This schema defines the structure for:
+    - DEGContract: The top-level contract template/agreement
+    - DEGRole: Participating roles with inputs and obligations
+    - DEGTerm: Condition-obligation pairs (policy expressions)
+    - EnergySpecification: What energy product is contracted
+    - FulfillmentSpecification: How the contract is physically fulfilled
+    - SettlementSpecification: How the contract is financially settled
+
+components:
+  schemas:
+    ########################################################################
+    # DEG CONTRACT — Top-level contract template/agreement
+    ########################################################################
+    DEGContract:
+      type: object
+      additionalProperties: true
+      required: [contractType, version, roles, terms]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": DEGContract
+      description: >
+        A generalized energy contract. Published as partially-filled template
+        in Offer.offerAttributes (catalog), then fully filled in
+        Order.orderAttributes (committed agreement).
+      properties:
+
+        contractType:
+          type: string
+          enum: [EV_CHARGING, P2P_ENERGY_TRADE, DEMAND_FLEXIBILITY, V2G, COMPOSITE]
+          description: Primary contract classification.
+          x-jsonld: { "@id": contractType }
+
+        version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+          description: Semantic version of this contract template.
+          example: "1.0.0"
+          x-jsonld: { "@id": version }
+
+        contractState:
+          type: string
+          enum: [TEMPLATE, NEGOTIATED, COMMITTED, ACTIVE, SETTLED, CANCELLED, EXPIRED]
+          description: >
+            Current state of the contract. TEMPLATE in catalog,
+            progresses through Beckn lifecycle.
+          x-jsonld: { "@id": contractState }
+
+        roles:
+          type: array
+          minItems: 2
+          items:
+            $ref: '#/components/schemas/DEGRole'
+          description: Participating roles with their inputs and obligations.
+          x-jsonld: { "@id": roles, "@container": "@set" }
+
+        terms:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DEGTerm'
+          description: Contract terms. Each is a condition-obligation pair.
+          x-jsonld: { "@id": terms, "@container": "@set" }
+
+        energySpec:
+          $ref: '#/components/schemas/EnergySpecification'
+          x-jsonld: { "@id": energySpec }
+
+        fulfillmentSpec:
+          $ref: '#/components/schemas/FulfillmentSpecification'
+          x-jsonld: { "@id": fulfillmentSpec }
+
+        settlementSpec:
+          $ref: '#/components/schemas/SettlementSpecification'
+          x-jsonld: { "@id": settlementSpec }
+
+        revenueModel:
+          $ref: '#/components/schemas/RevenueModel'
+          description: >
+            Multi-party revenue flow model. Declares all monetary flows
+            between roles. Sum of all flows must equal zero (net-zero invariant).
+            Enables any agent to compute its role's net revenue position.
+          x-jsonld: { "@id": revenueModel }
+
+    ########################################################################
+    # DEG ROLE — A participating party slot
+    ########################################################################
+    DEGRole:
+      type: object
+      additionalProperties: true
+      required: [roleId, roleType]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": DEGRole
+      description: >
+        A role in the contract. When party is null, this is an open slot
+        in the template waiting for a party to accept.
+      properties:
+
+        roleId:
+          type: string
+          description: Unique role identifier within this contract.
+          example: "seller"
+          x-jsonld: { "@id": roleId }
+
+        roleType:
+          type: string
+          enum: [PRODUCER, CONSUMER, AGGREGATOR, GRID_OPERATOR, CPO, UTILITY, PROSUMER, DISCOM]
+          description: Functional role classification.
+          x-jsonld: { "@id": roleType }
+
+        party:
+          type: object
+          nullable: true
+          description: >
+            Filled when a party accepts this role. null = open slot.
+            Maps to Beckn Provider (for sellers) or Buyer (for buyers).
+          properties:
+            partyId:
+              type: string
+              description: Unique identifier for the party.
+              x-jsonld: { "@id": partyId }
+            partyType:
+              type: string
+              enum: [PROVIDER, BUYER]
+              description: Whether this party maps to Beckn Provider or Buyer.
+              x-jsonld: { "@id": partyType }
+            platformId:
+              type: string
+              description: BAP or BPP subscriber ID on the Beckn network.
+              x-jsonld: { "@id": platformId }
+            attributes:
+              type: object
+              additionalProperties: true
+              description: >
+                Role-specific attributes. References existing attribute packs
+                (EnergyCustomer, ChargingService, etc.) via @context/@type.
+              x-jsonld: { "@id": attributes }
+          x-jsonld: { "@id": party }
+
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleInput'
+          description: Parameters this role must supply.
+          x-jsonld: { "@id": inputs, "@container": "@set" }
+
+        obligations:
+          type: array
+          items:
+            type: string
+          description: References to DEGTerm.termId where this role has an obligation.
+          x-jsonld: { "@id": obligations }
+
+    ########################################################################
+    # ROLE INPUT — A parameter slot within a role
+    ########################################################################
+    RoleInput:
+      type: object
+      additionalProperties: true
+      required: [inputId, inputType]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": RoleInput
+      properties:
+
+        inputId:
+          type: string
+          description: Unique input identifier.
+          example: "source_meter_id"
+          x-jsonld: { "@id": inputId }
+
+        inputType:
+          type: string
+          enum: [PARAMETER, ITEM_REF, CREDENTIAL, SIGNAL, METER_ID, LOCATION, DER_ID]
+          description: Classification of this input.
+          x-jsonld: { "@id": inputType }
+
+        required:
+          type: boolean
+          default: true
+          x-jsonld: { "@id": required }
+
+        description:
+          type: string
+          x-jsonld: { "@id": description }
+
+        schema:
+          type: object
+          description: JSON Schema for validating the input value.
+          x-jsonld: { "@id": schema }
+
+        value:
+          description: >
+            The actual value. null or absent = unfilled slot (to be
+            provided by accepting party).
+          x-jsonld: { "@id": value }
+
+        filledBy:
+          type: string
+          description: roleId of the party that fills this input. Default is the role owner.
+          x-jsonld: { "@id": filledBy }
+
+        providedAt:
+          type: string
+          enum: [TEMPLATE, NEGOTIATION, COMMITMENT, FULFILLMENT]
+          description: >
+            When in the Beckn lifecycle this input must be provided.
+            TEMPLATE = on_search, NEGOTIATION = select, COMMITMENT = init/confirm,
+            FULFILLMENT = status/update.
+          x-jsonld: { "@id": providedAt }
+
+    ########################################################################
+    # DEG TERM — A condition-obligation pair
+    ########################################################################
+    DEGTerm:
+      type: object
+      additionalProperties: true
+      required: [termId, termType]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": DEGTerm
+      properties:
+
+        termId:
+          type: string
+          description: Unique term identifier.
+          example: "delivery_obligation"
+          x-jsonld: { "@id": termId }
+
+        termType:
+          type: string
+          enum: [DELIVERY, PAYMENT, SIGNAL_RESPONSE, QUALITY, DEVIATION_PENALTY, CANCELLATION, ENROLLMENT]
+          description: Classification of this term.
+          x-jsonld: { "@id": termType }
+
+        description:
+          type: string
+          description: Human-readable description of the term (Ricardian contract element).
+          x-jsonld: { "@id": description }
+
+        condition:
+          $ref: '#/components/schemas/PolicyExpression'
+          description: When this term activates.
+          x-jsonld: { "@id": condition }
+
+        obligation:
+          $ref: '#/components/schemas/PolicyExpression'
+          description: What must be true for this term to be satisfied.
+          x-jsonld: { "@id": obligation }
+
+        consequence:
+          $ref: '#/components/schemas/PolicyExpression'
+          description: What happens if the obligation is violated.
+          x-jsonld: { "@id": consequence }
+
+        appliesTo:
+          type: array
+          items: { type: string }
+          description: roleIds this term applies to.
+          x-jsonld: { "@id": appliesTo }
+
+    ########################################################################
+    # POLICY EXPRESSION — Declarative condition/rule
+    ########################################################################
+    PolicyExpression:
+      type: object
+      additionalProperties: true
+      description: >
+        Declarative condition or rule. Supports three levels of complexity:
+        1. Simple expr string (for basic conditions)
+        2. Structured rule tree (for compound conditions)
+        3. External policy reference (for complex Rego/Arazzo logic)
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": PolicyExpression
+      properties:
+
+        expr:
+          type: string
+          description: >
+            Simple expression string. JSONPath-like syntax over contract state.
+            Example: "deliveredQuantity >= 10.0 AND deliveredQuantity <= 50.0"
+          x-jsonld: { "@id": expr }
+
+        rule:
+          type: object
+          description: Structured rule for compound conditions.
+          properties:
+            operator:
+              type: string
+              enum: [AND, OR, NOT, GTE, LTE, GT, LT, EQ, NEQ, WITHIN, BETWEEN, IF_THEN, IN]
+            operands:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/PolicyExpression'
+                  - type: object
+                    properties:
+                      field: { type: string }
+                      value: {}
+          x-jsonld: { "@id": rule }
+
+        policyRef:
+          type: object
+          description: Reference to external policy (Rego, Arazzo workflow, webhook).
+          properties:
+            type:
+              type: string
+              enum: [REGO, ARAZZO, WEBHOOK]
+              description: Type of external policy.
+            uri:
+              type: string
+              format: uri
+              description: URI to the policy file or endpoint.
+            package:
+              type: string
+              description: For Rego, the package path.
+            entrypoint:
+              type: string
+              description: For Rego, the rule to evaluate.
+            workflowId:
+              type: string
+              description: For Arazzo, the workflow identifier.
+            stepId:
+              type: string
+              description: For Arazzo, the step identifier.
+          x-jsonld: { "@id": policyRef }
+
+    ########################################################################
+    # ENERGY SPECIFICATION — What is being contracted
+    ########################################################################
+    EnergySpecification:
+      type: object
+      additionalProperties: true
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": EnergySpecification
+      properties:
+
+        energyType:
+          type: string
+          enum: [ELECTRICAL, THERMAL, GAS]
+          x-jsonld: { "@id": energyType }
+
+        sourceType:
+          type: string
+          enum: [SOLAR, WIND, HYDRO, GRID, BATTERY, BIOMASS, ANY]
+          x-jsonld: { "@id": sourceType }
+
+        quantity:
+          allOf:
+            - $ref: 'https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/attributes.yaml#/components/schemas/Quantity'
+          x-jsonld: { "@id": quantity }
+
+        qualityConstraints:
+          type: object
+          properties:
+            greenCertRequired:
+              type: boolean
+              default: false
+            maxCarbonIntensity:
+              type: number
+              description: Maximum carbon intensity in gCO2/kWh.
+            powerFactor:
+              type: number
+              minimum: 0
+              maximum: 1
+            voltageRange:
+              type: object
+              properties:
+                min: { type: number }
+                max: { type: number }
+          x-jsonld: { "@id": qualityConstraints }
+
+    ########################################################################
+    # FULFILLMENT SPECIFICATION — How the contract is physically fulfilled
+    ########################################################################
+    FulfillmentSpecification:
+      type: object
+      additionalProperties: true
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": FulfillmentSpecification
+      properties:
+
+        deliveryMode:
+          type: string
+          enum: [EV_CHARGING, BATTERY_SWAP, GRID_INJECTION, V2G, LOAD_CURTAILMENT, LOAD_SHIFT, VIRTUAL]
+          x-jsonld: { "@id": deliveryMode }
+
+        deliveryWindow:
+          allOf:
+            - $ref: 'https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/attributes.yaml#/components/schemas/TimePeriod'
+          x-jsonld: { "@id": deliveryWindow }
+
+        location:
+          allOf:
+            - $ref: 'https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/attributes.yaml#/components/schemas/Location'
+          x-jsonld: { "@id": location }
+
+        meterIds:
+          type: array
+          items: { type: string }
+          description: Meter identifiers for measuring fulfillment.
+          x-jsonld: { "@id": meterIds }
+
+        signals:
+          type: array
+          items:
+            $ref: '#/components/schemas/SignalSpec'
+          description: Real-time signals used during fulfillment.
+          x-jsonld: { "@id": signals }
+
+    ########################################################################
+    # SIGNAL SPEC — A real-time signal source
+    ########################################################################
+    SignalSpec:
+      type: object
+      additionalProperties: true
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": SignalSpec
+      properties:
+
+        signalType:
+          type: string
+          enum: [GRID_FREQUENCY, PRICE_SIGNAL, CURTAILMENT_COMMAND, START_STOP, METER_READING, WEATHER]
+          x-jsonld: { "@id": signalType }
+
+        source:
+          type: string
+          description: URI of the signal source.
+          x-jsonld: { "@id": source }
+
+        protocol:
+          type: string
+          enum: [MQTT, HTTP_WEBHOOK, OCPP, OPENADR, WEBSOCKET, IEC_61850]
+          x-jsonld: { "@id": protocol }
+
+        sampleRate:
+          type: string
+          description: How often the signal is sampled (ISO 8601 duration).
+          example: "PT15M"
+          x-jsonld: { "@id": sampleRate }
+
+    ########################################################################
+    # SETTLEMENT SPECIFICATION — How the contract is financially settled
+    ########################################################################
+    SettlementSpecification:
+      type: object
+      additionalProperties: true
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": SettlementSpecification
+      properties:
+
+        paymentType:
+          type: string
+          enum: [PRE_ORDER, POST_DELIVERY, ESCROW, SUBSCRIPTION, SETTLEMENT_CYCLE]
+          x-jsonld: { "@id": paymentType }
+
+        currency:
+          type: string
+          description: ISO 4217 currency code.
+          example: "INR"
+          x-jsonld: { "@id": currency }
+
+        settlementCycle:
+          type: string
+          enum: [IMMEDIATE, 15_MIN, HOURLY, DAILY, WEEKLY, MONTHLY]
+          description: How often settlement occurs.
+          x-jsonld: { "@id": settlementCycle }
+
+        escrowRequired:
+          type: boolean
+          default: false
+          x-jsonld: { "@id": escrowRequired }
+
+        acceptedPaymentMethods:
+          type: array
+          items:
+            type: string
+            enum: [UPI, CREDIT_CARD, DEBIT_CARD, WALLET, BANK_TRANSFER, ENERGY_CREDIT]
+          x-jsonld: { "@id": acceptedPaymentMethods }
+
+    ########################################################################
+    # REVENUE MODEL — Multi-party net-zero monetary flows
+    ########################################################################
+    RevenueModel:
+      type: object
+      additionalProperties: true
+      required: [flows]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": RevenueModel
+      description: >
+        Declares all monetary flows between contract roles. The net-zero
+        invariant requires that sum(all flow.computedAmount) == 0 at settlement.
+        Any agent can compute its role's net position by filtering flows
+        where it is `from` (outflow) or `to` (inflow).
+      properties:
+
+        flows:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/RevenueFlow'
+          description: Directed monetary flows between roles.
+          x-jsonld: { "@id": flows, "@container": "@set" }
+
+        netZeroCheck:
+          $ref: '#/components/schemas/PolicyExpression'
+          description: >
+            Optional validation expression for the net-zero invariant.
+            Default: sum(flows[*].computedAmount) == 0
+          x-jsonld: { "@id": netZeroCheck }
+
+    ########################################################################
+    # REVENUE FLOW — A single directed monetary transfer
+    ########################################################################
+    RevenueFlow:
+      type: object
+      additionalProperties: true
+      required: [flowId, from, to, flowType, formula]
+      x-jsonld:
+        "@context": ./context.jsonld
+        "@type": RevenueFlow
+      description: >
+        A directed monetary flow from one role to another.
+        Positive computedAmount = transfer in the from→to direction.
+      properties:
+
+        flowId:
+          type: string
+          description: Unique flow identifier within the contract.
+          example: "energy_payment"
+          x-jsonld: { "@id": flowId }
+
+        from:
+          type: string
+          description: roleId of the paying party.
+          example: "buyer"
+          x-jsonld: { "@id": from }
+
+        to:
+          type: string
+          description: roleId of the receiving party.
+          example: "seller"
+          x-jsonld: { "@id": to }
+
+        flowType:
+          type: string
+          enum:
+            - ENERGY_PAYMENT
+            - WHEELING_CHARGE
+            - PLATFORM_FEE
+            - INCENTIVE
+            - DEVIATION_PENALTY
+            - CANCELLATION_FEE
+            - TAX
+            - CREDIT
+            - ESCROW_RELEASE
+            - GRID_SERVICE_FEE
+            - GREEN_CERTIFICATE
+          description: Classification of the monetary flow.
+          x-jsonld: { "@id": flowType }
+
+        formula:
+          $ref: '#/components/schemas/PolicyExpression'
+          description: >
+            Expression that computes the flow amount from contract state.
+            Can be a simple expr, structured rule, or Rego policy reference.
+          x-jsonld: { "@id": formula }
+
+        currency:
+          type: string
+          default: "INR"
+          description: ISO 4217 currency code for this flow.
+          x-jsonld: { "@id": currency }
+
+        computedAmount:
+          type: number
+          description: >
+            Filled at settlement time. The evaluated result of the formula.
+            Positive = transfer in the from→to direction.
+            Negative = reversal (refund, credit).
+          x-jsonld: { "@id": computedAmount }
+
+        triggeredBy:
+          type: string
+          description: >
+            termId that triggers this flow. Links revenue to contract terms.
+            When the referenced term's condition is met, this flow is activated.
+          x-jsonld: { "@id": triggeredBy }
+
+        schedule:
+          type: string
+          enum: [IMMEDIATE, ON_DELIVERY, ON_SETTLEMENT, ON_EVENT, RECURRING]
+          description: When this flow is executed/settled.
+          x-jsonld: { "@id": schedule }

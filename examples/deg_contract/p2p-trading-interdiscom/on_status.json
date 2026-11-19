@@ -1,0 +1,211 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_status",
+    "timestamp": "2025-06-15T12:00:05Z",
+    "message_id": "msg-on-status-interdiscom-001",
+    "transaction_id": "txn-p2p-interdiscom-001",
+    "bap_id": "bap.energy-buyer.in",
+    "bap_uri": "https://bap.energy-buyer.in",
+    "bpp_id": "bpp.solarfarm-delhi.in",
+    "bpp_uri": "https://bpp.solarfarm-delhi.in",
+    "ttl": "PT30S",
+    "domain": "beckn.one:deg:p2p-trading-interdiscom:2.0.0"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/draft/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-interdiscom-001",
+      "beckn:items": [
+        {
+          "beckn:id": "energy-resource-solar-delhi-001",
+          "quantity": {
+            "count": 20.0,
+            "unit": "kWh"
+          }
+        }
+      ],
+      "beckn:offers": [
+        {
+          "beckn:id": "offer-solar-morning-001"
+        },
+        {
+          "beckn:id": "offer-solar-afternoon-001"
+        }
+      ],
+      "beckn:provider": {
+        "beckn:id": "provider-solar-delhi-001"
+      },
+      "beckn:fulfillments": [
+        {
+          "@type": "beckn:Fulfillment",
+          "beckn:id": "fulfillment-interdiscom-001",
+          "beckn:type": "ENERGY_DELIVERY",
+          "beckn:state": {
+            "@type": "beckn:State",
+            "beckn:descriptor": {
+              "@type": "beckn:Descriptor",
+              "schema:name": "IN_PROGRESS"
+            }
+          },
+          "beckn:attributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_delivery_context.jsonld",
+            "@type": "EnergyDelivery",
+            "status": "IN_PROGRESS",
+            "deliveryMode": "GRID_INJECTION",
+            "energyFlow": {
+              "delivered": { "value": 9.2, "unitCode": "KWH" }
+            },
+            "timing": {
+              "startTime": "2025-06-15T06:00:00+05:30"
+            },
+            "meterReadings": [
+              {
+                "timeWindow": {
+                  "start": "2025-06-15T06:00:00+05:30",
+                  "end": "2025-06-15T08:00:00+05:30"
+                },
+                "consumedEnergy": 3.1,
+                "producedEnergy": 3.2,
+                "allocatedEnergy": 3.1,
+                "unit": "KWH"
+              },
+              {
+                "timeWindow": {
+                  "start": "2025-06-15T08:00:00+05:30",
+                  "end": "2025-06-15T10:00:00+05:30"
+                },
+                "consumedEnergy": 3.0,
+                "producedEnergy": 3.5,
+                "allocatedEnergy": 3.0,
+                "unit": "KWH"
+              },
+              {
+                "timeWindow": {
+                  "start": "2025-06-15T10:00:00+05:30",
+                  "end": "2025-06-15T12:00:00+05:30"
+                },
+                "consumedEnergy": 3.1,
+                "producedEnergy": 4.0,
+                "allocatedEnergy": 3.1,
+                "unit": "KWH"
+              }
+            ],
+            "lastUpdated": "2025-06-15T12:00:00+05:30"
+          }
+        }
+      ],
+      "beckn:orderItems": [
+        {
+          "@type": "beckn:OrderItem",
+          "beckn:id": "order-item-morning-001",
+          "beckn:offer": {
+            "beckn:id": "offer-solar-morning-001"
+          },
+          "beckn:item": {
+            "beckn:id": "energy-resource-solar-delhi-001"
+          },
+          "beckn:quantity": {
+            "count": 10.0,
+            "unit": "kWh"
+          },
+          "beckn:orderItemAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_order_item_context.jsonld",
+            "@type": "EnergyOrderItem",
+            "deliveryWindow": {
+              "start": "06:00:00+05:30",
+              "end": "12:00:00+05:30"
+            },
+            "delivery": {
+              "status": "COMPLETED",
+              "deliveredQuantity": { "value": 9.2, "unitCode": "KWH" },
+              "meterReadings": [
+                {
+                  "timeWindow": {
+                    "start": "2025-06-15T06:00:00+05:30",
+                    "end": "2025-06-15T08:00:00+05:30"
+                  },
+                  "consumedEnergy": 3.1,
+                  "producedEnergy": 3.2,
+                  "allocatedEnergy": 3.1,
+                  "unit": "KWH"
+                },
+                {
+                  "timeWindow": {
+                    "start": "2025-06-15T08:00:00+05:30",
+                    "end": "2025-06-15T10:00:00+05:30"
+                  },
+                  "consumedEnergy": 3.0,
+                  "producedEnergy": 3.5,
+                  "allocatedEnergy": 3.0,
+                  "unit": "KWH"
+                },
+                {
+                  "timeWindow": {
+                    "start": "2025-06-15T10:00:00+05:30",
+                    "end": "2025-06-15T12:00:00+05:30"
+                  },
+                  "consumedEnergy": 3.1,
+                  "producedEnergy": 4.0,
+                  "allocatedEnergy": 3.1,
+                  "unit": "KWH"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "@type": "beckn:OrderItem",
+          "beckn:id": "order-item-afternoon-001",
+          "beckn:offer": {
+            "beckn:id": "offer-solar-afternoon-001"
+          },
+          "beckn:item": {
+            "beckn:id": "energy-resource-solar-delhi-001"
+          },
+          "beckn:quantity": {
+            "count": 10.0,
+            "unit": "kWh"
+          },
+          "beckn:orderItemAttributes": {
+            "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_order_item_context.jsonld",
+            "@type": "EnergyOrderItem",
+            "deliveryWindow": {
+              "start": "12:00:00+05:30",
+              "end": "18:00:00+05:30"
+            },
+            "delivery": {
+              "status": "PENDING",
+              "deliveredQuantity": { "value": 0.0, "unitCode": "KWH" },
+              "meterReadings": []
+            }
+          }
+        }
+      ],
+      "beckn:payments": [
+        {
+          "@type": "beckn:Payment",
+          "beckn:id": "payment-interdiscom-001",
+          "beckn:type": "ON-FULFILLMENT",
+          "beckn:status": "NOT-PAID",
+          "beckn:collected_by": "BPP"
+        }
+      ],
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "P2P_ENERGY_TRADE",
+        "version": "0.4.0",
+        "contractState": "ACTIVE",
+        "deliveryProgress": {
+          "totalContracted": 20.0,
+          "totalDelivered": 9.2,
+          "morningSlotDelivered": 9.2,
+          "afternoonSlotDelivered": 0.0,
+          "complianceStatus": "ON_TRACK"
+        }
+      }
+    }
+  }
+}

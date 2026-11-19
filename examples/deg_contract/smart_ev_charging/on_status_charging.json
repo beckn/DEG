@@ -1,0 +1,133 @@
+{
+  "context": {
+    "version": "2.0.0",
+    "action": "on_status",
+    "domain": "beckn.one:deg:smart-ev-charging:2.0.0",
+    "timestamp": "2026-02-08T09:45:00Z",
+    "message_id": "msg-on-status-charging-v2g-001",
+    "transaction_id": "txn-smart-ev-v2g-001",
+    "bap_id": "ev-app.example.com",
+    "bap_uri": "https://ev-app.example.com/bap",
+    "bpp_id": "bpp.tata-ezcharge.example.com",
+    "bpp_uri": "https://bpp.tata-ezcharge.example.com/bpp",
+    "ttl": "PT30S"
+  },
+  "message": {
+    "order": {
+      "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+      "@type": "beckn:Order",
+      "beckn:id": "order-smart-ev-v2g-001",
+      "beckn:orderStatus": "INPROGRESS",
+      "beckn:seller": "tata-ezcharge-mumbai",
+      "beckn:buyer": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Buyer",
+        "beckn:id": "ev-owner-ankit-001",
+        "beckn:role": "BUYER",
+        "beckn:displayName": "Ankit Sharma"
+      },
+      "beckn:orderItems": [
+        {
+          "beckn:orderedItem": "IND*tata-ezcharge*cs-mum-01*IN*TATA*BKC*01*CCS2*A*V2G"
+        }
+      ],
+      "beckn:fulfillment": {
+        "@context": "https://raw.githubusercontent.com/beckn/protocol-specifications-new/refs/heads/main/schema/core/v2/context.jsonld",
+        "@type": "beckn:Fulfillment",
+        "beckn:id": "fulfillment-v2g-001",
+        "beckn:mode": "RESERVATION",
+        "trackingAction": {
+          "@type": "beckn:TrackAction",
+          "target": {
+            "@type": "schema:EntryPoint",
+            "url": "https://track.tata-ezcharge.example.com/session/SESSION-V2G-20260208-001"
+          }
+        },
+        "beckn:deliveryAttributes": {
+          "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/energy_delivery_context.jsonld",
+          "@type": "EnergyDelivery",
+          "status": "ACTIVE",
+          "deliveryMode": "EV_CHARGING",
+          "energyFlow": {
+            "direction": "TO_VEHICLE",
+            "delivered": { "value": 10.1, "unitCode": "KWH" }
+          },
+          "timing": {
+            "startTime": "2026-02-08T09:20:00Z",
+            "elapsed": "PT25M"
+          },
+          "connector": {
+            "type": "CCS2",
+            "maxPowerKW": 60
+          },
+          "v2g": {
+            "enabled": true,
+            "status": "STANDBY"
+          },
+          "grid": {
+            "status": "NORMAL"
+          },
+          "telemetry": [
+            {
+              "eventTime": "2026-02-08T09:35:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 52.0, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": 55.2, "unitCode": "KW" },
+                { "name": "ENERGY_DELIVERED", "value": 4.6, "unitCode": "KWH" },
+                { "name": "VOLTAGE", "value": 410, "unitCode": "VLT" },
+                { "name": "CURRENT", "value": 134.6, "unitCode": "AMP" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "TO_VEHICLE", "unitCode": "DIRECTION" }
+              ]
+            },
+            {
+              "eventTime": "2026-02-08T09:40:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 56.5, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": 54.8, "unitCode": "KW" },
+                { "name": "ENERGY_DELIVERED", "value": 7.2, "unitCode": "KWH" },
+                { "name": "VOLTAGE", "value": 412, "unitCode": "VLT" },
+                { "name": "CURRENT", "value": 133.0, "unitCode": "AMP" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "TO_VEHICLE", "unitCode": "DIRECTION" }
+              ]
+            },
+            {
+              "eventTime": "2026-02-08T09:45:00Z",
+              "metrics": [
+                { "name": "STATE_OF_CHARGE", "value": 60.8, "unitCode": "PERCENTAGE" },
+                { "name": "POWER", "value": 53.5, "unitCode": "KW" },
+                { "name": "ENERGY_DELIVERED", "value": 10.1, "unitCode": "KWH" },
+                { "name": "VOLTAGE", "value": 408, "unitCode": "VLT" },
+                { "name": "CURRENT", "value": 131.1, "unitCode": "AMP" },
+                { "name": "ENERGY_FLOW_DIRECTION", "value": "TO_VEHICLE", "unitCode": "DIRECTION" }
+              ]
+            }
+          ],
+          "summary": {
+            "totalDeliveredKwh": 10.1,
+            "totalDischargedKwh": 0.0,
+            "netKwh": 10.1,
+            "currentPricingPeriod": "PEAK",
+            "currentRatePerKwh": 8.0,
+            "runningChargeCost": {
+              "currency": "INR",
+              "value": 80.80
+            },
+            "v2gEventsCount": 0,
+            "v2gEarnings": {
+              "currency": "INR",
+              "value": 0.0
+            }
+          },
+          "lastUpdated": "2026-02-08T09:45:00Z"
+        }
+      },
+      "beckn:orderAttributes": {
+        "@context": "https://raw.githubusercontent.com/beckn/DEG/refs/heads/main/specification/schema/deg_contract_context.jsonld",
+        "@type": "DEGContract",
+        "contractType": "COMPOSITE",
+        "contractState": "ACTIVE",
+        "version": "1.0.0"
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "gridFrequency": 49.2,
+  "spotPrice": 12.0,
+  "curtailmentSignal": "ACTIVE",
+  "baselineLoad": 200.0,
+  "actualLoad": 100.0,
+  "eventStartNs": 1000000000000,
+  "eventEndNs":   4600000000000
+}
