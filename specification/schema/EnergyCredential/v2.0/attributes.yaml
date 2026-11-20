@@ -127,4 +127,4 @@ components:
               x-jsonld:
                 '@id': sec:proofValue
       allOf:
-      - $ref: https://schema.nfh.global/Credential/v2.0
+      - $ref: https://schema.nfh.global/Credential/v2.0/attributes.yaml#/components/schemas/Credential
