@@ -8,8 +8,8 @@
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6ace310b-6440-4421-a2ed-b484c7548bd5",
-    "timestamp": "2025-01-27T17:00:40.065Z",
+    "messageId": "98d6a0a2-5219-57fd-8737-e0c09307973c",
+    "timestamp": "2025-01-27T17:00:42Z",
     "ttl": "PT30S"
   },
   "message": {

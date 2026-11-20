@@ -6,7 +6,7 @@
     "bapId": "bap.example.com",
     "bapUri": "https://bap.example.com",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "0e31b27a-0a58-5859-8f45-21864a16aee0",
+    "messageId": "0ce79d1e-ea01-5def-9905-b2ab6711830a",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schemaContext": [

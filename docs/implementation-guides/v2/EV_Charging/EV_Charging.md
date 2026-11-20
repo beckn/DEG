@@ -304,7 +304,7 @@ Specifically, for EV Charging, please use the following configuration:
 3. For routing calls to Catalog Discovery Service, refer to routing configuration [here](https://github.com/Beckn-One/beckn-onix/blob/main/config/local-simple-routing-BAPCaller.yaml).
 4. ONIX validates messages against the Beckn 2.0 LTS core specification (`core-v2.0.0-lts`) by default from v1.7.1 onwards. The examples in this guide are validated through ONIX 1.9.4, against the LTS core schema and the attribute packs.
 5. Set `context.networkId` to `nfh.global/testnet-evcharging` for the EV charging test network, on which the devkit's example participants are registered.
-6. The [EV charging devkit](../../../../devkits/ev-charging/README.md) has ready ONIX configurations for a BAP and a BPP (`config/`), a Docker Compose setup and reference apps that run every use case in this guide. The conventions the examples follow are in the [examples README](../../../../examples/ev-charging/v2/README.md).
+6. The [EV charging devkit](../../../../devkits/ev-charging/README.md) has ready ONIX configurations for a BAP and a BPP (`config/`), a Docker Compose setup with mock participants, and Arazzo workflows that run the flows in this guide. The conventions the examples follow are in the [examples README](../../../../examples/ev-charging/v2/README.md).
 
 ### 11.2.3. 10.2.3 Performing a test EV charging transaction
 
@@ -427,7 +427,7 @@ Note: The API calls and schema for walk-in charging are identical to the [advanc
     "bapId": "app.example.com",
     "bapUri": "https://app.example.com/bap",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "10462231-30b0-5595-b70f-4214e4044d8c",
+    "messageId": "8267211d-5b74-5509-a2f1-a2d616f7c782",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schemaContext": [
@@ -489,8 +489,8 @@ Note: Users can discover the charging station through off-network channels (such
     "bppId": "example-cds.com",
     "bppUri": "https://example-cds.com/pilot/cds/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "a1eabf26-29f5-4a01-9d4e-4c5c9d1a3d02",
-    "timestamp": "2024-01-15T10:30:05Z",
+    "messageId": "8267211d-5b74-5509-a2f1-a2d616f7c782",
+    "timestamp": "2025-10-14T07:31:02Z",
     "ttl": "PT30S"
   },
   "message": {
@@ -677,7 +677,7 @@ CPO returns details of a specific charger: [Example](../../../../examples/ev-cha
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "bb9f86db-9a3d-4e9c-8c11-81c8f1a7b901",
+    "messageId": "b16f4529-c67a-5b55-b4af-a95a8898b9c1",
     "timestamp": "2024-01-15T10:30:00Z",
     "ttl": "PT30S"
   },
@@ -817,7 +817,7 @@ EV user requests charge worth in KWH: [Example](../../../../examples/ev-charging
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "bb9f86db-9a3d-4e9c-8c11-81c8f1a7b901",
+    "messageId": "b16f4529-c67a-5b55-b4af-a95a8898b9c1",
     "timestamp": "2024-01-15T10:30:05Z",
     "ttl": "PT30S"
   },
@@ -912,25 +912,25 @@ EV user requests charge worth in KWH: [Example](../../../../examples/ev-charging
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -940,15 +940,15 @@ EV user requests charge worth in KWH: [Example](../../../../examples/ev-charging
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -1009,7 +1009,7 @@ CPO responds with dynamically calculated quote: [Example](../../../../examples/e
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6743e9e2-4fb5-487c-92b7-13ba8018f176",
+    "messageId": "bd411d71-0140-531c-bfdb-659bf5317e7e",
     "timestamp": "2025-01-27T10:00:00Z",
     "ttl": "PT30S"
   },
@@ -1104,25 +1104,25 @@ CPO responds with dynamically calculated quote: [Example](../../../../examples/e
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -1132,15 +1132,15 @@ CPO responds with dynamically calculated quote: [Example](../../../../examples/e
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -1157,7 +1157,7 @@ CPO responds with dynamically calculated quote: [Example](../../../../examples/e
             "beckn:paymentStatus": "INITIATED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:beneficiary": "BPP",
             "beckn:paymentAttributes": {
@@ -1220,8 +1220,8 @@ EV user requests for payment information: [Example](../../../../examples/ev-char
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6743e9e2-4fb5-487c-92b7-13ba8018f176",
-    "timestamp": "2025-01-27T10:00:00Z",
+    "messageId": "bd411d71-0140-531c-bfdb-659bf5317e7e",
+    "timestamp": "2025-01-27T10:00:02Z",
     "ttl": "PT30S"
   },
   "message": {
@@ -1316,25 +1316,25 @@ EV user requests for payment information: [Example](../../../../examples/ev-char
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -1344,15 +1344,15 @@ EV user requests for payment information: [Example](../../../../examples/ev-char
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -1370,7 +1370,7 @@ EV user requests for payment information: [Example](../../../../examples/ev-char
             "beckn:paymentStatus": "INITIATED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -1449,7 +1449,7 @@ CPO responds with the payment link for the user to authorize payment: [Example](
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "d4da89d5-2e42-4c36-9139-7f5682d5f104",
+    "messageId": "0ae4d99e-80ea-5f68-959a-84992fd40d6a",
     "timestamp": "2025-01-27T10:05:00Z",
     "ttl": "PT30S"
   },
@@ -1545,25 +1545,25 @@ CPO responds with the payment link for the user to authorize payment: [Example](
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -1573,15 +1573,15 @@ CPO responds with the payment link for the user to authorize payment: [Example](
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -1599,7 +1599,7 @@ CPO responds with the payment link for the user to authorize payment: [Example](
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -1637,7 +1637,7 @@ CPO sends the status of the payment: [Example](../../../../examples/ev-charging/
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "c69b4c1e-fb7e-469d-ae90-00f4d5e82b64",
+    "messageId": "0e6f056f-ea93-5c29-bc8f-6f32e90d644c",
     "timestamp": "2025-01-27T10:05:00Z",
     "ttl": "PT30S"
   },
@@ -1733,25 +1733,25 @@ CPO sends the status of the payment: [Example](../../../../examples/ev-charging/
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -1761,15 +1761,15 @@ CPO sends the status of the payment: [Example](../../../../examples/ev-charging/
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -1787,7 +1787,7 @@ CPO sends the status of the payment: [Example](../../../../examples/ev-charging/
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -1839,8 +1839,8 @@ EV user confirms reservation of a slot at a particular charging station at a par
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "c69b4c1e-fb7e-469d-ae90-00f4d5e82b64",
-    "timestamp": "2025-01-27T10:05:00Z",
+    "messageId": "0e6f056f-ea93-5c29-bc8f-6f32e90d644c",
+    "timestamp": "2025-01-27T10:05:02Z",
     "ttl": "PT30S"
   },
   "message": {
@@ -1935,25 +1935,25 @@ EV user confirms reservation of a slot at a particular charging station at a par
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -1963,15 +1963,15 @@ EV user confirms reservation of a slot at a particular charging station at a par
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -2007,7 +2007,7 @@ EV user confirms reservation of a slot at a particular charging station at a par
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -2059,7 +2059,7 @@ CPO responds with confirmed slot: [Example](../../../../examples/ev-charging/v2/
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "c69b4c1e-fb7e-469d-ae90-00f4d5e82b64",
+    "messageId": "ec5b2d58-4c80-5982-bc61-6af6b5c1642c",
     "timestamp": "2025-01-27T10:05:00Z",
     "ttl": "PT30S"
   },
@@ -2155,25 +2155,25 @@ CPO responds with confirmed slot: [Example](../../../../examples/ev-charging/v2/
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -2183,15 +2183,15 @@ CPO responds with confirmed slot: [Example](../../../../examples/ev-charging/v2/
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -2227,7 +2227,7 @@ CPO responds with confirmed slot: [Example](../../../../examples/ev-charging/v2/
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -2279,8 +2279,8 @@ The user checks the status of charging connector: [Example](../../../../examples
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "c69b4c1e-fb7e-469d-ae90-00f4d5e82b64",
-    "timestamp": "2025-01-27T10:05:00Z",
+    "messageId": "ec5b2d58-4c80-5982-bc61-6af6b5c1642c",
+    "timestamp": "2025-01-27T10:05:02Z",
     "ttl": "PT30S"
   },
   "message": {
@@ -2375,25 +2375,25 @@ The user checks the status of charging connector: [Example](../../../../examples
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -2403,15 +2403,15 @@ The user checks the status of charging connector: [Example](../../../../examples
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -2448,7 +2448,7 @@ The user checks the status of charging connector: [Example](../../../../examples
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -2500,7 +2500,7 @@ The CPO response with the status of the charging connector: [Example](../../../.
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6bd7be5b-ac21-4a5c-a787-5ec6980317e6",
+    "messageId": "b9c96f71-7fc1-5f21-b0ad-1d81df131ef5",
     "timestamp": "2025-01-27T10:15:00Z",
     "ttl": "PT30S"
   },
@@ -2596,25 +2596,25 @@ The CPO response with the status of the charging connector: [Example](../../../.
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -2624,15 +2624,15 @@ The CPO response with the status of the charging connector: [Example](../../../.
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -2668,7 +2668,7 @@ The CPO response with the status of the charging connector: [Example](../../../.
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -2719,7 +2719,7 @@ EV user starts a charging session: [Example](../../../../examples/ev-charging/v2
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6bd7be5b-ac21-4a5c-a787-5ec6980317e6",
+    "messageId": "b9c96f71-7fc1-5f21-b0ad-1d81df131ef5",
     "timestamp": "2025-01-27T10:15:30Z",
     "ttl": "PT30S"
   },
@@ -2815,25 +2815,25 @@ EV user starts a charging session: [Example](../../../../examples/ev-charging/v2
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -2843,15 +2843,15 @@ EV user starts a charging session: [Example](../../../../examples/ev-charging/v2
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -2887,7 +2887,7 @@ EV user starts a charging session: [Example](../../../../examples/ev-charging/v2
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -2939,7 +2939,7 @@ CPO responds with confirmed start of charging session: [Example](../../../../exa
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6ace310b-6440-4421-a2ed-b484c7548bd5",
+    "messageId": "98d6a0a2-5219-57fd-8737-e0c09307973c",
     "timestamp": "2025-01-27T17:00:40.065Z",
     "ttl": "PT30S"
   },
@@ -3064,8 +3064,8 @@ EV User tracks a live charging session in real-time: [Example](../../../../examp
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6ace310b-6440-4421-a2ed-b484c7548bd5",
-    "timestamp": "2025-01-27T17:00:40.065Z",
+    "messageId": "98d6a0a2-5219-57fd-8737-e0c09307973c",
+    "timestamp": "2025-01-27T17:00:42Z",
     "ttl": "PT30S"
   },
   "message": {
@@ -3267,7 +3267,7 @@ EV User receives a live charging session in real-time: [Example](../../../../exa
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6743e9e2-4fb5-487c-92b7-13ba8018f176",
+    "messageId": "6a60f5cf-609d-538d-8952-0926b68fe57f",
     "timestamp": "2025-01-27T13:07:02Z",
     "ttl": "PT30S"
   },
@@ -3359,25 +3359,25 @@ EV User receives a live charging session in real-time: [Example](../../../../exa
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -3387,15 +3387,15 @@ EV User receives a live charging session in real-time: [Example](../../../../exa
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -3429,7 +3429,7 @@ EV User receives a live charging session in real-time: [Example](../../../../exa
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -3481,7 +3481,7 @@ EV user reveives a notification in case of any error occuring during charging se
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6bd7be5b-ac21-4a5c-a787-5ec6980317e6",
+    "messageId": "722a01ac-5cb9-5013-8d0b-c659573f840a",
     "timestamp": "2025-01-27T10:15:00Z",
     "ttl": "PT30S"
   },
@@ -3577,25 +3577,25 @@ EV user reveives a notification in case of any error occuring during charging se
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -3605,15 +3605,15 @@ EV user reveives a notification in case of any error occuring during charging se
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -3647,7 +3647,7 @@ EV user reveives a notification in case of any error occuring during charging se
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -3685,7 +3685,7 @@ EV user stops the charging session: [Example](../../../../examples/ev-charging/v
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "32f67afe-3d8c-4faa-bc2e-93b0791dcb02",
+    "messageId": "722a01ac-5cb9-5013-8d0b-c659573f840a",
     "timestamp": "2025-01-27T11:45:00Z",
     "ttl": "PT30S"
   },
@@ -3781,25 +3781,25 @@ EV user stops the charging session: [Example](../../../../examples/ev-charging/v
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 130.93,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -3809,15 +3809,9 @@ EV user stops the charging session: [Example](../../../../examples/ev-charging/v
               },
               {
                 "type": "FEE",
-                "value": 13.64,
-                "currency": "INR",
-                "description": "Overcharge estimation"
-              },
-              {
-                "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -3835,7 +3829,11 @@ EV user stops the charging session: [Example](../../../../examples/ev-charging/v
           "performanceAttributes": {
             "@context": "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld",
             "@type": "ChargingSession",
-            "sessionStatus": "COMPLETED"
+            "sessionStatus": "COMPLETED",
+            "meteredEnergyKWh": 2.5,
+            "totalCost": {
+              "inclVat": 130.93
+            }
           }
         }
       ],
@@ -3851,12 +3849,28 @@ EV user stops the charging session: [Example](../../../../examples/ev-charging/v
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
             "beckn:paidAt": "2025-12-19T10:05:00Z",
             "beckn:beneficiary": "BPP"
+          }
+        },
+        {
+          "id": "settlement-002",
+          "considerationId": "consideration-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:id": "refund-001",
+            "beckn:paymentStatus": "REFUNDED",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 13.5
+            },
+            "beckn:beneficiary": "BUYER"
           }
         }
       ]
@@ -3907,7 +3921,7 @@ When the invoice is ready, the CPO sends a further unsolicited on\_update with t
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "89ee20fe-b592-48b0-a5c5-e38f6b90e569",
+    "messageId": "ed611c7a-ad96-5a7e-9730-2013292385c4",
     "timestamp": "2025-01-27T12:00:00Z",
     "ttl": "PT30S"
   },
@@ -3975,7 +3989,7 @@ EV user rates charging service experience: [Example](../../../../examples/ev-cha
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "89ee20fe-b592-48b0-a5c5-e38f6b90e569",
+    "messageId": "ed611c7a-ad96-5a7e-9730-2013292385c4",
     "timestamp": "2025-01-27T12:00:30Z",
     "ttl": "PT30S"
   },
@@ -4046,7 +4060,7 @@ EV user contacts support: [Example](../../../../examples/ev-charging/v2/17_suppo
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "dee432d9-36c9-4146-ad21-2f5bcac9b6a9",
+    "messageId": "5bfb2396-247e-57b5-9a5b-2f19181ec67e",
     "timestamp": "2025-01-27T12:15:00Z",
     "ttl": "PT30S"
   },
@@ -4112,7 +4126,7 @@ EV user contacts support: [Example](../../../../examples/ev-charging/v2/17_suppo
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "dee432d9-36c9-4146-ad21-2f5bcac9b6a9",
+    "messageId": "5bfb2396-247e-57b5-9a5b-2f19181ec67e",
     "timestamp": "2025-01-27T12:15:30Z",
     "ttl": "PT30S"
   },
@@ -4266,7 +4280,7 @@ Consumers can search for EV charging stations with specific criteria including l
     "bapId": "app.example.com",
     "bapUri": "https://app.example.com/bap",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "28e86f8f-85c0-5f81-bcdc-64dfe530f085",
+    "messageId": "2806a7fc-19c0-58bd-8bfc-f83e3635e086",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schemaContext": [
@@ -4313,7 +4327,7 @@ Discovery of EV charging services within a circular boundary: [Example](../../..
     "bapId": "app.example.com",
     "bapUri": "https://app.example.com/bap",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "0ac94271-e4a2-5011-9853-5e13742e0d31",
+    "messageId": "3aa0fe16-fdda-5e5d-bfbf-387d7fa41dfb",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schemaContext": [
@@ -4364,7 +4378,7 @@ Discovery of EV Charging stations within a circular boundary using connector spe
     "bapId": "app.example.com",
     "bapUri": "https://app.example.com/bap",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "5a5f250c-144a-5bf7-bd46-ffff23fef10b",
+    "messageId": "8e1380f2-c077-5387-895a-d11ce38dff03",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schemaContext": [
@@ -4417,7 +4431,7 @@ The catalog describes chargers, not vehicles, so the vehicle is expressed as wha
     "bapId": "app.example.com",
     "bapUri": "https://app.example.com/bap",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "a95c1d15-8132-5262-8a4e-9ab863c06941",
+    "messageId": "d6a077b6-fa87-5389-82e2-df5878c73c42",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schemaContext": [
@@ -4454,7 +4468,7 @@ Discovery of EV charging services offered by a specific CPO: [Example](../../../
     "bapId": "app.example.com",
     "bapUri": "https://app.example.com/bap",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "88bbfcb0-b926-5a2b-ac0f-41b10de87501",
+    "messageId": "d034f124-83b5-5630-8336-18aba3a18e1a",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schemaContext": [
@@ -4491,7 +4505,7 @@ Viewing details of a single charging station (using its Identifier): [Example](.
     "bapId": "app.example.com",
     "bapUri": "https://app.example.com/bap",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "10462231-30b0-5595-b70f-4214e4044d8c",
+    "messageId": "8267211d-5b74-5509-a2f1-a2d616f7c782",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schemaContext": [
@@ -4528,7 +4542,7 @@ Fetching details of a specific charger (EVSE) after reaching site (using its ide
     "bapId": "app.example.com",
     "bapUri": "https://app.example.com/bap",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "0e31b27a-0a58-5859-8f45-21864a16aee0",
+    "messageId": "0ce79d1e-ea01-5def-9905-b2ab6711830a",
     "timestamp": "2025-10-14T07:31:00Z",
     "ttl": "PT30S",
     "schemaContext": [
@@ -4598,8 +4612,8 @@ Discovering chargers in a specific circular area, a specific connector type and 
     "bppId": "example-cds.com",
     "bppUri": "https://example-cds.com/pilot/cds/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "a1eabf26-29f5-4a01-9d4e-4c5c9d1a3d02",
-    "timestamp": "2024-01-15T10:30:05Z",
+    "messageId": "2806a7fc-19c0-58bd-8bfc-f83e3635e086",
+    "timestamp": "2025-10-14T07:31:02Z",
     "ttl": "PT30S"
   },
   "message": {
@@ -5164,7 +5178,7 @@ Offer schema in the catalog:
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "bb9f86db-9a3d-4e9c-8c11-81c8f1a7b901",
+    "messageId": "b16f4529-c67a-5b55-b4af-a95a8898b9c1",
     "timestamp": "2024-01-15T10:30:00Z",
     "ttl": "PT30S"
   },
@@ -5295,7 +5309,7 @@ Offer schema in the catalog:
    3. This ensures that the buyer and provider are aligned before moving to booking.  
 2. **consideration:**  
    1. Contains the computed **estimated price** based on the selection: one entry with `status.code` QUOTED.  
-   2. Its `considerationAttributes` (`PriceSpecification`) give the total `value` (143.95 INR) and a `components[]` **breakup** that adds up to it: UNIT (session cost), SURCHARGE (surge), DISCOUNT (offer), and FEE (service fee, overcharge estimation, buyer finder fee).  
+   2. Its `considerationAttributes` (`PriceSpecification`) give the total `value` (144.43 INR) and a `components[]` **breakup** that adds up to it: UNIT (session cost), SURCHARGE (surge), DISCOUNT (offer), and FEE (service fee, overcharge estimation, buyer finder fee).  
    3. This is a **pre-confirmation cost estimate**, enabling the buyer to review pricing before proceeding to init.
 
 Recommendations for BPP:
@@ -5318,7 +5332,7 @@ Variants: a slot that is already booked returns the contract with an `error` bes
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "bb9f86db-9a3d-4e9c-8c11-81c8f1a7b901",
+    "messageId": "b16f4529-c67a-5b55-b4af-a95a8898b9c1",
     "timestamp": "2024-01-15T10:30:05Z",
     "ttl": "PT30S"
   },
@@ -5413,25 +5427,25 @@ Variants: a slot that is already booked returns the contract with an `error` bes
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -5441,15 +5455,15 @@ Variants: a slot that is already booked returns the contract with an `error` bes
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -5509,12 +5523,12 @@ Session preview
 Before starting, the app shows the full estimated cost with the same components used in the canonical example:
 
 * Base session cost (45 INR/kWh × 2.5 kWh): ₹112.50  
-* Surge pricing uplift (20%): ₹20.00  
+* Surge pricing uplift (20% of energy cost): ₹22.50  
 * Service fee: ₹10.00  
-* Overcharge estimation buffer: ₹13.64  
-* Promotional discount (15% offer): -₹15.00  
-* Buyer finder fee (2.5%): ₹2.81  
-* Estimated total: ₹143.95
+* Overcharge estimate (0.3 kWh, refunded if unused): ₹13.50  
+* Promotional discount (15% of energy cost): −₹16.88  
+* Buyer finder fee (2.5% of energy cost): ₹2.81  
+* Estimated total: ₹144.43
 
 Mid-session  
 While charging (e.g., after 3.4 kWh delivered), the UI keeps a running tally so the user can see how surge pricing is influencing the bill:
@@ -5528,23 +5542,23 @@ When the session completes, Srilekha receives an itemized receipt that matches t
 
 * Energy Delivered: 5.0 kWh (bundle)  
 * Base session cost: ₹112.50 (45 INR/kWh × 2.5 kWh)  
-* Surge pricing uplift (20%): ₹20.00  
+* Surge pricing uplift (20% of energy cost): ₹22.50  
 * Service fee: ₹10.00  
-* Overcharge estimation buffer: ₹13.64  
-* Offer discount (15%): -₹15.00  
-* Buyer finder fee (2.5%): ₹2.81  
-* Total Payable: ₹143.95
+* Overcharge estimate (refunded if unused): ₹13.50  
+* Offer discount (15% of energy cost): −₹16.88  
+* Buyer finder fee (2.5% of energy cost): ₹2.81  
+* Total Payable: ₹144.43 (the final bill for the full 2.5 kWh is ₹130.93; the unused ₹13.50 estimate is refunded)
 
 Quote Information:
 
-* message.contract.consideration[0].considerationAttributes.value: Total estimated price for the service (e.g., 143.95 INR after applying offer discount and fees)  
+* message.contract.consideration[0].considerationAttributes.value: Total estimated price for the service (e.g., 144.43 INR after applying offer discount and fees)  
 * message.contract.consideration[0].considerationAttributes.currency: Currency of the total estimated price (e.g., "INR")  
 * message.contract.consideration[0].considerationAttributes.components: Itemized breakdown of the total estimated price reflecting the components below (mirrors the on\_select example above):  
   * type: Kind of charge (UNIT, SURCHARGE, DISCOUNT, FEE)  
   * description: Description of the charge (e.g., "Base charging session cost (45 INR/kWh × 2.5 kWh)", "Surge price (20%)", "Service fee", "Overcharge estimation", "Offer discount (15%)", "Buyer finder fee (2.5%)")  
   * value: Value of the individual charge in the breakup (positive for charges, negative for discounts)  
   * currency: Currency of the individual charge in the breakup  
-  * Breakup typically includes: base charge = 112.50 INR (45 INR/kWh × 2.5 kWh), surge = 20.00 INR, service fee = 10.00 INR, overcharge estimation = 13.64 INR, offer discount = -15.00 INR, and buyer finder fee = 2.81 INR
+  * Breakup typically includes: base charge = 112.50 INR (45 INR/kWh × 2.5 kWh), surge (20%) = 22.50 INR, offer discount (15%) = −16.88 INR, service fee = 10.00 INR, overcharge estimate = 13.50 INR, and buyer finder fee (2.5%) = 2.81 INR
 
 #### 13.2.1.5. `action: init`
 
@@ -5601,7 +5615,7 @@ Recommendations for BAP:
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6743e9e2-4fb5-487c-92b7-13ba8018f176",
+    "messageId": "6c48217c-aa0c-5bd7-bb7c-1a73c77c9ed4",
     "timestamp": "2025-01-27T10:00:00Z",
     "ttl": "PT30S"
   },
@@ -5697,25 +5711,25 @@ Recommendations for BAP:
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -5725,15 +5739,15 @@ Recommendations for BAP:
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -5751,7 +5765,7 @@ Recommendations for BAP:
             "beckn:paymentStatus": "INITIATED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:beneficiary": "BAP",
             "beckn:paymentAttributes": {
@@ -5825,8 +5839,8 @@ Recommendations for BAP:
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6743e9e2-4fb5-487c-92b7-13ba8018f176",
-    "timestamp": "2025-01-27T10:00:00Z",
+    "messageId": "6c48217c-aa0c-5bd7-bb7c-1a73c77c9ed4",
+    "timestamp": "2025-01-27T10:00:02Z",
     "ttl": "PT30S"
   },
   "message": {
@@ -5921,25 +5935,25 @@ Recommendations for BAP:
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -5949,15 +5963,15 @@ Recommendations for BAP:
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -5975,7 +5989,7 @@ Recommendations for BAP:
             "beckn:paymentStatus": "INITIATED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:beneficiary": "BAP",
             "beckn:paymentAttributes": {
@@ -6050,7 +6064,7 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "d4da89d5-2e42-4c36-9139-7f5682d5f104",
+    "messageId": "0ae4d99e-80ea-5f68-959a-84992fd40d6a",
     "timestamp": "2025-01-27T10:05:00Z",
     "ttl": "PT30S"
   },
@@ -6146,25 +6160,25 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -6174,15 +6188,15 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -6200,7 +6214,7 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -6241,7 +6255,7 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
   2. **beckn:paymentStatus:**  
       Set to COMPLETED (with `settlements[].status` COMPLETE), indicating the payment has been successfully received (i.e., no longer pending or provisional).  
   3. **beckn:amount:**  
-      The amount received (143.95 INR), matching the quoted `consideration`.  
+      The amount received (144.43 INR), matching the quoted `consideration`.  
   4. **beckn:txnRef / beckn:paidAt:**  
       The gateway-side transaction reference and the time of payment, for traceability in settlements.  
   5. **beckn:beneficiary:**  
@@ -6267,7 +6281,7 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "0c04db0b-980b-57ae-9003-7721be0f876f",
+    "messageId": "44a92229-47dd-50ce-ad4b-220b7dc46ade",
     "timestamp": "2025-01-27T10:04:00Z",
     "ttl": "PT30S"
   },
@@ -6363,25 +6377,25 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -6391,15 +6405,15 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -6417,7 +6431,7 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:beneficiary": "BAP",
             "beckn:paymentAttributes": {
@@ -6501,8 +6515,8 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "c69b4c1e-fb7e-469d-ae90-00f4d5e82b64",
-    "timestamp": "2025-01-27T10:05:00Z",
+    "messageId": "0e6f056f-ea93-5c29-bc8f-6f32e90d644c",
+    "timestamp": "2025-01-27T10:05:02Z",
     "ttl": "PT30S"
   },
   "message": {
@@ -6597,25 +6611,25 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -6625,15 +6639,15 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -6669,7 +6683,7 @@ However, when the BAP collects the payment, an unsolicited on\_status call is no
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -6736,7 +6750,7 @@ Once these physical steps are completed, the charging session can be initiated t
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6bd7be5b-ac21-4a5c-a787-5ec6980317e6",
+    "messageId": "b9c96f71-7fc1-5f21-b0ad-1d81df131ef5",
     "timestamp": "2025-01-27T10:15:00Z",
     "ttl": "PT30S"
   },
@@ -6832,25 +6846,25 @@ Once these physical steps are completed, the charging session can be initiated t
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -6860,15 +6874,15 @@ Once these physical steps are completed, the charging session can be initiated t
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -6904,7 +6918,7 @@ Once these physical steps are completed, the charging session can be initiated t
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -6961,7 +6975,7 @@ Once these physical steps are completed, the charging session can be initiated t
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6bd7be5b-ac21-4a5c-a787-5ec6980317e6",
+    "messageId": "b9c96f71-7fc1-5f21-b0ad-1d81df131ef5",
     "timestamp": "2025-01-27T10:15:30Z",
     "ttl": "PT30S"
   },
@@ -7057,25 +7071,25 @@ Once these physical steps are completed, the charging session can be initiated t
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -7085,15 +7099,15 @@ Once these physical steps are completed, the charging session can be initiated t
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -7129,7 +7143,7 @@ Once these physical steps are completed, the charging session can be initiated t
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -7184,7 +7198,7 @@ Once these physical steps are completed, the charging session can be initiated t
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6ace310b-6440-4421-a2ed-b484c7548bd5",
+    "messageId": "98d6a0a2-5219-57fd-8737-e0c09307973c",
     "timestamp": "2025-01-27T17:00:40.065Z",
     "ttl": "PT30S"
   },
@@ -7322,8 +7336,8 @@ Once these physical steps are completed, the charging session can be initiated t
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6ace310b-6440-4421-a2ed-b484c7548bd5",
-    "timestamp": "2025-01-27T17:00:40.065Z",
+    "messageId": "98d6a0a2-5219-57fd-8737-e0c09307973c",
+    "timestamp": "2025-01-27T17:00:42Z",
     "ttl": "PT30S"
   },
   "message": {
@@ -7563,7 +7577,7 @@ Settlement logic (three safe patterns):
 
 Contract/UI terms to bake in: “Offline continuity & overage: sessions may continue locally during short connectivity loss; final billing reflects meter data. We place a buffer hold to avoid delays; unused amounts are released automatically.”
 
-In the messages: the final on\_update bills the metered 2.8 kWh, with a FEE component for the 0.3 kWh delivered while the charger was offline (FINAL `consideration` of 144.43 INR against 143.95 INR paid); the 0.48 INR the driver still owes is a second settlement in `DRAFT` with `beckn:paymentStatus` PENDING and `beckn:beneficiary` BPP: [Example](../../../../examples/ev-charging/v2/14_02_on_update/ev-charging-session-overcharge-on-update.json)
+In the messages: the final on\_update bills the metered 2.8 kWh, with a FEE component for the 0.3 kWh delivered while the charger was offline (FINAL `consideration` of 144.43 INR, equal to the 144.43 INR paid, because the 0.3 kWh overcharge used up the overcharge estimate exactly), so nothing is refunded or owed. An overcharge beyond the estimate leaves a `DRAFT` settlement with `beckn:paymentStatus` PENDING and `beckn:beneficiary` BPP for the amount still owed: [Example](../../../../examples/ev-charging/v2/14_02_on_update/ev-charging-session-overcharge-on-update.json)
 
 API Implementation: The above under and overcharge scenarios are supported through Beckn protocol callbacks:
 
@@ -7589,7 +7603,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "6743e9e2-4fb5-487c-92b7-13ba8018f176",
+    "messageId": "6a60f5cf-609d-538d-8952-0926b68fe57f",
     "timestamp": "2025-01-27T13:07:02Z",
     "ttl": "PT30S"
   },
@@ -7681,25 +7695,25 @@ API Implementation: The above under and overcharge scenarios are supported throu
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -7709,15 +7723,15 @@ API Implementation: The above under and overcharge scenarios are supported throu
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -7751,7 +7765,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -7795,7 +7809,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
     Confirms that the corresponding payment has been successfully captured (`beckn:paymentStatus` COMPLETED).  
     Includes the transaction reference (`beckn:txnRef`), payment time (`beckn:paidAt`) and `beckn:beneficiary` for settlement and customer records. A refund appears as a further settlement with `beckn:paymentStatus` REFUNDED and `beckn:beneficiary` BUYER.
 
-  Variants: battery full early, where the bill covers the 2 kWh delivered and 37.20 INR is refunded: [Example](../../../../examples/ev-charging/v2/14_02_on_update/ev-charging-session-undercharge-on-update.json). Charger offline and overcharging: see B above.
+  Variants: battery full early, where the bill covers the 2 kWh delivered (106.75 INR) and 37.68 INR is refunded: [Example](../../../../examples/ev-charging/v2/14_02_on_update/ev-charging-session-undercharge-on-update.json). Charger offline and overcharging: see B above.
 
 <details>
 <summary><a href="../../../../examples/ev-charging/v2/14_02_on_update/ev-charging-session-complete-on-update.json">Example json :rocket:</a></summary>
@@ -7811,7 +7825,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "32f67afe-3d8c-4faa-bc2e-93b0791dcb02",
+    "messageId": "722a01ac-5cb9-5013-8d0b-c659573f840a",
     "timestamp": "2025-01-27T11:45:00Z",
     "ttl": "PT30S"
   },
@@ -7907,25 +7921,25 @@ API Implementation: The above under and overcharge scenarios are supported throu
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 130.93,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -7935,15 +7949,9 @@ API Implementation: The above under and overcharge scenarios are supported throu
               },
               {
                 "type": "FEE",
-                "value": 13.64,
-                "currency": "INR",
-                "description": "Overcharge estimation"
-              },
-              {
-                "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -7961,7 +7969,11 @@ API Implementation: The above under and overcharge scenarios are supported throu
           "performanceAttributes": {
             "@context": "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld",
             "@type": "ChargingSession",
-            "sessionStatus": "COMPLETED"
+            "sessionStatus": "COMPLETED",
+            "meteredEnergyKWh": 2.5,
+            "totalCost": {
+              "inclVat": 130.93
+            }
           }
         }
       ],
@@ -7977,12 +7989,28 @@ API Implementation: The above under and overcharge scenarios are supported throu
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
             "beckn:paidAt": "2025-12-19T10:05:00Z",
             "beckn:beneficiary": "BPP"
+          }
+        },
+        {
+          "id": "settlement-002",
+          "considerationId": "consideration-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:id": "refund-001",
+            "beckn:paymentStatus": "REFUNDED",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 13.5
+            },
+            "beckn:beneficiary": "BUYER"
           }
         }
       ]
@@ -8016,7 +8044,7 @@ API Implementation: The above under and overcharge scenarios are supported throu
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "32f67afe-3d8c-4faa-bc2e-93b0791dcb02",
+    "messageId": "722a01ac-5cb9-5013-8d0b-c659573f840a",
     "timestamp": "2025-01-27T11:45:00Z",
     "ttl": "PT30S"
   },
@@ -8112,25 +8140,25 @@ API Implementation: The above under and overcharge scenarios are supported throu
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 130.93,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -8140,15 +8168,9 @@ API Implementation: The above under and overcharge scenarios are supported throu
               },
               {
                 "type": "FEE",
-                "value": 13.64,
-                "currency": "INR",
-                "description": "Overcharge estimation"
-              },
-              {
-                "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -8166,7 +8188,11 @@ API Implementation: The above under and overcharge scenarios are supported throu
           "performanceAttributes": {
             "@context": "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld",
             "@type": "ChargingSession",
-            "sessionStatus": "COMPLETED"
+            "sessionStatus": "COMPLETED",
+            "meteredEnergyKWh": 2.5,
+            "totalCost": {
+              "inclVat": 130.93
+            }
           }
         }
       ],
@@ -8182,12 +8208,28 @@ API Implementation: The above under and overcharge scenarios are supported throu
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
             "beckn:paidAt": "2025-12-19T10:05:00Z",
             "beckn:beneficiary": "BPP"
+          }
+        },
+        {
+          "id": "settlement-002",
+          "considerationId": "consideration-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:id": "refund-001",
+            "beckn:paymentStatus": "REFUNDED",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 13.5
+            },
+            "beckn:beneficiary": "BUYER"
           }
         }
       ]
@@ -8240,7 +8282,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "4a736341-8897-4e5a-9873-53533691f42d",
+    "messageId": "6c4b843d-d746-5bc0-aaf1-b59ec0e54ffc",
     "timestamp": "2025-01-27T12:15:30Z",
     "ttl": "PT30S"
   },
@@ -8365,8 +8407,8 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "4a736341-8897-4e5a-9873-53533691f42d",
-    "timestamp": "2025-01-27T10:05:00Z",
+    "messageId": "6c4b843d-d746-5bc0-aaf1-b59ec0e54ffc",
+    "timestamp": "2025-01-27T12:15:32Z",
     "ttl": "PT30S"
   },
   "message": {
@@ -8459,25 +8501,25 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -8487,15 +8529,15 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -8513,7 +8555,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
             "beckn:paymentStatus": "REFUNDED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-987654321",
@@ -8565,7 +8607,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "89ee20fe-b592-48b0-a5c5-e38f6b90e569",
+    "messageId": "ed611c7a-ad96-5a7e-9730-2013292385c4",
     "timestamp": "2025-01-27T12:00:00Z",
     "ttl": "PT30S"
   },
@@ -8632,7 +8674,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "89ee20fe-b592-48b0-a5c5-e38f6b90e569",
+    "messageId": "ed611c7a-ad96-5a7e-9730-2013292385c4",
     "timestamp": "2025-01-27T12:00:30Z",
     "ttl": "PT30S"
   },
@@ -8700,7 +8742,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bap/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "dee432d9-36c9-4146-ad21-2f5bcac9b6a9",
+    "messageId": "5bfb2396-247e-57b5-9a5b-2f19181ec67e",
     "timestamp": "2025-01-27T12:15:00Z",
     "ttl": "PT30S"
   },
@@ -8768,7 +8810,7 @@ This API is **NOT** to be used to cancel an ongoing session. To cancel an ongoin
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "dee432d9-36c9-4146-ad21-2f5bcac9b6a9",
+    "messageId": "5bfb2396-247e-57b5-9a5b-2f19181ec67e",
     "timestamp": "2025-01-27T12:15:30Z",
     "ttl": "PT30S"
   },

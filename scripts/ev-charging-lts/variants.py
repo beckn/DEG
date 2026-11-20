@@ -40,16 +40,18 @@ def with_ctx(base, rel, action, ts, **extra):
     return d
 
 
-def breakup(energy_kwh, extra=()):
-    """Price components for a session, using the offer's own percentages."""
-    base = round(RATE * energy_kwh, 2)
-    return [
-        ("UNIT", base, f"Charging energy ({RATE:g} INR/kWh x {energy_kwh:g} kWh)"),
-        ("SURCHARGE", round(base * 0.20, 2), "Surge price (20% of energy cost)"),
-        ("DISCOUNT", -round(base * 0.15, 2), "Offer discount (15% of energy cost)"),
-        ("FEE", 10.0, "Service fee"),
-        ("FEE", round(base * 0.025, 2), "Buyer finder fee (2.5% of energy cost)"),
-    ] + list(extra)
+def breakup(energy_kwh, extra=(), quote=False):
+    """Price lines with the model the main flow uses (rc2lts.priced)."""
+    base = RATE * energy_kwh
+    lines = [("UNIT", base, f"Charging energy ({RATE:g} INR/kWh x {energy_kwh:g} kWh)"),
+             ("SURCHARGE", base * 0.20, "Surge price (20% of energy cost)"),
+             ("DISCOUNT", -base * 0.15, "Offer discount (15% of energy cost)"),
+             ("FEE", 10.0, "Service fee")]
+    if quote:
+        lines.append(("FEE", RATE * 0.3, "Overcharge estimate (0.3 kWh, refunded if unused)"))
+    lines += list(extra)
+    lines.append(("FEE", base * 0.025, "Buyer finder fee (2.5% of energy cost)"))
+    return [(t, round(v, 2), d) for t, v, d in lines]
 
 
 def consideration(comps, status):
@@ -79,7 +81,9 @@ def balance(total, txn, when):
     """Settlement for the difference between what was paid and the final bill: a refund to
     the buyer, or (when the bill is higher) an amount the buyer still owes."""
     diff = round(PAID_AMOUNT - total, 2)
-    if diff >= 0:
+    if diff == 0:
+        return None
+    if diff > 0:
         return payment("settlement-002", "REFUNDED", "COMPLETE", diff, "BUYER", txn, when, "refund-001")
     return {"id": "settlement-002", "considerationId": "consideration-001", "status": "DRAFT",
             "settlementAttributes": {"@context": PAY_CTX, "@type": "Payment", "beckn:paymentStatus": "PENDING",
@@ -133,7 +137,7 @@ save(rel, d)
 # V2 on_select: quote carries an outstanding balance from an earlier session
 rel = "04_on_select/ev-charging-on-select-outstanding-dues.json"
 d = with_ctx(on_sel, rel, "on_select", "2025-01-27T10:00:30Z")
-comps = breakup(2.5, [("FEE", 18.4, "Outstanding balance from session order-ev-charging-000 (overcharge, unpaid)")])
+comps = breakup(2.5, quote=True) + [("FEE", 18.4, "Outstanding balance from an earlier session (overcharge, unpaid)")]
 d["message"]["contract"]["consideration"], _ = consideration(comps, "QUOTED")
 save(rel, d)
 
@@ -159,20 +163,20 @@ c["performance"][0]["status"] = {"code": "INTERRUPTED"}
 c["performance"][0]["performanceAttributes"] = session(
     sessionStatus="INTERRUPTED", meteredEnergyKWh=1.2, meteredDurationMinutes=14,
     lastUpdated="2025-01-27T10:47:30Z", totalCost={"inclVat": total})
-c["settlements"] = [paid, balance(total, "RFND-TXN-123456789", "2025-01-27T10:48:00Z")]
+c["settlements"] = [x for x in (paid, balance(total, "RFND-TXN-123456789", "2025-01-27T10:48:00Z")) if x]
 save(rel, d)
 
-# V5 on_update: charger lost CMS link and kept dispensing; overcharge settled against the
-# pre-collected overcharge estimate, small remainder refunded
+# V5 on_update: charger lost its CMS link and kept dispensing 0.3 kWh; the overcharge is
+# billed against the pre-collected overcharge estimate, so nothing is refunded or owed
 rel = "14_02_on_update/ev-charging-session-overcharge-on-update.json"
 d = with_ctx(done, rel, "on_update", "2025-01-27T11:35:00Z")
 c = d["message"]["contract"]
-comps = breakup(2.5, [("FEE", 13.5, "Overcharge: 0.3 kWh delivered after the charger lost its CMS link (45 INR/kWh)")])
+comps = breakup(2.5, [("FEE", 13.5, "Overcharge: 0.3 kWh delivered after the charger lost its CMS link")])
 c["consideration"], total = consideration(comps, "FINAL")
 c["performance"][0]["performanceAttributes"] = session(
     sessionStatus="COMPLETED", meteredEnergyKWh=2.8, meteredDurationMinutes=31,
     lastUpdated="2025-01-27T11:34:00Z", totalCost={"inclVat": total})
-c["settlements"] = [paid, balance(total, "RFND-TXN-123456790", "2025-01-27T11:35:00Z")]
+c["settlements"] = [x for x in (paid, balance(total, "RFND-TXN-123456790", "2025-01-27T11:35:00Z")) if x]
 save(rel, d)
 
 # V6 on_update: vehicle stopped drawing power early (battery full), billed for 2.0 kWh
@@ -183,7 +187,7 @@ c["consideration"], total = consideration(breakup(2.0), "FINAL")
 c["performance"][0]["performanceAttributes"] = session(
     sessionStatus="COMPLETED", meteredEnergyKWh=2.0, meteredDurationMinutes=24,
     lastUpdated="2025-01-27T11:19:00Z", totalCost={"inclVat": total})
-c["settlements"] = [paid, balance(total, "RFND-TXN-123456791", "2025-01-27T11:20:00Z")]
+c["settlements"] = [x for x in (paid, balance(total, "RFND-TXN-123456791", "2025-01-27T11:20:00Z")) if x]
 save(rel, d)
 
 # V7 on_update: invoice ready after completion (Contract.descriptor.docs)
