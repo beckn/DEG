@@ -88,7 +88,7 @@ components:
       x-supersededBy: https://schema.nfh.global/deg/P2PTrade/v2.0
       x-owl-equivalentClass: deg:P2PTrade
       allOf:
-      - $ref: https://schema.nfh.global/Contract/v2.0
+      - $ref: https://schema.nfh.global/Contract/v2.0/attributes.yaml#/components/schemas/Contract
       $defs:
         EnergyTradeOffer:
           type: object
@@ -126,7 +126,7 @@ components:
               x-jsonld:
                 '@id': validityWindow
               allOf:
-              - $ref: https://schema.nfh.global/TimePeriod/v2.0
+              - $ref: https://schema.nfh.global/TimePeriod/v2.0/attributes.yaml#/components/schemas/TimePeriod
               - type: object
                 required:
                 - schema:startTime
@@ -140,7 +140,7 @@ components:
               x-jsonld:
                 '@id': deliveryWindow
               allOf:
-              - $ref: https://schema.nfh.global/TimePeriod/v2.0
+              - $ref: https://schema.nfh.global/TimePeriod/v2.0/attributes.yaml#/components/schemas/TimePeriod
               - type: object
                 required:
                 - schema:startTime

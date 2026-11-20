@@ -23,4 +23,4 @@ components:
         '@context': ./context.jsonld
         '@type': P2PTrade
       allOf:
-      - $ref: https://schema.nfh.global/EnergyContract/v2.0
+      - $ref: https://schema.nfh.global/EnergyContract/v2.0/attributes.yaml#/components/schemas/EnergyContract

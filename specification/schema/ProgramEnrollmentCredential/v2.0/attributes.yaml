@@ -81,4 +81,4 @@ components:
               x-jsonld:
                 '@id': schema:validUntil
       allOf:
-      - $ref: https://schema.nfh.global/EnergyCredential/v2.0
+      - $ref: https://schema.nfh.global/EnergyCredential/v2.0/attributes.yaml#/components/schemas/EnergyCredential

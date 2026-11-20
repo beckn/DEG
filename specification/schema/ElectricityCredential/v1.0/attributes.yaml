@@ -41,7 +41,7 @@ components:
       type: object
       additionalProperties: true
       allOf:
-        - $ref: "https://schema.nfh.global/EnergyCredential/v2.0"
+        - $ref: "https://schema.nfh.global/EnergyCredential/v2.0/attributes.yaml#/components/schemas/EnergyCredential"
       x-jsonld:
         "@context": ./context.jsonld
         "@type": ElectricityCredential
@@ -65,7 +65,7 @@ components:
               x-jsonld:
                 "@id": "@id"
             customerProfile:
-              $ref: "https://schema.nfh.global/EnergyCustomerProfile/v1.0"
+              $ref: "https://schema.nfh.global/EnergyCustomerProfile/v1.0/attributes.yaml#/components/schemas/EnergyCustomerProfile"
               description: >
                 Shared customer identity (customer/consumer number, meter
                 number, meter type, optional idRef). Reuses EnergyCustomerProfile.
