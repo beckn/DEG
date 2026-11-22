@@ -108,6 +108,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3002
+      # Where the mock CPO posts its on_* replies. Set explicitly because a
+      # discover request carries no bppUri to derive it from.
+      - BPP_CALLBACK_ENDPOINT=http://onix-bpp:8082/bpp/caller
     volumes:
       # LTS on_* replies for the mock CPO (the image's built-in EV replies predate LTS)
       - ./sandbox-fixtures/nfh.global/testnet-evcharging/response:/app/dist/webhook/jsons/nfh.global/testnet-evcharging/response

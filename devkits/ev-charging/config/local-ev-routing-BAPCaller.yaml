@@ -13,10 +13,16 @@ routingRules:
       - rate
       - support
 
-  - domain: "nfh.global/testnet-evcharging"  # Retail domain
+  # discover goes to the mock CPO in this stack, through the router, so that it
+  # returns a catalog on any machine with no public address. The mock does not
+  # filter: every query gets the same three catalogs.
+  # To query the hosted fabric discovery service instead, set the url to
+  # "https://34.93.165.42.sslip.io/beckn" and give your BAP a public bapUri
+  # (see "Discovery" in ../README.md).
+  - domain: "nfh.global/testnet-evcharging"
     version: "2.0.0"
     targetType: "url"
     target:
-      url: "https://34.93.165.42.sslip.io/beckn"
+      url: "http://beckn-router:9000/bpp/receiver"
     endpoints:
       - discover
