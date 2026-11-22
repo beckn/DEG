@@ -74,6 +74,9 @@ modules:
     handler:
       type: std
       role: bpp
+      # Signs as this subscriber when a reply has no context.bppId, which is
+      # the case for the mock's on_discover (a discover request names no BPP).
+      subscriberId: bpp.example.com
       httpClientConfig:
         maxIdleConns: 1000
         maxIdleConnsPerHost: 200

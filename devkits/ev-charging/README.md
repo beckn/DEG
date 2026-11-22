@@ -55,9 +55,22 @@ Workflows: `discover`, `walk-in`, `reservation`, `exceptions`, `cancellation`, `
 | BAP / BPP host (router) | `http://beckn-router:9000` |
 | BAP adapter caller | `http://localhost:8081/bap/caller` |
 | BPP adapter caller | `http://localhost:8082/bpp/caller` |
-| Discovery | the hosted fabric discovery service; its callbacks need a public `bapUri` (ngrok, see ../README.md) |
+| Discovery | the mock CPO in this stack (see [Discovery](#discovery)) |
 
 A different `networkId` is rejected by the BPP adapter with `AUT_NETWORK_NOT_ALLOWED`, because the example participants' DeDi records list only their member networks.
+
+## Discovery
+
+`discover` is answered inside the stack, so it returns a catalog on any machine with no public address. The BAP adapter sends it through the router to the BPP adapter, the mock CPO replies with `install/sandbox-fixtures/.../response/on_discover.json`, and the reply comes back signed and validated like every other callback.
+
+The mock does not filter. All seven discover examples get the same three catalogs, whatever the query. Use it to check that your discover payloads pass signing and schema validation and that your app can read an `on_discover`.
+
+To query the hosted fabric discovery service instead:
+
+1. In `config/local-ev-routing-BAPCaller.yaml`, set the `discover` target url to `https://34.93.165.42.sslip.io/beckn` and restart `onix-bap`.
+2. Give your BAP a public `bapUri` (ngrok, see [../README.md](../README.md)); the service posts `on_discover` to it.
+
+The hosted service returns only catalogs that have been published to it for this network, so an empty `catalogs` list is a valid answer.
 
 ## Notes
 
