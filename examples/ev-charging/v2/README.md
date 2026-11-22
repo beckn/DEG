@@ -8,7 +8,7 @@ Every file here is checked in two ways:
 
 The discover requests were also run against the fabric discovery service code (`beckn/beckn-discovr`, the image the hosted service runs) with these catalogs ingested; see Discovery below.
 
-The [EV devkit](../../../devkits/ev-charging) carries the same set with the devkit's registered test participants, and its reference apps run every use case below as live transactions. The tools that produced and check these files are in [`scripts/ev-charging-lts`](../../../scripts/ev-charging-lts).
+The [EV devkit](../../../devkits/ev-charging) carries the same set with the devkit's registered test participants, and its Arazzo workflows run the flows below through ONIX. The tools that produced and check these files are in [`scripts/ev-charging-lts`](../../../scripts/ev-charging-lts).
 
 ## Use cases
 
@@ -24,7 +24,7 @@ The [implementation guide](../../../docs/implementation-guides/v2/EV_Charging/EV
 | Start refused, EVSE inoperative | `10_on_update/ev-charging-session-start-rejected-on-update` (error with an OCPI cause) |
 | Connection interrupted | `13_on_status/ev-charging-session-interrupt-on-status` |
 | Power cut: bill energy delivered, refund the rest | `13_on_status/ev-charging-session-undercharge-refund-on-status` |
-| Charger offline, kept dispensing (overcharge; the buyer owes the small balance above the estimate) | `14_02_on_update/ev-charging-session-overcharge-on-update` |
+| Charger offline, kept dispensing (overcharge billed against the overcharge estimate) | `14_02_on_update/ev-charging-session-overcharge-on-update` |
 | Battery full early (undercharge, refund) | `14_02_on_update/ev-charging-session-undercharge-on-update` |
 | Invoice ready | `14_03_on_update/ev-charging-invoice-ready-on-update` |
 | Cancellation terms before cancelling (`context.try`) | `19_cancel/ev-charging-cancel-preview` → `20_on_cancel/ev-charging-cancel-preview-on-cancel` |
@@ -108,6 +108,12 @@ Checked against `beckn/beckn-discovr` v1.7.1, and against the 1.7.0 image the ho
 
 The rc set had data errors. The LTS set fixes them so the files form one consistent flow:
 
+- **Pricing:** the quote's lines did not match their labels (a "20%" surge of 20.00 on 112.50, a "15%" discount of 15.00). The quote is now recomputed to **144.43**:
+  - 20% surge, 15% discount, 10 INR service fee, a 0.3 kWh overcharge estimate (refunded if unused) and a 2.5% buyer finder fee;
+  - lines are rounded, and the total is their sum;
+  - the completed session bills **130.93** and refunds the unused 13.50;
+  - every variant uses the same pricing.
+- **messageIds:** each callback carries its request's `messageId`, and every other interaction has its own. In the rc set, unrelated requests shared ids, and some callbacks predated their request.
 - **Seller id:** it switched from `ecopower-charging` to `cpo1.com` from `05_init` onwards.
 - **Charger id:** `20_on_cancel` referred to a truncated id (`pe-charging-01`).
 - **Units:** in `12_on_status`, the POWER and ENERGY units were swapped (`KWH`/`KW`).
@@ -119,6 +125,7 @@ The rc set had data errors. The LTS set fixes them so the files form one consist
   - The by-EVSE and by-station examples filtered on ids found in no catalog; they now use `evseId` and `chargingStation.id`.
   - The vehicle filter (Tata Nexon EV) is expressed as what a charger can serve: `vehicleType == '4-WHEELER'` and `connectorType == 'CCS2'`.
   - All seven discover examples shared one `messageId`; each now has its own.
+  - **Time-range example:** the rc version also required `connectorType == 'Type2'`. One LTS filter expression addresses one array (resources *or* offers), and opening hours live on offers, so the example filters on opening hours only. Check the connector type client-side from the returned resources. A nested RFC 9535 filter on `$.catalogs[?(…)]` could combine the two where the discovery service supports it.
 
 Data with no LTS home was dropped: item `category`, `rateable` and aggregate `rating`; the driver's GSTIN (`taxID`); the fulfillment `mode`.
 

@@ -8,7 +8,7 @@
     "bppId": "example-bpp.com",
     "bppUri": "https://example-bpp.com/pilot/bpp/energy/v2",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "bb9f86db-9a3d-4e9c-8c11-81c8f1a7b901",
+    "messageId": "b16f4529-c67a-5b55-b4af-a95a8898b9c1",
     "timestamp": "2024-01-15T10:30:05Z",
     "ttl": "PT30S"
   },
@@ -103,25 +103,25 @@
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -131,15 +131,15 @@
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }

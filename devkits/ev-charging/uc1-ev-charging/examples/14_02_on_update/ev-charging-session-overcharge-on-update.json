@@ -8,7 +8,7 @@
     "bppId": "bpp.example.com",
     "bppUri": "https://bpp.example.com",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "4e0847ba-d66d-556e-95f6-d59934b5fb55",
+    "messageId": "722a01ac-5cb9-5013-8d0b-c659573f840a",
     "timestamp": "2025-01-27T11:35:00Z",
     "ttl": "PT30S"
   },
@@ -132,15 +132,15 @@
               },
               {
                 "type": "FEE",
-                "value": 2.81,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5% of energy cost)"
+                "description": "Overcharge: 0.3 kWh delivered after the charger lost its CMS link"
               },
               {
                 "type": "FEE",
-                "value": 13.5,
+                "value": 2.81,
                 "currency": "INR",
-                "description": "Overcharge: 0.3 kWh delivered after the charger lost its CMS link (45 INR/kWh)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -180,26 +180,11 @@
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
             "beckn:paidAt": "2025-12-19T10:05:00Z",
-            "beckn:beneficiary": "BPP"
-          }
-        },
-        {
-          "id": "settlement-002",
-          "considerationId": "consideration-001",
-          "status": "DRAFT",
-          "settlementAttributes": {
-            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
-            "@type": "Payment",
-            "beckn:paymentStatus": "PENDING",
-            "beckn:amount": {
-              "currency": "INR",
-              "value": 0.48
-            },
             "beckn:beneficiary": "BPP"
           }
         }

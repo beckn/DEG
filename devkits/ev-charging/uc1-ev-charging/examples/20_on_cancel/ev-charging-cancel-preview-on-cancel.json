@@ -8,7 +8,7 @@
     "bppId": "bpp.example.com",
     "bppUri": "https://bpp.example.com",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "5ec82de5-c9fd-510a-b2a4-b4e5120ed1c9",
+    "messageId": "dbf29045-ad66-5cfe-857d-e81b50d5de56",
     "timestamp": "2025-01-27T09:40:02Z",
     "ttl": "PT30S",
     "try": true
@@ -129,7 +129,7 @@
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -147,7 +147,7 @@
             "beckn:paymentStatus": "PENDING",
             "beckn:amount": {
               "currency": "INR",
-              "value": 132.7
+              "value": 133.18
             },
             "beckn:beneficiary": "BUYER"
           }

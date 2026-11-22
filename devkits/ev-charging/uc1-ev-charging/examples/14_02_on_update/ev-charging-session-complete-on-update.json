@@ -8,7 +8,7 @@
     "bppId": "bpp.example.com",
     "bppUri": "https://bpp.example.com",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "32f67afe-3d8c-4faa-bc2e-93b0791dcb02",
+    "messageId": "722a01ac-5cb9-5013-8d0b-c659573f840a",
     "timestamp": "2025-01-27T11:45:00Z",
     "ttl": "PT30S"
   },
@@ -104,25 +104,25 @@
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 130.93,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -132,15 +132,9 @@
               },
               {
                 "type": "FEE",
-                "value": 13.64,
-                "currency": "INR",
-                "description": "Overcharge estimation"
-              },
-              {
-                "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -158,7 +152,11 @@
           "performanceAttributes": {
             "@context": "https://schema.nfh.global/EvChargingSession/v2.0/context.jsonld",
             "@type": "ChargingSession",
-            "sessionStatus": "COMPLETED"
+            "sessionStatus": "COMPLETED",
+            "meteredEnergyKWh": 2.5,
+            "totalCost": {
+              "inclVat": 130.93
+            }
           }
         }
       ],
@@ -174,12 +172,28 @@
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
             "beckn:paidAt": "2025-12-19T10:05:00Z",
             "beckn:beneficiary": "BPP"
+          }
+        },
+        {
+          "id": "settlement-002",
+          "considerationId": "consideration-001",
+          "status": "COMPLETE",
+          "settlementAttributes": {
+            "@context": "https://schema.nfh.global/Payment/v2.0/context.jsonld",
+            "@type": "Payment",
+            "beckn:id": "refund-001",
+            "beckn:paymentStatus": "REFUNDED",
+            "beckn:amount": {
+              "currency": "INR",
+              "value": 13.5
+            },
+            "beckn:beneficiary": "BUYER"
           }
         }
       ]

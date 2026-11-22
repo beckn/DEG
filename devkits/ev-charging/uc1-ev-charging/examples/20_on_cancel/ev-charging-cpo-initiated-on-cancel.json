@@ -8,7 +8,7 @@
     "bppId": "bpp.example.com",
     "bppUri": "https://bpp.example.com",
     "transactionId": "2b4d69aa-22e4-4c78-9f56-5a7b9e2b2002",
-    "messageId": "0033302d-82cb-5c62-b077-44fde8050b18",
+    "messageId": "62c6dd83-ecae-5671-bfbb-0d1002154575",
     "timestamp": "2025-01-27T09:55:00Z",
     "ttl": "PT30S"
   },
@@ -104,25 +104,25 @@
             "@context": "https://schema.nfh.global/PriceSpecification/v2.1/context.jsonld",
             "@type": "PriceSpecification",
             "currency": "INR",
-            "value": 143.95,
+            "value": 144.43,
             "components": [
               {
                 "type": "UNIT",
                 "value": 112.5,
                 "currency": "INR",
-                "description": "Base charging session cost (45 INR/kWh × 2.5 kWh)"
+                "description": "Charging energy (45 INR/kWh x 2.5 kWh)"
               },
               {
                 "type": "SURCHARGE",
-                "value": 20.0,
+                "value": 22.5,
                 "currency": "INR",
-                "description": "Surge price (20%)"
+                "description": "Surge price (20% of energy cost)"
               },
               {
                 "type": "DISCOUNT",
-                "value": -15.0,
+                "value": -16.88,
                 "currency": "INR",
-                "description": "Offer discount (15%)"
+                "description": "Offer discount (15% of energy cost)"
               },
               {
                 "type": "FEE",
@@ -132,15 +132,15 @@
               },
               {
                 "type": "FEE",
-                "value": 13.64,
+                "value": 13.5,
                 "currency": "INR",
-                "description": "Overcharge estimation"
+                "description": "Overcharge estimate (0.3 kWh, refunded if unused)"
               },
               {
                 "type": "FEE",
                 "value": 2.81,
                 "currency": "INR",
-                "description": "Buyer finder fee (2.5%)"
+                "description": "Buyer finder fee (2.5% of energy cost)"
               }
             ]
           }
@@ -158,7 +158,7 @@
             "beckn:paymentStatus": "COMPLETED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:paymentURL": "https://payments.bluechargenet-aggregator.io/pay?transaction_id=$transaction_id&amount=$amount",
             "beckn:txnRef": "TXN-123456789",
@@ -177,7 +177,7 @@
             "beckn:paymentStatus": "REFUNDED",
             "beckn:amount": {
               "currency": "INR",
-              "value": 143.95
+              "value": 144.43
             },
             "beckn:txnRef": "RFND-TXN-123456792",
             "beckn:paidAt": "2025-01-27T09:55:00Z",
